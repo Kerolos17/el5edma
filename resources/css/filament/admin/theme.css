@@ -1,0 +1,346 @@
+/* ─── Fonts ─────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap");
+
+@import "../../../../vendor/filament/filament/resources/css/theme.css";
+
+/* ─── Tailwind Sources ───────────────────────────────────── */
+@source "../../../../resources/views/**/*.blade.php";
+@source "../../../../app/Filament/**/*.php";
+
+/* ─── Modern Blue Palette Tokens ────────────────────────── */
+:root {
+    /* الألوان الأساسية */
+    --color-primary-600: #0073a3;
+    --color-primary-500: #0089c2;
+    --color-primary-50: #eef6fb;
+
+    /* خلفية دافئة مريحة للعين — بيج فاتح بدل الأبيض الصارخ */
+    --bg-canvas: #f4f1ee;
+    --bg-surface: #faf9f7;
+    --color-gray-900: #1a1a2e;
+    --color-gray-600: #4a5568;
+    --color-gray-400: #9aa5b4;
+    --color-gray-100: #ede9e4;
+
+    /* رأس الجدول — أزرق ناعم بدل الداكن الثقيل */
+    --color-table-header: #2d6a8a;
+
+    /* ظلال أنعم */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-md:
+        0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+
+    --radius-lg: 12px;
+    --radius-md: 8px;
+}
+
+/* ─── Global Styles ─────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    font-family: "Cairo", sans-serif !important;
+}
+
+body {
+    background-color: var(--bg-canvas) !important;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────── */
+.fi-sidebar {
+    background-color: var(--bg-surface) !important;
+    border-inline-end: 1px solid var(--color-gray-100) !important;
+}
+
+/* نصوص القائمة الجانبية لتكون مقروءة */
+.fi-sidebar-item-button {
+    color: #475569 !important;
+    margin-inline: 12px !important;
+    border-radius: 8px !important;
+}
+
+.fi-sidebar-item-button:hover {
+    background-color: var(--color-primary-50) !important;
+    color: var(--color-primary-600) !important;
+}
+
+.fi-sidebar-item-button.fi-active {
+    background-color: var(--color-primary-50) !important;
+    color: var(--color-primary-600) !important;
+    font-weight: 700 !important;
+}
+
+/* ─── Topbar ─────────────────────────────────────────────── */
+.fi-topbar {
+    background-color: var(--bg-surface) !important;
+    border-bottom: 1px solid var(--color-gray-100) !important;
+}
+
+/* ─── Cards & Sections ────────────────────────────────────── */
+.fi-card,
+.fi-section,
+.fi-ta-table {
+    border: none !important;
+    box-shadow: var(--shadow-md) !important;
+    border-radius: var(--radius-lg) !important;
+    background-color: var(--bg-surface) !important;
+}
+
+/* رأس الجدول — أزرق ناعم مريح */
+.fi-ta-header-cell {
+    background-color: var(--color-table-header) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    padding: 14px !important;
+}
+
+/* ─── Dark Mode (إصلاح شامل للوضع الليلي) ────────────────── */
+.dark body {
+    background-color: #0b1120 !important;
+}
+
+.dark .fi-sidebar {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}
+
+.dark .fi-topbar {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}
+
+.dark .fi-sidebar-item-button {
+    color: #94a3b8 !important;
+}
+
+.dark .fi-card,
+.dark .fi-section,
+.dark .fi-ta-table {
+    background-color: #111827 !important;
+    border: 1px solid #1e293b !important;
+}
+
+.dark .fi-ta-row:nth-child(even) {
+    background-color: #161e2e !important;
+}
+
+.dark .fi-input {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+.dark .fi-select-input {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+/* ─── Responsive (متجاوب مع جميع الشاشات) ────────────────── */
+@media (max-width: 768px) {
+    .fi-page {
+        padding: 16px !important;
+    }
+
+    .fi-wi-stats-overview-stat {
+        padding: 16px !important;
+    }
+
+    .fi-wi-stats-overview-stat-value {
+        font-size: 24px !important;
+    }
+}
+.fi-main,
+.fi-simple-main {
+    &.fi-width-lg {
+        max-width: 100% !important;
+    }
+}
+
+/* ─── Login Page ─────────────────────────────────────────── */
+.login-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+    .login-card {
+        min-height: 520px;
+    }
+}
+
+.sidebar-panel {
+    background: linear-gradient(160deg, #0073a3 0%, #005a82 60%, #003d5c 100%);
+    border-radius: 20px 20px 0 0;
+    max-height: 80px;
+}
+
+@media (min-width: 768px) {
+    .sidebar-panel {
+        border-radius: 20px 0 0 20px;
+        max-height: unset;
+    }
+
+    [dir="rtl"] .sidebar-panel {
+        border-radius: 0 20px 20px 0;
+    }
+}
+
+.tab-pill {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.tab-pill.active {
+    background: #ffffff;
+    color: #0073a3;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-pill:not(.active):hover {
+    color: #0073a3;
+}
+
+.input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.fi-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #1e293b;
+    background: #f8fafc;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+    outline: none;
+}
+
+.fi-input:focus {
+    border-color: #0073a3;
+    box-shadow: 0 0 0 3px rgba(0, 115, 163, 0.12);
+    background: #ffffff;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #0073a3, #005a82);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition:
+        opacity 0.2s,
+        transform 0.1s;
+}
+
+.btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-msg {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 4px;
+}
+
+.code-input {
+    width: 40px;
+    height: 48px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #1e293b;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+    outline: none;
+}
+
+@media (min-width: 400px) {
+    .code-input {
+        width: 44px;
+        height: 52px;
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 768px) {
+    .code-input {
+        width: 48px;
+        height: 56px;
+        font-size: 22px;
+    }
+}
+
+.code-input:focus {
+    border-color: #0073a3;
+    box-shadow: 0 0 0 3px rgba(0, 115, 163, 0.12);
+    background: #ffffff;
+}
+
+/* Dark mode — login */
+.dark .login-card {
+    background: #111827;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.dark .input-label {
+    color: #cbd5e1;
+}
+
+.dark .fi-input {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+.dark .fi-input:focus {
+    border-color: #0089c2;
+    background: #1e293b;
+}
+
+.dark .code-input {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+.dark .code-input:focus {
+    border-color: #0089c2;
+    background: #1e293b;
+}
+
+.dark .tab-pill.active {
+    background: #1e293b;
+    color: #38bdf8;
+}

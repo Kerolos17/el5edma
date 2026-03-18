@@ -1,0 +1,130 @@
+<?php
+namespace App\Filament\Resources\Users\Tables;
+
+use App\Models\User;
+use App\Services\CacheService;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+
+class UsersTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label(__('users.name'))
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('email')
+                    ->label(__('users.email'))
+                    ->searchable()
+                    ->copyable(),
+
+                TextColumn::make('role')
+                    ->label(__('users.role'))
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'super_admin'    => 'danger',
+                        'service_leader' => 'warning',
+                        'family_leader'  => 'info',
+                        'servant'        => 'success',
+                        default          => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => __("users.{$state}")),
+
+                TextColumn::make('serviceGroup.name')
+                    ->label(__('users.service_group'))
+                    ->placeholder('-'),
+
+                TextColumn::make('personal_code')
+                    ->label(__('users.personal_code'))
+                    ->fontFamily('mono')
+                    ->copyable()
+                    ->visible(fn() => Auth::user()?->role === 'super_admin'),
+
+                IconColumn::make('is_active')
+                    ->label(__('users.is_active'))
+                    ->boolean(),
+
+                TextColumn::make('last_login_at')
+                    ->label(__('users.last_login_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->placeholder('-'),
+            ])
+            ->filters([
+                SelectFilter::make('role')
+                    ->label(__('users.role'))
+                    ->options([
+                        'super_admin'    => __('users.super_admin'),
+                        'service_leader' => __('users.service_leader'),
+                        'family_leader'  => __('users.family_leader'),
+                        'servant'        => __('users.servant'),
+                    ]),
+
+                SelectFilter::make('service_group_id')
+                    ->label(__('users.service_group'))
+                    ->options(fn() => CacheService::getServiceGroups()),
+
+                TernaryFilter::make('is_active')
+                    ->label(__('users.is_active')),
+            ])
+            ->recordActions([
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+
+                    Action::make('generate_code')
+                        ->label(__('users.generate_code'))
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->visible(fn() => Auth::user()?->role === 'super_admin')
+                        ->requiresConfirmation()
+                        ->action(function (User $record) {
+                            do {
+                                $code = (string) random_int(1000, 999999);
+                            } while (User::where('personal_code', $code)->exists());
+
+                            $record->update(['personal_code' => $code]);
+
+                            Notification::make()
+                                ->title(__('users.personal_code') . ': ' . $code)
+                                ->success()
+                                ->send();
+                        }),
+
+                    DeleteAction::make()
+                        ->before(function (User $record, DeleteAction $action) {
+                            if ($record->id === Auth::id()) {
+                                Notification::make()
+                                    ->title(__('users.cannot_delete_self'))
+                                    ->danger()
+                                    ->send();
+
+                                $action->cancel();
+                            }
+                        }),
+                ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+}

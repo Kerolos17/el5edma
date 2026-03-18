@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'medications_title' => 'Medications',
+    'medication_name'   => 'Medication Name',
+    'dosage'            => 'Dosage',
+    'frequency'         => 'Times per day',
+    'timing'            => 'Timing',
+    'morning'           => 'Morning',
+    'evening'           => 'Evening',
+    'with_food'         => 'With Food',
+    'as_needed'         => 'As Needed',
+    'is_active'         => 'Active',
+    'notes'             => 'Notes',
+    'files_title'       => 'Medical Files',
+    'file_title'        => 'File Title',
+    'file_type'         => 'File Type',
+    'report'            => 'Report',
+    'image'             => 'Image',
+    'document'          => 'Document',
+    'upload_file'       => 'Upload File',
+    'uploaded_by'       => 'Uploaded by',
+    'uploaded_at'       => 'Uploaded at',
+];
