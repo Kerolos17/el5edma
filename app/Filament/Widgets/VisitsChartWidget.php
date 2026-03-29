@@ -50,18 +50,25 @@ class VisitsChartWidget extends ChartWidget
             $baseQuery->where('created_by', $user->id);
         }
 
-        // Execute exactly 12 queries (6 months × 2 visit types)
+        // Single query with GROUP BY instead of 12 separate queries
+        $startDate = now()->subMonths(5)->startOfMonth();
+        $rawData = (clone $baseQuery)
+            ->selectRaw('YEAR(visit_date) as y, MONTH(visit_date) as m, type, COUNT(*) as total')
+            ->where('visit_date', '>=', $startDate)
+            ->groupByRaw('YEAR(visit_date), MONTH(visit_date), type')
+            ->get()
+            ->groupBy(fn($row) => $row->y . '-' . $row->m);
+
         foreach ($months as $month) {
             $labels[] = App::isLocale('ar')
                 ? $arMonths[$month->month]
                 : $month->format('M Y');
 
-            $monthQuery = (clone $baseQuery)
-                ->whereYear('visit_date', $month->year)
-                ->whereMonth('visit_date', $month->month);
+            $key = $month->year . '-' . $month->month;
+            $group = $rawData->get($key, collect());
 
-            $visits[] = (clone $monthQuery)->where('type', 'home_visit')->count();
-            $calls[]  = (clone $monthQuery)->where('type', 'phone_call')->count();
+            $visits[] = (int) $group->where('type', 'home_visit')->first()?->total ?? 0;
+            $calls[]  = (int) $group->where('type', 'phone_call')->first()?->total ?? 0;
         }
 
         return [

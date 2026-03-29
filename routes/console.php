@@ -19,3 +19,9 @@ Schedule::command('reminders:unvisited')
     ->weeklyOn(5, '10:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+// تنظيف الإشعارات المقروءة القديمة — كل جمعة منتصف الليل
+Schedule::command('notifications:cleanup')
+    ->weeklyOn(5, '00:00')
+    ->withoutOverlapping()
+    ->runInBackground();

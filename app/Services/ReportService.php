@@ -36,7 +36,7 @@ class ReportService
             $query->where('assigned_servant_id', $user->id);
         }
 
-        $beneficiaries = $query->limit(1000)->get();
+        $beneficiaries = $query->limit(500)->get();
         $isAr          = app()->getLocale() === 'ar';
 
         $html = view('reports.beneficiaries-pdf', compact('beneficiaries', 'isAr', 'user'))->render();
@@ -70,7 +70,7 @@ class ReportService
             $query->whereDate('visit_date', '<=', $dateTo);
         }
 
-        $visits = $query->limit(1000)->get();
+        $visits = $query->limit(500)->get();
         $isAr   = app()->getLocale() === 'ar';
 
         $html = view('reports.visits-pdf', compact('visits', 'isAr', 'user', 'dateFrom', 'dateTo'))->render();
@@ -104,7 +104,7 @@ class ReportService
                 fn($q) => $q->where('assigned_servant_id', $user->id)
             );
 
-        $beneficiaries = $query->limit(1000)->get();
+        $beneficiaries = $query->limit(500)->get();
         $isAr          = app()->getLocale() === 'ar';
         $html          = view('reports.unvisited-pdf', compact('beneficiaries', 'isAr', 'user'))->render();
 

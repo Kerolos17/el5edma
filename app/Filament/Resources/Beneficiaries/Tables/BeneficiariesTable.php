@@ -82,23 +82,22 @@ class BeneficiariesTable
                             ? __("beneficiaries.{$state}") : '—'
                     ),
 
-                // آخر زيارة — محسوبة ديناميكياً
+                // آخر زيارة — من withMax المحسوب في Resource (بدون queries إضافية)
                 TextColumn::make('last_visit_date')
                     ->label(__('beneficiaries.last_visit'))
-                    ->getStateUsing(fn($record) => $record->visits()->max('visit_date'))
+                    ->getStateUsing(fn($record) => $record->visits_max_visit_date)
                     ->formatStateUsing(function ($state) {
                         if (! $state) {
                             return app()->getLocale() === 'ar' ? 'لم يُزَر' : 'Never';
                         }
                         $days  = (int) now()->diffInDays(Carbon::parse($state));
-                        $label = app()->getLocale() === 'ar'
+                        return app()->getLocale() === 'ar'
                             ? "منذ {$days} يوم"
                             : "{$days} days ago";
-                        return $label;
                     })
                     ->badge()
                     ->color(function ($record) {
-                        $last = $record->visits()->max('visit_date');
+                        $last = $record->visits_max_visit_date;
                         if (! $last) {
                             return 'danger';
                         }
