@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Visits\Pages;
 use App\Filament\Resources\Visits\VisitResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class EditVisit extends EditRecord
@@ -16,7 +17,7 @@ class EditVisit extends EditRecord
         return [
             DeleteAction::make()
                 ->visible(fn () => ! $this->record->is_critical
-                    && Auth::user()?->role === 'super_admin'
+                    && Auth::user()?->role === UserRole::SuperAdmin
                 ),
         ];
     }

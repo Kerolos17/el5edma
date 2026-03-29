@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
@@ -47,7 +48,7 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->role === 'super_admin';
+        return Auth::user()?->role === UserRole::SuperAdmin;
     }
 
     public static function form(Schema $schema): Schema

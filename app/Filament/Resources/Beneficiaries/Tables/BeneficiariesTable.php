@@ -17,6 +17,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class BeneficiariesTable
@@ -274,7 +275,7 @@ class BeneficiariesTable
                     EditAction::make()
                         ->visible(fn() => in_array(
                             Auth::user()?->role,
-                            ['super_admin', 'service_leader', 'family_leader']
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                         )),
 
                     Action::make('whatsapp_beneficiary')
@@ -305,14 +306,14 @@ class BeneficiariesTable
                     DeleteAction::make()
                         ->visible(fn() => in_array(
                             Auth::user()?->role,
-                            ['super_admin', 'service_leader', 'family_leader']
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                         )),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('full_name');

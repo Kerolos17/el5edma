@@ -1,6 +1,7 @@
 <?php
 namespace App\Exports;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Visit;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -24,11 +25,11 @@ class VisitsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
     {
         $query = Visit::with(['beneficiary.serviceGroup', 'createdBy']);
 
-        if ($this->user->role === 'family_leader') {
+        if ($this->user->role === UserRole::FamilyLeader) {
             $query->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $this->user->service_group_id)
             );
-        } elseif ($this->user->role === 'servant') {
+        } elseif ($this->user->role === UserRole::Servant) {
             $query->where('created_by', $this->user->id);
         }
 

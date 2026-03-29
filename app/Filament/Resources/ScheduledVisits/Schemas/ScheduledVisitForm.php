@@ -10,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduledVisitForm
@@ -26,9 +27,9 @@ class ScheduledVisitForm
                             $user = Auth::user();
                             $query = Beneficiary::where('status', 'active');
 
-                            if ($user->role === 'family_leader') {
+                            if ($user->role === UserRole::FamilyLeader) {
                                 $query->where('service_group_id', $user->service_group_id);
-                            } elseif ($user->role === 'servant') {
+                            } elseif ($user->role === UserRole::Servant) {
                                 $query->where('assigned_servant_id', $user->id);
                             }
 
@@ -40,11 +41,11 @@ class ScheduledVisitForm
                     Select::make('assigned_servant_id')
                         ->label(__('beneficiaries.assigned_servant'))
                         ->options(
-                            User::where('role', 'servant')
+                            User::where('role', UserRole::Servant)
                                 ->where('is_active', true)
                                 ->pluck('name', 'id')
                         )
-                        ->default(fn () => Auth::user()->role === 'servant' ? Auth::id() : null)
+                        ->default(fn () => Auth::user()->role === UserRole::Servant ? Auth::id() : null)
                         ->searchable()
                         ->required(),
 

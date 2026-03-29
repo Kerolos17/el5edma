@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -42,11 +43,11 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // super_admin — كل الصلاحيات
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $superAdmin = Role::firstOrCreate(['name' => UserRole::SuperAdmin->value]);
         $superAdmin->syncPermissions($permissions);
 
         // service_leader
-        $serviceLeader = Role::firstOrCreate(['name' => 'service_leader']);
+        $serviceLeader = Role::firstOrCreate(['name' => UserRole::ServiceLeader->value]);
         $serviceLeader->syncPermissions([
             'view-all-beneficiaries', 'view-all-visits',
             'view-medical-data', 'view-family-data',
@@ -56,7 +57,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // family_leader
-        $familyLeader = Role::firstOrCreate(['name' => 'family_leader']);
+        $familyLeader = Role::firstOrCreate(['name' => UserRole::FamilyLeader->value]);
         $familyLeader->syncPermissions([
             'view-group-beneficiaries', 'create-beneficiary',
             'edit-beneficiary', 'view-medical-data', 'edit-medical-data',
@@ -66,7 +67,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // servant
-        $servant = Role::firstOrCreate(['name' => 'servant']);
+        $servant = Role::firstOrCreate(['name' => UserRole::Servant->value]);
         $servant->syncPermissions([
             'view-own-beneficiaries', 'view-medical-data',
             'view-family-data', 'create-visit',

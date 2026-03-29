@@ -6,6 +6,7 @@ use App\Models\Visit;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class CriticalCasesWidget extends BaseWidget
@@ -27,11 +28,11 @@ class CriticalCasesWidget extends BaseWidget
             ->where('is_critical', true)
             ->whereNull('critical_resolved_at');
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->whereHas('beneficiary', fn ($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             );
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('created_by', $user->id);
         }
 
@@ -63,7 +64,7 @@ class CriticalCasesWidget extends BaseWidget
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn () => in_array(Auth::user()?->role, [
-                        'super_admin', 'service_leader', 'family_leader',
+                        UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader,
                     ]))
                     ->action(fn ($record) => $record->update([
                         'critical_resolved_at' => now(),

@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class MedicalFileForm
@@ -24,9 +25,9 @@ class MedicalFileForm
                             $user  = Auth::user();
                             $query = Beneficiary::where('status', 'active');
 
-                            if ($user->role === 'family_leader') {
+                            if ($user->role === UserRole::FamilyLeader) {
                                 $query->where('service_group_id', $user->service_group_id);
-                            } elseif ($user->role === 'servant') {
+                            } elseif ($user->role === UserRole::Servant) {
                                 $query->where('assigned_servant_id', $user->id);
                             }
 

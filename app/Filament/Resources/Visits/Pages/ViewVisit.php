@@ -5,6 +5,7 @@ use App\Filament\Resources\Visits\VisitResource;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ViewVisit extends ViewRecord
@@ -17,7 +18,7 @@ class ViewVisit extends ViewRecord
             EditAction::make()
                 ->visible(fn() => \App\Helpers\PermissionHelper::canModify()
                     && (! $this->record->is_critical
-                        || in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader']))
+                        || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
                 ),
 
             Action::make('resolve_critical')
@@ -27,7 +28,7 @@ class ViewVisit extends ViewRecord
                 ->requiresConfirmation()
                 ->visible(fn() => $this->record->is_critical
                     && is_null($this->record->critical_resolved_at)
-                    && in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader'])
+                    && in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader])
                 )
                 ->action(function () {
                     $this->record->update([

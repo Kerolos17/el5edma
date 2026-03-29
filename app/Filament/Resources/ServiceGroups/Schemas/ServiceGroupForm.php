@@ -8,6 +8,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use App\Enums\UserRole;
 use Filament\Schemas\Schema;
 
 class ServiceGroupForm
@@ -39,7 +40,7 @@ class ServiceGroupForm
                     Select::make('leader_id')
                         ->label(__('service_groups.leader'))
                         ->options(
-                            User::where('role', 'family_leader')
+                            User::where('role', UserRole::FamilyLeader)
                                 ->where('is_active', true)
                                 ->pluck('name', 'id')
                         )
@@ -49,7 +50,7 @@ class ServiceGroupForm
                     Select::make('service_leader_id')
                         ->label(__('service_groups.service_leader'))
                         ->options(
-                            User::where('role', 'service_leader')
+                            User::where('role', UserRole::ServiceLeader)
                                 ->where('is_active', true)
                                 ->pluck('name', 'id')
                         )

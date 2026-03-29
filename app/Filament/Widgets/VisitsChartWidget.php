@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 use App\Models\Visit;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\App;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitsChartWidget extends ChartWidget
@@ -41,11 +42,11 @@ class VisitsChartWidget extends ChartWidget
         // Build base query with role-based scoping
         $baseQuery = Visit::query();
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $baseQuery->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             );
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $baseQuery->where('created_by', $user->id);
         }
 

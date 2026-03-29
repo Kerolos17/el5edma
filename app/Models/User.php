@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,12 +16,12 @@ class User extends Authenticatable implements FilamentUser
 
     protected $fillable = [
         'name', 'email', 'password', 'phone',
-        'personal_code', 'fcm_token', 'role',
+        'personal_code', 'personal_code_hash', 'fcm_token', 'role',
         'service_group_id', 'locale', 'is_active', 'last_login_at',
     ];
 
     protected $hidden = [
-        'password', 'remember_token', 'fcm_token',
+        'password', 'remember_token', 'fcm_token', 'personal_code_hash',
     ];
 
     protected function casts(): array
@@ -30,7 +31,18 @@ class User extends Authenticatable implements FilamentUser
             'last_login_at'     => 'datetime',
             'is_active'         => 'boolean',
             'password'          => 'hashed',
+            'personal_code'     => 'encrypted',
+            'role'              => UserRole::class,
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (User $user) {
+            if ($user->isDirty('personal_code') && $user->personal_code !== null) {
+                $user->personal_code_hash = hash('sha256', $user->personal_code);
+            }
+        });
     }
 
     // ── Relationships ──
@@ -59,22 +71,22 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->role === UserRole::SuperAdmin;
     }
 
     public function isServiceLeader(): bool
     {
-        return $this->role === 'service_leader';
+        return $this->role === UserRole::ServiceLeader;
     }
 
     public function isFamilyLeader(): bool
     {
-        return $this->role === 'family_leader';
+        return $this->role === UserRole::FamilyLeader;
     }
 
     public function isServant(): bool
     {
-        return $this->role === 'servant';
+        return $this->role === UserRole::Servant;
     }
 
     // ── Filament ──

@@ -8,6 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -57,7 +58,7 @@ class UserForm
                         ])
                         ->required()
                         ->live()
-                        ->afterStateUpdated(fn ($state, callable $set) => in_array($state, ['super_admin', 'service_leader'])
+                        ->afterStateUpdated(fn ($state, callable $set) => in_array($state, [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])
                                 ? $set('service_group_id', null)
                                 : null
                         ),
@@ -69,7 +70,7 @@ class UserForm
                         )
                         ->searchable()
                         ->nullable()
-                        ->visible(fn ($get) => in_array($get('role'), ['family_leader', 'servant'])),
+                        ->visible(fn ($get) => in_array($get('role'), [UserRole::FamilyLeader->value, UserRole::Servant->value])),
 
                     Select::make('locale')
                         ->label(__('users.locale'))
@@ -93,6 +94,6 @@ class UserForm
                         ->readOnly()
                         ->maxLength(10),
                 ])
-                ->visible(fn () => Auth::check() && Auth::user()->role === 'super_admin')]);
+                ->visible(fn () => Auth::check() && Auth::user()->role === UserRole::SuperAdmin)]);
     }
 }

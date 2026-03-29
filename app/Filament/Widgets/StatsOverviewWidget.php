@@ -5,6 +5,7 @@ use App\Models\Beneficiary;
 use App\Models\Visit;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class StatsOverviewWidget extends BaseWidget
@@ -19,12 +20,12 @@ class StatsOverviewWidget extends BaseWidget
         $beneficiaryQuery = Beneficiary::query();
         $visitQuery       = Visit::query();
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $beneficiaryQuery->where('service_group_id', $user->service_group_id);
             $visitQuery->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             );
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $beneficiaryQuery->where('assigned_servant_id', $user->id);
             $visitQuery->where('created_by', $user->id);
         }

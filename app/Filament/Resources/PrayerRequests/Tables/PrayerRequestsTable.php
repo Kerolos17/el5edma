@@ -11,6 +11,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class PrayerRequestsTable
@@ -101,7 +102,7 @@ class PrayerRequestsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

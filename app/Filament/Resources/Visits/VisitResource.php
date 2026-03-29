@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitResource extends Resource
@@ -58,11 +59,11 @@ class VisitResource extends Resource
 
         // Apply role-based scoping first
         $query = match ($user?->role) {
-            'family_leader' => $query->whereHas('beneficiary', fn($q) =>
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             ),
-            'servant'       => $query->where('created_by', $user->id),
-            default         => $query,
+            UserRole::Servant      => $query->where('created_by', $user->id),
+            default                => $query,
         };
 
         // Apply eager loading after scoping

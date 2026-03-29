@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\Beneficiary;
 use App\Services\ReportService;
@@ -36,10 +37,10 @@ class ReportController extends Controller
     {
         // تأكد إن المستخدم عنده صلاحية يشوف المخدوم ده
         $user = Auth::user();
-        if ($user->role === 'servant' && $beneficiary->assigned_servant_id !== $user->id) {
+        if ($user->role === UserRole::Servant && $beneficiary->assigned_servant_id !== $user->id) {
             abort(403);
         }
-        if ($user->role === 'family_leader' && $beneficiary->service_group_id !== $user->service_group_id) {
+        if ($user->role === UserRole::FamilyLeader && $beneficiary->service_group_id !== $user->service_group_id) {
             abort(403);
         }
 
@@ -50,7 +51,7 @@ class ReportController extends Controller
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
         $user = Auth::user();
-        if ($user->role === 'family_leader' && $serviceGroup->id !== $user->service_group_id) {
+        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
             abort(403);
         }
 
@@ -61,7 +62,7 @@ class ReportController extends Controller
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
         $user = Auth::user();
-        if ($user->role === 'family_leader' && $serviceGroup->id !== $user->service_group_id) {
+        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
             abort(403);
         }
 

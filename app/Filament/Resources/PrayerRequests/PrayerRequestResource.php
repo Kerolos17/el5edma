@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class PrayerRequestResource extends Resource
@@ -50,11 +51,11 @@ class PrayerRequestResource extends Resource
         $user  = Auth::user();
 
         return match ($user?->role) {
-            'family_leader' => $query->whereHas('beneficiary', fn($q) =>
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             ),
-            'servant'       => $query->where('created_by', $user->id),
-            default         => $query,
+            UserRole::Servant      => $query->where('created_by', $user->id),
+            default                => $query,
         };
     }
 

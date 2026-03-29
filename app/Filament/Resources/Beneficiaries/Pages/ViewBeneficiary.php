@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ViewBeneficiary extends ViewRecord
@@ -19,7 +20,7 @@ class ViewBeneficiary extends ViewRecord
             EditAction::make()
                 ->visible(fn() => in_array(
                     Auth::user()?->role,
-                    ['super_admin', 'service_leader', 'family_leader']
+                    [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                 )),
 
             Action::make('download_pdf')

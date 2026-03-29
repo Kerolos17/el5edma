@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,12 +18,12 @@ class AdminUserSeeder extends Seeder
                 'name'          => 'مدير النظام',
                 'password'      => Hash::make('Admin@1234'),
                 'personal_code' => '1111',
-                'role'          => 'super_admin',
+                'role'          => UserRole::SuperAdmin,
                 'locale'        => 'ar',
                 'is_active'     => true,
             ]
         );
-        $admin->syncRoles('super_admin');
+        $admin->syncRoles(UserRole::SuperAdmin->value);
 
         // service_leader
         $leader = User::updateOrCreate(
@@ -31,12 +32,12 @@ class AdminUserSeeder extends Seeder
                 'name'          => 'أمين الخدمة',
                 'password'      => Hash::make('Leader@1234'),
                 'personal_code' => '2222',
-                'role'          => 'service_leader',
+                'role'          => UserRole::ServiceLeader,
                 'locale'        => 'ar',
                 'is_active'     => true,
             ]
         );
-        $leader->syncRoles('service_leader');
+        $leader->syncRoles(UserRole::ServiceLeader->value);
 
         // family_leader
         $familyLeader = User::updateOrCreate(
@@ -45,12 +46,12 @@ class AdminUserSeeder extends Seeder
                 'name'          => 'أمين الأسرة',
                 'password'      => Hash::make('Family@1234'),
                 'personal_code' => '3333',
-                'role'          => 'family_leader',
+                'role'          => UserRole::FamilyLeader,
                 'locale'        => 'ar',
                 'is_active'     => true,
             ]
         );
-        $familyLeader->syncRoles('family_leader');
+        $familyLeader->syncRoles(UserRole::FamilyLeader->value);
 
         // servant
         $servant = User::updateOrCreate(
@@ -59,12 +60,12 @@ class AdminUserSeeder extends Seeder
                 'name'          => 'خادم',
                 'password'      => Hash::make('Servant@1234'),
                 'personal_code' => '4444',
-                'role'          => 'servant',
+                'role'          => UserRole::Servant,
                 'locale'        => 'ar',
                 'is_active'     => true,
             ]
         );
-        $servant->syncRoles('servant');
+        $servant->syncRoles(UserRole::Servant->value);
 
         $this->command->info('✅ Users seeded:');
         $this->command->table(

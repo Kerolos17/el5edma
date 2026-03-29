@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -29,9 +30,9 @@ class ReportService
         $query = Beneficiary::with(['serviceGroup', 'assignedServant'])
             ->where('status', 'active');
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 
@@ -53,11 +54,11 @@ class ReportService
     {
         $query = Visit::with(['beneficiary.serviceGroup', 'createdBy'])->latest('visit_date');
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->whereHas('beneficiary', fn($q) =>
                 $q->where('service_group_id', $user->service_group_id)
             );
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('created_by', $user->id);
         }
 
@@ -96,10 +97,10 @@ class ReportService
                         $vq->havingRaw('MAX(visit_date) < ?', [$cutoff]);
                     });
             })
-            ->when($user->role === 'family_leader',
+            ->when($user->role === UserRole::FamilyLeader,
                 fn($q) => $q->where('service_group_id', $user->service_group_id)
             )
-            ->when($user->role === 'servant',
+            ->when($user->role === UserRole::Servant,
                 fn($q) => $q->where('assigned_servant_id', $user->id)
             );
 
