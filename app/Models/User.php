@@ -31,7 +31,6 @@ class User extends Authenticatable implements FilamentUser
             'last_login_at'     => 'datetime',
             'is_active'         => 'boolean',
             'password'          => 'hashed',
-            'personal_code'     => 'encrypted',
             'role'              => UserRole::class,
         ];
     }
