@@ -28,7 +28,7 @@ class CodeLoginController extends Controller
             ]);
         }
 
-        Auth::login($user);
+        Auth::login($user); // No "remember me" — sessions expire on browser close for security
 
         $user->update(['last_login_at' => now()]);
 

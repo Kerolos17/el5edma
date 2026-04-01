@@ -12,8 +12,7 @@ class PermissionHelper
      */
     public static function canModify(): bool
     {
-        $user = Auth::user();
-        return in_array($user?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
+        return Auth::user()?->role?->isAdminLevel() ?? false;
     }
 
     /**
@@ -30,13 +29,5 @@ class PermissionHelper
     public static function isSuperAdmin(): bool
     {
         return Auth::user()?->role === UserRole::SuperAdmin;
-    }
-
-    /**
-     * Get allowed roles for modification
-     */
-    public static function modifyRoles(): array
-    {
-        return [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader];
     }
 }

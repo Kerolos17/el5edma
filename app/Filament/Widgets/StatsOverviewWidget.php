@@ -19,6 +19,7 @@ class StatsOverviewWidget extends BaseWidget
     protected function getStats(): array
     {
         $user   = Auth::user();
+        // $pageFilters is null until the dashboard filter form is submitted; default to 'week'
         $period = $this->filters['period'] ?? 'week';
 
         $cacheKey = "dashboard:stats:{$user->id}:{$period}";
@@ -113,8 +114,8 @@ class StatsOverviewWidget extends BaseWidget
     {
         $periodLabel = __("dashboard.{$period}");
         return $type === 'visits'
-            ? __('dashboard.visits_this_week') . ' — ' . $periodLabel
-            : __('dashboard.calls_this_week') . ' — ' . $periodLabel;
+            ? __('dashboard.visits_period', ['period' => $periodLabel])
+            : __('dashboard.calls_period', ['period' => $periodLabel]);
     }
 
     private function getTrendDescription(int $current, int $previous): string

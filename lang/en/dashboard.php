@@ -5,6 +5,8 @@ return [
     'total_beneficiaries' => 'Total Beneficiaries',
     'visits_this_week'    => 'Visits This Week',
     'calls_this_week'     => 'Calls This Week',
+    'visits_period'       => 'Visits — :period',
+    'calls_period'        => 'Calls — :period',
     'active_cases'        => 'Active Cases',
     'critical_cases'      => 'Critical Cases',
     'no_critical_cases'   => 'No open critical cases',

@@ -23,6 +23,11 @@ class FileAccessController extends Controller
         // Normalize and ensure the resolved path stays within the private disk root
         $normalizedPath = str_replace('\\', '/', $decodedPath);
         $realBase = realpath(Storage::disk('private')->path(''));
+
+        if ($realBase === false) {
+            abort(500); // Private disk root is misconfigured
+        }
+
         $realFile = realpath(Storage::disk('private')->path($normalizedPath));
 
         if ($realFile === false || !str_starts_with($realFile, $realBase)) {

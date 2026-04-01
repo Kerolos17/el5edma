@@ -5,6 +5,8 @@ return [
     'total_beneficiaries'  => 'إجمالي المخدومين',
     'visits_this_week'     => 'زيارات هذا الأسبوع',
     'calls_this_week'      => 'مكالمات هذا الأسبوع',
+    'visits_period'        => 'زيارات — :period',
+    'calls_period'         => 'مكالمات — :period',
     'active_cases'         => 'حالات نشطة',
     'critical_cases'       => 'الحالات الحرجة',
     'no_critical_cases'    => 'لا توجد حالات حرجة مفتوحة',

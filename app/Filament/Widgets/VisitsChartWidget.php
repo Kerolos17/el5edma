@@ -22,6 +22,7 @@ class VisitsChartWidget extends ChartWidget
     protected function getData(): array
     {
         $user   = Auth::user();
+        // $pageFilters is null until the dashboard filter form is submitted; default to 'week'
         $period = $this->filters['period'] ?? 'week';
 
         $baseQuery = Visit::query();
@@ -91,7 +92,7 @@ class VisitsChartWidget extends ChartWidget
         $startDate = now()->subWeeks(3)->startOfWeek();
 
         $rawData = (clone $baseQuery)
-            ->selectRaw('YEARWEEK(visit_date, 1) as yw, type, COUNT(*) as total')
+            ->selectRaw('YEARWEEK(visit_date, 3) as yw, type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
             ->groupByRaw('YEARWEEK(visit_date, 1), type')
             ->get()

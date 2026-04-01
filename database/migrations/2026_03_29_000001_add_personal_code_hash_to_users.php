@@ -15,12 +15,8 @@ return new class extends Migration
             });
         }
 
-        // Populate hash for existing codes
-        DB::table('users')->whereNotNull('personal_code')->eachById(function ($user) {
-            DB::table('users')->where('id', $user->id)->update([
-                'personal_code_hash' => hash('sha256', $user->personal_code),
-            ]);
-        });
+        // Populate hash for existing codes in a single query
+        DB::statement('UPDATE users SET personal_code_hash = SHA2(personal_code, 256) WHERE personal_code IS NOT NULL AND personal_code_hash IS NULL');
     }
 
     public function down(): void
