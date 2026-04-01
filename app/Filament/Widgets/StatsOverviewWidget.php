@@ -8,17 +8,24 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class StatsOverviewWidget extends BaseWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?int $sort = 1;
 
     protected function getStats(): array
     {
-        $user     = Auth::user();
-        $cacheKey = "dashboard:stats:{$user->id}";
+        $user   = Auth::user();
+        $period = $this->filters['period'] ?? 'week';
 
-        $stats = Cache::remember($cacheKey, 300, function () use ($user) {
+        $cacheKey = "dashboard:stats:{$user->id}:{$period}";
+
+        $stats = Cache::remember($cacheKey, 300, function () use ($user, $period) {
+            [$currentStart, $currentEnd, $previousStart, $previousEnd] = $this->getPeriodBounds($period);
+
             $beneficiaryQuery = Beneficiary::query();
             $visitQuery       = Visit::query();
 
@@ -32,17 +39,24 @@ class StatsOverviewWidget extends BaseWidget
                 $visitQuery->where('created_by', $user->id);
             }
 
-            $weekStart = now()->copy()->startOfWeek();
-            $weekEnd   = now()->copy()->endOfWeek();
+            $currentVisits = (clone $visitQuery)->where('type', 'home_visit')
+                ->whereBetween('visit_date', [$currentStart, $currentEnd])->count();
+            $currentCalls  = (clone $visitQuery)->where('type', 'phone_call')
+                ->whereBetween('visit_date', [$currentStart, $currentEnd])->count();
+
+            $previousVisits = (clone $visitQuery)->where('type', 'home_visit')
+                ->whereBetween('visit_date', [$previousStart, $previousEnd])->count();
+            $previousCalls  = (clone $visitQuery)->where('type', 'phone_call')
+                ->whereBetween('visit_date', [$previousStart, $previousEnd])->count();
 
             return [
-                'beneficiaries' => $beneficiaryQuery->where('status', 'active')->count(),
-                'visits'        => (clone $visitQuery)->where('type', 'home_visit')
-                    ->whereBetween('visit_date', [$weekStart, $weekEnd])->count(),
-                'calls'         => (clone $visitQuery)->where('type', 'phone_call')
-                    ->whereBetween('visit_date', [$weekStart, $weekEnd])->count(),
-                'critical'      => (clone $visitQuery)->where('is_critical', true)
+                'beneficiaries'  => $beneficiaryQuery->where('status', 'active')->count(),
+                'visits'         => $currentVisits,
+                'calls'          => $currentCalls,
+                'critical'       => (clone $visitQuery)->where('is_critical', true)
                     ->whereNull('critical_resolved_at')->count(),
+                'prev_visits'    => $previousVisits,
+                'prev_calls'     => $previousCalls,
             ];
         });
 
@@ -51,17 +65,88 @@ class StatsOverviewWidget extends BaseWidget
                 ->icon('heroicon-o-users')
                 ->color('primary'),
 
-            Stat::make(__('dashboard.visits_this_week'), $stats['visits'])
+            Stat::make($this->getPeriodLabel('visits', $period), $stats['visits'])
                 ->icon('heroicon-o-home')
-                ->color('success'),
+                ->color('success')
+                ->description($this->getTrendDescription($stats['visits'], $stats['prev_visits']))
+                ->descriptionIcon($this->getTrendIcon($stats['visits'], $stats['prev_visits']))
+                ->descriptionColor($this->getTrendColor($stats['visits'], $stats['prev_visits'])),
 
-            Stat::make(__('dashboard.calls_this_week'), $stats['calls'])
+            Stat::make($this->getPeriodLabel('calls', $period), $stats['calls'])
                 ->icon('heroicon-o-phone')
-                ->color('info'),
+                ->color('info')
+                ->description($this->getTrendDescription($stats['calls'], $stats['prev_calls']))
+                ->descriptionIcon($this->getTrendIcon($stats['calls'], $stats['prev_calls']))
+                ->descriptionColor($this->getTrendColor($stats['calls'], $stats['prev_calls'])),
 
             Stat::make(__('dashboard.critical_cases'), $stats['critical'])
                 ->icon('heroicon-o-exclamation-circle')
                 ->color($stats['critical'] > 0 ? 'danger' : 'success'),
         ];
+    }
+
+    private function getPeriodBounds(string $period): array
+    {
+        return match ($period) {
+            'month' => [
+                now()->startOfMonth(),
+                now()->endOfMonth(),
+                now()->subMonth()->startOfMonth(),
+                now()->subMonth()->endOfMonth(),
+            ],
+            'year' => [
+                now()->startOfYear(),
+                now()->endOfYear(),
+                now()->subYear()->startOfYear(),
+                now()->subYear()->endOfYear(),
+            ],
+            default => [ // week
+                now()->startOfWeek(),
+                now()->endOfWeek(),
+                now()->subWeek()->startOfWeek(),
+                now()->subWeek()->endOfWeek(),
+            ],
+        };
+    }
+
+    private function getPeriodLabel(string $type, string $period): string
+    {
+        $periodLabel = __("dashboard.{$period}");
+        return $type === 'visits'
+            ? __('dashboard.visits_this_week') . ' — ' . $periodLabel
+            : __('dashboard.calls_this_week') . ' — ' . $periodLabel;
+    }
+
+    private function getTrendDescription(int $current, int $previous): string
+    {
+        if ($previous === 0) {
+            return $current > 0
+                ? __('dashboard.increase', ['percent' => 100])
+                : __('dashboard.no_change');
+        }
+
+        $percent = round(abs($current - $previous) / $previous * 100);
+
+        if ($current > $previous) {
+            return __('dashboard.increase', ['percent' => $percent]);
+        } elseif ($current < $previous) {
+            return __('dashboard.decrease', ['percent' => $percent]);
+        }
+
+        return __('dashboard.no_change');
+    }
+
+    private function getTrendIcon(int $current, int $previous): ?string
+    {
+        if ($current > $previous) return 'heroicon-m-arrow-trending-up';
+        if ($current < $previous) return 'heroicon-m-arrow-trending-down';
+        return null;
+    }
+
+    private function getTrendColor(int $current, int $previous): string
+    {
+        if ($current > $previous) return 'success';
+        if ($current < $previous) return 'danger';
+        return 'gray';
     }
 }
