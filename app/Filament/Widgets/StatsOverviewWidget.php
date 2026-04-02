@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Widgets;
 
 use App\Models\Beneficiary;
@@ -21,8 +22,7 @@ class StatsOverviewWidget extends BaseWidget
 
         if ($user->role === 'family_leader') {
             $beneficiaryQuery->where('service_group_id', $user->service_group_id);
-            $visitQuery->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $visitQuery->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === 'servant') {
             $beneficiaryQuery->where('assigned_servant_id', $user->id);

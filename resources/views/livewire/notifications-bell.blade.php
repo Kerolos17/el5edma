@@ -1,4 +1,4 @@
-<div x-data="{ open: false }" class="relative flex items-center" wire:poll.30s="loadNotifications">
+<div x-data="{ open: false }" class="relative flex items-center" wire:poll.5s="loadNotifications">
 
     {{-- زر الجرس --}}
     <button @click="open = !open" type="button"
@@ -7,7 +7,7 @@
 
         @if ($unreadCount > 0)
             <span
-                class="absolute top-1 end-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                class="absolute top-1 inset-e-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
                 {{ $unreadCount > 9 ? '9+' : $unreadCount }}
             </span>
         @endif
@@ -18,7 +18,7 @@
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-12 end-0 z-50 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        class="absolute top-14 sm:top-12 inset-e-0 z-60 w-[90vw] sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
         style="display: none;">
         {{-- Header --}}
         <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
@@ -42,7 +42,8 @@
         {{-- قائمة الإشعارات --}}
         <div class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
             @forelse ($notifications as $notification)
-                <div wire:key="notification-{{ $notification['id'] }}" wire:click="markRead({{ $notification['id'] }})"
+                <div wire:key="notification-{{ $notification['id'] }}"
+                    wire:click="markRead({{ $notification['id'] }}, '{{ $notification['url'] ?? '' }}')"
                     class="flex gap-3 px-4 py-3 cursor-pointer transition
                         {{ $notification['read']
                             ? 'hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -50,39 +51,44 @@
                     style="{{ !$notification['read'] ? 'border-color: #0073A3;' : '' }}">
                     {{-- أيقونة النوع --}}
                     <div
-                        class="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-base
+                        class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-base
                         {{ match ($notification['type']) {
                             'birthday' => 'bg-amber-100',
                             'critical_case' => 'bg-red-100',
                             'visit_reminder' => 'bg-blue-100',
                             'unvisited_alert' => 'bg-amber-100',
                             'new_beneficiary' => 'bg-green-100',
+                            'servant_registered' => 'bg-blue-100',
                             default => 'bg-gray-100',
                         } }}
                     ">
                         @switch($notification['type'])
                             @case('birthday')
-                                🎂
+                                &#x1F382;
                             @break
 
                             @case('critical_case')
-                                🔴
+                                &#x1F534;
                             @break
 
                             @case('visit_reminder')
-                                📅
+                                &#x1F4C5;
                             @break
 
                             @case('unvisited_alert')
-                                ⏰
+                                &#x23F0;
                             @break
 
                             @case('new_beneficiary')
-                                ✨
+                                &#x2728;
+                            @break
+
+                            @case('servant_registered')
+                                &#x1F44B;
                             @break
 
                             @default
-                                🔔
+                                &#x1F514;
                             @break
                         @endswitch
                     </div>
@@ -101,8 +107,8 @@
                     </div>
 
                     @if (!$notification['read'])
-                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full self-start"
-                            style="background-color: #0073A3;"></div>
+                        <div class="shrink-0 w-2 h-2 mt-2 rounded-full self-start" style="background-color: #0073A3;">
+                        </div>
                     @endif
                 </div>
                 @empty
@@ -117,7 +123,7 @@
             <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
                 <a href="{{ route('filament.admin.resources.ministry-notifications.index') }}"
                     class="text-xs font-medium hover:opacity-80 transition" style="color: #0073A3;">
-                    {{ __('notifications.title') }} ←
+                    {{ __('notifications.title') }} &#x2190;
                 </a>
             </div>
         </div>

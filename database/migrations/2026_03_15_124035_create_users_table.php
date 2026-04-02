@@ -25,9 +25,9 @@ return new class extends Migration
                 'servant',
             ])->default('servant');
             $table->foreignId('service_group_id')
-                  ->nullable()
-                  ->constrained('service_groups')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('service_groups')
+                ->nullOnDelete();
             $table->enum('locale', ['ar', 'en'])->default('ar');
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();

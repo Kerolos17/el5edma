@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class MedicalFileResource extends Resource
@@ -44,23 +46,37 @@ class MedicalFileResource extends Resource
         return __('medical.files_title');
     }
 
-    // لا يسمح بالتعديل — immutable
-    public static function canEdit($record): bool
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canCreate(): bool
     {
-        return false;
+        return Auth::user()->can('create', MedicalFile::class);
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function canEdit($record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
+    }
+
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(['beneficiary', 'uploadedBy']);
         $user  = Auth::user();
 
         return match ($user?->role) {
-            'family_leader' => $query->whereHas('beneficiary', fn ($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            'family_leader' => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            'servant' => $query->whereHas('beneficiary', fn ($q) =>
-                $q->where('assigned_servant_id', $user->id)
+            'servant' => $query->whereHas('beneficiary', fn ($q) => $q->where('assigned_servant_id', $user->id),
             ),
             default => $query,
         };
@@ -88,22 +104,5 @@ class MedicalFileResource extends Resource
             'create' => CreateMedicalFile::route('/create'),
             'view'   => ViewMedicalFile::route('/{record}'),
         ];
-    }
-
-    // ── Authorization: الخادم للقراءة فقط ──
-
-    public static function canCreate(): bool
-    {
-        return \App\Helpers\PermissionHelper::canModify();
-    }
-
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return \App\Helpers\PermissionHelper::canModify();
-    }
-
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return true;
     }
 }

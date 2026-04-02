@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\Visits\Tables;
 
+use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -30,7 +32,7 @@ class VisitsTable
                     ->label(__('visits.type'))
                     ->badge()
                     ->color('info')
-                    ->formatStateUsing(fn($state) => __("visits.{$state}")),
+                    ->formatStateUsing(fn ($state) => __("visits.{$state}")),
 
                 TextColumn::make('visit_date')
                     ->label(__('visits.visit_date'))
@@ -40,14 +42,14 @@ class VisitsTable
                 TextColumn::make('beneficiary_status')
                     ->label(__('visits.beneficiary_status'))
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'great'        => 'success',
                         'good'         => 'info',
                         'needs_follow' => 'warning',
                         'critical'     => 'danger',
                         default        => 'gray',
                     })
-                    ->formatStateUsing(fn($state) => __("visits.{$state}")),
+                    ->formatStateUsing(fn ($state) => __("visits.{$state}")),
 
                 IconColumn::make('is_critical')
                     ->label(__('visits.is_critical'))
@@ -90,9 +92,9 @@ class VisitsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify()
+                        ->visible(fn ($record) => PermissionHelper::canModify()
                             && (! $record->is_critical
-                                || in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader']))
+                                || in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader'])),
                         ),
 
                     // إغلاق الحالة الحرجة
@@ -101,9 +103,9 @@ class VisitsTable
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->visible(fn($record) => $record->is_critical
+                        ->visible(fn ($record) => $record->is_critical
                             && is_null($record->critical_resolved_at)
-                            && in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader'])
+                            && in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader']),
                         )
                         ->action(function ($record) {
                             $record->update([
@@ -113,15 +115,15 @@ class VisitsTable
                         }),
 
                     DeleteAction::make()
-                        ->visible(fn($record) => ! $record->is_critical
-                            && Auth::user()?->role === 'super_admin'
+                        ->visible(fn ($record) => ! $record->is_critical
+                            && Auth::user()?->role === 'super_admin',
                         ),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn () => Auth::user()?->role === 'super_admin'),
                 ]),
             ])
             ->defaultSort('visit_date', 'desc');

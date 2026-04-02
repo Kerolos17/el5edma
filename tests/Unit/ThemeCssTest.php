@@ -14,7 +14,7 @@ class ThemeCssTest extends TestCase
     {
         parent::setUp();
         $this->css = file_get_contents(
-            dirname(__DIR__, 2) . '/resources/css/filament/admin/theme.css'
+            dirname(__DIR__, 2) . '/resources/css/filament/admin/theme.css',
         );
     }
 
@@ -80,7 +80,8 @@ class ThemeCssTest extends TestCase
 
     public function test_dark_login_card_has_correct_background(): void
     {
-        $this->assertMatchesRegularExpression('/\.dark\s+\.login-card\s*\{[^}]*#111827/s', $this->css);
+        // الـ CSS يستخدم var(--bg-surface-raised) بدل hardcoded hex — وهذا أفضل
+        $this->assertMatchesRegularExpression('/\.dark\s+\.login-card\s*\{[^}]*bg-surface-raised/s', $this->css);
     }
 
     public function test_sidebar_panel_base_rule_has_max_height(): void

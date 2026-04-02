@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -16,7 +15,8 @@ class CodeLoginController extends Controller
             'code' => ['required', 'string', 'min:4', 'max:6'],
         ]);
 
-        $user = User::where('personal_code', $request->code)
+        // personal_code مشفر — نبحث بالـ hash (blind index)
+        $user = User::where('personal_code_hash', hash('sha256', $request->code))
             ->where('is_active', true)
             ->first();
 

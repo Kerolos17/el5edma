@@ -24,7 +24,7 @@
             </p>
 
             {{-- الذهب الدافئ في الأسفل — مخفي على الموبايل --}}
-            <div class="hidden md:block mt-8 w-16 h-1 rounded-full" style="background: #CF9210; opacity: 0.6;"></div>
+            <div class="hidden md:block mt-8 w-16 h-1 rounded-full login-gold-accent"></div>
         </div>
 
         {{-- ── جانب النموذج ── --}}
@@ -175,6 +175,13 @@
                         {{ app()->getLocale() === 'ar' ? __('auth.switch_to_english') : __('auth.switch_to_arabic') }}
                     </button>
                 </form>
+            </div>
+
+            {{-- Registration Link --}}
+            <div class="mt-4 text-center">
+                <a href="{{ route('register.public') }}" class="text-sm text-blue-600 hover:text-blue-800 transition">
+                    {{ __('auth.no_account_register') }}
+                </a>
             </div>
 
         </div>

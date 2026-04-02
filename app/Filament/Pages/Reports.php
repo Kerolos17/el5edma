@@ -4,13 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Exports\BeneficiariesExport;
 use App\Exports\VisitsExport;
-use BackedEnum;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Reports extends Page implements HasForms
 {
@@ -22,9 +22,12 @@ class Reports extends Page implements HasForms
 
     protected static ?int $navigationSort = 3;
 
-    public ?string $dateFrom  = null;
-    public ?string $dateTo    = null;
-    public ?string $groupId   = null;
+    public ?string $dateFrom = null;
+
+    public ?string $dateTo = null;
+
+    public ?string $groupId = null;
+
     public ?string $servantId = null;
 
     public static function getNavigationGroup(): ?string
@@ -45,15 +48,15 @@ class Reports extends Page implements HasForms
     }
 
     // ── Excel — شغال مع Livewire ──
-    public function exportBeneficiariesExcel(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportBeneficiariesExcel(): BinaryFileResponse
     {
         return Excel::download(
             new BeneficiariesExport(Auth::user()),
-            'beneficiaries-' . now()->format('Y-m-d') . '.xlsx'
+            'beneficiaries-' . now()->format('Y-m-d') . '.xlsx',
         );
     }
 
-    public function exportVisitsExcel(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportVisitsExcel(): BinaryFileResponse
     {
         return Excel::download(
             new VisitsExport(
@@ -62,7 +65,7 @@ class Reports extends Page implements HasForms
                 dateTo: $this->dateTo,
                 groupId: $this->groupId,
             ),
-            'visits-' . now()->format('Y-m-d') . '.xlsx'
+            'visits-' . now()->format('Y-m-d') . '.xlsx',
         );
     }
 
@@ -78,6 +81,7 @@ class Reports extends Page implements HasForms
             'date_from' => $this->dateFrom,
             'date_to'   => $this->dateTo,
         ]);
+
         return route('reports.visits.pdf', $params);
     }
 

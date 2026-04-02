@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'title'                 => 'Notifications',
-    'mark_all_read'         => 'Mark all as read',
-    'no_notifications'      => 'No notifications',
+    'title'            => 'Notifications',
+    'mark_all_read'    => 'Mark all as read',
+    'no_notifications' => 'No notifications',
 
     'birthday_title'        => 'Upcoming Birthday 🎂',
     'birthday_body'         => ':name is turning :age in :days days',

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 class EagerLoadingService
@@ -80,8 +81,8 @@ class EagerLoadingService
             'serviceGroup',
             'assignedServant',
             'createdBy',
-            'medications' => fn($q) => $q->where('is_active', true),
-            'visits'      => fn($q)      => $q->latest('visit_date')->limit(10),
+            'medications' => fn ($q) => $q->where('is_active', true),
+            'visits'      => fn ($q) => $q->latest('visit_date')->limit(10),
             'visits.createdBy',
             'medicalFiles',
             'prayerRequests',

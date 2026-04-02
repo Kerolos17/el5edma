@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class MinistryNotificationResource extends Resource
@@ -36,7 +38,7 @@ class MinistryNotificationResource extends Resource
     }
 
     // كل user يشوف إشعاراته فقط
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id())
@@ -58,5 +60,32 @@ class MinistryNotificationResource extends Resource
         return [
             'index' => ListMinistryNotifications::route('/'),
         ];
+    }
+
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', MinistryNotification::class);
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('create', MinistryNotification::class);
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
     }
 }

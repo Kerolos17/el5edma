@@ -14,11 +14,16 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
-    {}
+    {
+        // تسجيل خدمات التسجيل الذاتي للخدام
+        $this->app->singleton(\App\Services\RegistrationLinkService::class);
+        $this->app->singleton(\App\Services\RegistrationService::class);
+    }
 
     public function boot(): void
     {
@@ -36,9 +41,9 @@ class AppServiceProvider extends ServiceProvider
         ServiceGroup::observe(ServiceGroupObserver::class);
 
         // تسجيل الـ Livewire component
-        \Livewire\Livewire::component(
-            'notifications-bell-widget',
-            \App\Filament\Widgets\NotificationsBellWidget::class
+        Livewire::component(
+            'notifications-bell',
+            \App\Livewire\NotificationsBell::class,
         );
 
         // Enable query monitoring in production

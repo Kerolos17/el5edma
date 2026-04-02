@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceGroupResource extends Resource
@@ -49,15 +50,13 @@ class ServiceGroupResource extends Resource
 
     public static function canAccess(): bool
     {
-        return in_array(Auth::user()?->role, [
-            'super_admin', 'service_leader', 'family_leader',
-        ]);
+        return Auth::user()->can('viewAny', ServiceGroup::class);
     }
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user = Auth::user();
+        $user  = Auth::user();
 
         // family_leader يشوف أسرته فقط
         if ($user?->role === 'family_leader') {
@@ -90,32 +89,32 @@ class ServiceGroupResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListServiceGroups::route('/'),
+            'index'  => ListServiceGroups::route('/'),
             'create' => CreateServiceGroup::route('/create'),
-            'view' => ViewServiceGroup::route('/{record}'),
-            'edit' => EditServiceGroup::route('/{record}/edit'),
+            'view'   => ViewServiceGroup::route('/{record}'),
+            'edit'   => EditServiceGroup::route('/{record}/edit'),
         ];
     }
 
-    // ── Authorization: فقط super_admin و service_leader ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
-        return in_array(Auth::user()?->role, ['super_admin', 'service_leader']);
+        return Auth::user()->can('create', ServiceGroup::class);
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
-        return in_array(Auth::user()?->role, ['super_admin', 'service_leader']);
+        return Auth::user()->can('update', $record);
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
-        return Auth::user()?->role === 'super_admin';
+        return Auth::user()->can('delete', $record);
     }
 
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

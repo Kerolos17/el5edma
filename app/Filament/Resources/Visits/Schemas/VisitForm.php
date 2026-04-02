@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Visits\Schemas;
 
 use App\Models\Beneficiary;
@@ -24,13 +23,13 @@ class VisitForm
                     Select::make('beneficiary_id')
                         ->label(__('visits.beneficiary'))
                         ->options(function () {
-                            $user = Auth::user();
+                            $user  = Auth::user();
                             $query = Beneficiary::where('status', 'active');
 
                             if ($user->role === 'family_leader') {
                                 $query->where('service_group_id', $user->service_group_id);
                             } elseif ($user->role === 'servant') {
-                                $query->where('assigned_servant_id', $user->id);
+                                $query->where('service_group_id', $user->service_group_id);
                             }
 
                             return $query->pluck('full_name', 'id');
@@ -113,9 +112,9 @@ class VisitForm
                     Toggle::make('is_critical')
                         ->label(__('visits.is_critical'))
                         ->live()
-                        ->helperText(fn ($get) => $get('is_critical')
-                            ? __('visits.critical_alert')
-                            : null
+                        ->helperText(fn($get) => $get('is_critical')
+                                ? __('visits.critical_alert')
+                                : null,
                         ),
 
                     Toggle::make('needs_family_leader')

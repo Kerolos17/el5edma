@@ -16,7 +16,7 @@ class EditVisit extends EditRecord
         return [
             DeleteAction::make()
                 ->visible(fn () => ! $this->record->is_critical
-                    && Auth::user()?->role === 'super_admin'
+                    && Auth::user()?->role === 'super_admin',
                 ),
         ];
     }

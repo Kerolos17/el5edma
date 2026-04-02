@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -99,6 +100,7 @@ class Beneficiary extends Model
             return null;
         }
         $clean = preg_replace('/[^0-9]/', '', $this->whatsapp ?? $this->phone);
+
         return "https://wa.me/2{$clean}";
     }
 
@@ -108,6 +110,7 @@ class Beneficiary extends Model
             return null;
         }
         $clean = preg_replace('/[^0-9]/', '', $this->guardian_phone);
+
         return "https://wa.me/2{$clean}";
     }
 

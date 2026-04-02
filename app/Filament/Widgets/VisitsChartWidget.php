@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Widgets;
 
 use App\Models\Visit;
@@ -10,7 +11,7 @@ class VisitsChartWidget extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    // protected ?string $maxHeight = '300px';  
+    // protected ?string $maxHeight = '300px';
 
     public function getHeading(): string
     {
@@ -32,9 +33,9 @@ class VisitsChartWidget extends ChartWidget
         $calls  = [];
 
         $arMonths = [
-            1  => 'يناير', 2   => 'فبراير', 3  => 'مارس',
-            4  => 'أبريل', 5   => 'مايو', 6    => 'يونيو',
-            7  => 'يوليو', 8   => 'أغسطس', 9   => 'سبتمبر',
+            1  => 'يناير', 2 => 'فبراير', 3 => 'مارس',
+            4  => 'أبريل', 5 => 'مايو', 6 => 'يونيو',
+            7  => 'يوليو', 8 => 'أغسطس', 9 => 'سبتمبر',
             10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر',
         ];
 
@@ -42,8 +43,7 @@ class VisitsChartWidget extends ChartWidget
         $baseQuery = Visit::query();
 
         if ($user->role === 'family_leader') {
-            $baseQuery->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $baseQuery->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === 'servant') {
             $baseQuery->where('created_by', $user->id);
@@ -80,7 +80,7 @@ class VisitsChartWidget extends ChartWidget
                     'borderWidth'     => 2,
                 ],
             ],
-            'labels'   => $labels,
+            'labels' => $labels,
         ];
     }
 

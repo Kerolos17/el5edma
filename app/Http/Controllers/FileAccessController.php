@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
-use League\Flysystem\StorageAttributes;
+use Illuminate\Support\Facades\Storage;
 
 class FileAccessController extends Controller
 {
@@ -14,7 +13,7 @@ class FileAccessController extends Controller
         $decodedPath = base64_decode($path);
 
         // Check if the file exists in the 'private' disk
-        if (!Storage::disk('private')->exists($decodedPath)) {
+        if (! Storage::disk('private')->exists($decodedPath)) {
             abort(404);
         }
 
@@ -23,6 +22,6 @@ class FileAccessController extends Controller
         $type = Storage::disk('private')->mimeType($decodedPath);
 
         // Return the file with the correct content type
-        return Response::make($file, 200)->header("Content-Type", $type);
+        return Response::make($file, 200)->header('Content-Type', $type);
     }
 }

@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
                 'role'          => 'super_admin',
                 'locale'        => 'ar',
                 'is_active'     => true,
-            ]
+            ],
         );
         $admin->syncRoles('super_admin');
 
@@ -34,7 +34,7 @@ class AdminUserSeeder extends Seeder
                 'role'          => 'service_leader',
                 'locale'        => 'ar',
                 'is_active'     => true,
-            ]
+            ],
         );
         $leader->syncRoles('service_leader');
 
@@ -48,7 +48,7 @@ class AdminUserSeeder extends Seeder
                 'role'          => 'family_leader',
                 'locale'        => 'ar',
                 'is_active'     => true,
-            ]
+            ],
         );
         $familyLeader->syncRoles('family_leader');
 
@@ -62,7 +62,7 @@ class AdminUserSeeder extends Seeder
                 'role'          => 'servant',
                 'locale'        => 'ar',
                 'is_active'     => true,
-            ]
+            ],
         );
         $servant->syncRoles('servant');
 
@@ -73,8 +73,8 @@ class AdminUserSeeder extends Seeder
                 ['super_admin',    'admin@ministry.local',  '1111'],
                 ['service_leader', 'leader@ministry.local', '2222'],
                 ['family_leader',  'family@ministry.local', '3333'],
-                ['servant',        'servant@ministry.local','4444'],
-            ]
+                ['servant',        'servant@ministry.local', '4444'],
+            ],
         );
     }
 }

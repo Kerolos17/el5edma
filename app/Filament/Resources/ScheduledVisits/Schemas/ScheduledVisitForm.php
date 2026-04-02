@@ -23,7 +23,7 @@ class ScheduledVisitForm
                     Select::make('beneficiary_id')
                         ->label(__('visits.beneficiary'))
                         ->options(function () {
-                            $user = Auth::user();
+                            $user  = Auth::user();
                             $query = Beneficiary::where('status', 'active');
 
                             if ($user->role === 'family_leader') {
@@ -42,7 +42,7 @@ class ScheduledVisitForm
                         ->options(
                             User::where('role', 'servant')
                                 ->where('is_active', true)
-                                ->pluck('name', 'id')
+                                ->pluck('name', 'id'),
                         )
                         ->default(fn () => Auth::user()->role === 'servant' ? Auth::id() : null)
                         ->searchable()
@@ -60,7 +60,7 @@ class ScheduledVisitForm
                     Select::make('status')
                         ->label(__('beneficiaries.status'))
                         ->options([
-                            'pending' => __('visits.pending'),
+                            'pending'   => __('visits.pending'),
                             'completed' => __('visits.completed'),
                             'cancelled' => __('visits.cancelled'),
                         ])

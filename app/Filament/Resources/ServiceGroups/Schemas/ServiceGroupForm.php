@@ -41,7 +41,7 @@ class ServiceGroupForm
                         ->options(
                             User::where('role', 'family_leader')
                                 ->where('is_active', true)
-                                ->pluck('name', 'id')
+                                ->pluck('name', 'id'),
                         )
                         ->searchable()
                         ->nullable(),
@@ -51,7 +51,7 @@ class ServiceGroupForm
                         ->options(
                             User::where('role', 'service_leader')
                                 ->where('is_active', true)
-                                ->pluck('name', 'id')
+                                ->pluck('name', 'id'),
                         )
                         ->searchable()
                         ->nullable(),

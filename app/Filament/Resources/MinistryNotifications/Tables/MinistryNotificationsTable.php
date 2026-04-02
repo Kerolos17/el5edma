@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Filament\Resources\MinistryNotifications\Tables;
 
+use App\Models\MinistryNotification;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\IconColumn;
@@ -20,21 +20,23 @@ class MinistryNotificationsTable
                 TextColumn::make('type')
                     ->label(__('notifications.title'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'birthday'        => 'warning',
-                        'critical_case'   => 'danger',
-                        'visit_reminder'  => 'info',
-                        'unvisited_alert' => 'warning',
-                        'new_beneficiary' => 'success',
-                        default           => 'gray',
+                    ->color(fn(string $state): string => match ($state) {
+                        'birthday'           => 'warning',
+                        'critical_case'      => 'danger',
+                        'visit_reminder'     => 'info',
+                        'unvisited_alert'    => 'warning',
+                        'new_beneficiary'    => 'success',
+                        'servant_registered' => 'info',
+                        default              => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'birthday'        => '🎂 ' . __('notifications.birthday_title'),
-                        'critical_case'   => '🔴 ' . __('notifications.critical_case_title'),
-                        'visit_reminder'  => '📅 ' . __('notifications.visit_reminder_title'),
-                        'unvisited_alert' => '⏰ ' . __('notifications.unvisited_alert_title'),
-                        'new_beneficiary' => '✨ ' . __('notifications.new_beneficiary_title'),
-                        default           => $state,
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'birthday'           => '🎂 ' . __('notifications.birthday_title'),
+                        'critical_case'      => '🔴 ' . __('notifications.critical_case_title'),
+                        'visit_reminder'     => '📅 ' . __('notifications.visit_reminder_title'),
+                        'unvisited_alert'    => '⏰ ' . __('notifications.unvisited_alert_title'),
+                        'new_beneficiary'    => '✨ ' . __('notifications.new_beneficiary_title'),
+                        'servant_registered' => '👋 ' . __('notifications.servant_registered_title'),
+                        default              => $state,
                     }),
 
                 TextColumn::make('title')
@@ -64,11 +66,12 @@ class MinistryNotificationsTable
                 SelectFilter::make('type')
                     ->label(__('notifications.title'))
                     ->options([
-                        'birthday'        => __('notifications.birthday_title'),
-                        'critical_case'   => __('notifications.critical_case_title'),
-                        'visit_reminder'  => __('notifications.visit_reminder_title'),
-                        'unvisited_alert' => __('notifications.unvisited_alert_title'),
-                        'new_beneficiary' => __('notifications.new_beneficiary_title'),
+                        'birthday'           => __('notifications.birthday_title'),
+                        'critical_case'      => __('notifications.critical_case_title'),
+                        'visit_reminder'     => __('notifications.visit_reminder_title'),
+                        'unvisited_alert'    => __('notifications.unvisited_alert_title'),
+                        'new_beneficiary'    => __('notifications.new_beneficiary_title'),
+                        'servant_registered' => __('notifications.servant_registered_title'),
                     ]),
 
                 TernaryFilter::make('read_at')
@@ -82,8 +85,8 @@ class MinistryNotificationsTable
                     ->label(__('notifications.mark_all_read'))
                     ->icon('heroicon-o-check')
                     ->color('gray')
-                    ->visible(fn ($record) => is_null($record->read_at))
-                    ->action(fn ($record) => $record->update(['read_at' => now()])),
+                    ->visible(fn($record) => is_null($record->read_at))
+                    ->action(fn($record) => $record->update(['read_at' => now()])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -91,7 +94,7 @@ class MinistryNotificationsTable
                         ->label(__('notifications.mark_all_read'))
                         ->icon('heroicon-o-check-circle')
                         ->action(function () {
-                            \App\Models\MinistryNotification::where('user_id', Auth::id())
+                            MinistryNotification::where('user_id', Auth::id())
                                 ->whereNull('read_at')
                                 ->update(['read_at' => now()]);
                         }),

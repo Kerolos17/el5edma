@@ -12,6 +12,7 @@ class PermissionHelper
     public static function canModify(): bool
     {
         $user = Auth::user();
+
         return in_array($user?->role, ['super_admin', 'service_leader', 'family_leader']);
     }
 

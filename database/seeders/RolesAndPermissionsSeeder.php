@@ -75,4 +75,4 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $this->command->info('✅ Roles and permissions seeded.');
     }
-}   
+}

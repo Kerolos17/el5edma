@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\PrayerRequests\Tables;
 
+use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -32,13 +34,13 @@ class PrayerRequestsTable
                 TextColumn::make('status')
                     ->label(__('prayer.status'))
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'open'     => 'warning',
                         'answered' => 'success',
                         'closed'   => 'gray',
                         default    => 'gray',
                     })
-                    ->formatStateUsing(fn($state) => __("prayer.{$state}")),
+                    ->formatStateUsing(fn ($state) => __("prayer.{$state}")),
 
                 TextColumn::make('createdBy.name')
                     ->label(__('beneficiaries.created_by'))
@@ -69,7 +71,7 @@ class PrayerRequestsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn() => \App\Helpers\PermissionHelper::canModify()),
+                        ->visible(fn () => PermissionHelper::canModify()),
 
                     // تحديد كـ "تمت الإجابة"
                     Action::make('mark_answered')
@@ -77,8 +79,8 @@ class PrayerRequestsTable
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify() && $record->status === 'open')
-                        ->action(fn($record) => $record->update([
+                        ->visible(fn ($record) => PermissionHelper::canModify() && $record->status === 'open')
+                        ->action(fn ($record) => $record->update([
                             'status'      => 'answered',
                             'answered_at' => now(),
                         ])),
@@ -89,19 +91,19 @@ class PrayerRequestsTable
                         ->icon('heroicon-o-x-circle')
                         ->color('gray')
                         ->requiresConfirmation()
-                        ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify() && $record->status === 'open')
-                        ->action(fn($record) => $record->update([
+                        ->visible(fn ($record) => PermissionHelper::canModify() && $record->status === 'open')
+                        ->action(fn ($record) => $record->update([
                             'status' => 'closed',
                         ])),
 
                     DeleteAction::make()
-                        ->visible(fn() => \App\Helpers\PermissionHelper::canModify()),
+                        ->visible(fn () => PermissionHelper::canModify()),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn () => Auth::user()?->role === 'super_admin'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

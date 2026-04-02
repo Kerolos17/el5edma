@@ -19,17 +19,17 @@ class AuditLogsTable
                     ->sortable(),
 
                 TextColumn::make('model_type')
-                    ->label('Model')
+                    ->label(__('audit_logs.model'))
                     ->formatStateUsing(fn ($state) => class_basename($state))
                     ->badge()
                     ->color('gray'),
 
                 TextColumn::make('model_id')
-                    ->label('ID')
+                    ->label(__('audit_logs.model_id'))
                     ->fontFamily('mono'),
 
                 TextColumn::make('action')
-                    ->label('Action')
+                    ->label(__('audit_logs.action'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'created' => 'success',
@@ -38,14 +38,14 @@ class AuditLogsTable
                         default   => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'created' => app()->getLocale() === 'ar' ? 'إنشاء' : 'Created',
-                        'updated' => app()->getLocale() === 'ar' ? 'تعديل' : 'Updated',
-                        'deleted' => app()->getLocale() === 'ar' ? 'حذف'   : 'Deleted',
+                        'created' => __('audit_logs.created'),
+                        'updated' => __('audit_logs.updated'),
+                        'deleted' => __('audit_logs.deleted'),
                         default   => $state,
                     }),
 
                 TextColumn::make('ip_address')
-                    ->label('IP')
+                    ->label(__('audit_logs.ip_address'))
                     ->fontFamily('mono')
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -56,30 +56,28 @@ class AuditLogsTable
             ])
             ->filters([
                 SelectFilter::make('action')
-                    ->label('Action')
+                    ->label(__('audit_logs.action'))
                     ->options([
-                        'created' => app()->getLocale() === 'ar' ? 'إنشاء' : 'Created',
-                        'updated' => app()->getLocale() === 'ar' ? 'تعديل' : 'Updated',
-                        'deleted' => app()->getLocale() === 'ar' ? 'حذف'   : 'Deleted',
+                        'created' => __('audit_logs.created'),
+                        'updated' => __('audit_logs.updated'),
+                        'deleted' => __('audit_logs.deleted'),
                     ]),
 
                 SelectFilter::make('model_type')
-                    ->label('Model')
+                    ->label(__('audit_logs.model'))
                     ->options([
-                        'App\\Models\\Beneficiary'    => 'Beneficiary',
-                        'App\\Models\\Visit'          => 'Visit',
-                        'App\\Models\\User'           => 'User',
-                        'App\\Models\\ServiceGroup'   => 'ServiceGroup',
-                        'App\\Models\\ScheduledVisit' => 'ScheduledVisit',
+                        'App\\Models\\Beneficiary'    => __('audit_logs.model_beneficiary'),
+                        'App\\Models\\Visit'          => __('audit_logs.model_visit'),
+                        'App\\Models\\User'           => __('audit_logs.model_user'),
+                        'App\\Models\\ServiceGroup'   => __('audit_logs.model_service_group'),
+                        'App\\Models\\ScheduledVisit' => __('audit_logs.model_scheduled_visit'),
                     ]),
             ])
             ->recordActions([
                 ViewAction::make(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading(
-                app()->getLocale() === 'ar' ? 'لا توجد سجلات' : 'No records found'
-            )
+            ->emptyStateHeading(__('audit_logs.no_records'))
             ->emptyStateIcon('heroicon-o-magnifying-glass');
     }
 }

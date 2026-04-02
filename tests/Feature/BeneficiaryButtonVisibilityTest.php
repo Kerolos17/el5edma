@@ -1,6 +1,9 @@
 <?php
+
 namespace Tests\Feature;
 
+use App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries;
+use App\Filament\Resources\Beneficiaries\Pages\ViewBeneficiary;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -23,7 +26,7 @@ class BeneficiaryButtonVisibilityTest extends TestCase
 
         $this->actingAs($servant);
 
-        $component = Livewire::test(\App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries::class);
+        $component = Livewire::test(ListBeneficiaries::class);
 
         // Check that create action is not visible
         $component->assertActionHidden('create');
@@ -40,7 +43,7 @@ class BeneficiaryButtonVisibilityTest extends TestCase
 
         $this->actingAs($familyLeader);
 
-        $component = Livewire::test(\App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries::class);
+        $component = Livewire::test(ListBeneficiaries::class);
 
         // Check that create action is visible
         $component->assertActionVisible('create');
@@ -62,8 +65,8 @@ class BeneficiaryButtonVisibilityTest extends TestCase
         $this->actingAs($servant);
 
         $component = Livewire::test(
-            \App\Filament\Resources\Beneficiaries\Pages\ViewBeneficiary::class,
-            ['record' => $beneficiary->id]
+            ViewBeneficiary::class,
+            ['record' => $beneficiary->id],
         );
 
         // Check that edit action is not visible
@@ -85,8 +88,8 @@ class BeneficiaryButtonVisibilityTest extends TestCase
         $this->actingAs($familyLeader);
 
         $component = Livewire::test(
-            \App\Filament\Resources\Beneficiaries\Pages\ViewBeneficiary::class,
-            ['record' => $beneficiary->id]
+            ViewBeneficiary::class,
+            ['record' => $beneficiary->id],
         );
 
         // Check that edit action is visible
@@ -102,13 +105,13 @@ class BeneficiaryButtonVisibilityTest extends TestCase
         $this->actingAs($admin);
 
         // Test list page
-        $listComponent = Livewire::test(\App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries::class);
+        $listComponent = Livewire::test(ListBeneficiaries::class);
         $listComponent->assertActionVisible('create');
 
         // Test view page
         $viewComponent = Livewire::test(
-            \App\Filament\Resources\Beneficiaries\Pages\ViewBeneficiary::class,
-            ['record' => $beneficiary->id]
+            ViewBeneficiary::class,
+            ['record' => $beneficiary->id],
         );
         $viewComponent->assertActionVisible('edit');
     }

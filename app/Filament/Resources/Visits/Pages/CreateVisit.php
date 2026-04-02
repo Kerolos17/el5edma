@@ -35,8 +35,8 @@ class CreateVisit extends CreateRecord
             ->where('status', 'pending')
             ->whereDate('scheduled_date', today())
             ->update([
-                'status'              => 'completed',
-                'completed_visit_id'  => $this->record->id,
+                'status'             => 'completed',
+                'completed_visit_id' => $this->record->id,
             ]);
     }
 

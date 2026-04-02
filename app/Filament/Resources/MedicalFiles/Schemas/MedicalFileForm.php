@@ -52,8 +52,7 @@ class MedicalFileForm
                     FileUpload::make('file_path')
                         ->label(__('medical.upload_file'))
                         ->disk('private')
-                        ->directory(fn ($get) =>
-                            'medical/' . ($get('beneficiary_id') ?? 'general')
+                        ->directory(fn ($get) => 'medical/' . ($get('beneficiary_id') ?? 'general'),
                         )
                         ->acceptedFileTypes([
                             'application/pdf',

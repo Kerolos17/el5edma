@@ -13,6 +13,7 @@ class CreateMedicalFile extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['uploaded_by'] = Auth::id();
+
         return $data;
     }
 

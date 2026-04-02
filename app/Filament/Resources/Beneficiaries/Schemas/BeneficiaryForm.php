@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Beneficiaries\Schemas;
 
 use App\Models\ServiceGroup;
@@ -48,12 +49,14 @@ class BeneficiaryForm
                                 TextInput::make('full_name')
                                     ->label(__('beneficiaries.full_name'))
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules(['required', 'string', 'max:255']),
 
                                 DatePicker::make('birth_date')
                                     ->label(__('beneficiaries.birth_date'))
                                     ->required()
-                                    ->maxDate(now()),
+                                    ->maxDate(now())
+                                    ->rules(['required', 'date', 'before_or_equal:today']),
 
                                 Select::make('gender')
                                     ->label(__('beneficiaries.gender'))
@@ -61,7 +64,8 @@ class BeneficiaryForm
                                         'male'   => __('beneficiaries.male'),
                                         'female' => __('beneficiaries.female'),
                                     ])
-                                    ->required(),
+                                    ->required()
+                                    ->rules(['required', 'in:male,female']),
 
                                 Select::make('status')
                                     ->label(__('beneficiaries.status'))
@@ -72,7 +76,8 @@ class BeneficiaryForm
                                         'deceased' => __('beneficiaries.deceased'),
                                     ])
                                     ->default('active')
-                                    ->required(),
+                                    ->required()
+                                    ->rules(['required', 'in:active,inactive,moved,deceased']),
                             ])->columns(2),
                     ]),
 
@@ -85,38 +90,69 @@ class BeneficiaryForm
                                 TextInput::make('phone')
                                     ->label(__('beneficiaries.phone'))
                                     ->tel()
-                                    ->maxLength(20),
+                                    ->maxLength(20)
+                                    ->rules([
+                                        'nullable',
+                                        'string',
+                                        'max:20',
+                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                    ])
+                                    ->validationMessages([
+                                        'regex' => __('validation.egyptian_phone'),
+                                    ]),
 
                                 TextInput::make('whatsapp')
                                     ->label(__('beneficiaries.whatsapp'))
                                     ->tel()
-                                    ->maxLength(20),
+                                    ->maxLength(20)
+                                    ->rules([
+                                        'nullable',
+                                        'string',
+                                        'max:20',
+                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                    ])
+                                    ->validationMessages([
+                                        'regex' => __('validation.egyptian_phone'),
+                                    ]),
 
                                 TextInput::make('facebook_url')
                                     ->label(__('beneficiaries.facebook_url'))
                                     ->url()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules(['nullable', 'url', 'max:255']),
 
                                 TextInput::make('instagram_url')
                                     ->label(__('beneficiaries.instagram_url'))
                                     ->url()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules(['nullable', 'url', 'max:255']),
                             ])->columns(2),
 
                         Section::make(__('beneficiaries.guardian_section'))
                             ->schema([
                                 TextInput::make('guardian_name')
                                     ->label(__('beneficiaries.guardian_name'))
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules(['nullable', 'string', 'max:255']),
 
                                 TextInput::make('guardian_phone')
                                     ->label(__('beneficiaries.guardian_phone'))
                                     ->tel()
-                                    ->maxLength(20),
+                                    ->maxLength(20)
+                                    ->rules([
+                                        'nullable',
+                                        'string',
+                                        'max:20',
+                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                    ])
+                                    ->validationMessages([
+                                        'regex' => __('validation.egyptian_phone'),
+                                    ]),
 
                                 TextInput::make('guardian_relation')
                                     ->label(__('beneficiaries.guardian_relation'))
-                                    ->maxLength(50),
+                                    ->maxLength(50)
+                                    ->rules(['nullable', 'string', 'max:50']),
                             ])->columns(2),
 
                         Section::make(__('beneficiaries.family_section'))
@@ -134,7 +170,7 @@ class BeneficiaryForm
 
                                 DatePicker::make('father_death_date')
                                     ->label(__('beneficiaries.father_death_date'))
-                                    ->visible(fn($get) => $get('father_status') === 'deceased')
+                                    ->visible(fn ($get) => $get('father_status') === 'deceased')
                                     ->nullable(),
 
                                 Select::make('mother_status')
@@ -149,18 +185,20 @@ class BeneficiaryForm
 
                                 DatePicker::make('mother_death_date')
                                     ->label(__('beneficiaries.mother_death_date'))
-                                    ->visible(fn($get) => $get('mother_status') === 'deceased')
+                                    ->visible(fn ($get) => $get('mother_status') === 'deceased')
                                     ->nullable(),
 
                                 TextInput::make('siblings_count')
                                     ->label(__('beneficiaries.siblings_count'))
                                     ->numeric()
                                     ->minValue(0)
-                                    ->nullable(),
+                                    ->nullable()
+                                    ->rules(['nullable', 'integer', 'min:0', 'max:30']),
 
                                 TextInput::make('siblings_note')
                                     ->label(__('beneficiaries.siblings_note'))
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rules(['nullable', 'string', 'max:255']),
                             ])->columns(2),
 
                         Section::make(__('beneficiaries.financial_section'))
@@ -178,6 +216,8 @@ class BeneficiaryForm
                                 Textarea::make('financial_notes')
                                     ->label(__('beneficiaries.financial_notes'))
                                     ->rows(2)
+                                    ->maxLength(1000)
+                                    ->rules(['nullable', 'string', 'max:1000'])
                                     ->columnSpanFull(),
                             ])->columns(2),
                     ]),
@@ -190,21 +230,34 @@ class BeneficiaryForm
                                 Textarea::make('address_text')
                                     ->label(__('beneficiaries.address_text'))
                                     ->rows(3)
+                                    ->maxLength(1000)
+                                    ->rules(['nullable', 'string', 'max:1000'])
                                     ->columnSpanFull(),
 
                                 TextInput::make('area')
                                     ->label(__('beneficiaries.area'))
-                                    ->maxLength(100),
+                                    ->maxLength(100)
+                                    ->rules(['nullable', 'string', 'max:100']),
 
                                 TextInput::make('governorate')
                                     ->label(__('beneficiaries.governorate'))
-                                    ->maxLength(100),
+                                    ->maxLength(100)
+                                    ->rules(['nullable', 'string', 'max:100']),
 
                                 TextInput::make('google_maps_url')
                                     ->label(__('beneficiaries.google_maps_url'))
                                     ->url()
                                     ->maxLength(500)
-                                    ->columnSpanFull(),
+                                    ->columnSpanFull()
+                                    ->rules([
+                                        'nullable',
+                                        'url',
+                                        'max:500',
+                                        'regex:/^https:\/\/(maps\.google\.com|www\.google\.com\/maps|goo\.gl\/maps)(\/.*)?(\?.*)?$/',
+                                    ])
+                                    ->validationMessages([
+                                        'regex' => __('validation.google_maps_url'),
+                                    ]),
                             ])->columns(2),
                     ]),
 
@@ -215,7 +268,8 @@ class BeneficiaryForm
                             ->schema([
                                 TextInput::make('disability_type')
                                     ->label(__('beneficiaries.disability_type'))
-                                    ->maxLength(100),
+                                    ->maxLength(100)
+                                    ->rules(['nullable', 'string', 'max:100']),
 
                                 Select::make('disability_degree')
                                     ->label(__('beneficiaries.disability_degree'))
@@ -224,28 +278,37 @@ class BeneficiaryForm
                                         'moderate' => __('beneficiaries.moderate'),
                                         'severe'   => __('beneficiaries.severe'),
                                     ])
+                                    ->rules(['nullable', 'in:mild,moderate,severe'])
                                     ->nullable(),
 
                                 TextInput::make('doctor_name')
                                     ->label(__('beneficiaries.doctor_name'))
-                                    ->maxLength(100),
+                                    ->maxLength(100)
+                                    ->rules(['nullable', 'string', 'max:100']),
 
                                 TextInput::make('hospital_name')
                                     ->label(__('beneficiaries.hospital_name'))
-                                    ->maxLength(100),
+                                    ->maxLength(100)
+                                    ->rules(['nullable', 'string', 'max:100']),
 
                                 DatePicker::make('last_medical_update')
                                     ->label(__('beneficiaries.last_medical_update'))
+                                    ->maxDate(now())
+                                    ->rules(['nullable', 'date', 'before_or_equal:today'])
                                     ->nullable(),
 
                                 Textarea::make('health_status')
                                     ->label(__('beneficiaries.health_status'))
                                     ->rows(3)
+                                    ->maxLength(1000)
+                                    ->rules(['nullable', 'string', 'max:1000'])
                                     ->columnSpanFull(),
 
                                 Textarea::make('medical_notes')
                                     ->label(__('beneficiaries.medical_notes'))
                                     ->rows(3)
+                                    ->maxLength(2000)
+                                    ->rules(['nullable', 'string', 'max:2000'])
                                     ->columnSpanFull(),
                             ])->columns(2),
                     ]),
@@ -259,7 +322,7 @@ class BeneficiaryForm
                                     ->label(__('beneficiaries.service_group'))
                                     ->options(
                                         ServiceGroup::where('is_active', true)
-                                            ->pluck('name', 'id')
+                                            ->pluck('name', 'id'),
                                     )
                                     ->searchable()
                                     ->required()

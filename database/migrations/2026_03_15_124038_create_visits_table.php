@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('beneficiary_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
             $table->enum('type', ['home_visit', 'phone_call', 'church_meeting']);
             $table->dateTime('visit_date');
             $table->unsignedSmallInteger('duration_minutes')->nullable();
@@ -23,9 +23,9 @@ return new class extends Migration
             $table->boolean('is_critical')->default(false);
             $table->timestamp('critical_resolved_at')->nullable();
             $table->foreignId('critical_resolved_by')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->boolean('needs_family_leader')->default(false);
             $table->boolean('needs_service_leader')->default(false);
             $table->foreignId('created_by')->constrained('users');

@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Filament\Widgets;
 
 use App\Models\MinistryNotification;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class NotificationsBellWidget extends Widget
 {
@@ -23,23 +23,27 @@ class NotificationsBellWidget extends Widget
 
     public function loadNotifications(): void
     {
-        $this->unreadCount = MinistryNotification::where('user_id', Auth::id())
-            ->whereNull('read_at')
-            ->count();
+        $userId = Auth::id();
 
-        $this->notifications = MinistryNotification::where('user_id', Auth::id())
+        $notifications = MinistryNotification::where('user_id', $userId)
             ->latest('created_at')
-            ->limit(8)
-            ->get()
-            ->map(fn ($n) => [
-                'id'    => $n->id,
-                'type'  => $n->type,
-                'title' => $n->title,
-                'body'  => $n->body,
-                'read'  => ! is_null($n->read_at),
-                'time'  => $n->created_at->diffForHumans(),
-            ])
-            ->toArray();
+            ->limit(10)
+            ->get();
+
+        $this->unreadCount = Cache::remember(
+            "notifications_unread_{$userId}",
+            60,
+            fn() => $notifications->whereNull('read_at')->count()
+        );
+
+        $this->notifications = $notifications->map(fn($n) => [
+            'id'    => $n->id,
+            'type'  => $n->type,
+            'title' => $n->title,
+            'body'  => $n->body,
+            'read'  => $n->read_at !== null,
+            'time'  => $n->created_at->diffForHumans(),
+        ])->toArray();
     }
 
     public function markAllRead(): void
@@ -48,6 +52,7 @@ class NotificationsBellWidget extends Widget
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
     }
 
@@ -57,6 +62,7 @@ class NotificationsBellWidget extends Widget
             ->where('user_id', Auth::id())
             ->update(['read_at' => now()]);
 
+        Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
     }
 }

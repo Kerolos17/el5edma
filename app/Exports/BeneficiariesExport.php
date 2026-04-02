@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\Beneficiary;
@@ -11,10 +12,9 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithChunkReading
+class BeneficiariesExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithStyles
 {
-    public function __construct(private User $user)
-    {}
+    public function __construct(private User $user) {}
 
     public function query()
     {
@@ -32,6 +32,7 @@ class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping, Shoul
     public function headings(): array
     {
         $isAr = app()->getLocale() === 'ar';
+
         return [
             $isAr ? 'الكود' : 'Code',
             $isAr ? 'الاسم الكامل' : 'Full Name',
@@ -52,6 +53,7 @@ class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping, Shoul
     public function map($row): array
     {
         $isAr = app()->getLocale() === 'ar';
+
         return [
             $row->code,
             $row->full_name,
@@ -72,7 +74,7 @@ class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping, Shoul
             $row->disability_degree
                 ? ($isAr ? __("beneficiaries.{$row->disability_degree}") : ucfirst($row->disability_degree))
                 : '—',
-            $row->area ?? '—',
+            $row->area        ?? '—',
             $row->governorate ?? '—',
         ];
     }

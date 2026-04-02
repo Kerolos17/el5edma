@@ -1,4 +1,4 @@
-<div x-data="{ open: false }" class="relative flex items-center" wire:poll.30s="loadNotifications">
+<div x-data="{ open: false }" class="relative flex items-center" wire:poll.5s="loadNotifications">
 
     {{-- زر الجرس --}}
     <button

@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
@@ -47,7 +48,7 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->role === 'super_admin';
+        return Auth::user()->can('viewAny', User::class);
     }
 
     public static function form(Schema $schema): Schema
@@ -73,5 +74,27 @@ class UserResource extends Resource
             'view'   => ViewUser::route('/{record}'),
             'edit'   => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('create', User::class);
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
     }
 }

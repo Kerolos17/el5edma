@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\ScheduledVisits;
 
 use App\Filament\Resources\ScheduledVisits\Pages\CreateScheduledVisit;
@@ -15,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduledVisitResource extends Resource
@@ -40,17 +43,16 @@ class ScheduledVisitResource extends Resource
         return __('visits.scheduled_title');
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(EagerLoadingService::scheduledVisitsTable());
         $user  = Auth::user();
 
         return match ($user?->role) {
-            'family_leader' => $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            'family_leader' => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            'servant'       => $query->where('assigned_servant_id', $user->id),
-            default         => $query,
+            'servant' => $query->where('assigned_servant_id', $user->id),
+            default   => $query,
         };
     }
 
@@ -79,25 +81,25 @@ class ScheduledVisitResource extends Resource
         ];
     }
 
-    // ── Authorization: الخادم للقراءة فقط ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('create', ScheduledVisit::class);
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('update', $record);
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('delete', $record);
     }
 
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

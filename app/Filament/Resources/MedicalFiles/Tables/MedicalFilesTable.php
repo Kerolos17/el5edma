@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MedicalFiles\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -58,7 +59,7 @@ class MedicalFilesTable
                 ActionGroup::make([
                     ViewAction::make(),
 
-                    \Filament\Actions\Action::make('download')
+                    Action::make('download')
                         ->label(app()->getLocale() === 'ar' ? 'تحميل' : 'Download')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('info')
@@ -68,7 +69,7 @@ class MedicalFilesTable
                     DeleteAction::make()
                         ->visible(fn () => in_array(
                             Auth::user()?->role,
-                            ['super_admin', 'service_leader', 'family_leader']
+                            ['super_admin', 'service_leader', 'family_leader'],
                         )),
                 ]),
             ])
