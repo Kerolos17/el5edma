@@ -36,11 +36,7 @@ class User extends Authenticatable implements FilamentUser
 
     protected static function booted(): void
     {
-        static::saving(function (User $user) {
-            if ($user->isDirty('personal_code') && $user->personal_code !== null) {
-                $user->personal_code_hash = hash('sha256', $user->personal_code);
-            }
-        });
+        // personal_code_hash is set by the setPersonalCodeAttribute mutator
     }
 
     // ── Relationships ──
@@ -69,27 +65,12 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * تعيين الكود الشخصي مع توليد الـ hash تلقائياً للبحث
+     * الكود يُخزَّن كنص عادي في varchar(10) — الـ hash للبحث السريع
      */
-    public function setPersonalCodeAttribute(string $value): void
+    public function setPersonalCodeAttribute(?string $value): void
     {
-        $this->attributes['personal_code']      = encrypt($value);
-        $this->attributes['personal_code_hash'] = hash('sha256', $value);
-    }
-
-    /**
-     * فك تشفير الكود الشخصي عند القراءة
-     */
-    public function getPersonalCodeAttribute(?string $value): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        try {
-            return decrypt($value);
-        } catch (\Exception) {
-            return $value; // قيمة غير مشفرة (بيانات قديمة)
-        }
+        $this->attributes['personal_code']      = $value;
+        $this->attributes['personal_code_hash'] = $value !== null ? hash('sha256', $value) : null;
     }
 
     public function isAdmin(): bool
