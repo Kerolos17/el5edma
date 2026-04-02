@@ -6,6 +6,12 @@
 
 set -e
 
+# Skip on CI environments without PHP (e.g. Cloudflare Pages)
+if ! command -v php &> /dev/null || ! command -v composer &> /dev/null; then
+    echo "⏭️  PHP/Composer not available, skipping deploy script."
+    exit 0
+fi
+
 echo "🚀 بدء النشر..."
 
 # 1. تثبيت الحزم (بدون dev dependencies)
