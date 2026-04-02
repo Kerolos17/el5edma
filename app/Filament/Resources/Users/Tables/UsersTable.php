@@ -38,14 +38,14 @@ class UsersTable
                 TextColumn::make('role')
                     ->label(__('users.role'))
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'super_admin'    => 'danger',
-                        'service_leader' => 'warning',
-                        'family_leader'  => 'info',
-                        'servant'        => 'success',
-                        default          => 'gray',
+                    ->color(fn(UserRole $state): string => match ($state) {
+                        UserRole::SuperAdmin     => 'danger',
+                        UserRole::ServiceLeader  => 'warning',
+                        UserRole::FamilyLeader   => 'info',
+                        UserRole::Servant        => 'success',
+                        default                  => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => __("users.{$state}")),
+                    ->formatStateUsing(fn(UserRole $state): string => __("users.roles.{$state->value}")),
 
                 TextColumn::make('serviceGroup.name')
                     ->label(__('users.service_group'))
@@ -90,8 +90,8 @@ class UsersTable
                     ->trueLabel(__('users.pending_only'))
                     ->falseLabel(__('users.approved_only'))
                     ->queries(
-                        true: fn($query)  => $query->where('role', 'servant')->where('is_active', false),
-                        false: fn($query) => $query->where('role', 'servant')->where('is_active', true),
+                        true: fn($query)  => $query->where('role', UserRole::Servant)->where('is_active', false),
+                        false: fn($query) => $query->where('role', UserRole::Servant)->where('is_active', true),
                         blank: fn($query) => $query,
                     ),
             ])
@@ -106,7 +106,7 @@ class UsersTable
                         ->color('success')
                         ->visible(fn(User $record) =>
                             ! $record->is_active &&
-                            $record->role === 'servant' &&
+                            $record->role === UserRole::Servant &&
                             Auth::user()->can('update', $record)
                         )
                         ->requiresConfirmation()
