@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\\\Users\\\\kerol\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan:*)"
+    ]
+  }
+}

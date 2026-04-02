@@ -12,7 +12,7 @@ class AuditLogFactory extends Factory
         return [
             'user_id'    => User::factory(),
             'model_type' => User::class,
-            'model_id'   => 1,
+            'model_id'   => fn (array $attrs) => $attrs['user_id'],
             'action'     => $this->faker->randomElement(['created', 'updated', 'deleted']),
             'old_values' => null,
             'new_values' => ['name' => $this->faker->name()],

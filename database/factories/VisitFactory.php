@@ -10,6 +10,7 @@ class VisitFactory extends Factory
     public function definition(): array
     {
         return [
+            'beneficiary_id' => \App\Models\Beneficiary::factory(),
             'type' => $this->faker->randomElement([
                 'home_visit', 'phone_call', 'church_meeting',
             ]),
