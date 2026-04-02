@@ -13,7 +13,7 @@ class MedicalFileFactory extends Factory
         return [
             'beneficiary_id' => Beneficiary::factory(),
             'file_path'      => 'medical-files/' . $this->faker->uuid() . '.pdf',
-            'file_type'      => 'application/pdf',
+            'file_type'      => $this->faker->randomElement(['report', 'image', 'document']),
             'title'          => $this->faker->sentence(3),
             'uploaded_by'    => User::factory(),
             'created_at'     => now(),

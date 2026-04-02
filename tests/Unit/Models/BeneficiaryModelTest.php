@@ -34,7 +34,7 @@ class BeneficiaryModelTest extends TestCase
     public function test_whatsapp_url_uses_phone_fallback(): void
     {
         $ben = Beneficiary::factory()->create(['whatsapp' => null, 'phone' => '01234567890']);
-        $this->assertStringContains('wa.me', $ben->whatsapp_url);
+        $this->assertStringContainsString('wa.me', $ben->whatsapp_url);
     }
 
     public function test_whatsapp_url_returns_null_when_no_contact(): void

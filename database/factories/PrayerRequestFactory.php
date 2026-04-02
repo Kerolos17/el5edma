@@ -14,7 +14,7 @@ class PrayerRequestFactory extends Factory
             'beneficiary_id' => Beneficiary::factory(),
             'title'          => $this->faker->sentence(4),
             'body'           => $this->faker->paragraph(),
-            'status'         => $this->faker->randomElement(['pending', 'answered']),
+            'status'         => $this->faker->randomElement(['open', 'answered', 'closed']),
             'created_by'     => User::factory(),
             'answered_at'    => null,
         ];

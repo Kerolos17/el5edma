@@ -12,14 +12,14 @@ class FcmTokenControllerTest extends TestCase
 
     public function test_store_requires_auth(): void
     {
-        $response = $this->postJson('/fcm-token', ['token' => 'abc123']);
+        $response = $this->postJson('/fcm-token', ['fcm_token' => 'abc123']);
         $response->assertUnauthorized();
     }
 
     public function test_store_saves_token(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->postJson('/fcm-token', ['token' => 'fcm-token-123']);
+        $response = $this->actingAs($user)->postJson('/fcm-token', ['fcm_token' => 'fcm-token-123']);
         $response->assertOk();
         $this->assertSame('fcm-token-123', $user->fresh()->fcm_token);
     }
