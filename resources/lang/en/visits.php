@@ -31,6 +31,12 @@ return [
     'critical_resolved'    => 'Critical case closed',
     'resolved_by'          => 'Resolved by',
     'resolved_at'          => 'Resolved at',
+    'critical_resolved_by' => 'Critical Resolved By',
+    'critical_resolved_at' => 'Critical Resolved At',
+    'visit_servants'       => 'Visit Servants',
+    'visit_type'           => 'Visit Type',
+    'follow_up_required'   => 'Follow Up Required',
+    'notes'                => 'Notes',
 
     'scheduled_date' => 'Scheduled Date',
     'scheduled_time' => 'Scheduled Time',

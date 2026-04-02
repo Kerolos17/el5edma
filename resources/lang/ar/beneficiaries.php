@@ -20,12 +20,13 @@ return [
     'tab_audit'         => 'سجل التعديلات',
 
     // Basic fields
-    'full_name'  => 'الاسم الكامل',
-    'photo'      => 'الصورة',
-    'birth_date' => 'تاريخ الميلاد',
-    'gender'     => 'الجنس',
-    'code'       => 'الكود',
-    'status'     => 'الحالة',
+    'full_name'    => 'الاسم الكامل',
+    'photo'        => 'الصورة',
+    'photo_helper' => 'يدعم: JPEG, PNG, GIF, WebP, SVG - الحد الأقصى: 5 ميجابايت',
+    'birth_date'   => 'تاريخ الميلاد',
+    'gender'       => 'الجنس',
+    'code'         => 'الكود',
+    'status'       => 'الحالة',
 
     // Gender
     'male'   => 'ذكر',

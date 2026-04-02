@@ -21,6 +21,14 @@ return [
     'family_leader'       => 'أمين الأسرة',
     'servant'             => 'خادم',
 
+    // Nested roles (used by UserRole enum)
+    'roles' => [
+        'super_admin'    => 'مدير النظام',
+        'service_leader' => 'أمين الخدمة',
+        'family_leader'  => 'أمين الأسرة',
+        'servant'        => 'خادم',
+    ],
+
     // Locale
     'arabic'              => 'العربية',
     'english'             => 'الإنجليزية',
@@ -29,4 +37,14 @@ return [
     'code_auto_generated' => 'يتم التوليد تلقائياً عند الإنشاء',
     'generate_code'       => 'توليد كود جديد',
     'cannot_delete_self'  => 'لا يمكنك حذف حسابك الخاص',
+
+    // Servant approval
+    'approve_servant'              => 'الموافقة على الخادم',
+    'approve_servant_confirmation' => 'هل أنت متأكد من الموافقة على هذا الخادم؟',
+    'approve_servant_description'  => 'سيتمكن الخادم من تسجيل الدخول والوصول إلى النظام بعد الموافقة.',
+    'servant_approved'             => 'تم الموافقة على الخادم بنجاح',
+    'pending_approval'             => 'قيد الموافقة',
+    'all_servants'                 => 'جميع الخدام',
+    'pending_only'                 => 'قيد الموافقة فقط',
+    'approved_only'                => 'تمت الموافقة عليهم فقط',
 ];

@@ -17,6 +17,9 @@ return [
     'mimes'     => 'حقل :attribute يجب أن يكون ملفاً من نوع: :values.',
     'confirmed' => 'تأكيد :attribute غير متطابق.',
 
+    'egyptian_phone'  => 'رقم الهاتف يجب أن يكون رقماً مصرياً صحيحاً (مثال: 01012345678).',
+    'google_maps_url' => 'الرابط يجب أن يكون رابط Google Maps صحيحاً (يبدأ بـ https://maps.google.com أو https://www.google.com/maps/ أو https://goo.gl/maps).',
+
     'attributes' => [
         'name'             => 'الاسم',
         'email'            => 'البريد الإلكتروني',

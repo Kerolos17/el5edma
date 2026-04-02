@@ -17,6 +17,9 @@ return [
     'mimes'     => 'The :attribute must be a file of type: :values.',
     'confirmed' => 'The :attribute confirmation does not match.',
 
+    'egyptian_phone'  => 'The phone number must be a valid Egyptian mobile number (e.g. 01012345678).',
+    'google_maps_url' => 'The URL must be a valid Google Maps link (starting with https://maps.google.com, https://www.google.com/maps/, or https://goo.gl/maps).',
+
     'attributes' => [
         'name'             => 'name',
         'email'            => 'email',

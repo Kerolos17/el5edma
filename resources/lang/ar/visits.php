@@ -35,6 +35,12 @@ return [
     'critical_resolved'    => 'تم إغلاق الحالة الحرجة',
     'resolved_by'          => 'أغلقها',
     'resolved_at'          => 'تاريخ الإغلاق',
+    'critical_resolved_by' => 'تم حل الحالة الحرجة بواسطة',
+    'critical_resolved_at' => 'تاريخ حل الحالة الحرجة',
+    'visit_servants'       => 'الخدام المشاركون',
+    'visit_type'           => 'نوع الزيارة',
+    'follow_up_required'   => 'يتطلب متابعة',
+    'notes'                => 'ملاحظات',
 
     // Scheduled
     'scheduled_date' => 'تاريخ الزيارة',
