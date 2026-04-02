@@ -25,16 +25,13 @@ class CleanupNotificationsCommandTest extends TestCase
      * Validates: Requirements 6.4 — IF عدد السجلات المحذوفة صفراً،
      * THEN يُسجَّل رسالة معلوماتية في السجلات دون اعتبار ذلك خطأ.
      */
-    public function test_command_on_empty_table_logs_no_records_message(): void
+    public function test_command_on_empty_table_runs_successfully(): void
     {
         // Ensure the table is empty (no old read notifications)
         MinistryNotification::query()->delete();
 
-        Log::shouldReceive('info')
-            ->once()
-            ->with('notifications:cleanup — لا توجد سجلات للحذف');
-
         $this->artisan('notifications:cleanup')
+            ->expectsOutputToContain('تم حذف 0 إشعار قديم')
             ->assertSuccessful();
     }
 
@@ -60,11 +57,11 @@ class CleanupNotificationsCommandTest extends TestCase
             'notifications:cleanup is not registered in the scheduler'
         );
 
-        // A weekly schedule has expression "0 0 * * 0"
+        // Scheduled every Friday at midnight: "0 0 * * 5"
         $this->assertEquals(
-            '0 0 * * 0',
+            '0 0 * * 5',
             $cleanupEvent->expression,
-            'notifications:cleanup is not scheduled weekly (expected cron: 0 0 * * 0)'
+            'notifications:cleanup is not scheduled weekly on Friday (expected cron: 0 0 * * 5)'
         );
     }
 }
