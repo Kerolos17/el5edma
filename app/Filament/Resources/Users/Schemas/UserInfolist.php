@@ -40,14 +40,14 @@ class UserInfolist
                     TextEntry::make('role')
                         ->label(__('users.role'))
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
-                            'super_admin'    => 'danger',
-                            'service_leader' => 'warning',
-                            'family_leader'  => 'info',
-                            'servant'        => 'success',
-                            default          => 'gray',
+                        ->color(fn (UserRole $state): string => match ($state) {
+                            UserRole::SuperAdmin    => 'danger',
+                            UserRole::ServiceLeader => 'warning',
+                            UserRole::FamilyLeader  => 'info',
+                            UserRole::Servant       => 'success',
+                            default                 => 'gray',
                         })
-                        ->formatStateUsing(fn (string $state): string => __("users.{$state}")),
+                        ->formatStateUsing(fn (UserRole $state): string => __("users.roles.{$state->value}")),
 
                     TextEntry::make('serviceGroup.name')
                         ->label(__('users.service_group'))
