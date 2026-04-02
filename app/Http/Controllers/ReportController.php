@@ -19,6 +19,11 @@ class ReportController extends Controller
 
     public function visitsPdf(Request $request)
     {
+        $request->validate([
+            'date_from' => 'nullable|date',
+            'date_to'   => 'nullable|date|after_or_equal:date_from',
+        ]);
+
         return $this->service->visitsPdf(
             user: Auth::user(),
             dateFrom: $request->query('date_from'),
