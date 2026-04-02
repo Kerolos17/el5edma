@@ -3,7 +3,6 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "prebuild": "composer install --no-dev --no-interaction --prefer-dist",
         "build": "vite build",
         "dev": "vite"
     },
