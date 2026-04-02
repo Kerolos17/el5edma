@@ -95,7 +95,7 @@ class VisitsChartWidget extends ChartWidget
         $rawData = (clone $baseQuery)
             ->selectRaw('YEARWEEK(visit_date, 3) as yw, type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
-            ->groupByRaw('YEARWEEK(visit_date, 1), type')
+            ->groupByRaw('YEARWEEK(visit_date, 3), type')
             ->get()
             ->groupBy('yw');
 
