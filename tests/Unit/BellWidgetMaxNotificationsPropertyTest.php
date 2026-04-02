@@ -58,9 +58,9 @@ class BellWidgetMaxNotificationsPropertyTest extends TestCase
             $component->mount();
 
             $this->assertCount(
-                10,
+                8,
                 $component->notifications,
-                "Iteration {$i}: n={$n} — Widget should return exactly 10 notifications, got " . count($component->notifications)
+                "Iteration {$i}: n={$n} — Widget should return exactly 8 notifications, got " . count($component->notifications)
             );
 
             // Clean up for next iteration

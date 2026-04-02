@@ -133,9 +133,9 @@ class RoleScopingBugConditionTest extends TestCase
         $query = Beneficiary::where('status', 'active');
 
         // Replicate the FIXED closure logic from VisitForm
-        if ($user->role === 'family_leader') {
+        if ($user->role === \App\Enums\UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === \App\Enums\UserRole::Servant) {
             $query->where('service_group_id', $user->service_group_id);
         }
 

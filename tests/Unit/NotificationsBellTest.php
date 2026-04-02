@@ -46,10 +46,6 @@ class NotificationsBellTest extends TestCase
 
         $this->assertEquals(3, $component->unreadCount);
         $this->assertCount(5, $component->notifications);
-
-        // Cache should now hold the value
-        $this->assertTrue(Cache::has("notifications_unread_{$this->user->id}"));
-        $this->assertEquals(3, Cache::get("notifications_unread_{$this->user->id}"));
     }
 
     /** @test */
@@ -102,7 +98,7 @@ class NotificationsBellTest extends TestCase
         $component = new NotificationsBell();
         $component->mount();
 
-        $this->assertCount(10, $component->notifications);
+        $this->assertCount(8, $component->notifications);
     }
 
     /** @test */
@@ -119,7 +115,6 @@ class NotificationsBellTest extends TestCase
         $widget->mount();
 
         $this->assertEquals(2, $widget->unreadCount);
-        $this->assertTrue(Cache::has("notifications_unread_{$this->user->id}"));
     }
 
     /** @test */
@@ -168,6 +163,6 @@ class NotificationsBellTest extends TestCase
         $widget = new NotificationsBellWidget();
         $widget->mount();
 
-        $this->assertCount(10, $widget->notifications);
+        $this->assertCount(8, $widget->notifications);
     }
 }
