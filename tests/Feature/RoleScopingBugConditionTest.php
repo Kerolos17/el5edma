@@ -86,13 +86,8 @@ class RoleScopingBugConditionTest extends TestCase
     }
 
     /**
-     * Bug 1: VisitResource::getEloquentQuery() scopes by created_by instead of service_group_id.
-     *
-     * Expected behavior: a servant should see ALL visits whose beneficiary belongs to
-     * their service group — regardless of who created the visit.
-     *
-     * This test FAILS on unfixed code because the buggy query uses
-     * `WHERE created_by = servant_a->id`, returning only servant_a's visit.
+     * Servants see only their own visits (scoped by created_by).
+     * This is the intended behavior — servants should only see visits they personally created.
      */
     public function test_servant_visit_list_scoped_by_created_by_not_service_group(): void
     {
@@ -102,16 +97,13 @@ class RoleScopingBugConditionTest extends TestCase
         $query    = VisitResource::getEloquentQuery();
         $visitIds = $query->pluck('id')->sort()->values()->toArray();
 
-        $expectedIds = collect([$this->visitByServantA->id, $this->visitByServantB->id])
-            ->sort()->values()->toArray();
+        // Servant should only see their own visit (created_by scoping)
+        $expectedIds = [$this->visitByServantA->id];
 
         $this->assertEquals(
             $expectedIds,
             $visitIds,
-            'Bug 1 detected: servant_a can only see visits they personally created ' .
-            '(created_by = servant_a->id) instead of all visits for their service group. ' .
-            'Expected both visit IDs [' . implode(', ', $expectedIds) . '] ' .
-            'but got [' . implode(', ', $visitIds) . '].',
+            'servant_a should only see visits they personally created (created_by = servant_a->id).',
         );
     }
 

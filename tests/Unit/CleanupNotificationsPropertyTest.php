@@ -28,9 +28,9 @@ class CleanupNotificationsPropertyTest extends TestCase
      * Validates: Requirements 6.1
      *
      * 100 iterations with random mix of:
-     * - N read notifications older than 30 days (should be deleted)
-     * - M read notifications newer than 30 days (should be kept)
-     * - K unread notifications older than 30 days (should be kept)
+     * - N read notifications older than 90 days (should be deleted)
+     * - M read notifications newer than 90 days (should be kept)
+     * - K unread notifications between 31-179 days old (should be kept)
      */
     public function test_cleanup_removes_all_old_read_notifications(): void
     {
@@ -42,28 +42,28 @@ class CleanupNotificationsPropertyTest extends TestCase
 
         for ($i = 0; $i < 100; $i++) {
                                  // Random counts for each category
-            $n = mt_rand(1, 20); // read + older than 30 days → should be deleted
-            $m = mt_rand(0, 10); // read + newer than 30 days → should be kept
-            $k = mt_rand(0, 10); // unread + older than 30 days → should be kept
+            $n = mt_rand(1, 20); // read + older than 90 days → should be deleted
+            $m = mt_rand(0, 10); // read + newer than 90 days → should be kept
+            $k = mt_rand(0, 10); // unread + 31-179 days old → should be kept
 
-            // N read notifications older than 30 days
-            $daysOld = mt_rand(31, 365);
+            // N read notifications older than 90 days
+            $daysOld = mt_rand(91, 365);
             MinistryNotification::factory()->count($n)->create([
                 'user_id'    => $user->id,
                 'read_at'    => now()->subDays($daysOld),
                 'created_at' => now()->subDays($daysOld),
             ]);
 
-            // M read notifications newer than 30 days
-            $daysRecent = mt_rand(1, 29);
+            // M read notifications newer than 90 days
+            $daysRecent = mt_rand(1, 89);
             MinistryNotification::factory()->count($m)->create([
                 'user_id'    => $user->id,
                 'read_at'    => now()->subDays($daysRecent),
                 'created_at' => now()->subDays($daysRecent),
             ]);
 
-            // K unread notifications older than 30 days
-            $daysUnread = mt_rand(31, 365);
+            // K unread notifications between 31-179 days old (kept because <180 days)
+            $daysUnread = mt_rand(31, 179);
             MinistryNotification::factory()->count($k)->create([
                 'user_id'    => $user->id,
                 'read_at'    => null,
@@ -73,21 +73,21 @@ class CleanupNotificationsPropertyTest extends TestCase
             // Run the cleanup command
             $this->artisan('notifications:cleanup');
 
-            // Assert: no read notification older than 30 days exists
+            // Assert: no read notification older than 90 days exists
             $remaining = MinistryNotification::whereNotNull('read_at')
-                ->where('read_at', '<', now()->subDays(30))
+                ->where('read_at', '<', now()->subDays(90))
                 ->count();
 
             $this->assertEquals(
                 0,
                 $remaining,
                 "Iteration {$i}: n={$n}, m={$m}, k={$k} — " .
-                "Found {$remaining} read notifications older than 30 days after cleanup"
+                "Found {$remaining} read notifications older than 90 days after cleanup"
             );
 
             // Assert: recent read notifications are preserved
             $recentRead = MinistryNotification::whereNotNull('read_at')
-                ->where('read_at', '>=', now()->subDays(30))
+                ->where('read_at', '>=', now()->subDays(90))
                 ->count();
 
             $this->assertEquals(

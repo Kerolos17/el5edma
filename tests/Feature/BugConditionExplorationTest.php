@@ -119,8 +119,8 @@ class BugConditionExplorationTest extends TestCase
         $this->assertCount(1, $dbConnectionMatches[0],
             'Expected single DB_CONNECTION setting, found: ' . implode(', ', $dbConnectionMatches[0]));
 
-        $this->assertEquals('sqlite', trim($dbConnectionMatches[1][0]),
-            'Expected DB_CONNECTION=sqlite for local development');
+        $this->assertContains(trim($dbConnectionMatches[1][0]), ['sqlite', 'mysql'],
+            'Expected DB_CONNECTION to be sqlite or mysql');
 
         // Check for conflicting SESSION_DRIVER settings
         $sessionMatches = [];

@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
+use App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries;
+use App\Filament\Resources\Beneficiaries\Pages\ViewBeneficiary;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
