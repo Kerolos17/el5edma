@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\ScheduledVisit;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -16,7 +17,7 @@ class ScheduledVisitPolicy
     public function viewAny(User $user): bool
     {
         // All authenticated users can view scheduled visits (scoped by service group)
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader', 'servant']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
     }
 
     /**
@@ -25,17 +26,17 @@ class ScheduledVisitPolicy
     public function view(User $user, ScheduledVisit $scheduledVisit): bool
     {
         // Super admin and service leader have full access
-        if (in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can view scheduled visits for beneficiaries in their service group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
         }
 
         // Servants can view scheduled visits assigned to them
-        if ($user->role === 'servant') {
+        if ($user->role === UserRole::Servant) {
             return $scheduledVisit->assigned_servant_id === $user->id;
         }
 
@@ -49,7 +50,7 @@ class ScheduledVisitPolicy
     {
         // Only super_admin, service_leader, and family_leader can create scheduled visits
         // Servants cannot create scheduled visits
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
     }
 
     /**
@@ -58,12 +59,12 @@ class ScheduledVisitPolicy
     public function update(User $user, ScheduledVisit $scheduledVisit): bool
     {
         // Super admin and service leader have full access
-        if (in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can update scheduled visits for beneficiaries in their service group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
         }
 
@@ -78,7 +79,7 @@ class ScheduledVisitPolicy
     {
         // Only super_admin, service_leader, and family_leader can delete scheduled visits
         // Servants cannot delete scheduled visits
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
     }
 
     /**
@@ -87,7 +88,7 @@ class ScheduledVisitPolicy
     public function restore(User $user, ScheduledVisit $scheduledVisit): bool
     {
         // Only super_admin and service_leader can restore scheduled visits
-        return in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -96,6 +97,6 @@ class ScheduledVisitPolicy
     public function forceDelete(User $user, ScheduledVisit $scheduledVisit): bool
     {
         // Only super_admin can permanently delete scheduled visits
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 }

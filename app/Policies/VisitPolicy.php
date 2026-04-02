@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -16,7 +17,7 @@ class VisitPolicy
     public function viewAny(User $user): bool
     {
         // All authenticated users can view visits (scoped by service group)
-        return \in_array($user->role, ['super_admin', 'service_leader', 'family_leader', 'servant']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
     }
 
     /**
@@ -25,7 +26,7 @@ class VisitPolicy
     public function view(User $user, Visit $visit): bool
     {
         // Super admin and service leader have full access
-        if (\in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
@@ -39,7 +40,7 @@ class VisitPolicy
     public function create(User $user): bool
     {
         // All roles can create visits (servants can create visits for their beneficiaries)
-        return \in_array($user->role, ['super_admin', 'service_leader', 'family_leader', 'servant']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
     }
 
     /**
@@ -48,12 +49,12 @@ class VisitPolicy
     public function update(User $user, Visit $visit): bool
     {
         // Super admin and service leader have full access
-        if (\in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can update visits for beneficiaries in their service group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $visit->beneficiary->service_group_id;
         }
 
@@ -68,7 +69,7 @@ class VisitPolicy
     {
         // Only super_admin and service_leader can delete visits
         // Family leaders and servants cannot delete
-        return \in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -77,7 +78,7 @@ class VisitPolicy
     public function restore(User $user, Visit $visit): bool
     {
         // Only super_admin and service_leader can restore visits
-        return \in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -86,6 +87,6 @@ class VisitPolicy
     public function forceDelete(User $user, Visit $visit): bool
     {
         // Only super_admin can permanently delete visits
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 }

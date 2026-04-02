@@ -13,7 +13,7 @@ class FcmTokenController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'fcm_token' => 'required|string',
+            'fcm_token' => 'required|string|max:500',
         ]);
 
         $user = $request->user();

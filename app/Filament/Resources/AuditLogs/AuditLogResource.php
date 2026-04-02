@@ -12,6 +12,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class AuditLogResource extends Resource
@@ -29,7 +30,7 @@ class AuditLogResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
+        return __('navigation.audit_logs');
     }
 
     public static function getModelLabel(): string

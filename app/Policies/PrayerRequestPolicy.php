@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\PrayerRequest;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -16,7 +17,7 @@ class PrayerRequestPolicy
     public function viewAny(User $user): bool
     {
         // All authenticated users can view prayer requests (scoped by service group)
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader', 'servant']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
     }
 
     /**
@@ -25,17 +26,17 @@ class PrayerRequestPolicy
     public function view(User $user, PrayerRequest $prayerRequest): bool
     {
         // Super admin and service leader have full access
-        if (in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can view prayer requests for beneficiaries in their service group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $prayerRequest->beneficiary->service_group_id;
         }
 
         // Servants can view prayer requests they created
-        if ($user->role === 'servant') {
+        if ($user->role === UserRole::Servant) {
             return $prayerRequest->created_by === $user->id;
         }
 
@@ -48,7 +49,7 @@ class PrayerRequestPolicy
     public function create(User $user): bool
     {
         // All roles can create prayer requests
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader', 'servant']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
     }
 
     /**
@@ -57,12 +58,12 @@ class PrayerRequestPolicy
     public function update(User $user, PrayerRequest $prayerRequest): bool
     {
         // Super admin and service leader have full access
-        if (in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can update prayer requests for beneficiaries in their service group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $prayerRequest->beneficiary->service_group_id;
         }
 
@@ -77,7 +78,7 @@ class PrayerRequestPolicy
     {
         // Only super_admin, service_leader, and family_leader can delete prayer requests
         // Servants cannot delete prayer requests
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
     }
 
     /**
@@ -86,7 +87,7 @@ class PrayerRequestPolicy
     public function restore(User $user, PrayerRequest $prayerRequest): bool
     {
         // Only super_admin and service_leader can restore prayer requests
-        return in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -95,6 +96,6 @@ class PrayerRequestPolicy
     public function forceDelete(User $user, PrayerRequest $prayerRequest): bool
     {
         // Only super_admin can permanently delete prayer requests
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 }

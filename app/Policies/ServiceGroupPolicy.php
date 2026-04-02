@@ -1,6 +1,7 @@
 <?php
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -15,7 +16,7 @@ class ServiceGroupPolicy
     public function viewAny(User $user): bool
     {
         // Servants cannot access service groups at all
-        return in_array($user->role, ['super_admin', 'service_leader', 'family_leader']);
+        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
     }
 
     /**
@@ -23,13 +24,8 @@ class ServiceGroupPolicy
      */
     public function view(User $user, ServiceGroup $serviceGroup): bool
     {
-        // Super admin can view all service groups
-        if ($user->role === 'super_admin') {
-            return true;
-        }
-
-        // Service leaders can view all service groups
-        if ($user->role === 'service_leader') {
+        // Super admin and service leader can view all service groups
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
@@ -44,7 +40,7 @@ class ServiceGroupPolicy
     {
         // Only super_admin and service_leader can create service groups
         // Family leaders and servants cannot create service groups
-        return in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -52,18 +48,13 @@ class ServiceGroupPolicy
      */
     public function update(User $user, ServiceGroup $serviceGroup): bool
     {
-        // Super admin can update all service groups
-        if ($user->role === 'super_admin') {
-            return true;
-        }
-
-        // Service leaders can update all service groups
-        if ($user->role === 'service_leader') {
+        // Super admin and service leader can update all service groups
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leaders can only update their own service group (limited updates)
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $serviceGroup->id;
         }
 
@@ -78,7 +69,7 @@ class ServiceGroupPolicy
     {
         // Only super_admin can delete service groups
         // Service leaders, family leaders, and servants cannot delete
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -87,7 +78,7 @@ class ServiceGroupPolicy
     public function restore(User $user, ServiceGroup $serviceGroup): bool
     {
         // Only super_admin can restore service groups
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -96,7 +87,7 @@ class ServiceGroupPolicy
     public function forceDelete(User $user, ServiceGroup $serviceGroup): bool
     {
         // Only super_admin can permanently delete service groups
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -106,12 +97,12 @@ class ServiceGroupPolicy
     public function manageRegistrationLink(User $user, ServiceGroup $serviceGroup): bool
     {
         // Super admin and service leader can manage all groups
-        if (in_array($user->role, ['super_admin', 'service_leader'])) {
+        if ($user->role->isAdminLevel()) {
             return true;
         }
 
         // Family leader can only manage their own group
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $serviceGroup->id;
         }
 

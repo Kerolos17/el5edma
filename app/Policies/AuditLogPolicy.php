@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -16,7 +17,7 @@ class AuditLogPolicy
     public function viewAny(User $user): bool
     {
         // Only super_admin and service_leader can view audit logs
-        return in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -25,7 +26,7 @@ class AuditLogPolicy
     public function view(User $user, AuditLog $auditLog): bool
     {
         // Only super_admin and service_leader can view audit logs
-        return in_array($user->role, ['super_admin', 'service_leader']);
+        return $user->role->isAdminLevel();
     }
 
     /**
@@ -70,6 +71,6 @@ class AuditLogPolicy
     public function forceDelete(User $user, AuditLog $auditLog): bool
     {
         // Only super_admin can permanently delete audit logs (for cleanup purposes)
-        return $user->role === 'super_admin';
+        return $user->role === UserRole::SuperAdmin;
     }
 }

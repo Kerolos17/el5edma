@@ -58,5 +58,18 @@ Route::middleware(['web', 'auth'])->group(function () {
     )->name('medical-files.download');
 
     Route::post('/fcm-token', [FcmTokenController::class, 'store'])
-        ->name('fcm-token.store');
+        ->name('fcm-token.store')
+        ->middleware('throttle:10,1');
 });
+
+// Self-Registration
+Route::get('/register/{token}', [RegistrationController::class, 'show'])
+    ->name('registration.show');
+Route::post('/register/{token}', [RegistrationController::class, 'store'])
+    ->name('registration.store')
+    ->middleware('throttle:5,60');
+Route::get('/register', [RegistrationController::class, 'showPublic'])
+    ->name('registration.public');
+Route::post('/register', [RegistrationController::class, 'storePublic'])
+    ->name('registration.public.store')
+    ->middleware('throttle:5,60');

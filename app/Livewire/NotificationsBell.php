@@ -37,9 +37,8 @@ class NotificationsBell extends Component
                 'body'  => $n->body,
                 'read'  => $n->read_at !== null,
                 'time'  => $n->created_at->diffForHumans(),
-                'url'   => $url,
-            ];
-        })->toArray();
+                'url'   => $n->data['url'] ?? null,
+            ])->toArray();
     }
 
     public function markAllRead(): void
