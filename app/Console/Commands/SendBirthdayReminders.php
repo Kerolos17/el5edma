@@ -1,105 +1,146 @@
 <?php
-
 namespace App\Console\Commands;
 
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Requirements: 1.1, 1.2, 1.3, 1.4, 9.1
+ */
 class SendBirthdayReminders extends Command
 {
-    protected $signature   = 'reminders:birthdays';
+    protected $signature = 'reminders:birthdays';
+
     protected $description = 'إرسال تذكيرات أعياد الميلاد للمخدومين بعد 3 أيام';
 
     public function handle(): void
     {
-        $targetDate = now()->addDays(3);
+        $startTime      = microtime(true);
+        $targetDate     = now()->addDays(3);
+        $count          = 0;
+        $originalLocale = App::getLocale();
 
-        $beneficiaries = Beneficiary::query()
-            ->where('status', 'active')
-            ->whereNotNull('birth_date')
-            ->whereNotNull('assigned_servant_id')
-            ->with(['assignedServant', 'serviceGroup.leader'])
-            ->get()
-            ->filter(function ($b) use ($targetDate) {
-                $birthday = Carbon::parse($b->birth_date)
-                    ->setYear($targetDate->year);
+        try {
+            // Requirement 1.1 — SQL filter بدل PHP filter
+            // Requirement 1.2 — chunkById بدفعات 100
+            $driver = DB::getDriverName();
 
-                if ($birthday->lt(now()->startOfDay())) {
-                    $birthday->addYear();
-                }
-
-                return $birthday->month === $targetDate->month
-                    && $birthday->day === $targetDate->day;
-            });
-
-        $count = 0;
-
-        foreach ($beneficiaries as $beneficiary) {
-            $age = Carbon::parse($beneficiary->birth_date)->age + 1;
-
-            // إشعار الخادم
-            if ($servant = $beneficiary->assignedServant) {
-                $this->sendNotification(
-                    userId: $servant->id,
-                    locale: $servant->locale ?? 'ar',
-                    type: 'birthday',
-                    titleKey: 'notifications.birthday_title',
-                    bodyKey: 'notifications.birthday_body',
-                    params: [
-                        'name' => $beneficiary->full_name,
-                        'age'  => $age,
-                        'days' => 3,
-                    ],
-                    data: ['beneficiary_id' => $beneficiary->id],
-                );
-                $count++;
+            if ($driver === 'sqlite') {
+                $monthExpr = "CAST(strftime('%m', birth_date) AS INTEGER)";
+                $dayExpr   = "CAST(strftime('%d', birth_date) AS INTEGER)";
+            } else {
+                $monthExpr = 'MONTH(birth_date)';
+                $dayExpr   = 'DAY(birth_date)';
             }
 
-            // إشعار أمين الأسرة
-            if ($leader = $beneficiary->serviceGroup?->leader) {
-                $this->sendNotification(
-                    userId: $leader->id,
-                    locale: $leader->locale ?? 'ar',
-                    type: 'birthday',
-                    titleKey: 'notifications.birthday_title',
-                    bodyKey: 'notifications.birthday_body',
-                    params: [
-                        'name' => $beneficiary->full_name,
-                        'age'  => $age,
-                        'days' => 3,
-                    ],
-                    data: ['beneficiary_id' => $beneficiary->id],
-                );
-                $count++;
-            }
+            Beneficiary::query()
+                ->where('status', 'active')
+                ->whereNotNull('birth_date')
+                ->whereRaw("{$monthExpr} = ? AND {$dayExpr} = ?", [
+                    $targetDate->month,
+                    $targetDate->day,
+                ])
+                ->with([
+                    'assignedServant:id,fcm_token,locale',
+                    'serviceGroup.leader:id,fcm_token,locale',
+                ])
+                ->chunkById(100, function (Collection $chunk) use ($targetDate, &$count) {
+                    $rows   = []; // للـ bulk insert — Requirement 1.3
+                    $tokens = []; // للـ multicast  — Requirement 1.4
+
+                    foreach ($chunk as $beneficiary) {
+                        $age = $beneficiary->birth_date->age + 1;
+
+                        // إشعار الخادم المعيّن
+                        if ($servant = $beneficiary->assignedServant) {
+                            $locale = $servant->locale ?? 'ar';
+                            App::setLocale($locale);
+
+                            $params = [
+                                'name' => $beneficiary->full_name,
+                                'age'  => $age,
+                                'days' => 3,
+                            ];
+
+                            $title = __('notifications.birthday_title', $params);
+                            $body  = __('notifications.birthday_body', $params);
+
+                            $rows[] = [
+                                'user_id'    => $servant->id,
+                                'type'       => 'birthday',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode(['beneficiary_id' => $beneficiary->id]),
+                                'created_at' => now()->toDateTimeString(),
+                            ];
+
+                            if ($servant->fcm_token) {
+                                $tokens[] = $servant->fcm_token;
+                            }
+
+                            $count++;
+                        }
+
+                        // إشعار أمين الأسرة
+                        if ($leader = $beneficiary->serviceGroup?->leader) {
+                            $locale = $leader->locale ?? 'ar';
+                            App::setLocale($locale);
+
+                            $params = [
+                                'name' => $beneficiary->full_name,
+                                'age'  => $age,
+                                'days' => 3,
+                            ];
+
+                            $title = __('notifications.birthday_title', $params);
+                            $body  = __('notifications.birthday_body', $params);
+
+                            $rows[] = [
+                                'user_id'    => $leader->id,
+                                'type'       => 'birthday',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode(['beneficiary_id' => $beneficiary->id]),
+                                'created_at' => now()->toDateTimeString(),
+                            ];
+
+                            if ($leader->fcm_token) {
+                                $tokens[] = $leader->fcm_token;
+                            }
+
+                            $count++;
+                        }
+                    }
+
+                    // Requirement 1.3 — bulk insert بدل create() الفردي
+                    if (! empty($rows)) {
+                        MinistryNotification::insert($rows);
+                    }
+
+                    // Requirement 1.4 — Multicast عبر Job بدل إرسال فردي
+                    if (! empty($tokens)) {
+                        // استخدام آخر title/body من الدفعة (أو قيمة افتراضية)
+                        SendFcmNotificationJob::dispatch($tokens, $title ?? '', $body ?? '', []);
+                    }
+                });
+
+            $elapsed = round(microtime(true) - $startTime, 2);
+
+            // Requirement 9.1 — تسجيل وقت التنفيذ والعدد
+            Log::info('reminders:birthdays', [
+                'notifications_sent' => $count,
+                'execution_time_sec' => $elapsed,
+            ]);
+
+            $this->info("✅ تم إرسال {$count} تذكير عيد ميلاد في {$elapsed}s.");
+        } finally {
+            App::setLocale($originalLocale);
         }
-
-        $this->info("✅ تم إرسال {$count} تذكير عيد ميلاد.");
-    }
-
-    private function sendNotification(
-        int $userId,
-        string $locale,
-        string $type,
-        string $titleKey,
-        string $bodyKey,
-        array $params,
-        array $data = [],
-    ): void {
-        // حفظ الإشعار في الـ database بلغة المستقبل
-        App::setLocale($locale);
-
-        MinistryNotification::create([
-            'user_id' => $userId,
-            'type'    => $type,
-            'title'   => __($titleKey, $params),
-            'body'    => __($bodyKey, $params),
-            'data'    => $data,
-        ]);
-
-        App::setLocale(config('app.locale'));
     }
 }

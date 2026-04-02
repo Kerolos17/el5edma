@@ -11,16 +11,16 @@ return new class extends Migration
     {
         Schema::table('service_groups', function (Blueprint $table) {
             $table->foreignId('leader_id')
-                  ->nullable()
-                  ->after('name')
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('name')
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->foreignId('service_leader_id')
-                  ->nullable()
-                  ->after('leader_id')
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('leader_id')
+                ->constrained('users')
+                ->nullOnDelete();
         });
     }
 

@@ -16,7 +16,6 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\App;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -29,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->font('Cairo', 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap')
-            ->brandName(fn() => __('auth.system_name'))
+            ->brandName(fn () => __('auth.system_name'))
             ->brandLogoHeight('40px')
             ->favicon(asset('images/favicon.ico'))
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -50,27 +49,35 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(
                 in: app_path('Filament/Resources'),
-                for: 'App\\Filament\\Resources'
+                for: 'App\\Filament\\Resources',
             )
             ->discoverPages(
                 in: app_path('Filament/Pages'),
-                for: 'App\\Filament\\Pages'
+                for: 'App\\Filament\\Pages',
             )
             ->discoverWidgets(
                 in: app_path('Filament/Widgets'),
-                for: 'App\\Filament\\Widgets'
+                for: 'App\\Filament\\Widgets',
+            )
+            ->renderHook(
+                'panels::head.end',
+                fn () => view('filament.pwa-head'),
+            )
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('filament.pwa-install-prompt'),
             )
             ->renderHook(
                 'panels::topbar.end',
-                fn() => view('filament.language-switcher'),
+                fn () => view('filament.language-switcher'),
             )
             ->renderHook(
                 'panels::topbar.end',
-                fn() => view('filament.widgets.notifications-bell-topbar'),
+                fn () => view('filament.widgets.notifications-bell-topbar'),
             )
             ->globalSearch(true)
-->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-->globalSearchDebounce('500ms')
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchDebounce('500ms')
 
             ->middleware([
                 EncryptCookies::class,

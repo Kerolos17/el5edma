@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\ScheduledVisits;
 
 use App\Filament\Resources\ScheduledVisits\Pages\CreateScheduledVisit;
@@ -41,7 +42,7 @@ class ScheduledVisitResource extends Resource
         return __('visits.scheduled_title');
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(EagerLoadingService::scheduledVisitsTable());
         $user  = Auth::user();
@@ -80,25 +81,25 @@ class ScheduledVisitResource extends Resource
         ];
     }
 
-    // ── Authorization: الخادم للقراءة فقط ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('create', ScheduledVisit::class);
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('update', $record);
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('delete', $record);
     }
 
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

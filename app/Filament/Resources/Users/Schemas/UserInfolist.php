@@ -41,11 +41,11 @@ class UserInfolist
                         ->label(__('users.role'))
                         ->badge()
                         ->color(fn (string $state): string => match ($state) {
-                            'super_admin' => 'danger',
+                            'super_admin'    => 'danger',
                             'service_leader' => 'warning',
-                            'family_leader' => 'info',
-                            'servant' => 'success',
-                            default => 'gray',
+                            'family_leader'  => 'info',
+                            'servant'        => 'success',
+                            default          => 'gray',
                         })
                         ->formatStateUsing(fn (string $state): string => __("users.{$state}")),
 
@@ -57,8 +57,8 @@ class UserInfolist
                         ->label(__('users.locale'))
                         ->badge()
                         ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'ar' => __('users.arabic'),
-                            'en' => __('users.english'),
+                            'ar'    => __('users.arabic'),
+                            'en'    => __('users.english'),
                             default => $state,
                         }),
 

@@ -53,12 +53,12 @@ return new class extends Migration
 
             // ── التعيين الخدمي ──
             $table->foreignId('service_group_id')
-                  ->constrained('service_groups')
-                  ->cascadeOnDelete();
+                ->constrained('service_groups')
+                ->cascadeOnDelete();
             $table->foreignId('assigned_servant_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->enum('status', [
                 'active', 'inactive', 'moved', 'deceased',
             ])->default('active');

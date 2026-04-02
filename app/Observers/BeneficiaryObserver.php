@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\AuditLog;
 use App\Models\Beneficiary;
+use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Auth;
 
 class BeneficiaryObserver
@@ -14,6 +15,18 @@ class BeneficiaryObserver
     public function created(Beneficiary $beneficiary): void
     {
         $this->log($beneficiary, 'created', null, $beneficiary->getAttributes());
+
+        // إرسال إشعار داخلي
+        $notifier = app(InternalNotificationService::class);
+        $adderName = Auth::check() ? Auth::user()->name : 'النظام';
+        
+        $notifier->notifyRelatedUsers(
+            $beneficiary,
+            'new_beneficiary',
+            'مخدوم جديد!',
+            "تم إضافة المخدوم الجديد: {$beneficiary->name} بواسطة {$adderName}",
+            ['beneficiary_id' => $beneficiary->id]
+        );
     }
 
     public function updated(Beneficiary $beneficiary): void
@@ -33,7 +46,9 @@ class BeneficiaryObserver
 
     private function log($model, string $action, ?array $old, ?array $new): void
     {
-        if (! Auth::check()) return;
+        if (! Auth::check()) {
+            return;
+        }
 
         AuditLog::create([
             'user_id'    => Auth::id(),

@@ -45,13 +45,29 @@ class MedicalFileResource extends Resource
         return __('medical.files_title');
     }
 
-    // لا يسمح بالتعديل — immutable
-    public static function canEdit($record): bool
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canCreate(): bool
     {
-        return false;
+        return Auth::user()->can('create', MedicalFile::class);
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function canEdit($record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
+    }
+
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(['beneficiary', 'uploadedBy']);
         $user  = Auth::user();
@@ -89,22 +105,5 @@ class MedicalFileResource extends Resource
             'create' => CreateMedicalFile::route('/create'),
             'view'   => ViewMedicalFile::route('/{record}'),
         ];
-    }
-
-    // ── Authorization: الخادم للقراءة فقط ──
-
-    public static function canCreate(): bool
-    {
-        return \App\Helpers\PermissionHelper::canModify();
-    }
-
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return \App\Helpers\PermissionHelper::canModify();
-    }
-
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return true;
     }
 }

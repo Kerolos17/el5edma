@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\AuditLog;
 use App\Models\Visit;
+use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -48,7 +49,9 @@ class VisitObserver
 
     private function log($model, string $action, ?array $old, ?array $new): void
     {
-        if (! Auth::check()) return;
+        if (! Auth::check()) {
+            return;
+        }
 
         AuditLog::create([
             'user_id'    => Auth::id(),

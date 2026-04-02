@@ -16,8 +16,8 @@ class ScheduledVisit extends Model
     protected function casts(): array
     {
         return [
-            'scheduled_date'  => 'date',
-            'reminder_sent_at'=> 'datetime',
+            'scheduled_date'   => 'date',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 

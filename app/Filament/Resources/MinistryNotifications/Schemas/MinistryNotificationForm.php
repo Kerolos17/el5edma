@@ -4,8 +4,8 @@ namespace App\Filament\Resources\MinistryNotifications\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class MinistryNotificationForm
@@ -19,12 +19,12 @@ class MinistryNotificationForm
                     ->required(),
                 Select::make('type')
                     ->options([
-            'birthday' => 'Birthday',
-            'critical_case' => 'Critical case',
-            'visit_reminder' => 'Visit reminder',
-            'unvisited_alert' => 'Unvisited alert',
-            'new_beneficiary' => 'New beneficiary',
-        ])
+                        'birthday'        => 'Birthday',
+                        'critical_case'   => 'Critical case',
+                        'visit_reminder'  => 'Visit reminder',
+                        'unvisited_alert' => 'Unvisited alert',
+                        'new_beneficiary' => 'New beneficiary',
+                    ])
                     ->required(),
                 TextInput::make('title')
                     ->required(),

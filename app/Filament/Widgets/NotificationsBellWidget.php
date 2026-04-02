@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Filament\Widgets;
 
 use App\Models\MinistryNotification;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class NotificationsBellWidget extends Widget
 {
@@ -50,6 +50,7 @@ class NotificationsBellWidget extends Widget
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
     }
 
@@ -59,6 +60,7 @@ class NotificationsBellWidget extends Widget
             ->where('user_id', Auth::id())
             ->update(['read_at' => now()]);
 
+        Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
     }
 }

@@ -58,7 +58,7 @@ class ServiceGroupResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user = Auth::user();
+        $user  = Auth::user();
 
         // family_leader يشوف أسرته فقط
         if ($user?->role === UserRole::FamilyLeader) {
@@ -91,32 +91,32 @@ class ServiceGroupResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListServiceGroups::route('/'),
+            'index'  => ListServiceGroups::route('/'),
             'create' => CreateServiceGroup::route('/create'),
-            'view' => ViewServiceGroup::route('/{record}'),
-            'edit' => EditServiceGroup::route('/{record}/edit'),
+            'view'   => ViewServiceGroup::route('/{record}'),
+            'edit'   => EditServiceGroup::route('/{record}/edit'),
         ];
     }
 
-    // ── Authorization: فقط super_admin و service_leader ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
         return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return Auth::user()?->role === UserRole::SuperAdmin;
     }
 
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

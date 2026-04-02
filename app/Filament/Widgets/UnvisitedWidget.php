@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Widgets;
 
 use App\Models\Beneficiary;
@@ -66,15 +67,15 @@ class UnvisitedWidget extends BaseWidget
                 TextColumn::make('financial_status')
                     ->label(__('beneficiaries.financial_status'))
                     ->badge()
-                    ->color(fn($state): string => match ($state) {
+                    ->color(fn ($state): string => match ($state) {
                         'good'     => 'success',
                         'moderate' => 'warning',
                         'poor', 'very_poor' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn($state) => $state
+                    ->formatStateUsing(fn ($state) => $state
                             ? __("beneficiaries.{$state}")
-                            : '—'
+                            : '—',
                     ),
 
                 TextColumn::make('visits_max_visit_date')

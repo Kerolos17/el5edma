@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Beneficiaries\Schemas;
 
 use Filament\Infolists\Components\ImageEntry;
@@ -25,9 +26,8 @@ class BeneficiaryInfolist
                                     ->circular()
                                     ->disk('public')
                                     ->imageSize(150)
-                                    ->getStateUsing(fn($record) => $record->photo)
-                                    ->defaultImageUrl(fn($record) =>
-                                        'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150'
+                                    ->getStateUsing(fn ($record) => $record->photo)
+                                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150',
                                     ),
 
                                 TextEntry::make('full_name')
@@ -46,19 +46,19 @@ class BeneficiaryInfolist
                                 TextEntry::make('gender')
                                     ->label(__('beneficiaries.gender'))
                                     ->badge()
-                                    ->formatStateUsing(fn(string $state) => __("beneficiaries.{$state}")),
+                                    ->formatStateUsing(fn (string $state) => __("beneficiaries.{$state}")),
 
                                 TextEntry::make('status')
                                     ->label(__('beneficiaries.status'))
                                     ->badge()
-                                    ->color(fn(string $state): string => match ($state) {
+                                    ->color(fn (string $state): string => match ($state) {
                                         'active'   => 'success',
                                         'inactive' => 'gray',
                                         'moved'    => 'info',
                                         'deceased' => 'danger',
                                         default    => 'gray',
                                     })
-                                    ->formatStateUsing(fn(string $state) => __("beneficiaries.{$state}")),
+                                    ->formatStateUsing(fn (string $state) => __("beneficiaries.{$state}")),
                             ])->columns(2),
                     ]),
 
@@ -107,26 +107,26 @@ class BeneficiaryInfolist
                                 TextEntry::make('father_status')
                                     ->label(__('beneficiaries.father_status'))
                                     ->badge()
-                                    ->color(fn($state) => $state === 'deceased' ? 'danger' : 'success')
-                                    ->formatStateUsing(fn($state) => $state ? __("beneficiaries.{$state}") : '—'),
+                                    ->color(fn ($state) => $state === 'deceased' ? 'danger' : 'success')
+                                    ->formatStateUsing(fn ($state) => $state ? __("beneficiaries.{$state}") : '—'),
 
                                 TextEntry::make('father_death_date')
                                     ->label(__('beneficiaries.father_death_date'))
                                     ->date()
                                     ->placeholder('—')
-                                    ->visible(fn($record) => $record?->father_status === 'deceased'),
+                                    ->visible(fn ($record) => $record?->father_status === 'deceased'),
 
                                 TextEntry::make('mother_status')
                                     ->label(__('beneficiaries.mother_status'))
                                     ->badge()
-                                    ->color(fn($state) => $state === 'deceased' ? 'danger' : 'success')
-                                    ->formatStateUsing(fn($state) => $state ? __("beneficiaries.{$state}") : '—'),
+                                    ->color(fn ($state) => $state === 'deceased' ? 'danger' : 'success')
+                                    ->formatStateUsing(fn ($state) => $state ? __("beneficiaries.{$state}") : '—'),
 
                                 TextEntry::make('mother_death_date')
                                     ->label(__('beneficiaries.mother_death_date'))
                                     ->date()
                                     ->placeholder('—')
-                                    ->visible(fn($record) => $record?->mother_status === 'deceased'),
+                                    ->visible(fn ($record) => $record?->mother_status === 'deceased'),
 
                                 TextEntry::make('siblings_count')
                                     ->label(__('beneficiaries.siblings_count'))
@@ -142,14 +142,14 @@ class BeneficiaryInfolist
                                 TextEntry::make('financial_status')
                                     ->label(__('beneficiaries.financial_status'))
                                     ->badge()
-                                    ->color(fn($state): string => match ($state) {
+                                    ->color(fn ($state): string => match ($state) {
                                         'good'      => 'success',
                                         'moderate'  => 'warning',
                                         'poor'      => 'danger',
                                         'very_poor' => 'danger',
                                         default     => 'gray',
                                     })
-                                    ->formatStateUsing(fn($state) => $state ? __("beneficiaries.{$state}") : '—'),
+                                    ->formatStateUsing(fn ($state) => $state ? __("beneficiaries.{$state}") : '—'),
 
                                 TextEntry::make('financial_notes')
                                     ->label(__('beneficiaries.financial_notes'))
@@ -179,7 +179,7 @@ class BeneficiaryInfolist
                                 TextEntry::make('google_maps_url')
                                     ->label(__('beneficiaries.google_maps_url'))
                                     ->placeholder('—')
-                                    ->url(fn($state) => $state)
+                                    ->url(fn ($state) => $state)
                                     ->openUrlInNewTab()
                                     ->columnSpanFull(),
                             ])->columns(2),
@@ -197,13 +197,13 @@ class BeneficiaryInfolist
                                 TextEntry::make('disability_degree')
                                     ->label(__('beneficiaries.disability_degree'))
                                     ->badge()
-                                    ->color(fn($state): string => match ($state) {
+                                    ->color(fn ($state): string => match ($state) {
                                         'mild'     => 'success',
                                         'moderate' => 'warning',
                                         'severe'   => 'danger',
                                         default    => 'gray',
                                     })
-                                    ->formatStateUsing(fn($state) => $state ? __("beneficiaries.{$state}") : '—'),
+                                    ->formatStateUsing(fn ($state) => $state ? __("beneficiaries.{$state}") : '—'),
 
                                 TextEntry::make('doctor_name')
                                     ->label(__('beneficiaries.doctor_name'))

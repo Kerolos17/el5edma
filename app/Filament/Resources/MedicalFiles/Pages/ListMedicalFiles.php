@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Filament\Resources\MedicalFiles\Pages;
 
 use App\Filament\Resources\MedicalFiles\MedicalFileResource;
+use App\Helpers\PermissionHelper;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -14,7 +16,7 @@ class ListMedicalFiles extends ListRecords
         return [
             CreateAction::make()
                 ->label(__('medical.upload_file'))
-                ->visible(fn() => \App\Helpers\PermissionHelper::canModify()),
+                ->visible(fn () => PermissionHelper::canModify()),
         ];
     }
 }

@@ -2,84 +2,103 @@
 
 ## Top-Level Layout
 
-Standard Laravel 12 project. Admin UI is entirely Filament-based — there are no traditional Blade views for the main app.
+```
+app/                    # Application code
+database/               # Migrations, seeders, factories
+resources/              # Views, CSS, JS, lang files
+routes/web.php          # All routes (no api.php)
+tests/                  # PHPUnit tests
+.kiro/specs/            # Feature specs
+```
+
+## App Directory
 
 ```
 app/
-  Console/Commands/     # Scheduled artisan commands
-  Exports/              # Maatwebsite Excel export classes
-  Filament/             # All admin UI (Filament 4)
-    Pages/              # Custom pages (Dashboard, Reports, Auth/Login)
-    Resources/          # One folder per resource (see below)
-    Widgets/            # Dashboard widgets
-  Http/
-    Controllers/        # Minimal — only ReportController, LocaleController, CodeLoginController
-  Livewire/             # Standalone Livewire components (if any)
-  Models/               # Eloquent models
-  Observers/            # Model observers (audit logging)
-  Providers/            # AppServiceProvider — registers observers, sets locale
-  Services/             # Business logic (e.g. ReportService)
-
-database/
-  migrations/           # Timestamped migration files
-  factories/
-  seeders/
-
-lang/
-  ar/                   # Arabic translations (default)
-  en/                   # English translations
-
-resources/
-  css/                  # app.css + filament theme
-  js/                   # app.js
-  views/                # Blade views (mainly PDF report templates)
-
-routes/
-  web.php               # Minimal: redirect /, language switch, PDF report routes
-  console.php           # Scheduled command definitions
-
-tests/
-  Feature/
-  Unit/
+├── Console/Commands/       # Artisan commands (reminders, notifications)
+├── DTOs/                   # Data Transfer Objects (e.g. MulticastResult)
+├── Exports/                # Maatwebsite Excel export classes
+├── Filament/
+│   ├── Pages/              # Custom Filament pages (Dashboard, Reports, Auth/Login)
+│   ├── Resources/          # One folder per resource (see Resource Structure below)
+│   └── Widgets/            # Dashboard & topbar widgets
+├── Http/
+│   ├── Controllers/        # Thin controllers (reports, file access, FCM token, locale)
+│   └── Middleware/         # SetLocale
+├── Jobs/                   # Queued jobs (SendFcmNotificationJob)
+├── Livewire/               # Livewire components (NotificationsBell, StatsOverviewWidget)
+├── Models/                 # Eloquent models (11 models)
+├── Observers/              # Model observers (audit logging, side effects)
+├── Policies/               # Laravel authorization policies (one per model)
+├── Providers/              # AppServiceProvider, AuthServiceProvider, AdminPanelProvider
+└── Services/               # Business logic services
+    ├── CacheService.php
+    ├── EagerLoadingService.php
+    ├── PushNotificationService.php
+    ├── QueryMonitoringService.php
+    └── ReportService.php
 ```
 
-## Filament Resource Convention
+## Filament Resource Structure
 
-Each resource lives in its own folder under `app/Filament/Resources/{ResourceName}/` and is split into:
+Each resource follows this consistent pattern:
 
 ```
-{ResourceName}/
-  {ResourceName}Resource.php     # Main resource class (navigation, model binding, page registration)
-  Pages/                         # Create, Edit, List, View page classes
-  Schemas/                       # {Resource}Form.php and {Resource}Infolist.php
-  Tables/                        # {Resource}Table.php
+app/Filament/Resources/{ResourceName}/
+├── {ResourceName}Resource.php   # Main resource class
+├── Pages/
+│   ├── List{ResourceName}.php
+│   ├── Create{ResourceName}.php
+│   ├── Edit{ResourceName}.php
+│   └── View{ResourceName}.php
+├── Schemas/
+│   ├── {ResourceName}Form.php       # Form schema builder
+│   └── {ResourceName}Infolist.php   # View/infolist schema builder
+└── Tables/
+    └── {ResourceName}Table.php      # Table configuration
 ```
 
-Form and table logic is extracted into dedicated schema/table classes with a static `configure()` method, keeping the resource class thin.
+The main `Resource.php` delegates to these classes via `form()`, `infolist()`, and `table()` methods.
 
 ## Models
 
-All models are in `app/Models/`. Key relationships:
-
-- `Beneficiary` → belongs to `ServiceGroup`, belongs to `User` (assigned servant)
-- `Visit` → belongs to `Beneficiary`, many-to-many `User` via `visit_servants`
-- `ScheduledVisit` → belongs to `Beneficiary`
-- `ServiceGroup` → has `leader` and `serviceLeader` (both `User`)
-- `User` → belongs to `ServiceGroup`; has roles via Spatie Permission
-
-## Observers
-
-Every key model has an observer registered in `AppServiceProvider`. Observers write to `AuditLog` on `created`, `updated`, and `deleted` events.
+| Model | Key Relations |
+|-------|--------------|
+| `User` | belongsTo ServiceGroup; hasMany Beneficiary (assigned), Visit, MinistryNotification |
+| `Beneficiary` | belongsTo ServiceGroup, User (servant, createdBy); hasMany Visit, Medication, MedicalFile, PrayerRequest, ScheduledVisit |
+| `ServiceGroup` | hasMany User, Beneficiary |
+| `Visit` | belongsTo Beneficiary, User; belongsToMany User (servants via visit_servants) |
+| `MinistryNotification` | belongsTo User |
+| `AuditLog` | standalone audit trail |
 
 ## Localization
 
-All user-facing strings use `__('file.key')`. Translation files are in `lang/ar/` and `lang/en/`. The active locale is set per-user (`users.locale` column) and applied in `AppServiceProvider::boot()`.
+```
+resources/lang/
+├── ar/     # Arabic (primary)
+└── en/     # English (fallback)
+```
 
-## Role-Based Data Scoping
+Translation keys used via `__('section.key')`. User locale stored on `users.locale` column.
 
-Resources scope their Eloquent queries in `getEloquentQuery()` based on `Auth::user()->role`:
+## Tests
 
-- `servant` / `family_leader` — scoped to their `service_group_id`
-- `service_leader` / `super_admin` — full access
+```
+tests/
+├── Unit/                   # Unit & property-based tests
+│   ├── Jobs/
+│   └── *PropertyTest.php   # Property-based tests (naming convention)
+└── Feature/                # Feature/integration tests
+```
 
-Action visibility (delete, bulk actions) is also gated inline using `Auth::user()->role` checks.
+## Key Conventions
+
+- **Authorization**: Always use Laravel Policies — never inline role checks in controllers. Filament resources call `Auth::user()->can(...)` delegating to policies.
+- **Role scoping**: `getEloquentQuery()` in resources applies `service_group_id` scoping for `family_leader` and `servant` roles.
+- **Notifications**: Always insert to `ministry_notifications` table (bulk insert) AND dispatch `SendFcmNotificationJob` for push delivery.
+- **Chunking**: Use `chunkById(100, ...)` for bulk operations in commands — never load all records at once.
+- **Observers**: Registered in `AppServiceProvider::boot()`. Used for audit logging and side effects (not business logic).
+- **Services**: Business logic lives in `app/Services/`. Controllers and commands stay thin.
+- **DTOs**: Use DTOs (e.g. `MulticastResult`) to return structured data from services.
+- **Eager loading**: Use `EagerLoadingService` to define relationship sets — prevents N+1 in list views.
+- **Comments**: Code comments are written in Arabic (matching the domain language of the project).

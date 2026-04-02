@@ -14,13 +14,13 @@ return new class extends Migration
 
             // Make the column nullable and re-add with nullOnDelete
             $table->foreignId('assigned_servant_id')
-                  ->nullable()
-                  ->change();
+                ->nullable()
+                ->change();
 
             $table->foreign('assigned_servant_id')
-                  ->references('id')
-                  ->on('users')
-                  ->nullOnDelete();
+                ->references('id')
+                ->on('users')
+                ->nullOnDelete();
         });
     }
 
@@ -30,13 +30,13 @@ return new class extends Migration
             $table->dropForeign(['assigned_servant_id']);
 
             $table->foreignId('assigned_servant_id')
-                  ->nullable(false)
-                  ->change();
+                ->nullable(false)
+                ->change();
 
             $table->foreign('assigned_servant_id')
-                  ->references('id')
-                  ->on('users')
-                  ->cascadeOnDelete();
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete();
         });
     }
 };

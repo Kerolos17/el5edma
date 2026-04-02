@@ -83,11 +83,43 @@ class UsersTable
 
                 TernaryFilter::make('is_active')
                     ->label(__('users.is_active')),
+
+                TernaryFilter::make('pending_approval')
+                    ->label(__('users.pending_approval'))
+                    ->placeholder(__('users.all_servants'))
+                    ->trueLabel(__('users.pending_only'))
+                    ->falseLabel(__('users.approved_only'))
+                    ->queries(
+                        true: fn($query)  => $query->where('role', 'servant')->where('is_active', false),
+                        false: fn($query) => $query->where('role', 'servant')->where('is_active', true),
+                        blank: fn($query) => $query,
+                    ),
             ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+
+                    Action::make('approve_servant')
+                        ->label(__('users.approve_servant'))
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn(User $record) =>
+                            ! $record->is_active &&
+                            $record->role === 'servant' &&
+                            Auth::user()->can('update', $record)
+                        )
+                        ->requiresConfirmation()
+                        ->modalHeading(__('users.approve_servant_confirmation'))
+                        ->modalDescription(__('users.approve_servant_description'))
+                        ->action(function (User $record) {
+                            $record->update(['is_active' => true]);
+
+                            Notification::make()
+                                ->title(__('users.servant_approved'))
+                                ->success()
+                                ->send();
+                        }),
 
                     Action::make('generate_code')
                         ->label(__('users.generate_code'))

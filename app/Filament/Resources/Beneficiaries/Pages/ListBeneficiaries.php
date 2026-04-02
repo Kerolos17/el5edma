@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Beneficiaries\Pages;
 
 use App\Filament\Resources\Beneficiaries\BeneficiaryResource;
@@ -16,7 +17,7 @@ class ListBeneficiaries extends ListRecords
         return [
             CreateAction::make()
                 ->label(__('beneficiaries.add'))
-                ->visible(fn() => in_array(
+                ->visible(fn () => in_array(
                     Auth::user()?->role,
                     [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                 )),

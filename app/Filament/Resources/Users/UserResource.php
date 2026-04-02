@@ -75,4 +75,26 @@ class UserResource extends Resource
             'edit'   => EditUser::route('/{record}/edit'),
         ];
     }
+
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('create', User::class);
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
@@ -7,6 +8,7 @@ use App\Filament\Resources\MedicalFiles\MedicalFileResource;
 use App\Filament\Resources\PrayerRequests\PrayerRequestResource;
 use App\Filament\Resources\ScheduledVisits\ScheduledVisitResource;
 use App\Filament\Resources\ServiceGroups\ServiceGroupResource;
+use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\Visits\VisitResource;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
@@ -131,7 +133,7 @@ class ServantReadOnlyTest extends TestCase
 
         // Servant cannot access these resources at all
         $this->assertFalse(ServiceGroupResource::canAccess(), 'Servant should not access service groups');
-        $this->assertFalse(\App\Filament\Resources\Users\UserResource::canAccess(), 'Servant should not access users');
+        $this->assertFalse(UserResource::canAccess(), 'Servant should not access users');
     }
 
     /** @test */
@@ -175,6 +177,6 @@ class ServantReadOnlyTest extends TestCase
         $this->assertTrue(BeneficiaryResource::canView($beneficiary));
 
         $this->assertTrue(ServiceGroupResource::canAccess());
-        $this->assertTrue(\App\Filament\Resources\Users\UserResource::canAccess());
+        $this->assertTrue(UserResource::canAccess());
     }
 }

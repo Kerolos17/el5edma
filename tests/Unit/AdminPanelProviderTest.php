@@ -16,7 +16,7 @@ class AdminPanelProviderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $provider = new AdminPanelProvider($this->app);
+        $provider    = new AdminPanelProvider($this->app);
         $this->panel = $provider->panel(Panel::make());
     }
 

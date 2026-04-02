@@ -42,11 +42,9 @@ class MedicalFileInfolist
                     // زر تحميل الملف
                     TextEntry::make('file_path')
                         ->label(__('medical.upload_file'))
-                        ->formatStateUsing(fn ($state) =>
-                            app()->getLocale() === 'ar' ? 'تحميل الملف' : 'Download File'
+                        ->formatStateUsing(fn ($state) => app()->getLocale() === 'ar' ? 'تحميل الملف' : 'Download File',
                         )
-                        ->url(fn ($record) =>
-                            route('medical-files.download', $record)
+                        ->url(fn ($record) => route('medical-files.download', $record),
                         )
                         ->openUrlInNewTab()
                         ->color('primary'),

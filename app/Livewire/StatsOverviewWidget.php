@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use Filament\Widgets\StatsOverviewWidget as BaseStatsOverviewWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverviewWidget extends BaseStatsOverviewWidget
 {

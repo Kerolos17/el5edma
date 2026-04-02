@@ -35,7 +35,7 @@ class MedicalFileController extends Controller
 
         return Storage::disk('private')->download(
             $medicalFile->file_path,
-            $medicalFile->title . '.' . pathinfo($medicalFile->file_path, PATHINFO_EXTENSION)
+            $medicalFile->title . '.' . pathinfo($medicalFile->file_path, PATHINFO_EXTENSION),
         );
     }
 }

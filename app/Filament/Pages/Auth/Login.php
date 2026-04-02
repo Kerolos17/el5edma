@@ -1,16 +1,18 @@
 <?php
-
 namespace App\Filament\Pages\Auth;
 
 use App\Models\User;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
+    // WithRateLimiting موروث من BaseLogin — لا نعيد تعريفه
+
     // الـ Tab النشط: email أو code
     public string $activeTab = 'email';
 
@@ -23,8 +25,20 @@ class Login extends BaseLogin
     }
 
     // تسجيل الدخول بالكود الشخصي
-    public function loginWithCode(): LoginResponse|null
+    public function loginWithCode(): ?LoginResponse
     {
+        // حماية من brute force — 5 محاولات كل دقيقة (نفس حد email login)
+        // WithRateLimiting موروث من BaseLogin
+        try {
+            $this->rateLimit(5);
+        } catch (TooManyRequestsException $exception) {
+            throw ValidationException::withMessages([
+                'personalCode' => [
+                    __('auth.throttle', ['seconds' => $exception->secondsUntilAvailable]),
+                ],
+            ]);
+        }
+
         $code = trim($this->personalCode);
 
         if (empty($code)) {
@@ -57,5 +71,20 @@ class Login extends BaseLogin
     {
         $this->activeTab    = $tab;
         $this->personalCode = '';
+    }
+
+    /**
+     * إضافة رابط التسجيل أسفل نموذج تسجيل الدخول
+     */
+    protected function getFooterWidgetsData(): array
+    {
+        return [
+            'registerUrl' => route('register.public'),
+        ];
+    }
+
+    protected function hasFooter(): bool
+    {
+        return true;
     }
 }

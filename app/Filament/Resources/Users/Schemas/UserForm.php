@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\ServiceGroup;
@@ -40,9 +39,9 @@ class UserForm
                     TextInput::make('password')
                         ->label(__('users.password'))
                         ->password()
-                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                        ->dehydrated(fn ($state) => filled($state))
-                        ->required(fn (string $operation) => $operation === 'create')
+                        ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                        ->dehydrated(fn($state) => filled($state))
+                        ->required(fn(string $operation) => $operation === 'create')
                         ->maxLength(255),
                 ])->columns(2),
 
@@ -51,22 +50,22 @@ class UserForm
                     Select::make('role')
                         ->label(__('users.role'))
                         ->options([
-                            'super_admin' => __('users.super_admin'),
+                            'super_admin'    => __('users.super_admin'),
                             'service_leader' => __('users.service_leader'),
-                            'family_leader' => __('users.family_leader'),
-                            'servant' => __('users.servant'),
+                            'family_leader'  => __('users.family_leader'),
+                            'servant'        => __('users.servant'),
                         ])
                         ->required()
                         ->live()
                         ->afterStateUpdated(fn ($state, callable $set) => in_array($state, [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])
                                 ? $set('service_group_id', null)
-                                : null
+                                : null,
                         ),
 
                     Select::make('service_group_id')
                         ->label(__('users.service_group'))
                         ->options(
-                            ServiceGroup::where('is_active', true)->pluck('name', 'id')
+                            ServiceGroup::where('is_active', true)->pluck('name', 'id'),
                         )
                         ->searchable()
                         ->nullable()
@@ -92,7 +91,10 @@ class UserForm
                         ->label(__('users.personal_code'))
                         ->helperText(__('users.code_hint'))
                         ->readOnly()
-                        ->maxLength(10),
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->maxLength(10)
+                        ->placeholder(__('users.code_auto_generated')),
                 ])
                 ->visible(fn () => Auth::check() && Auth::user()->role === UserRole::SuperAdmin)]);
     }

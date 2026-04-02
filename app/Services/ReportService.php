@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Enums\UserRole;
@@ -6,6 +7,7 @@ use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Models\Visit;
+use Illuminate\Http\Response;
 use Mpdf\Mpdf;
 
 class ReportService
@@ -25,7 +27,7 @@ class ReportService
         ]);
     }
 
-    public function beneficiariesPdf(User $user): \Illuminate\Http\Response
+    public function beneficiariesPdf(User $user): Response
     {
         $query = Beneficiary::with(['serviceGroup', 'assignedServant'])
             ->where('status', 'active');
@@ -50,7 +52,7 @@ class ReportService
         ]);
     }
 
-    public function visitsPdf(User $user, ?string $dateFrom = null, ?string $dateTo = null): \Illuminate\Http\Response
+    public function visitsPdf(User $user, ?string $dateFrom = null, ?string $dateTo = null): Response
     {
         $query = Visit::with(['beneficiary.serviceGroup', 'createdBy'])->latest('visit_date');
 
@@ -84,7 +86,7 @@ class ReportService
         ]);
     }
 
-    public function unvisitedPdf(User $user): \Illuminate\Http\Response
+    public function unvisitedPdf(User $user): Response
     {
         $cutoff = now()->subDays(30);
 
@@ -118,14 +120,14 @@ class ReportService
     }
 
     // ── تقرير مخدوم واحد كامل ──
-    public function singleBeneficiaryPdf(Beneficiary $beneficiary): \Illuminate\Http\Response
+    public function singleBeneficiaryPdf(Beneficiary $beneficiary): Response
     {
         $beneficiary->load([
             'serviceGroup',
             'assignedServant',
             'createdBy',
-            'medications' => fn($q) => $q->where('is_active', true),
-            'visits'      => fn($q)      => $q->latest('visit_date')->limit(10),
+            'medications' => fn ($q) => $q->where('is_active', true),
+            'visits'      => fn ($q) => $q->latest('visit_date')->limit(10),
             'visits.createdBy',
             'medicalFiles',
             'prayerRequests',
@@ -146,21 +148,21 @@ class ReportService
     }
 
     // ── تقرير الأسرة (الخدام + الإحصائيات) ──
-    public function serviceGroupPdf(ServiceGroup $serviceGroup): \Illuminate\Http\Response
+    public function serviceGroupPdf(ServiceGroup $serviceGroup): Response
     {
         $serviceGroup->load([
             'leader',
             'serviceLeader',
-            'beneficiaries' => fn($q) => $q->where('status', 'active'),
+            'beneficiaries' => fn ($q) => $q->where('status', 'active'),
         ]);
 
         // Load servants with aggregated statistics
         $servants = User::where('service_group_id', $serviceGroup->id)
             ->withCount([
-                'visits as visits_this_month'             => fn($q)             => $q
+                'visits as visits_this_month' => fn ($q) => $q
                     ->whereMonth('visit_date', now()->month)
                     ->whereYear('visit_date', now()->year),
-                'assignedBeneficiaries as assigned_count' => fn($q) => $q
+                'assignedBeneficiaries as assigned_count' => fn ($q) => $q
                     ->where('service_group_id', $serviceGroup->id)
                     ->where('status', 'active'),
             ])
@@ -168,10 +170,10 @@ class ReportService
             ->get();
 
         // إحصائيات كل خادم
-        $servantStats = $servants->map(fn($servant) => [
+        $servantStats = $servants->map(fn ($servant) => [
             'servant'           => $servant,
             'visits_this_month' => $servant->visits_this_month ?? 0,
-            'assigned_count'    => $servant->assigned_count ?? 0,
+            'assigned_count'    => $servant->assigned_count    ?? 0,
             'last_visit'        => $servant->last_visit,
         ]);
 
@@ -190,7 +192,7 @@ class ReportService
     }
 
     // ── تقرير مخدومي الأسرة ──
-    public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup): \Illuminate\Http\Response
+    public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup): Response
     {
         $beneficiaries = Beneficiary::with(['assignedServant'])
             ->withCount('visits as visits_count')
@@ -199,7 +201,7 @@ class ReportService
             ->where('status', 'active')
             ->orderBy('full_name')
             ->get()
-            ->map(fn($b) => [
+            ->map(fn ($b) => [
                 'beneficiary'  => $b,
                 'last_visit'   => $b->last_visit,
                 'visits_count' => $b->visits_count ?? 0,
@@ -207,7 +209,7 @@ class ReportService
 
         $isAr = app()->getLocale() === 'ar';
         $html = view('reports.service-group-beneficiaries-pdf',
-            compact('serviceGroup', 'beneficiaries', 'isAr')
+            compact('serviceGroup', 'beneficiaries', 'isAr'),
         )->render();
 
         $mpdf = $this->makeMpdf();

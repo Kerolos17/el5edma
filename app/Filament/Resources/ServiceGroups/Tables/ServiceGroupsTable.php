@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ServiceGroups\Tables;
 
-use App\Models\Beneficiary;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;

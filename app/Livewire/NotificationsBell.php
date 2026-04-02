@@ -1,9 +1,10 @@
 <?php
-
 namespace App\Livewire;
 
 use App\Models\MinistryNotification;
+use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class NotificationsBell extends Component
@@ -34,10 +35,11 @@ class NotificationsBell extends Component
                 'type'  => $n->type,
                 'title' => $n->title,
                 'body'  => $n->body,
-                'read'  => ! is_null($n->read_at),
+                'read'  => $n->read_at !== null,
                 'time'  => $n->created_at->diffForHumans(),
-            ])
-            ->toArray();
+                'url'   => $url,
+            ];
+        })->toArray();
     }
 
     public function markAllRead(): void
@@ -46,16 +48,23 @@ class NotificationsBell extends Component
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
     }
 
-    public function markRead(int $id): void
+    public function markRead(int $id, ?string $url = null): void
     {
         MinistryNotification::where('id', $id)
             ->where('user_id', Auth::id())
             ->update(['read_at' => now()]);
 
-        $this->loadNotifications();
+        Cache::forget('notifications_unread_' . Auth::id());
+
+        if ($url) {
+            $this->redirect($url, navigate: FilamentView::hasSpaMode());
+        } else {
+            $this->loadNotifications();
+        }
     }
 
     public function render()

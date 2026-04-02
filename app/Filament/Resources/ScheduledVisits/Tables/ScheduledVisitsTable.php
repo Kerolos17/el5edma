@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\ScheduledVisits\Tables;
 
+use App\Helpers\PermissionHelper;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -39,13 +41,13 @@ class ScheduledVisitsTable
                 TextColumn::make('status')
                     ->label(__('beneficiaries.status'))
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'pending'   => 'warning',
                         'completed' => 'success',
                         'cancelled' => 'danger',
                         default     => 'gray',
                     })
-                    ->formatStateUsing(fn($state) => __("visits.{$state}")),
+                    ->formatStateUsing(fn ($state) => __("visits.{$state}")),
 
                 TextColumn::make('reminder_sent_at')
                     ->label(__('visits.reminder_sent'))
@@ -66,12 +68,12 @@ class ScheduledVisitsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify()
-                            && $record->status === 'pending'
+                        ->visible(fn ($record) => PermissionHelper::canModify()
+                            && $record->status === 'pending',
                         ),
                     DeleteAction::make()
-                        ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify()
-                            && $record->status !== 'completed'
+                        ->visible(fn ($record) => PermissionHelper::canModify()
+                            && $record->status !== 'completed',
                         ),
                 ]),
             ])

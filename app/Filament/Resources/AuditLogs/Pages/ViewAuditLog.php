@@ -22,7 +22,7 @@ class ViewAuditLog extends ViewRecord
                         ->label(__('users.name')),
 
                     TextEntry::make('action')
-                        ->label('Action')
+                        ->label(__('audit_logs.action'))
                         ->badge()
                         ->color(fn ($state) => match ($state) {
                             'created' => 'success',
@@ -32,15 +32,15 @@ class ViewAuditLog extends ViewRecord
                         }),
 
                     TextEntry::make('model_type')
-                        ->label('Model')
+                        ->label(__('audit_logs.model'))
                         ->formatStateUsing(fn ($state) => class_basename($state)),
 
                     TextEntry::make('model_id')
-                        ->label('ID')
+                        ->label(__('audit_logs.model_id'))
                         ->fontFamily('mono'),
 
                     TextEntry::make('ip_address')
-                        ->label('IP')
+                        ->label(__('audit_logs.ip_address'))
                         ->fontFamily('mono')
                         ->placeholder('—'),
 
@@ -49,7 +49,7 @@ class ViewAuditLog extends ViewRecord
                         ->dateTime(),
                 ])->columns(2),
 
-            Section::make(app()->getLocale() === 'ar' ? 'القيم القديمة' : 'Old Values')
+            Section::make(__('audit_logs.old_values'))
                 ->schema([
                     KeyValueEntry::make('old_values')
                         ->label('')
@@ -57,7 +57,7 @@ class ViewAuditLog extends ViewRecord
                 ])
                 ->visible(fn ($record) => ! empty($record->old_values)),
 
-            Section::make(app()->getLocale() === 'ar' ? 'القيم الجديدة' : 'New Values')
+            Section::make(__('audit_logs.new_values'))
                 ->schema([
                     KeyValueEntry::make('new_values')
                         ->label('')

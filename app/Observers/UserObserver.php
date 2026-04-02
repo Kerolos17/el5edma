@@ -10,9 +10,21 @@ class UserObserver
 {
     // لا نسجّل هذه الحقول أبداً
     private array $excluded = [
-        'password', 'personal_code', 'fcm_token',
+        'password', 'personal_code', 'personal_code_hash', 'fcm_token',
         'remember_token', 'updated_at', 'last_login_at',
     ];
+
+    public function creating(User $user): void
+    {
+        if (empty($user->personal_code)) {
+            do {
+                $code = (string) random_int(100000, 999999);
+                // نتحقق من التكرار بالـ hash (blind index)
+            } while (User::where('personal_code_hash', hash('sha256', $code))->exists());
+
+            $user->personal_code = $code; // الـ mutator هيشفره ويولد الـ hash تلقائياً
+        }
+    }
 
     public function created(User $user): void
     {

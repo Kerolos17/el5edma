@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Beneficiary;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Manual Test Script for Task 3.3: اختبار الوصول المباشر للصور
  *
@@ -12,17 +16,17 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 $app = require_once __DIR__ . '/../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 echo "=== Testing Direct Access to Beneficiary Images ===\n\n";
 
 // Debug: Check database connection
-echo "Debug: DB Connection: " . config('database.default') . "\n";
-echo "Debug: Total beneficiaries: " . \App\Models\Beneficiary::count() . "\n\n";
+echo 'Debug: DB Connection: ' . config('database.default') . "\n";
+echo 'Debug: Total beneficiaries: ' . Beneficiary::count() . "\n\n";
 
 // Step 1: Find a beneficiary with a photo
 echo "Step 1: Finding beneficiary with photo...\n";
-$beneficiary = \App\Models\Beneficiary::whereNotNull('photo')->first();
+$beneficiary = Beneficiary::whereNotNull('photo')->first();
 
 if (! $beneficiary) {
     echo "❌ No beneficiary with photo found in database\n";
@@ -65,7 +69,7 @@ echo "✓ Public URL: {$publicUrl}\n\n";
 
 // Step 5: Test URL accessibility using Storage facade
 echo "Step 5: Testing Storage::url() generation...\n";
-$storageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($beneficiary->photo);
+$storageUrl = Storage::disk('public')->url($beneficiary->photo);
 echo "✓ Storage URL: {$storageUrl}\n\n";
 
 // Step 6: Verify public path exists

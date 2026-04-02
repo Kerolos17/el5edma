@@ -16,4 +16,11 @@ return [
     'unvisited_alert_body'     => 'مر :days يوماً على آخر زيارة للمخدوم :name',
     'new_beneficiary_title'    => 'مخدوم جديد ✨',
     'new_beneficiary_body'     => 'تم إضافة المخدوم :name لأسرتك',
+    'servant_registered_title' => 'طلب انضمام خادم 👋',
+
+    // Servant Self-Registration
+    'servant_registered'       => [
+        'title' => 'طلب انضمام خادم جديد 👋',
+        'body'  => ':name يطلب الانضمام إلى :service_group - يحتاج موافقتك',
+    ],
 ];

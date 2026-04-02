@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Beneficiaries;
 
 use App\Filament\Resources\Beneficiaries\Pages\CreateBeneficiary;
@@ -82,7 +83,7 @@ class BeneficiaryResource extends Resource
             return 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff';
         }
 
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('public');
 
         return $disk->url($record->photo);
@@ -111,7 +112,7 @@ class BeneficiaryResource extends Resource
     {
         return [
             __('beneficiaries.code')             => $record->code,
-            __('beneficiaries.service_group')    => $record->serviceGroup?->name ?? '—',
+            __('beneficiaries.service_group')    => $record->serviceGroup?->name    ?? '—',
             __('beneficiaries.assigned_servant') => $record->assignedServant?->name ?? '—',
             __('beneficiaries.status')           => __("beneficiaries.{$record->status}"),
         ];
@@ -149,7 +150,7 @@ class BeneficiaryResource extends Resource
         ];
     }
 
-    // ── Authorization: من يستطيع الإنشاء والتعديل ──
+    // ── Authorization: استخدام Laravel Policies ──
 
     /**
      * فقط أمين الخدمة ومدير النظام وأمين الأسرة يستطيعون إنشاء مخدومين جدد
@@ -157,7 +158,7 @@ class BeneficiaryResource extends Resource
      */
     public static function canCreate(): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('create', Beneficiary::class);
     }
 
     /**
@@ -166,15 +167,15 @@ class BeneficiaryResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('update', $record);
     }
 
     /**
-     * فقط أمين الخدمة ومدير النظام وأمين الأسرة يستطيعون حذف المخدومين
+     * فقط أمين الخدمة ومدير النظام يستطيعون حذف المخدومين
      */
     public static function canDelete(Model $record): bool
     {
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('delete', $record);
     }
 
     /**
@@ -182,6 +183,6 @@ class BeneficiaryResource extends Resource
      */
     public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

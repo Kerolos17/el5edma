@@ -1,94 +1,127 @@
 <?php
-
 namespace App\Console\Commands;
 
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 class SendUnvisitedAlerts extends Command
 {
-    protected $signature   = 'reminders:unvisited';
+    protected $signature = 'reminders:unvisited';
+
     protected $description = 'تنبيه أمناء الأسر عند مرور 14 يوماً بدون زيارة مخدوم';
 
     public function handle(): void
     {
-        $cutoff = now()->subDays(14);
+        $startTime = microtime(true);
+        $cutoff    = now()->subDays(14);
+        $count     = 0;
 
-        $beneficiaries = Beneficiary::query()
+        Beneficiary::query()
             ->where('status', 'active')
+            ->withMax('visits', 'visit_date')
             ->where(function ($q) use ($cutoff) {
-                // لم يُزَر قط أو آخر زيارة أكثر من 14 يوم
-                $q->whereDoesntHave('visits')
-                  ->orWhere(function ($q2) use ($cutoff) {
-                      $q2->whereHas('visits')
-                         ->whereRaw(
-                             '(SELECT MAX(visit_date) FROM visits WHERE beneficiary_id = beneficiaries.id) < ?',
-                             [$cutoff->toDateString()]
-                         );
-                  });
+                $q->whereNull('visits_max_visit_date')
+                    ->orWhere('visits_max_visit_date', '<', $cutoff->toDateTimeString());
             })
-            ->with(['serviceGroup.leader', 'assignedServant'])
-            ->get();
+            ->with([
+                'serviceGroup.leader:id,fcm_token,locale',
+                'assignedServant:id,fcm_token,locale',
+            ])
+            ->chunkById(100, function (Collection $chunk) use (&$count) {
+                $rows   = [];
+                $tokens = [];
 
-        $count = 0;
+                foreach ($chunk as $beneficiary) {
+                    $lastVisit = $beneficiary->visits_max_visit_date;
+                    $days      = $lastVisit
+                        ? (int) now()->diffInDays($lastVisit)
+                        : null;
 
-        foreach ($beneficiaries as $beneficiary) {
-            $lastVisit = $beneficiary->visits()->max('visit_date');
-            $days = $lastVisit
-                ? (int) now()->diffInDays($lastVisit)
-                : null;
+                    $dataPayload = [
+                        'beneficiary_id' => (string) $beneficiary->id,
+                        'last_visit'     => (string) ($lastVisit ?? ''),
+                        'days_unvisited' => (string) ($days ?? ''),
+                    ];
 
-            // إشعار أمين الأسرة
-            if ($leader = $beneficiary->serviceGroup?->leader) {
-                $locale = $leader->locale ?? 'ar';
-                App::setLocale($locale);
+                    // إشعار أمين الأسرة
+                    if ($leader = $beneficiary->serviceGroup?->leader) {
+                        $originalLocale = App::getLocale();
+                        App::setLocale($leader->locale ?? 'ar');
 
-                MinistryNotification::create([
-                    'user_id' => $leader->id,
-                    'type'    => 'unvisited_alert',
-                    'title'   => __('notifications.unvisited_alert_title'),
-                    'body'    => __('notifications.unvisited_alert_body', [
-                        'name' => $beneficiary->full_name,
-                        'days' => $days ?? '?',
-                    ]),
-                    'data' => [
-                        'beneficiary_id' => $beneficiary->id,
-                        'last_visit'     => $lastVisit,
-                        'days_unvisited' => $days,
-                    ],
-                ]);
+                        $title = __('notifications.unvisited_alert_title');
+                        $body  = __('notifications.unvisited_alert_body', [
+                            'name' => $beneficiary->full_name,
+                            'days' => $days ?? '?',
+                        ]);
 
-                App::setLocale(config('app.locale'));
-                $count++;
-            }
+                        App::setLocale($originalLocale);
 
-            // إشعار الخادم المسؤول
-            if ($servant = $beneficiary->assignedServant) {
-                $locale = $servant->locale ?? 'ar';
-                App::setLocale($locale);
+                        $rows[] = [
+                            'user_id'    => $leader->id,
+                            'type'       => 'unvisited_alert',
+                            'title'      => $title,
+                            'body'       => $body,
+                            'data'       => json_encode($dataPayload),
+                            'created_at' => now()->toDateTimeString(),
+                        ];
 
-                MinistryNotification::create([
-                    'user_id' => $servant->id,
-                    'type'    => 'unvisited_alert',
-                    'title'   => __('notifications.unvisited_alert_title'),
-                    'body'    => __('notifications.unvisited_alert_body', [
-                        'name' => $beneficiary->full_name,
-                        'days' => $days ?? '?',
-                    ]),
-                    'data' => [
-                        'beneficiary_id' => $beneficiary->id,
-                        'last_visit'     => $lastVisit,
-                        'days_unvisited' => $days,
-                    ],
-                ]);
+                        if ($leader->fcm_token) {
+                            $tokens[] = $leader->fcm_token;
+                        }
 
-                App::setLocale(config('app.locale'));
-                $count++;
-            }
-        }
+                        $count++;
+                    }
 
+                    // إشعار الخادم المسؤول
+                    if ($servant = $beneficiary->assignedServant) {
+                        $originalLocale = App::getLocale();
+                        App::setLocale($servant->locale ?? 'ar');
+
+                        $title = __('notifications.unvisited_alert_title');
+                        $body  = __('notifications.unvisited_alert_body', [
+                            'name' => $beneficiary->full_name,
+                            'days' => $days ?? '?',
+                        ]);
+
+                        App::setLocale($originalLocale);
+
+                        $rows[] = [
+                            'user_id'    => $servant->id,
+                            'type'       => 'unvisited_alert',
+                            'title'      => $title,
+                            'body'       => $body,
+                            'data'       => json_encode($dataPayload),
+                            'created_at' => now()->toDateTimeString(),
+                        ];
+
+                        if ($servant->fcm_token) {
+                            $tokens[] = $servant->fcm_token;
+                        }
+
+                        $count++;
+                    }
+                }
+
+                if (! empty($rows)) {
+                    MinistryNotification::insertOrIgnore($rows);
+                }
+
+                if (! empty($tokens)) {
+                    $title = __('notifications.unvisited_alert_title');
+                    $body  = '';
+                    $data  = [];
+                    SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+                }
+            });
+
+        $elapsed = round(microtime(true) - $startTime, 2);
+
+        Log::info("reminders:unvisited — تم إرسال {$count} تنبيه في {$elapsed} ثانية");
         $this->info("✅ تم إرسال {$count} تنبيه مخدوم غير مزار.");
     }
 }

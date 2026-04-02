@@ -1,28 +1,31 @@
 # Product Overview
 
-This is a **church/ministry beneficiary management system** — an internal admin tool for managing people with disabilities and their care.
+**نظام الخدمة** (Ministry Service System) is a web-based management platform for charitable/religious service organizations. It helps coordinate care delivery to beneficiaries (مخدومين) through organized service groups (أسر).
 
-## Core Purpose
+## Core Domain
 
-Track beneficiaries (people receiving care), organize them into service groups, log visits, manage medical records, and coordinate between servants (volunteers) and leaders.
+- **Beneficiaries**: People receiving care — tracked with personal, medical, financial, and family data. Auto-assigned codes (SN-0001 format).
+- **Visits**: Logged visits to beneficiaries, including critical case flagging and escalation.
+- **Service Groups (أسر)**: Organizational units grouping beneficiaries under a family leader.
+- **Scheduled Visits**: Planned future visits with reminder notifications.
+- **Medical Files & Medications**: Health records and active medication tracking.
+- **Prayer Requests**: Spiritual care tracking.
+- **Notifications**: In-app + push (FCM) notifications for reminders and alerts.
+- **Reports**: PDF and Excel exports for beneficiaries, visits, and service groups.
 
-## Key Entities
+## User Roles
 
-- **Beneficiaries** — people receiving care; have medical, financial, and family profiles
-- **Service Groups** — organizational units, each with a family leader and service leader
-- **Visits** — logged interactions with beneficiaries; can be flagged as critical
-- **Scheduled Visits** — planned future visits
-- **Users** — staff/volunteers with role-based access
-- **Ministry Notifications** — internal announcements
-- **Audit Logs** — full change history for all key models
+| Role | Arabic | Access Level |
+|------|--------|-------------|
+| `super_admin` | مدير النظام | Full access |
+| `service_leader` | أمين الخدمة | Full access, manages all groups |
+| `family_leader` | أمين الأسرة | Own service group only |
+| `servant` | خادم | Read-only, own service group |
 
-## User Roles (hierarchical)
+## Key Business Rules
 
-- `super_admin` — full access
-- `service_leader` — manages multiple service groups
-- `family_leader` — manages one service group
-- `servant` — sees only their assigned beneficiaries
-
-## Localization
-
-The UI supports Arabic (`ar`) and English (`en`). Arabic is the default. All user-facing strings go through Laravel's `__()` translation helper.
+- Servants cannot create or edit beneficiaries — read-only access.
+- Family leaders and servants only see beneficiaries in their own service group.
+- Unvisited beneficiaries (14+ days) trigger alerts to assigned servants and family leaders.
+- Birthday reminders are sent 3 days in advance.
+- Arabic is the primary language; English is supported as fallback.

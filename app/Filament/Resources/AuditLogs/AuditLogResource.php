@@ -22,45 +22,58 @@ class AuditLogResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    
-     public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): ?string
     {
         return __('navigation.management');
     }
 
     public static function getNavigationLabel(): string
-{
-    return __('navigation.audit_log');
-}
-
-public static function getModelLabel(): string
-{
-    return __('navigation.audit_log');
-}
-
-public static function getPluralModelLabel(): string
-{
-    return __('navigation.audit_logs');
-}
-
-// Empty state text
-public static function getEmptyStateHeading(): string
-{
-    return app()->getLocale() === 'ar'
-        ? 'لا توجد سجلات تعديل'
-        : 'No audit logs found';
-}
-
-    // فقط super_admin و service_leader
-    public static function canAccess(): bool
     {
         return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
-    // لا يسمح بالإنشاء أو التعديل أو الحذف — قراءة فقط
-    public static function canCreate(): bool { return false; }
-    public static function canEdit($record): bool { return false; }
-    public static function canDelete($record): bool { return false; }
+    public static function getModelLabel(): string
+    {
+        return __('navigation.audit_log');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('navigation.audit_logs');
+    }
+
+    // Empty state text
+    public static function getEmptyStateHeading(): string
+    {
+        return __('audit_logs.no_records');
+    }
+
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', AuditLog::class);
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('create', AuditLog::class);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()->can('update', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return Auth::user()->can('delete', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Auth::user()->can('view', $record);
+    }
 
     public static function form(Schema $schema): Schema
     {

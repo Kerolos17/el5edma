@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Filament\Resources\Visits\Pages;
 
 use App\Filament\Resources\Visits\VisitResource;
+use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -16,7 +18,7 @@ class ViewVisit extends ViewRecord
     {
         return [
             EditAction::make()
-                ->visible(fn() => \App\Helpers\PermissionHelper::canModify()
+                ->visible(fn () => PermissionHelper::canModify()
                     && (! $this->record->is_critical
                         || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
                 ),
@@ -26,7 +28,7 @@ class ViewVisit extends ViewRecord
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
-                ->visible(fn() => $this->record->is_critical
+                ->visible(fn () => $this->record->is_critical
                     && is_null($this->record->critical_resolved_at)
                     && in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader])
                 )

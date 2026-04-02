@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\PrayerRequests;
 
 use App\Filament\Resources\PrayerRequests\Pages\CreatePrayerRequest;
@@ -45,7 +46,7 @@ class PrayerRequestResource extends Resource
         return __('prayer.title');
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(['beneficiary', 'createdBy']);
         $user  = Auth::user();
@@ -84,28 +85,25 @@ class PrayerRequestResource extends Resource
         ];
     }
 
-    // ── Authorization: الخادم يستطيع الإنشاء فقط، لا يستطيع التعديل أو الحذف ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
-        // الخادم يستطيع إنشاء طلبات صلاة
-        return true;
+        return Auth::user()->can('create', PrayerRequest::class);
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
-        // فقط المسؤولين يستطيعون التعديل
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('update', $record);
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
-        // فقط المسؤولين يستطيعون الحذف
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('delete', $record);
     }
 
-    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

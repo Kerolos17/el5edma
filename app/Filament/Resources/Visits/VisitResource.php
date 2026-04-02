@@ -119,28 +119,25 @@ class VisitResource extends Resource
         ];
     }
 
-    // ── Authorization: الخادم يستطيع الإنشاء فقط، لا يستطيع التعديل أو الحذف ──
+    // ── Authorization: Using Laravel Policies for centralized authorization ──
 
     public static function canCreate(): bool
     {
-        // الخادم يستطيع إنشاء زيارات (افتقاد)
-        return true;
+        return Auth::user()->can('create', Visit::class);
     }
 
     public static function canEdit(Model $record): bool
     {
-        // فقط المسؤولين يستطيعون التعديل
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        // فقط المسؤولين يستطيعون الحذف
-        return \App\Helpers\PermissionHelper::canModify();
+        return Auth::user()->can('delete', $record);
     }
 
     public static function canView(Model $record): bool
     {
-        return true;
+        return Auth::user()->can('view', $record);
     }
 }

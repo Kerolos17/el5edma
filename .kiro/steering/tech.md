@@ -1,61 +1,61 @@
 # Tech Stack
 
 ## Backend
-
-- **PHP 8.2+** with **Laravel 12**
-- **Filament 4** — admin panel framework (resources, forms, tables, widgets, pages)
-- **Spatie Laravel Permission** — role/permission management
-- **Maatwebsite Excel** — Excel exports
-- **mPDF** — PDF report generation
-- **Predis** — Redis client (used for cache/queue)
-- **Laravel Pint** — code style fixer (PSR-12 based)
+- **PHP 8.2+** / **Laravel 12**
+- **Filament 4.0** — admin panel framework (all UI is Filament-based)
+- **Spatie Laravel Permission 7.2** — roles & permissions
+- **Kreait Firebase (kreait/laravel-firebase)** — FCM push notifications
+- **Maatwebsite Excel 3.1** — Excel exports
+- **mPDF 8.3** — PDF report generation
+- **Predis 3.4** — Redis client
 
 ## Frontend
+- **Livewire** — real-time components (notifications bell, stats widget)
+- **Tailwind CSS 4.2** — via `@tailwindcss/vite` plugin
+- **Vite 7** — asset bundling
+- **Firebase JS SDK 12** — client-side FCM token registration
+- **Axios** — HTTP client
 
-- **Vite 7** with `laravel-vite-plugin`
-- **Tailwind CSS 4** via `@tailwindcss/vite`
-- **Livewire** (bundled with Filament)
-- Entry points: `resources/css/app.css`, `resources/js/app.js`, `resources/css/filament/admin/theme.css`
+## Database & Infrastructure
+- **SQLite** — local development default
+- **MySQL/PostgreSQL** — production
+- **Database queue driver** — default for jobs
+- **Redis** — available for cache/queue (optional)
+- **File cache** — local default
 
-## Database
-
-- SQLite (local dev: `database/database.sqlite`)
-- Migrations in `database/migrations/`
+## Key Config
+- Default locale: `ar` (Arabic), fallback: `en`
+- Queue: `database` driver, failed jobs in `failed_jobs` table
+- Sessions: `database` driver
+- Storage: `local` disk, public symlink for uploads
 
 ## Common Commands
 
 ```bash
-# Initial setup
-composer run setup
+# First-time setup
+composer setup
 
-# Start all dev processes (server + queue + logs + vite)
-composer run dev
+# Development (starts PHP server + queue worker + Vite + log tail)
+composer dev
 
 # Run tests
-composer run test
+composer test
 
-# Build frontend assets
-npm run build
+# Individual artisan commands
+php artisan reminders:birthdays          # Send birthday reminders (3 days ahead)
+php artisan reminders:unvisited          # Alert for beneficiaries unvisited 14+ days
+php artisan reminders:scheduled-visits  # Scheduled visit reminders
+php artisan notifications:cleanup        # Prune old notifications
+php artisan notifications:stats          # Display notification statistics
+php artisan test:push-notification       # Test FCM integration
 
-# Run frontend dev server
-npm run dev
-
-# Code style fix
-./vendor/bin/pint
-
-# Artisan shortcuts
-php artisan migrate
-php artisan migrate:fresh --seed
-php artisan tinker
-php artisan filament:upgrade
+# Frontend
+npm run build   # Production build
+npm run dev     # Vite dev server
 ```
 
-## Queue & Scheduled Commands
-
-Artisan commands in `app/Console/Commands/`:
-
-- `SendBirthdayReminders`
-- `SendScheduledVisitReminders`
-- `SendUnvisitedAlerts`
-
-These are intended to run via the scheduler or queue worker.
+## Testing
+- **PHPUnit 11** — test runner
+- Tests live in `tests/Unit/` and `tests/Feature/`
+- Heavy use of **property-based testing** (many `*PropertyTest.php` files)
+- Run with `composer test` or `php artisan test`

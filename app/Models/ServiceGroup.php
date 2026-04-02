@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Enums\UserRole;
@@ -15,11 +14,15 @@ class ServiceGroup extends Model
     protected $fillable = [
         'name', 'leader_id', 'service_leader_id',
         'description', 'is_active',
+        'registration_token', 'registration_token_generated_at',
     ];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return [
+            'is_active'                       => 'boolean',
+            'registration_token_generated_at' => 'datetime',
+        ];
     }
 
     public function leader(): BelongsTo
@@ -40,5 +43,29 @@ class ServiceGroup extends Model
     public function beneficiaries(): HasMany
     {
         return $this->hasMany(Beneficiary::class);
+    }
+
+    /**
+     * التحقق من وجود رمز تسجيل نشط
+     *
+     * @return bool
+     */
+    public function hasActiveRegistrationToken(): bool
+    {
+        return ! empty($this->registration_token);
+    }
+
+    /**
+     * الحصول على عدد الخدام المسجلين ذاتياً
+     * (يتم تتبعهم من خلال audit logs)
+     *
+     * @return int
+     */
+    public function getSelfRegisteredServantsCount(): int
+    {
+        return AuditLog::where('model_type', User::class)
+            ->where('action', 'servant_self_registered')
+            ->whereJsonContains('new_values->service_group_id', $this->id)
+            ->count();
     }
 }

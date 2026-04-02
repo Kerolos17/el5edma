@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Visit extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'beneficiary_id', 'type', 'visit_date', 'duration_minutes',
         'beneficiary_status', 'feedback', 'is_critical',

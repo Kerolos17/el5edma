@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Visit;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -58,7 +60,7 @@ class CriticalCasesWidget extends BaseWidget
                     ->default('—'),
             ])
             ->recordActions([
-                \Filament\Actions\Action::make('resolve')
+                Action::make('resolve')
                     ->label(__('dashboard.mark_resolved'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
@@ -71,7 +73,7 @@ class CriticalCasesWidget extends BaseWidget
                         'critical_resolved_by' => Auth::id(),
                     ])),
 
-                \Filament\Actions\ViewAction::make()
+                ViewAction::make()
                     ->url(fn ($record) => route('filament.admin.resources.visits.view', $record)),
             ])
             ->emptyStateHeading(__('dashboard.no_critical_cases'))
