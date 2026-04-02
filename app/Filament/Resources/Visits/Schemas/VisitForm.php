@@ -92,10 +92,10 @@ class VisitForm
                             $query = User::where('role', 'servant')->where('is_active', true);
 
                             if ($beneficiaryId) {
-                                $beneficiary = Beneficiary::find($beneficiaryId);
-                                if ($beneficiary?->service_group_id) {
-                                    $query->where('service_group_id', $beneficiary->service_group_id);
-                                }
+                                $query->whereIn(
+                                    'service_group_id',
+                                    Beneficiary::where('id', $beneficiaryId)->whereNotNull('service_group_id')->pluck('service_group_id')
+                                );
                             }
 
                             return $query->pluck('name', 'id');
