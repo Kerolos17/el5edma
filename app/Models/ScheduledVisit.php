@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ScheduledVisit extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'beneficiary_id', 'assigned_servant_id', 'scheduled_date',
         'scheduled_time', 'notes', 'status', 'reminder_sent_at',
