@@ -17,6 +17,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class BeneficiariesTable
@@ -81,23 +82,22 @@ class BeneficiariesTable
                             ? __("beneficiaries.{$state}") : '—'
                     ),
 
-                // آخر زيارة — محسوبة ديناميكياً
+                // آخر زيارة — من withMax المحسوب في Resource (بدون queries إضافية)
                 TextColumn::make('last_visit_date')
                     ->label(__('beneficiaries.last_visit'))
-                    ->getStateUsing(fn($record) => $record->visits()->max('visit_date'))
+                    ->getStateUsing(fn($record) => $record->visits_max_visit_date)
                     ->formatStateUsing(function ($state) {
                         if (! $state) {
                             return app()->getLocale() === 'ar' ? 'لم يُزَر' : 'Never';
                         }
                         $days  = (int) now()->diffInDays(Carbon::parse($state));
-                        $label = app()->getLocale() === 'ar'
+                        return app()->getLocale() === 'ar'
                             ? "منذ {$days} يوم"
                             : "{$days} days ago";
-                        return $label;
                     })
                     ->badge()
                     ->color(function ($record) {
-                        $last = $record->visits()->max('visit_date');
+                        $last = $record->visits_max_visit_date;
                         if (! $last) {
                             return 'danger';
                         }
@@ -274,7 +274,7 @@ class BeneficiariesTable
                     EditAction::make()
                         ->visible(fn() => in_array(
                             Auth::user()?->role,
-                            ['super_admin', 'service_leader', 'family_leader']
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                         )),
 
                     Action::make('whatsapp_beneficiary')
@@ -305,14 +305,14 @@ class BeneficiariesTable
                     DeleteAction::make()
                         ->visible(fn() => in_array(
                             Auth::user()?->role,
-                            ['super_admin', 'service_leader', 'family_leader']
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
                         )),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('full_name');

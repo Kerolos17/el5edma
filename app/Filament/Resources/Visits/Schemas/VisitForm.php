@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitForm
@@ -27,9 +28,9 @@ class VisitForm
                             $user = Auth::user();
                             $query = Beneficiary::where('status', 'active');
 
-                            if ($user->role === 'family_leader') {
+                            if ($user->role === UserRole::FamilyLeader) {
                                 $query->where('service_group_id', $user->service_group_id);
-                            } elseif ($user->role === 'servant') {
+                            } elseif ($user->role === UserRole::Servant) {
                                 $query->where('assigned_servant_id', $user->id);
                             }
 
@@ -89,7 +90,7 @@ class VisitForm
                         ->options(function ($get) {
                             $beneficiaryId = $get('beneficiary_id');
 
-                            $query = User::where('role', 'servant')->where('is_active', true);
+                            $query = User::where('role', UserRole::Servant)->where('is_active', true);
 
                             if ($beneficiaryId) {
                                 $query->whereIn(

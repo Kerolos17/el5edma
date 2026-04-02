@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitsTable
@@ -92,7 +93,7 @@ class VisitsTable
                     EditAction::make()
                         ->visible(fn($record) => \App\Helpers\PermissionHelper::canModify()
                             && (! $record->is_critical
-                                || in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader']))
+                                || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
                         ),
 
                     // إغلاق الحالة الحرجة
@@ -103,7 +104,7 @@ class VisitsTable
                         ->requiresConfirmation()
                         ->visible(fn($record) => $record->is_critical
                             && is_null($record->critical_resolved_at)
-                            && in_array(Auth::user()?->role, ['super_admin', 'service_leader', 'family_leader'])
+                            && in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader])
                         )
                         ->action(function ($record) {
                             $record->update([
@@ -114,14 +115,14 @@ class VisitsTable
 
                     DeleteAction::make()
                         ->visible(fn($record) => ! $record->is_critical
-                            && Auth::user()?->role === 'super_admin'
+                            && Auth::user()?->role === UserRole::SuperAdmin
                         ),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('visit_date', 'desc');

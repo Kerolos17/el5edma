@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -20,7 +21,7 @@ class UserFactory extends Factory
             'remember_token'    => Str::random(10),
             'phone'             => $this->faker->phoneNumber(),
             'personal_code'     => (string) $this->faker->unique()->numberBetween(1000, 9999),
-            'role'              => 'servant',
+            'role'              => UserRole::Servant,
             'locale'            => 'ar',
             'is_active'         => true,
             'fcm_token'         => null,

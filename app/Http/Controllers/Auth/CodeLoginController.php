@@ -16,7 +16,9 @@ class CodeLoginController extends Controller
             'code' => ['required', 'string', 'min:4', 'max:6'],
         ]);
 
-        $user = User::where('personal_code', $request->code)
+        $codeHash = hash('sha256', $request->code);
+
+        $user = User::where('personal_code_hash', $codeHash)
             ->where('is_active', true)
             ->first();
 
@@ -26,7 +28,7 @@ class CodeLoginController extends Controller
             ]);
         }
 
-        Auth::login($user, true);
+        Auth::login($user); // No "remember me" — sessions expire on browser close for security
 
         $user->update(['last_login_at' => now()]);
 

@@ -23,14 +23,16 @@ class NotificationsBellWidget extends Widget
 
     public function loadNotifications(): void
     {
+        $recent = MinistryNotification::where('user_id', Auth::id())
+            ->latest('created_at')
+            ->limit(8)
+            ->get();
+
         $this->unreadCount = MinistryNotification::where('user_id', Auth::id())
             ->whereNull('read_at')
             ->count();
 
-        $this->notifications = MinistryNotification::where('user_id', Auth::id())
-            ->latest('created_at')
-            ->limit(8)
-            ->get()
+        $this->notifications = $recent
             ->map(fn ($n) => [
                 'id'    => $n->id,
                 'type'  => $n->type,

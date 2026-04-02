@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceGroupResource extends Resource
@@ -50,7 +51,7 @@ class ServiceGroupResource extends Resource
     public static function canAccess(): bool
     {
         return in_array(Auth::user()?->role, [
-            'super_admin', 'service_leader', 'family_leader',
+            UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader,
         ]);
     }
 
@@ -60,7 +61,7 @@ class ServiceGroupResource extends Resource
         $user = Auth::user();
 
         // family_leader يشوف أسرته فقط
-        if ($user?->role === 'family_leader') {
+        if ($user?->role === UserRole::FamilyLeader) {
             $query->where('id', $user->service_group_id);
         }
 
@@ -101,17 +102,17 @@ class ServiceGroupResource extends Resource
 
     public static function canCreate(): bool
     {
-        return in_array(Auth::user()?->role, ['super_admin', 'service_leader']);
+        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return in_array(Auth::user()?->role, ['super_admin', 'service_leader']);
+        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::user()?->role === 'super_admin';
+        return Auth::user()?->role === UserRole::SuperAdmin;
     }
 
     public static function canView(\Illuminate\Database\Eloquent\Model $record): bool

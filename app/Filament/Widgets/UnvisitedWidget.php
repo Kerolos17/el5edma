@@ -5,6 +5,7 @@ use App\Models\Beneficiary;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class UnvisitedWidget extends BaseWidget
@@ -40,9 +41,9 @@ class UnvisitedWidget extends BaseWidget
                     });
             });
 
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 

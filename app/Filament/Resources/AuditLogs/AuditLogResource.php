@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class AuditLogResource extends Resource
@@ -53,7 +54,7 @@ public static function getEmptyStateHeading(): string
     // فقط super_admin و service_leader
     public static function canAccess(): bool
     {
-        return in_array(Auth::user()?->role, ['super_admin', 'service_leader']);
+        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
     }
 
     // لا يسمح بالإنشاء أو التعديل أو الحذف — قراءة فقط

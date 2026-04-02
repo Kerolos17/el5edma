@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class PermissionHelper
@@ -11,8 +12,7 @@ class PermissionHelper
      */
     public static function canModify(): bool
     {
-        $user = Auth::user();
-        return in_array($user?->role, ['super_admin', 'service_leader', 'family_leader']);
+        return Auth::user()?->role?->isAdminLevel() ?? false;
     }
 
     /**
@@ -20,7 +20,7 @@ class PermissionHelper
      */
     public static function isServant(): bool
     {
-        return Auth::user()?->role === 'servant';
+        return Auth::user()?->role === UserRole::Servant;
     }
 
     /**
@@ -28,14 +28,6 @@ class PermissionHelper
      */
     public static function isSuperAdmin(): bool
     {
-        return Auth::user()?->role === 'super_admin';
-    }
-
-    /**
-     * Get allowed roles for modification
-     */
-    public static function modifyRoles(): array
-    {
-        return ['super_admin', 'service_leader', 'family_leader'];
+        return Auth::user()?->role === UserRole::SuperAdmin;
     }
 }

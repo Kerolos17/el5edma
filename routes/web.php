@@ -6,7 +6,9 @@ use App\Http\Controllers\FileAccessController;
 
 Route::get('/', fn() => redirect('/admin'));
 
-Route::get('/private-files/{path}', [FileAccessController::class, 'show'])->name('private.file');
+Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
+    ->name('private.file')
+    ->middleware('auth');
 
 // Language Switcher (authenticated users)
 Route::post('/language/{locale}', [\App\Http\Controllers\LocaleController::class , 'switch'])

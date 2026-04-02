@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -59,7 +60,7 @@ class BeneficiaryResource extends Resource
 
         // Apply role-based scoping BEFORE eager loading
         $query = match ($user?->role) {
-            'family_leader', 'servant' => $query->where('service_group_id', $user->service_group_id),
+            UserRole::FamilyLeader, UserRole::Servant => $query->where('service_group_id', $user->service_group_id),
             default => $query,
         };
 

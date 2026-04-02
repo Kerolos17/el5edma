@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use App\Enums\UserRole;
 use Filament\Schemas\Schema;
 
 class BeneficiaryForm
@@ -270,12 +271,12 @@ class BeneficiaryForm
                                     ->options(function ($get) {
                                         $groupId = $get('service_group_id');
                                         if (! $groupId) {
-                                            return User::where('role', 'servant')
+                                            return User::where('role', UserRole::Servant)
                                                 ->where('is_active', true)
                                                 ->pluck('name', 'id');
                                         }
 
-                                        return User::where('role', 'servant')
+                                        return User::where('role', UserRole::Servant)
                                             ->where('is_active', true)
                                             ->where('service_group_id', $groupId)
                                             ->pluck('name', 'id');

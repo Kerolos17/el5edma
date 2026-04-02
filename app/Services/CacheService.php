@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -32,7 +33,7 @@ class CacheService
     {
         return Cache::remember('filter_options:servants', self::TTL_SERVANTS, function () {
             return User::query()
-                ->where('role', 'servant')
+                ->where('role', UserRole::Servant)
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->pluck('name', 'id')

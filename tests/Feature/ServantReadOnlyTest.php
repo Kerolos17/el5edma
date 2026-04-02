@@ -1,6 +1,7 @@
 <?php
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Beneficiaries\BeneficiaryResource;
 use App\Filament\Resources\MedicalFiles\MedicalFileResource;
 use App\Filament\Resources\PrayerRequests\PrayerRequestResource;
@@ -23,7 +24,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
-            'role'             => 'servant',
+            'role'             => UserRole::Servant,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -44,7 +45,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
-            'role'             => 'servant',
+            'role'             => UserRole::Servant,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -70,7 +71,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
-            'role'             => 'servant',
+            'role'             => UserRole::Servant,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -96,7 +97,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
-            'role'             => 'servant',
+            'role'             => UserRole::Servant,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -122,7 +123,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
-            'role'             => 'servant',
+            'role'             => UserRole::Servant,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -138,7 +139,7 @@ class ServantReadOnlyTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $familyLeader = User::factory()->create([
-            'role'             => 'family_leader',
+            'role'             => UserRole::FamilyLeader,
             'service_group_id' => $serviceGroup->id,
         ]);
 
@@ -162,7 +163,7 @@ class ServantReadOnlyTest extends TestCase
     /** @test */
     public function super_admin_has_full_access()
     {
-        $admin       = User::factory()->create(['role' => 'super_admin']);
+        $admin       = User::factory()->create(['role' => UserRole::SuperAdmin]);
         $beneficiary = Beneficiary::factory()->create();
 
         $this->actingAs($admin);

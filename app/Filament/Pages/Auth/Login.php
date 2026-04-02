@@ -33,7 +33,9 @@ class Login extends BaseLogin
             ]);
         }
 
-        $user = User::where('personal_code', $code)
+        $codeHash = hash('sha256', $code);
+
+        $user = User::where('personal_code_hash', $codeHash)
             ->where('is_active', true)
             ->first();
 
@@ -43,7 +45,7 @@ class Login extends BaseLogin
             ]);
         }
 
-        Auth::login($user, true);
+        Auth::login($user); // No "remember me" — sessions expire on browser close for security
         $user->update(['last_login_at' => now()]);
         App::setLocale($user->locale ?? 'ar');
         session(['locale' => $user->locale ?? 'ar']);

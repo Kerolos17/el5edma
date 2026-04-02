@@ -89,6 +89,9 @@
 
     <p style="text-align:center; margin-top:16px; color:#8F9E9E; font-size:10px;">
         {{ $isAr ? 'إجمالي:' : 'Total:' }} {{ $beneficiaries->count() }}
+        @if($beneficiaries->count() >= 500)
+            &nbsp;•&nbsp;{{ $isAr ? '* يعرض هذا التقرير أول 500 سجل فقط' : '* This report shows the first 500 records only' }}
+        @endif
     </p>
 </body>
 

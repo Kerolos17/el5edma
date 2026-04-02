@@ -1,6 +1,7 @@
 <?php
 namespace App\Exports;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -20,9 +21,9 @@ class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping, Shoul
     {
         $query = Beneficiary::with(['serviceGroup', 'assignedServant']);
 
-        if ($this->user->role === 'family_leader') {
+        if ($this->user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $this->user->service_group_id);
-        } elseif ($this->user->role === 'servant') {
+        } elseif ($this->user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $this->user->id);
         }
 

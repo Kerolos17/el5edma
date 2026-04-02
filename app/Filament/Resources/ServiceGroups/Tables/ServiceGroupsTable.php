@@ -13,6 +13,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceGroupsTable
@@ -65,13 +66,13 @@ class ServiceGroupsTable
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make()
-                        ->visible(fn () => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('name');

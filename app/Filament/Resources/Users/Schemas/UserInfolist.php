@@ -6,6 +6,7 @@ use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class UserInfolist
@@ -31,7 +32,7 @@ class UserInfolist
                         ->label(__('users.personal_code'))
                         ->fontFamily('mono')
                         ->placeholder('-')
-                        ->visible(fn () => Auth::user()?->role === 'super_admin'),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ])->columns(2),
 
             Section::make(__('users.role'))

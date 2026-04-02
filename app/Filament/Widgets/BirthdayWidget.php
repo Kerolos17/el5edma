@@ -6,6 +6,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Carbon;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class BirthdayWidget extends BaseWidget
@@ -39,9 +40,9 @@ class BirthdayWidget extends BaseWidget
             ->whereNotNull('birth_date');
 
         // Apply role-based scoping
-        if ($user->role === 'family_leader') {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === 'servant') {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 

@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class UsersTable
@@ -54,7 +55,7 @@ class UsersTable
                     ->label(__('users.personal_code'))
                     ->fontFamily('mono')
                     ->copyable()
-                    ->visible(fn() => Auth::user()?->role === 'super_admin'),
+                    ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
 
                 IconColumn::make('is_active')
                     ->label(__('users.is_active'))
@@ -92,12 +93,13 @@ class UsersTable
                         ->label(__('users.generate_code'))
                         ->icon('heroicon-o-key')
                         ->color('warning')
-                        ->visible(fn() => Auth::user()?->role === 'super_admin')
+                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin)
                         ->requiresConfirmation()
                         ->action(function (User $record) {
                             do {
                                 $code = (string) random_int(1000, 999999);
-                            } while (User::where('personal_code', $code)->exists());
+                                $hash = hash('sha256', $code);
+                            } while (User::where('personal_code_hash', $hash)->exists());
 
                             $record->update(['personal_code' => $code]);
 

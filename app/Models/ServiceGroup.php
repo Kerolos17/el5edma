@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,7 +34,7 @@ class ServiceGroup extends Model
 
     public function servants(): HasMany
     {
-        return $this->hasMany(User::class)->where('role', 'servant');
+        return $this->hasMany(User::class)->where('role', UserRole::Servant);
     }
 
     public function beneficiaries(): HasMany

@@ -9,6 +9,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -40,7 +41,7 @@ class Reports extends Page implements HasForms
     public static function canAccess(): bool
     {
         return in_array(Auth::user()?->role, [
-            'super_admin', 'service_leader', 'family_leader',
+            UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader,
         ]);
     }
 
