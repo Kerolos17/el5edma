@@ -43,7 +43,7 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals('Test Servant', $user->name);
         $this->assertEquals('servant@example.com', $user->email);
         $this->assertEquals('01234567890', $user->phone);
-        $this->assertEquals('servant', $user->role);
+        $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
         $this->assertTrue($user->is_active);
         $this->assertEquals('ar', $user->locale);

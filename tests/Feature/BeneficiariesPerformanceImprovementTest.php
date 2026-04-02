@@ -361,7 +361,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $query = Beneficiary::query();
 
         // Apply role-based scoping like BeneficiaryResource does
-        if (in_array($user->role, ['family_leader', 'servant'])) {
+        if (in_array($user->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
             $query->where('service_group_id', $user->service_group_id);
         }
 
@@ -397,7 +397,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $query = Beneficiary::query();
 
         // Apply role-based scoping
-        if (in_array($user->role, ['family_leader', 'servant'])) {
+        if (in_array($user->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
             $query->where('service_group_id', $user->service_group_id);
         }
 
