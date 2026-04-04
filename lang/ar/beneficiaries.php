@@ -103,4 +103,12 @@ return [
     'never_visited'      => 'لم يُزَر',
     'last_visit'         => 'آخر زيارة',
     'days_without_visit' => ':days يوم بدون زيارة',
+    'days_ago'           => 'منذ :days يوم',
+    'has_medications'    => 'عنده أدوية؟',
+    'period'             => 'الفترة',
+    'last_7_days'        => 'آخر 7 أيام',
+    'last_14_days'       => 'آخر 14 يوم',
+    'last_30_days'       => 'آخر 30 يوم',
+    'not_visited_30'     => 'لم يُزَر +30 يوم',
+    'not_visited_60'     => 'لم يُزَر +60 يوم',
 ];

@@ -18,7 +18,7 @@ class CacheService
     const TTL_GOVERNORATES = 86400; // 24 hours
 
     /**
-     * Get cached service groups for filters
+     * Get cached service groups for filters (all - for admin-level users)
      */
     public static function getServiceGroups(): array
     {
@@ -29,7 +29,30 @@ class CacheService
     }
 
     /**
-     * Get cached active servants for filters
+     * Get service groups scoped to the current user's access level
+     */
+    public static function getServiceGroupsForUser(User $user): array
+    {
+        if ($user->role->isAdminLevel()) {
+            return self::getServiceGroups();
+        }
+
+        // FamilyLeader and Servant only see their own service group
+        if ($user->service_group_id) {
+            $cacheKey = "filter_options:service_groups:user:{$user->id}";
+
+            return Cache::remember($cacheKey, self::TTL_SERVICE_GROUPS, fn () => ServiceGroup::query()
+                ->where('id', $user->service_group_id)
+                ->where('is_active', true)
+                ->pluck('name', 'id')
+                ->toArray());
+        }
+
+        return [];
+    }
+
+    /**
+     * Get cached active servants for filters (all - for admin-level users)
      */
     public static function getActiveServants(): array
     {
@@ -41,6 +64,33 @@ class CacheService
                 ->pluck('name', 'id')
                 ->toArray();
         });
+    }
+
+    /**
+     * Get active servants scoped to the current user's access level
+     */
+    public static function getActiveServantsForUser(User $user): array
+    {
+        if ($user->role->isAdminLevel()) {
+            return self::getActiveServants();
+        }
+
+        // FamilyLeader and Servant only see servants in their service group
+        if ($user->service_group_id) {
+            $cacheKey = "filter_options:servants:sg:{$user->service_group_id}";
+
+            return Cache::remember($cacheKey, self::TTL_SERVANTS, function () use ($user) {
+                return User::query()
+                    ->where('role', UserRole::Servant)
+                    ->where('is_active', true)
+                    ->where('service_group_id', $user->service_group_id)
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->toArray();
+            });
+        }
+
+        return [];
     }
 
     /**

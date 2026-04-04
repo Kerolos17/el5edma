@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
 use App\Models\MedicalFile;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
@@ -37,24 +36,12 @@ class FileAccessController extends Controller
             abort(403);
         }
 
-        // Resolve the file record to enforce authorization
-        $medicalFile = MedicalFile::where('file_path', $normalizedPath)->firstOrFail();
+        // Resolve the file record and authorize via policy
+        $medicalFile = MedicalFile::where('file_path', $normalizedPath)
+            ->with('beneficiary')
+            ->firstOrFail();
 
-        $user = Auth::user();
-
-        if ($user->role === UserRole::Servant) {
-            $beneficiary = $medicalFile->beneficiary;
-            if ($beneficiary->assigned_servant_id !== $user->id) {
-                abort(403);
-            }
-        }
-
-        if ($user->role === UserRole::FamilyLeader) {
-            $beneficiary = $medicalFile->beneficiary;
-            if ($beneficiary->service_group_id !== $user->service_group_id) {
-                abort(403);
-            }
-        }
+        Gate::authorize('view', $medicalFile);
 
         if (!Storage::disk('private')->exists($normalizedPath)) {
             abort(404);

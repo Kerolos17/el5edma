@@ -30,6 +30,9 @@ class MedicalFilePolicy
             return true;
         }
 
+        // Ensure beneficiary is loaded to avoid N+1 queries
+        $medicalFile->loadMissing('beneficiary');
+
         // Family leaders can view medical files for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $medicalFile->beneficiary->service_group_id;

@@ -70,12 +70,7 @@ class UsersTable
             ->filters([
                 SelectFilter::make('role')
                     ->label(__('users.role'))
-                    ->options([
-                        'super_admin'    => __('users.super_admin'),
-                        'service_leader' => __('users.service_leader'),
-                        'family_leader'  => __('users.family_leader'),
-                        'servant'        => __('users.servant'),
-                    ]),
+                    ->options(UserRole::options()),
 
                 SelectFilter::make('service_group_id')
                     ->label(__('users.service_group'))

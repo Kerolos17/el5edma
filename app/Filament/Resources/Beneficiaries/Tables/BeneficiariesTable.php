@@ -90,12 +90,10 @@ class BeneficiariesTable
                     ->getStateUsing(fn($record) => $record->visits_max_visit_date)
                     ->formatStateUsing(function ($state) {
                         if (! $state) {
-                            return app()->getLocale() === 'ar' ? 'لم يُزَر' : 'Never';
+                            return __('beneficiaries.never_visited');
                         }
-                        $days  = (int) now()->diffInDays(Carbon::parse($state));
-                        return app()->getLocale() === 'ar'
-                            ? "منذ {$days} يوم"
-                            : "{$days} days ago";
+                        $days = (int) now()->diffInDays(Carbon::parse($state));
+                        return __('beneficiaries.days_ago', ['days' => $days]);
                     })
                     ->badge()
                     ->color(function ($record) {
@@ -128,13 +126,13 @@ class BeneficiariesTable
                 // ── فلتر الأسرة ──
                 SelectFilter::make('service_group_id')
                     ->label(__('beneficiaries.service_group'))
-                    ->options(fn () => CacheService::getServiceGroups())
+                    ->options(fn () => CacheService::getServiceGroupsForUser(Auth::user()))
                     ->searchable(),
 
                 // ── فلتر الخادم ──
                 SelectFilter::make('assigned_servant_id')
                     ->label(__('beneficiaries.assigned_servant'))
-                    ->options(fn () => CacheService::getActiveServants())
+                    ->options(fn () => CacheService::getActiveServantsForUser(Auth::user()))
                     ->searchable(),
 
                 // ── فلتر الحالة ──
@@ -200,7 +198,7 @@ class BeneficiariesTable
 
                 // ── فلتر عنده أدوية نشطة ──
                 TernaryFilter::make('has_medications')
-                    ->label(app()->getLocale() === 'ar' ? 'عنده أدوية؟' : 'Has Medications?')
+                    ->label(__('beneficiaries.has_medications'))
                     ->queries(
                         true: fn (Builder $query) => $query->whereHas('activeMedications'),
                         false: fn (Builder $query) => $query->whereDoesntHave('activeMedications'),
@@ -209,17 +207,17 @@ class BeneficiariesTable
 
                 // ── فلتر آخر زيارة ──
                 Filter::make('last_visit_range')
-                    ->label(app()->getLocale() === 'ar' ? 'آخر زيارة' : 'Last Visit')
+                    ->label(__('beneficiaries.last_visit'))
                     ->form([
                         Select::make('visit_range')
-                            ->label(app()->getLocale() === 'ar' ? 'الفترة' : 'Period')
+                            ->label(__('beneficiaries.period'))
                             ->options([
-                                '7'     => app()->getLocale() === 'ar' ? 'آخر 7 أيام' : 'Last 7 days',
-                                '14'    => app()->getLocale() === 'ar' ? 'آخر 14 يوم' : 'Last 14 days',
-                                '30'    => app()->getLocale() === 'ar' ? 'آخر 30 يوم' : 'Last 30 days',
-                                'no30'  => app()->getLocale() === 'ar' ? 'لم يُزَر +30 يوم' : 'Not visited +30 days',
-                                'no60'  => app()->getLocale() === 'ar' ? 'لم يُزَر +60 يوم' : 'Not visited +60 days',
-                                'never' => app()->getLocale() === 'ar' ? 'لم يُزَر قط' : 'Never visited',
+                                '7'     => __('beneficiaries.last_7_days'),
+                                '14'    => __('beneficiaries.last_14_days'),
+                                '30'    => __('beneficiaries.last_30_days'),
+                                'no30'  => __('beneficiaries.not_visited_30'),
+                                'no60'  => __('beneficiaries.not_visited_60'),
+                                'never' => __('beneficiaries.never_visited'),
                             ]),
                     ])
                     ->query(function (Builder $query, array $data) {
@@ -245,17 +243,17 @@ class BeneficiariesTable
                         };
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['visit_range'] ?? null) {
+                        if (! ($data['visit_range'] ?? null)) {
                             return null;
                         }
 
                         $options = [
-                            '7'     => app()->getLocale() === 'ar' ? 'آخر 7 أيام' : 'Last 7 days',
-                            '14'    => app()->getLocale() === 'ar' ? 'آخر 14 يوم' : 'Last 14 days',
-                            '30'    => app()->getLocale() === 'ar' ? 'آخر 30 يوم' : 'Last 30 days',
-                            'no30'  => app()->getLocale() === 'ar' ? 'لم يُزَر +30 يوم' : 'Not visited +30d',
-                            'no60'  => app()->getLocale() === 'ar' ? 'لم يُزَر +60 يوم' : 'Not visited +60d',
-                            'never' => app()->getLocale() === 'ar' ? 'لم يُزَر قط' : 'Never visited',
+                            '7'     => __('beneficiaries.last_7_days'),
+                            '14'    => __('beneficiaries.last_14_days'),
+                            '30'    => __('beneficiaries.last_30_days'),
+                            'no30'  => __('beneficiaries.not_visited_30'),
+                            'no60'  => __('beneficiaries.not_visited_60'),
+                            'never' => __('beneficiaries.never_visited'),
                         ];
 
                         return $options[$data['visit_range']] ?? null;

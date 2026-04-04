@@ -62,8 +62,11 @@ class RegistrationLinkService
      */
     public function validateToken(string $token): ?ServiceGroup
     {
+        $expiryHours = config('registration.token_expiry_hours', 72);
+
         return ServiceGroup::where('registration_token', $token)
             ->where('is_active', true)
+            ->where('registration_token_generated_at', '>=', now()->subHours($expiryHours))
             ->first();
     }
 

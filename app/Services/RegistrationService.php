@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Users\UserResource;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
@@ -177,8 +178,8 @@ class RegistrationService
         // جلب جميع المستخدمين: قادة الأسرة + أمناء الخدمة + مديري النظام
         return User::where(function ($query) use ($leaderIds) {
             $query->whereIn('id', $leaderIds)   // قادة الأسرة المحددين
-                ->orWhere('role', 'service_leader') // جميع أمناء الخدمة
-                ->orWhere('role', 'super_admin');   // جميع مديري النظام
+                ->orWhere('role', UserRole::ServiceLeader->value) // جميع أمناء الخدمة
+                ->orWhere('role', UserRole::SuperAdmin->value);   // جميع مديري النظام
         })
             ->where('is_active', true)
             ->get();
@@ -200,7 +201,12 @@ class RegistrationService
     ): void {
         $now = now();
 
+        $previousLocale = app()->getLocale();
+
         $notifications = $leaders->map(function (User $leader) use ($newServant, $serviceGroup, $now) {
+            // Build notification text in the recipient's preferred locale
+            app()->setLocale($leader->locale ?? 'ar');
+
             return [
                 'user_id'    => $leader->id,
                 'type'       => 'servant_registered',
@@ -220,6 +226,9 @@ class RegistrationService
                 'created_at' => $now,
             ];
         })->toArray();
+
+        // Restore the original request locale
+        app()->setLocale($previousLocale);
 
         DB::table('ministry_notifications')->insert($notifications);
     }

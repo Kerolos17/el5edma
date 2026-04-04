@@ -91,4 +91,12 @@ return [
     'never_visited'        => 'Never visited',
     'last_visit'           => 'Last visit',
     'days_without_visit'   => ':days days without visit',
+    'days_ago'             => ':days days ago',
+    'has_medications'      => 'Has Medications?',
+    'period'               => 'Period',
+    'last_7_days'          => 'Last 7 days',
+    'last_14_days'         => 'Last 14 days',
+    'last_30_days'         => 'Last 30 days',
+    'not_visited_30'       => 'Not visited +30 days',
+    'not_visited_60'       => 'Not visited +60 days',
 ];

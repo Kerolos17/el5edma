@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
@@ -40,7 +41,7 @@ class InternalNotificationService
         }
 
         // 3. المشرفين العامين وأمناء الخدمة
-        $superAdminsAndLeaders = User::whereIn('role', ['super_admin', 'service_leader'])->pluck('id')->toArray();
+        $superAdminsAndLeaders = User::whereIn('role', [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])->pluck('id')->toArray();
         $userIds = array_merge($userIds, $superAdminsAndLeaders);
 
         // إزالة التكرارات (في حال كان الخادم هو نفسه أمين الأسرة مثلاً)

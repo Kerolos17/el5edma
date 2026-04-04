@@ -52,7 +52,13 @@ class ServiceGroup extends Model
      */
     public function hasActiveRegistrationToken(): bool
     {
-        return ! empty($this->registration_token);
+        if (empty($this->registration_token) || empty($this->registration_token_generated_at)) {
+            return false;
+        }
+
+        $expiryHours = config('registration.token_expiry_hours', 72);
+
+        return $this->registration_token_generated_at->diffInHours(now()) < $expiryHours;
     }
 
     /**

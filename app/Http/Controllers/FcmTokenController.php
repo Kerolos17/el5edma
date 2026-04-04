@@ -16,16 +16,10 @@ class FcmTokenController extends Controller
             'fcm_token' => 'required|string|max:500',
         ]);
 
-        $user = $request->user();
-        
-        if ($user) {
-            $user->update([
-                'fcm_token' => $request->input('fcm_token')
-            ]);
-            
-            return response()->json(['message' => 'Token updated successfully']);
-        }
+        $request->user()->update([
+            'fcm_token' => $request->input('fcm_token'),
+        ]);
 
-        return response()->json(['message' => 'Unauthenticated'], 401);
+        return response()->json(['message' => 'Token updated successfully']);
     }
 }

@@ -56,6 +56,9 @@ class ReportController extends Controller
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
         $user = Auth::user();
+        if ($user->role === UserRole::Servant) {
+            abort(403);
+        }
         if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
             abort(403);
         }
@@ -67,6 +70,9 @@ class ReportController extends Controller
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
         $user = Auth::user();
+        if ($user->role === UserRole::Servant) {
+            abort(403);
+        }
         if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
             abort(403);
         }
