@@ -853,7 +853,7 @@
                     @endif
 
                     {{-- ─── Registration Form ─── --}}
-                    <form method="POST" action="{{ route('register.public.store') }}" novalidate>
+                    <form method="POST" action="{{ route('registration.public.store') }}" novalidate>
                         @csrf
 
                         {{-- Name --}}
