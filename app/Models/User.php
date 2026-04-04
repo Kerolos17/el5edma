@@ -102,7 +102,7 @@ class User extends Authenticatable implements FilamentUser
     public static function generateUniquePersonalCode(): string
     {
         do {
-            $code   = str_pad((string) random_int(1000, 999999), 4, '0', STR_PAD_LEFT);
+            $code   = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $hash   = hash('sha256', $code);
             $exists = self::where('personal_code_hash', $hash)->exists();
         } while ($exists);
@@ -114,7 +114,7 @@ class User extends Authenticatable implements FilamentUser
      * إنشاء خادم جديد من خلال التسجيل الذاتي
      * Requirements: 4.1-4.7
      *
-     * الحساب يتم إنشاؤه نشطاً (is_active = true) ليتمكن الخادم من تسجيل الدخول فوراً
+     * الحساب يتم إنشاؤه غير نشط (is_active = false) — يتطلب موافقة مدير النظام أو أمين الخدمة
      */
     public static function createFromSelfRegistration(array $data, ServiceGroup $serviceGroup): self
     {
@@ -124,10 +124,10 @@ class User extends Authenticatable implements FilamentUser
             'phone'            => $data['phone'],
             'password'         => $data['password'], // يتم تشفيره تلقائياً
             'personal_code'    => self::generateUniquePersonalCode(),
-            'role'             => 'servant',
+            'role'             => UserRole::Servant->value,
             'service_group_id' => $serviceGroup->id,
-            'locale'           => 'ar',
-            'is_active'        => true,
+            'locale'           => app()->getLocale(),
+            'is_active'        => false,
         ]);
     }
 

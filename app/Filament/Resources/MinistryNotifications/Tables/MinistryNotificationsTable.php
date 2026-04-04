@@ -35,7 +35,7 @@ class MinistryNotificationsTable
                         'visit_reminder'     => '📅 ' . __('notifications.visit_reminder_title'),
                         'unvisited_alert'    => '⏰ ' . __('notifications.unvisited_alert_title'),
                         'new_beneficiary'    => '✨ ' . __('notifications.new_beneficiary_title'),
-                        'servant_registered' => '👋 ' . __('notifications.servant_registered_title'),
+                        'servant_registered' => '👋 ' . __('notifications.servant_registered.title'),
                         default              => $state,
                     }),
 
@@ -71,7 +71,7 @@ class MinistryNotificationsTable
                         'visit_reminder'     => __('notifications.visit_reminder_title'),
                         'unvisited_alert'    => __('notifications.unvisited_alert_title'),
                         'new_beneficiary'    => __('notifications.new_beneficiary_title'),
-                        'servant_registered' => __('notifications.servant_registered_title'),
+                        'servant_registered' => __('notifications.servant_registered.title'),
                     ]),
 
                 TernaryFilter::make('read_at')
@@ -85,8 +85,8 @@ class MinistryNotificationsTable
                     ->label(__('notifications.mark_all_read'))
                     ->icon('heroicon-o-check')
                     ->color('gray')
-                    ->visible(fn($record) => is_null($record->read_at))
-                    ->action(fn($record) => $record->update(['read_at' => now()])),
+                    ->visible(fn($record) => is_null($record->read_at) && $record->user_id === Auth::id())
+                    ->action(fn($record) => $record->user_id === Auth::id() ? $record->update(['read_at' => now()]) : null),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

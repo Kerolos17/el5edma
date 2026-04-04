@@ -45,8 +45,8 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals('01234567890', $user->phone);
         $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
-        $this->assertTrue($user->is_active);
-        $this->assertEquals('ar', $user->locale);
+        $this->assertFalse($user->is_active);
+        $this->assertEquals(app()->getLocale(), $user->locale);
         $this->assertNotNull($user->personal_code);
     }
 
@@ -294,6 +294,6 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals('Test User', $auditLog->new_values['name']);
         $this->assertEquals('test@example.com', $auditLog->new_values['email']);
         $this->assertEquals('Test Group', $auditLog->new_values['service_group_name']);
-        $this->assertStringContainsString('token123', $auditLog->new_values['registration_token']);
+        $this->assertEquals('token123...', $auditLog->new_values['registration_token']);
     }
 }

@@ -600,6 +600,194 @@
         .btn-submit {
             animation: slideUp .45s .35s var(--ease-out) both;
         }
+
+        /* ─── Success Modal ───────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: rgba(3, 36, 58, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            animation: modalFadeIn .3s var(--ease-out) both;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 32px 100px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.06);
+            animation: modalSlideUp .5s var(--ease-out) both;
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(28px) scale(.94); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        }
+
+        .modal-hero {
+            background: linear-gradient(145deg, var(--panel-bg) 0%, #054a6b 100%);
+            padding: 2.75rem 2rem 3.75rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .modal-icon-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon-pulse {
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 180, 216, .5);
+            animation: pulse 2.2s ease-in-out infinite;
+        }
+
+        .modal-icon-pulse-2 {
+            position: absolute;
+            inset: -22px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 180, 216, .18);
+            animation: pulse 2.2s .4s ease-in-out infinite;
+        }
+
+        .modal-icon-circle {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0073A3 0%, #00b4d8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 36px rgba(0, 115, 163, .55);
+        }
+
+        .modal-icon-circle svg {
+            width: 36px;
+            height: 36px;
+            color: #fff;
+        }
+
+        .modal-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .modal-wave svg {
+            display: block;
+            width: 100%;
+            height: 40px;
+        }
+
+        .modal-body {
+            padding: 1.875rem 2rem 2.25rem;
+            text-align: center;
+        }
+
+        .modal-body h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f1e30;
+            margin-bottom: .4375rem;
+            line-height: 1.3;
+        }
+
+        .modal-tagline {
+            font-size: .9375rem;
+            color: #4b6078;
+            line-height: 1.7;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4375rem;
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: 100px;
+            padding: .375rem 1rem;
+            font-size: .8rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-badge svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        .modal-note {
+            display: flex;
+            align-items: flex-start;
+            gap: .625rem;
+            background: var(--brand-light);
+            border-inline-start: 3px solid var(--brand);
+            border-radius: var(--radius-sm);
+            padding: .875rem 1rem;
+            text-align: start;
+            font-size: .875rem;
+            color: #1a4d6e;
+            line-height: 1.65;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-note svg {
+            width: 16px;
+            height: 16px;
+            color: var(--brand);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .modal-cta {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            width: 100%;
+            padding: 0 1.5rem;
+            height: 50px;
+            line-height: 50px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            color: #fff;
+            font-family: inherit;
+            font-size: .9375rem;
+            font-weight: 600;
+            letter-spacing: .01em;
+            transition: opacity .2s, transform .15s;
+            box-shadow: 0 4px 18px rgba(0, 115, 163, .38);
+        }
+
+        .modal-cta:hover {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+        .modal-cta:active {
+            transform: scale(.98);
+        }
     </style>
 </head>
 
@@ -646,36 +834,14 @@
         <main class="form-panel">
             <div class="form-card">
 
-                @if (session('success'))
-                    {{-- ─── Success State ─── --}}
-                    <div class="success-card">
-                        <div class="success-icon-wrap">
-                            <div class="success-ring"></div>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                            </svg>
-                        </div>
-                        <h2>{{ __('registration.success_title') }}</h2>
-                        <p>{{ __('registration.success_message') }}</p>
-                        <div class="success-note">
-                            <div class="success-note-dot"></div>
-                            {{ __('registration.messages.contact_leader') }}
-                        </div>
-                        <a href="{{ route('filament.admin.auth.login') }}" class="btn-submit"
-                            style="display:block; line-height:48px; text-decoration:none; text-align:center;">
-                            {{ __('registration.back_to_login') }}
-                        </a>
-                    </div>
-                @else
-                    {{-- ─── Form Header ─── --}}
-                    <div class="form-header">
-                        <h1>{{ __('registration.title') }}</h1>
-                        <p>{{ __('registration.welcome') }}</p>
-                    </div>
+                {{-- ─── Form Header ─── --}}
+                <div class="form-header">
+                    <h1>{{ __('registration.title') }}</h1>
+                    <p>{{ __('registration.welcome') }}</p>
+                </div>
 
-                    {{-- ─── Error Alert ─── --}}
-                    @if (session('error'))
+                {{-- ─── Error Alert ─── --}}
+                @if (session('error'))
                         <div class="alert alert-error" role="alert">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
                                 viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -835,12 +1001,74 @@
                         <a
                             href="{{ route('filament.admin.auth.login') }}">{{ __('registration.already_have_account') }}</a>
                     </p>
-                @endif
 
             </div>
         </main>
 
     </div>
+
+    {{-- ─── Success Modal ─── --}}
+    @if (session('success'))
+        <div id="success-modal" class="modal-overlay" role="dialog" aria-modal="true"
+             aria-labelledby="modal-heading">
+
+            <div class="modal-card">
+
+                {{-- Hero ─ dark branded header --}}
+                <div class="modal-hero">
+                    <div class="modal-icon-wrap">
+                        <div class="modal-icon-pulse-2"></div>
+                        <div class="modal-icon-pulse"></div>
+                        <div class="modal-icon-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="2.2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    {{-- Wave divider --}}
+                    <div class="modal-wave">
+                        <svg viewBox="0 0 460 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 40 Q115 0 230 20 Q345 40 460 0 L460 40 Z" fill="#ffffff"/>
+                        </svg>
+                    </div>
+                </div>
+
+                {{-- Body --}}
+                <div class="modal-body">
+                    <h2 id="modal-heading">{{ __('registration.success_title') }}</h2>
+                    <p class="modal-tagline">{{ __('registration.success_message') }}</p>
+
+                    {{-- Pending badge --}}
+                    <div class="modal-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="#d97706">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z" />
+                        </svg>
+                        {{ __('registration.popup_awaiting') }}
+                    </div>
+
+                    {{-- Leader note --}}
+                    <div class="modal-note">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.8" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                        </svg>
+                        <span>{{ __('registration.popup_await_note') }}</span>
+                    </div>
+
+                    <a href="{{ route('filament.admin.auth.login') }}" class="modal-cta">
+                        {{ __('registration.back_to_login') }}
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    @endif
 
     <script>
         function togglePw(id, btn) {

@@ -50,7 +50,7 @@ class UserModelTest extends TestCase
         $this->assertSame('test@example.com', $user->email);
         $this->assertEquals(UserRole::Servant, $user->role);
         $this->assertSame($group->id, $user->service_group_id);
-        $this->assertTrue($user->is_active);
+        $this->assertFalse($user->is_active);
         $this->assertNotNull($user->personal_code);
     }
 

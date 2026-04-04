@@ -15,4 +15,14 @@ return [
     'unvisited_alert_body'  => ':days days have passed since the last visit to :name',
     'new_beneficiary_title' => 'New Beneficiary ✨',
     'new_beneficiary_body'  => ':name has been added to your group',
+
+    'servant_registered' => [
+        'title' => 'New Servant Registered',
+        'body'  => ':name joined :service_group',
+    ],
+
+    'welcome_servant' => [
+        'title' => 'Welcome to the Ministry',
+        'body'  => 'Welcome :name, you have been successfully registered in :service_group. Your request will be reviewed by the service leader.',
+    ],
 ];

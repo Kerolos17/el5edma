@@ -71,9 +71,9 @@ class UserSelfRegistrationTest extends TestCase
         $this->assertEquals('01234567890', $user->phone);
         $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
-        $this->assertEquals('ar', $user->locale);
-        $this->assertTrue($user->is_active);
-        $this->assertMatchesRegularExpression('/^\d{4,6}$/', $user->personal_code);
+        $this->assertEquals(app()->getLocale(), $user->locale);
+        $this->assertFalse($user->is_active);
+        $this->assertMatchesRegularExpression('/^\d{6}$/', $user->personal_code);
     }
 
     #[Test]

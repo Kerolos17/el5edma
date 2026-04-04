@@ -64,6 +64,10 @@ return [
         'service_group_inactive' => 'The selected service group is inactive.',
     ],
 
+    // Popup modal (shown after successful registration)
+    'popup_awaiting'                    => 'Request under review',
+    'popup_await_note'                  => 'Your family leader or service leader will review your details and contact you to confirm your account activation.',
+
     // Messages
     'messages'                          => [
         'account_created' => 'Your account has been created successfully!',

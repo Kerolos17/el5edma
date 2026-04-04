@@ -208,8 +208,8 @@ class RegistrationController extends Controller
             ]);
 
             return redirect()
-                ->route('filament.admin.auth.login')
-                ->with('success', __('registration.success'));
+                ->route('registration.public')
+                ->with('success', true);
 
         } catch (\Exception $e) {
             Log::error('Public self-registration failed', [

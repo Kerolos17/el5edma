@@ -141,7 +141,7 @@
                             }">
                                 @foreach (range(0, 5) as $i)
                                     <input x-ref="box_{{ $i }}" type="text" inputmode="numeric"
-                                        maxlength="6" class="code-input" x-model="code[{{ $i }}]"
+                                        maxlength="1" class="code-input" x-model="code[{{ $i }}]"
                                         @input="handleInput({{ $i }}, $event)"
                                         @keydown="handleKeydown({{ $i }}, $event)"
                                         @paste="handlePaste($event)" />
@@ -179,7 +179,7 @@
 
             {{-- Registration Link --}}
             <div class="mt-4 text-center">
-                <a href="{{ route('register.public') }}" class="text-sm text-blue-600 hover:text-blue-800 transition">
+                <a href="{{ route('registration.public') }}" class="text-sm text-blue-600 hover:text-blue-800 transition">
                     {{ __('auth.no_account_register') }}
                 </a>
             </div>

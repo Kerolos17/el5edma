@@ -1,10 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Filament\Resources\Users\UserResource;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
+use App\Models\MinistryNotification;
 use App\Models\ServiceGroup;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -27,19 +30,29 @@ class RegistrationService
      */
     public function register(array $data, ServiceGroup $serviceGroup, string $ipAddress): User
     {
-        DB::beginTransaction();
-
         try {
-            // إنشاء حساب المستخدم
-            $user = User::createFromSelfRegistration($data, $serviceGroup);
+            $user = DB::transaction(function () use ($data, $serviceGroup, $ipAddress) {
+                // إنشاء حساب المستخدم
+                $user = User::createFromSelfRegistration($data, $serviceGroup);
 
-            // تسجيل العملية في audit log
-            $this->logRegistration($user, $serviceGroup, $data['token'] ?? '', $ipAddress);
+                // تسجيل العملية في audit log (non-blocking)
+                try {
+                    $this->logRegistration($user, $serviceGroup, $data['token'] ?? '', $ipAddress);
+                } catch (\Exception $e) {
+                    Log::error('Audit log failed during registration', [
+                        'user_id' => $user->id,
+                        'error'   => $e->getMessage(),
+                    ]);
+                }
 
-            // إرسال إشعارات للقادة
-            $this->notifyLeaders($user, $serviceGroup);
+                // إشعار ترحيبي للخادم الجديد
+                $this->createWelcomeNotification($user, $serviceGroup);
 
-            DB::commit();
+                // إرسال إشعارات للقادة
+                $this->notifyLeaders($user, $serviceGroup);
+
+                return $user;
+            });
 
             Log::info('Self-registration completed', [
                 'user_id'          => $user->id,
@@ -49,9 +62,15 @@ class RegistrationService
 
             return $user;
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (UniqueConstraintViolationException $e) {
+            Log::warning('Duplicate registration attempt', [
+                'email' => $data['email'] ?? 'unknown',
+                'ip'    => $ipAddress,
+            ]);
 
+            throw new \RuntimeException(__('registration.errors.duplicate'), 0, $e);
+
+        } catch (\Exception $e) {
             Log::error('Self-registration failed', [
                 'email'            => $data['email'] ?? 'unknown',
                 'service_group_id' => $serviceGroup->id,
@@ -108,13 +127,12 @@ class RegistrationService
             $this->dispatchFcmNotifications($newServant, $serviceGroup, $leaders);
 
         } catch (\Exception $e) {
-            // لا نرمي الخطأ — التسجيل نفسه نجح
-            Log::error('Failed to create notifications for self-registration', [
-                'user_id' => $newServant->id,
-                'error'   => $e->getMessage(),
-                'trace'   => $e->getTraceAsString(),
+            Log::error('Failed to notify leaders for self-registration', [
+                'user_id'          => $newServant->id,
+                'service_group_id' => $serviceGroup->id,
+                'error'            => $e->getMessage(),
             ]);
-            // Re-throw in test environment for debugging
+
             if (app()->environment('testing')) {
                 throw $e;
             }
@@ -137,7 +155,8 @@ class RegistrationService
         string $token,
         string $ipAddress
     ): void {
-        AuditLog::logSelfRegistration($user, $serviceGroup, $token, $ipAddress);
+        $maskedToken = $token ? substr($token, 0, 8) . '...' : '';
+        AuditLog::logSelfRegistration($user, $serviceGroup, $maskedToken, $ipAddress);
     }
 
     /**
@@ -195,6 +214,7 @@ class RegistrationService
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => $now->toIso8601String(),
+                    'url'              => UserResource::getUrl('view', ['record' => $newServant->id]),
                 ]),
                 'read_at'    => null,
                 'created_at' => $now,
@@ -202,6 +222,26 @@ class RegistrationService
         })->toArray();
 
         DB::table('ministry_notifications')->insert($notifications);
+    }
+
+    /**
+     * إنشاء إشعار ترحيبي للخادم الجديد
+     */
+    protected function createWelcomeNotification(User $newServant, ServiceGroup $serviceGroup): void
+    {
+        MinistryNotification::create([
+            'user_id' => $newServant->id,
+            'type'    => 'servant_registered',
+            'title'   => __('notifications.welcome_servant.title'),
+            'body'    => __('notifications.welcome_servant.body', [
+                'name'          => $newServant->name,
+                'service_group' => $serviceGroup->name,
+            ]),
+            'data'    => json_encode([
+                'service_group_id' => $serviceGroup->id,
+                'registered_at'    => now()->toIso8601String(),
+            ]),
+        ]);
     }
 
     /**

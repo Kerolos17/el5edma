@@ -16,4 +16,14 @@ return [
     'unvisited_alert_body'  => 'مر :days يوماً على آخر زيارة للمخدوم :name',
     'new_beneficiary_title' => 'مخدوم جديد ✨',
     'new_beneficiary_body'  => 'تم إضافة المخدوم :name لأسرتك',
+
+    'servant_registered' => [
+        'title' => 'خادم جديد انضم للخدمة',
+        'body'  => 'انضم :name إلى :service_group',
+    ],
+
+    'welcome_servant' => [
+        'title' => 'أهلاً وسهلاً بك في الخدمة',
+        'body'  => 'مرحباً :name، تم تسجيلك بنجاح في :service_group. سيتم مراجعة طلبك من قبل أمين الخدمة.',
+    ],
 ];
