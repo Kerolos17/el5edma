@@ -34,6 +34,9 @@ return [
     'code_hint'           => 'Personal code is visible to system admin only',
     'code_auto_generated' => 'Auto-generated upon creation',
     'generate_code'       => 'Generate New Code',
+    'my_profile'          => 'My Profile',
+    'my_info'             => 'My Information',
+    'save_locale'         => 'Save Language',
     'cannot_delete_self'  => 'You cannot delete your own account',
 
     // Servant approval

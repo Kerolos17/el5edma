@@ -36,6 +36,9 @@ return [
     'code_hint'           => 'الكود الشخصي مرئي لمدير النظام فقط',
     'code_auto_generated' => 'يتم التوليد تلقائياً عند الإنشاء',
     'generate_code'       => 'توليد كود جديد',
+    'my_profile'          => 'ملفي الشخصي',
+    'my_info'             => 'بياناتي',
+    'save_locale'         => 'حفظ اللغة',
     'cannot_delete_self'  => 'لا يمكنك حذف حسابك الخاص',
 
     // Servant approval

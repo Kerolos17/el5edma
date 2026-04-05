@@ -42,7 +42,7 @@ class ReportController extends Controller
     {
         // تأكد إن المستخدم عنده صلاحية يشوف المخدوم ده
         $user = Auth::user();
-        if ($user->role === UserRole::Servant && $beneficiary->assigned_servant_id !== $user->id) {
+        if ($user->role === UserRole::Servant && $beneficiary->service_group_id !== $user->service_group_id) {
             abort(403);
         }
         if ($user->role === UserRole::FamilyLeader && $beneficiary->service_group_id !== $user->service_group_id) {

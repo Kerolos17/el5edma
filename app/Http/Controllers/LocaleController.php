@@ -24,10 +24,6 @@ class LocaleController extends Controller
             abort(401);
         }
 
-        if (! $user->can('change-language')) {
-            abort(403);
-        }
-
         session(['locale' => $locale]);
 
         $user->update(['locale' => $locale]);
