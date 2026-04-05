@@ -20,5 +20,6 @@ return [
     'enter_code'        => 'أدخل الكود الشخصي',
     'switch_to_english' => 'English',
     'switch_to_arabic'  => 'العربية',
+    "no_account_register" => 'ليس لديك حساب؟ سجل الآن',
     // 'reset_password' => 'إعادة تعيين كلمة المرور',
 ];
