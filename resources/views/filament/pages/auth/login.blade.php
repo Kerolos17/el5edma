@@ -179,7 +179,8 @@
 
             {{-- Registration Link --}}
             <div class="mt-4 text-center">
-                <a href="{{ route('registration.public') }}" class="text-sm text-blue-600 hover:text-blue-800 transition">
+                <a href="{{ route('registration.public') }}"
+                    class="text-sm text-blue-600 hover:text-blue-800 transition">
                     {{ __('auth.no_account_register') }}
                 </a>
             </div>

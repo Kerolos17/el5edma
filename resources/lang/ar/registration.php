@@ -42,6 +42,7 @@ return [
     'submit'                            => 'تسجيل',
     'already_have_account'              => 'لديك حساب بالفعل؟ تسجيل الدخول',
     'back_to_login'                     => 'العودة لتسجيل الدخول',
+    'no_account_register'               => 'ليس لديك حساب؟ سجل الآن',
 
     // الأخطاء
     'errors'                            => [
