@@ -50,7 +50,10 @@ return [
              *
              */
 
-            'credentials' => env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS')),
+            'credentials' => (function () {
+                $path = env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS'));
+                return ($path && file_exists($path)) ? $path : null;
+            })(),
 
             /*
              * ------------------------------------------------------------------------
