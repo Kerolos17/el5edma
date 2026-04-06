@@ -8,10 +8,11 @@ return [
     'view'     => 'عرض بيانات المخدوم',
 
     // Tabs
-    'tab_basic'         => 'البيانات الأساسية',
-    'tab_contact'       => 'التواصل والأسرة',
+    'tab_basic'         => 'أساسية',
+    'tab_contact'       => 'التواصل',
     'tab_address'       => 'العنوان',
-    'tab_medical'       => 'الحالة الطبية',
+    'tab_medical'       => 'الطبية',
+    'tab_assignment'    => 'الخدمة',
     'tab_medications'   => 'الأدوية',
     'tab_medical_files' => 'الملفات الطبية',
     'tab_visits'        => 'سجل الافتقادات',

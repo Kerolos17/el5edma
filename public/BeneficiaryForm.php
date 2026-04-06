@@ -25,7 +25,7 @@ class BeneficiaryForm
                 // ── Tab 1: البيانات الأساسية ──
                 Tab::make('basic')
                     ->key('basic')
-                    ->label(__('beneficiaries.tab_basic'))
+                    ->label(null)
                     ->icon('heroicon-o-user')
                     ->schema([
                         Section::make()
@@ -88,7 +88,7 @@ class BeneficiaryForm
                 // ── Tab 2: التواصل والأسرة ──
                 Tab::make('contact')
                     ->key('contact')
-                    ->label(__('beneficiaries.tab_contact'))
+                    ->label(null)
                     ->icon('heroicon-o-phone')
                     ->schema([
 
@@ -232,7 +232,7 @@ class BeneficiaryForm
                 // ── Tab 3: العنوان ──
                 Tab::make('address')
                     ->key('address')
-                    ->label(__('beneficiaries.tab_address'))
+                    ->label(null)
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         Section::make()
@@ -274,7 +274,7 @@ class BeneficiaryForm
                 // ── Tab 4: الحالة الطبية ──
                 Tab::make('medical')
                     ->key('medical')
-                    ->label(__('beneficiaries.tab_medical'))
+                    ->label(null)
                     ->icon('heroicon-o-heart')
                     ->schema([
                         Section::make()
@@ -329,7 +329,7 @@ class BeneficiaryForm
                 // ── Tab 5: التعيين الخدمي ──
                 Tab::make('assignment')
                     ->key('assignment')
-                    ->label(__('beneficiaries.tab_assignment'))
+                    ->label(null)
                     ->icon('heroicon-o-user-group')
                     ->schema([
                         Section::make()
