@@ -61,7 +61,7 @@ class MedicalFilesTable
                     ViewAction::make(),
 
                     Action::make('download')
-                        ->label(app()->getLocale() === 'ar' ? 'تحميل' : 'Download')
+                        ->label(__('medical.download'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('info')
                         ->url(fn ($record) => route('medical-files.download', $record))

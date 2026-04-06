@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,6 +18,13 @@ class UserInfolist
 
             Section::make(__('users.title'))
                 ->schema([
+                    ImageEntry::make('profile_photo')
+                        ->label(__('users.profile_photo'))
+                        ->disk('public')
+                        ->circular()
+                        ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&size=96')
+                        ->columnSpanFull(),
+
                     TextEntry::make('name')
                         ->label(__('users.name')),
 

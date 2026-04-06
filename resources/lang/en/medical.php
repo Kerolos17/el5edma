@@ -19,6 +19,7 @@ return [
     'image'             => 'Image',
     'document'          => 'Document',
     'upload_file'       => 'Upload File',
+    'download'          => 'Download',
     'uploaded_by'       => 'Uploaded by',
     'uploaded_at'       => 'Uploaded at',
 ];

@@ -3,9 +3,10 @@
 namespace App\Filament\Resources\MedicalFiles\Pages;
 
 use App\Filament\Resources\MedicalFiles\MedicalFileResource;
-use App\Helpers\PermissionHelper;
+use App\Models\MedicalFile;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListMedicalFiles extends ListRecords
 {
@@ -16,7 +17,7 @@ class ListMedicalFiles extends ListRecords
         return [
             CreateAction::make()
                 ->label(__('medical.upload_file'))
-                ->visible(fn () => PermissionHelper::canModify()),
+                ->visible(fn () => Auth::user()->can('create', MedicalFile::class)),
         ];
     }
 }

@@ -19,6 +19,7 @@ return [
     'image'             => 'صورة',
     'document'          => 'مستند',
     'upload_file'       => 'رفع ملف',
+    'download'          => 'تحميل',
     'uploaded_by'       => 'رُفع بواسطة',
     'uploaded_at'       => 'تاريخ الرفع',
 ];

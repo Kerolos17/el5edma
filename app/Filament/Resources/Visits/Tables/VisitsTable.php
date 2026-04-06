@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Visits\Tables;
 
-use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -93,7 +92,7 @@ class VisitsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn ($record) => PermissionHelper::canModify()
+                        ->visible(fn ($record) => Auth::user()->can('update', $record)
                             && (! $record->is_critical
                                 || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
                         ),

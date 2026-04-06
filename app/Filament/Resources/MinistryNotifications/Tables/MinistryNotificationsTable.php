@@ -77,8 +77,8 @@ class MinistryNotificationsTable
                 TernaryFilter::make('read_at')
                     ->label(__('notifications.mark_all_read'))
                     ->nullable()
-                    ->trueLabel('مقروء')
-                    ->falseLabel('غير مقروء'),
+                    ->trueLabel(__('notifications.read'))
+                    ->falseLabel(__('notifications.unread')),
             ])
             ->recordActions([
                 Action::make('mark_read')

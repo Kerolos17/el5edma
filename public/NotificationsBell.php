@@ -11,14 +11,11 @@ class NotificationsBell extends Component
 {
     public int $unreadCount = 0;
 
-    public int $previousUnreadCount = -1;
-
     public array $notifications = [];
 
     public function mount(): void
     {
         $this->loadNotifications();
-        $this->previousUnreadCount = $this->unreadCount;
     }
 
     public function loadNotifications(): void
@@ -28,16 +25,9 @@ class NotificationsBell extends Component
             ->limit(8)
             ->get();
 
-        $newCount = MinistryNotification::where('user_id', Auth::id())
+        $this->unreadCount = MinistryNotification::where('user_id', Auth::id())
             ->whereNull('read_at')
             ->count();
-
-        if ($this->previousUnreadCount >= 0 && $newCount > $this->previousUnreadCount) {
-            $this->dispatch('new-notification-sound');
-        }
-
-        $this->unreadCount = $newCount;
-        $this->previousUnreadCount = $newCount;
 
         $this->notifications = $recent
             ->map(fn ($n) => [

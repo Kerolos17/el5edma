@@ -93,7 +93,8 @@ class UsersTable
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->visible(fn (User $record) => Auth::user()->can('update', $record)),
 
                     Action::make('approve_servant')
                         ->label(__('users.approve_servant'))
@@ -151,7 +152,8 @@ class UsersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

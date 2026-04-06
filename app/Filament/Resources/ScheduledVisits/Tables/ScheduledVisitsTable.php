@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ScheduledVisits\Tables;
 
-use App\Helpers\PermissionHelper;
+use App\Models\ScheduledVisit;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -68,11 +68,11 @@ class ScheduledVisitsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn ($record) => PermissionHelper::canModify()
+                        ->visible(fn ($record) => Auth::user()->can('update', $record)
                             && $record->status === 'pending',
                         ),
                     DeleteAction::make()
-                        ->visible(fn ($record) => PermissionHelper::canModify()
+                        ->visible(fn ($record) => Auth::user()->can('delete', $record)
                             && $record->status !== 'completed',
                         ),
                 ]),

@@ -14,7 +14,11 @@ return [
     'unvisited_alert_title' => 'Unvisited Beneficiary ⏰',
     'unvisited_alert_body'  => ':days days have passed since the last visit to :name',
     'new_beneficiary_title' => 'New Beneficiary ✨',
-    'new_beneficiary_body'  => ':name has been added to your group',
+    'new_beneficiary_body'  => ':name has been added by :adder',
+
+    'system' => 'System',
+    'read'   => 'Read',
+    'unread' => 'Unread',
 
     'servant_registered' => [
         'title' => 'New Servant Registered',
@@ -25,4 +29,7 @@ return [
         'title' => 'Welcome to the Ministry',
         'body'  => 'Welcome :name, you have been successfully registered in :service_group. Your request will be reviewed by the service leader.',
     ],
+
+    'sound_mute'   => 'Mute notification sound',
+    'sound_unmute' => 'Unmute notification sound',
 ];

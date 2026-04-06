@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\PrayerRequests\Pages;
 
 use App\Filament\Resources\PrayerRequests\PrayerRequestResource;
-use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewPrayerRequest extends ViewRecord
 {
@@ -16,14 +16,14 @@ class ViewPrayerRequest extends ViewRecord
     {
         return [
             EditAction::make()
-                ->visible(fn () => PermissionHelper::canModify()),
+                ->visible(fn () => Auth::user()->can('update', $this->record)),
 
             Action::make('mark_answered')
                 ->label(__('prayer.mark_answered'))
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
-                ->visible(fn () => PermissionHelper::canModify() && $this->record->status === 'open')
+                ->visible(fn () => Auth::user()->can('update', $this->record) && $this->record->status === 'open')
                 ->action(function () {
                     $this->record->update([
                         'status'      => 'answered',

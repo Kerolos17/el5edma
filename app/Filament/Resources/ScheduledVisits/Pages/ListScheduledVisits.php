@@ -3,9 +3,10 @@
 namespace App\Filament\Resources\ScheduledVisits\Pages;
 
 use App\Filament\Resources\ScheduledVisits\ScheduledVisitResource;
-use App\Helpers\PermissionHelper;
+use App\Models\ScheduledVisit;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListScheduledVisits extends ListRecords
 {
@@ -16,7 +17,7 @@ class ListScheduledVisits extends ListRecords
         return [
             CreateAction::make()
                 ->label(__('visits.schedule'))
-                ->visible(fn () => PermissionHelper::canModify()),
+                ->visible(fn () => Auth::user()->can('create', ScheduledVisit::class)),
         ];
     }
 }

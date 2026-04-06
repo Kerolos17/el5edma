@@ -1,40 +1,4 @@
-<div
-    x-data="{
-        open: false,
-        muted: localStorage.getItem('notification-sound-muted') === 'true',
-        toggleMute() {
-            this.muted = !this.muted;
-            localStorage.setItem('notification-sound-muted', this.muted);
-        },
-        playSound() {
-            if (this.muted) return;
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.4);
-            } catch(e) {}
-        }
-    }"
-    @new-notification-sound.window="playSound()"
-    class="relative flex items-center gap-1"
-    wire:poll.60s="loadNotifications">
-
-    {{-- زر الكتم / التشغيل --}}
-    <button @click="toggleMute()" type="button"
-        :title="muted ? '{{ __('notifications.sound_unmute') }}' : '{{ __('notifications.sound_mute') }}'"
-        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition focus:outline-none text-gray-400 dark:text-gray-500">
-        <x-heroicon-o-speaker-wave class="w-4 h-4" x-show="!muted" />
-        <x-heroicon-o-speaker-x-mark class="w-4 h-4" x-show="muted" />
-    </button>
+<div x-data="{ open: false }" class="relative flex items-center" wire:poll.60s="loadNotifications">
 
     {{-- زر الجرس --}}
     <button @click="open = !open" type="button"

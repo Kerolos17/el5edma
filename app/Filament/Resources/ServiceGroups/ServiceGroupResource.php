@@ -103,17 +103,17 @@ class ServiceGroupResource extends Resource
 
     public static function canCreate(): bool
     {
-        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
+        return Auth::user()->can('create', ServiceGroup::class);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader]);
+        return Auth::user()->can('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return Auth::user()?->role === UserRole::SuperAdmin;
+        return Auth::user()->can('delete', $record);
     }
 
     public static function canView(Model $record): bool

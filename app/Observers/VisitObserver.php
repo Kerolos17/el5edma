@@ -2,7 +2,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Models\Visit;
 use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +18,10 @@ class VisitObserver
     {
         $this->log($visit, 'created', null, $visit->getAttributes());
         $this->invalidateDashboardCache($visit);
+
+        if ($visit->is_critical) {
+            $this->sendCriticalCaseNotification($visit);
+        }
     }
 
     public function updated(Visit $visit): void
@@ -27,12 +33,56 @@ class VisitObserver
             $this->log($visit, 'updated', $old, $new);
             $this->invalidateDashboardCache($visit);
         }
+
+        if ($visit->isDirty('is_critical') && $visit->is_critical) {
+            $this->sendCriticalCaseNotification($visit);
+        }
     }
 
     public function deleted(Visit $visit): void
     {
         $this->log($visit, 'deleted', $visit->getOriginal(), null);
         $this->invalidateDashboardCache($visit);
+    }
+
+    private function sendCriticalCaseNotification(Visit $visit): void
+    {
+        $visit->loadMissing('beneficiary.serviceGroup');
+        $beneficiary = $visit->beneficiary;
+
+        if (! $beneficiary) {
+            return;
+        }
+
+        $notifier = app(InternalNotificationService::class);
+        $title = __('notifications.critical_case_title');
+        $body = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
+        $data = [
+            'beneficiary_id' => $beneficiary->id,
+            'visit_id'       => $visit->id,
+            'url'            => route('filament.admin.resources.visits.view', ['record' => $visit->id]),
+        ];
+
+        $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);
+
+        // Send FCM push to related users
+        $userIds = collect();
+
+        if ($beneficiary->assigned_servant_id) {
+            $userIds->push($beneficiary->assigned_servant_id);
+        }
+        if ($beneficiary->serviceGroup?->leader_id) {
+            $userIds->push($beneficiary->serviceGroup->leader_id);
+        }
+
+        $tokens = User::whereIn('id', $userIds->unique())
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->toArray();
+
+        if (! empty($tokens)) {
+            SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+        }
     }
 
     private function invalidateDashboardCache(Visit $visit): void

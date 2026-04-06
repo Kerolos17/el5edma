@@ -7,14 +7,13 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'phone',
+        'name', 'email', 'password', 'phone', 'profile_photo',
         'personal_code', 'personal_code_hash', 'fcm_token', 'role',
         'service_group_id', 'locale', 'is_active', 'last_login_at',
     ];
@@ -71,6 +70,13 @@ class User extends Authenticatable implements FilamentUser
     {
         $this->attributes['personal_code']      = $value;
         $this->attributes['personal_code_hash'] = $value !== null ? hash('sha256', $value) : null;
+    }
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo
+            ? '/storage/' . $this->profile_photo
+            : null;
     }
 
     public function isAdmin(): bool

@@ -16,16 +16,21 @@ class BeneficiaryObserver
     {
         $this->log($beneficiary, 'created', null, $beneficiary->getAttributes());
 
-        // إرسال إشعار داخلي
         $notifier = app(InternalNotificationService::class);
-        $adderName = Auth::check() ? Auth::user()->name : 'النظام';
-        
+        $adderName = Auth::check() ? Auth::user()->name : __('notifications.system');
+
         $notifier->notifyRelatedUsers(
             $beneficiary,
             'new_beneficiary',
-            'مخدوم جديد!',
-            "تم إضافة المخدوم الجديد: {$beneficiary->name} بواسطة {$adderName}",
-            ['beneficiary_id' => $beneficiary->id]
+            __('notifications.new_beneficiary_title'),
+            __('notifications.new_beneficiary_body', [
+                'name'  => $beneficiary->full_name,
+                'adder' => $adderName,
+            ]),
+            [
+                'beneficiary_id' => $beneficiary->id,
+                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+            ]
         );
     }
 

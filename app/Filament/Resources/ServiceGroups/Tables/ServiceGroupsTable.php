@@ -63,9 +63,10 @@ class ServiceGroupsTable
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
+                    EditAction::make()
+                        ->visible(fn ($record) => Auth::user()->can('update', $record)),
                     DeleteAction::make()
-                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
+                        ->visible(fn ($record) => Auth::user()->can('delete', $record)),
                 ]),
             ])
             ->toolbarActions([

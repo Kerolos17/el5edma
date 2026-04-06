@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Jobs\SendFcmNotificationJob;
@@ -50,7 +51,7 @@ class SendBirthdayReminders extends Command
                     'assignedServant:id,fcm_token,locale',
                     'serviceGroup.leader:id,fcm_token,locale',
                 ])
-                ->chunkById(100, function (Collection $chunk) use ($targetDate, &$count) {
+                ->chunkById(100, function (Collection $chunk) use (&$count) {
                     $rows   = []; // للـ bulk insert — Requirement 1.3
                     $tokens = []; // للـ multicast  — Requirement 1.4
 
@@ -76,10 +77,7 @@ class SendBirthdayReminders extends Command
                                 'type'       => 'birthday',
                                 'title'      => $title,
                                 'body'       => $body,
-                                'data'       => json_encode([
-                                    'beneficiary_id' => $beneficiary->id,
-                                    'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-                                ]),
+                                'data'       => json_encode(['beneficiary_id' => $beneficiary->id]),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -109,10 +107,7 @@ class SendBirthdayReminders extends Command
                                 'type'       => 'birthday',
                                 'title'      => $title,
                                 'body'       => $body,
-                                'data'       => json_encode([
-                                    'beneficiary_id' => $beneficiary->id,
-                                    'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-                                ]),
+                                'data'       => json_encode(['beneficiary_id' => $beneficiary->id]),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 

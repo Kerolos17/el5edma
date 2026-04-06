@@ -18,17 +18,20 @@ class BeneficiaryInfolist
 
                 // ── Tab 1: البيانات الأساسية ──
                 Tab::make(__('beneficiaries.tab_basic'))
+                    ->icon('heroicon-o-user')
                     ->schema([
                         Section::make()
                             ->schema([
                                 ImageEntry::make('photo')
                                     ->label(__('beneficiaries.photo'))
                                     ->circular()
-                                    ->disk('public')
                                     ->imageSize(150)
-                                    ->getStateUsing(fn ($record) => $record->photo)
-                                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150',
-                                    ),
+                                    ->checkFileExistence(false)
+                                    ->getStateUsing(fn ($record) => $record->photo
+                                        ? asset('storage/' . $record->photo)
+                                        : 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150'
+                                    )
+                                    ->columnSpanFull(),
 
                                 TextEntry::make('full_name')
                                     ->label(__('beneficiaries.full_name')),
@@ -64,6 +67,7 @@ class BeneficiaryInfolist
 
                 // ── Tab 2: التواصل والأسرة ──
                 Tab::make(__('beneficiaries.tab_contact'))
+                    ->icon('heroicon-o-phone')
                     ->schema([
                         Section::make(__('beneficiaries.tab_contact'))
                             ->schema([
@@ -160,6 +164,7 @@ class BeneficiaryInfolist
 
                 // ── Tab 3: العنوان ──
                 Tab::make(__('beneficiaries.tab_address'))
+                    ->icon('heroicon-o-map-pin')
                     ->schema([
                         Section::make()
                             ->schema([
@@ -187,6 +192,7 @@ class BeneficiaryInfolist
 
                 // ── Tab 4: الحالة الطبية ──
                 Tab::make(__('beneficiaries.tab_medical'))
+                    ->icon('heroicon-o-heart')
                     ->schema([
                         Section::make()
                             ->schema([
@@ -232,6 +238,7 @@ class BeneficiaryInfolist
 
                 // ── Tab 5: التعيين الخدمي ──
                 Tab::make(__('beneficiaries.assignment_section'))
+                    ->icon('heroicon-o-user-group')
                     ->schema([
                         Section::make()
                             ->schema([

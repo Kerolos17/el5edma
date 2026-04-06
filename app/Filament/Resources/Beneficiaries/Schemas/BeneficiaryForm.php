@@ -45,7 +45,7 @@ class BeneficiaryForm
                                     ->automaticallyCropImagesToAspectRatio()
                                     ->automaticallyResizeImagesToWidth(800)
                                     ->automaticallyResizeImagesToHeight(800)
-                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'])
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'])
                                     ->maxSize(5120)
                                     ->helperText(__('beneficiaries.photo_helper'))
                                     ->columnSpanFull(),

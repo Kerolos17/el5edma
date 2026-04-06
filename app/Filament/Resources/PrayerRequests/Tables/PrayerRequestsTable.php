@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\PrayerRequests\Tables;
 
-use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -72,33 +71,31 @@ class PrayerRequestsTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn () => PermissionHelper::canModify()),
+                        ->visible(fn ($record) => Auth::user()->can('update', $record)),
 
-                    // تحديد كـ "تمت الإجابة"
                     Action::make('mark_answered')
                         ->label(__('prayer.mark_answered'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->visible(fn ($record) => PermissionHelper::canModify() && $record->status === 'open')
+                        ->visible(fn ($record) => Auth::user()->can('update', $record) && $record->status === 'open')
                         ->action(fn ($record) => $record->update([
                             'status'      => 'answered',
                             'answered_at' => now(),
                         ])),
 
-                    // إغلاق الطلب
                     Action::make('mark_closed')
                         ->label(__('prayer.mark_closed'))
                         ->icon('heroicon-o-x-circle')
                         ->color('gray')
                         ->requiresConfirmation()
-                        ->visible(fn ($record) => PermissionHelper::canModify() && $record->status === 'open')
+                        ->visible(fn ($record) => Auth::user()->can('update', $record) && $record->status === 'open')
                         ->action(fn ($record) => $record->update([
                             'status' => 'closed',
                         ])),
 
                     DeleteAction::make()
-                        ->visible(fn () => PermissionHelper::canModify()),
+                        ->visible(fn ($record) => Auth::user()->can('delete', $record)),
                 ]),
             ])
             ->toolbarActions([

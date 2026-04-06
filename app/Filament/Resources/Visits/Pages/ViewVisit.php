@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Visits\Pages;
 
 use App\Filament\Resources\Visits\VisitResource;
-use App\Helpers\PermissionHelper;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -18,7 +17,7 @@ class ViewVisit extends ViewRecord
     {
         return [
             EditAction::make()
-                ->visible(fn () => PermissionHelper::canModify()
+                ->visible(fn () => Auth::user()->can('update', $this->record)
                     && (! $this->record->is_critical
                         || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
                 ),

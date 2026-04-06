@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ScheduledVisits\Pages;
 
 use App\Filament\Resources\ScheduledVisits\ScheduledVisitResource;
-use App\Helpers\PermissionHelper;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewScheduledVisit extends ViewRecord
 {
@@ -15,7 +15,7 @@ class ViewScheduledVisit extends ViewRecord
     {
         return [
             EditAction::make()
-                ->visible(fn () => PermissionHelper::canModify()
+                ->visible(fn () => Auth::user()->can('update', $this->record)
                     && $this->record->status === 'pending',
                 ),
         ];

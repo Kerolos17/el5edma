@@ -2,6 +2,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\ServiceGroup;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -19,6 +20,18 @@ class UserForm
 
             Section::make(__('users.title'))
                 ->schema([
+                    FileUpload::make('profile_photo')
+                        ->label(__('users.profile_photo'))
+                        ->image()
+                        ->disk('public')
+                        ->directory('users/photos')
+                        ->imageEditor()
+                        ->circleCropper()
+                        ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'])
+                        ->maxSize(1024)
+                        ->helperText(__('users.profile_photo_helper'))
+                        ->columnSpanFull(),
+
                     TextInput::make('name')
                         ->label(__('users.name'))
                         ->required()

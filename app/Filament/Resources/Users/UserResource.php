@@ -15,7 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +49,19 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->role === UserRole::SuperAdmin;
+        return Auth::user()->can('viewAny', User::class);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        if ($user->isFamilyLeader()) {
+            $query->where('service_group_id', $user->service_group_id);
+        }
+
+        return $query;
     }
 
     public static function form(Schema $schema): Schema
