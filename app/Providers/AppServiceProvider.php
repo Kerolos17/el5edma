@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Kreait\Firebase\Factory;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,19 @@ class AppServiceProvider extends ServiceProvider
         // تسجيل خدمات التسجيل الذاتي للخدام
         $this->app->singleton(\App\Services\RegistrationLinkService::class);
         $this->app->singleton(\App\Services\RegistrationService::class);
+
+        // ضمان معرفة Firebase بالـ Project ID دائماً
+        $this->app->extend(Factory::class, function (Factory $factory) {
+            $projectId = config('firebase.projects.app.project_id')
+                ?? env('FIREBASE_PROJECT_ID')
+                ?? env('GOOGLE_CLOUD_PROJECT');
+
+            if ($projectId) {
+                return $factory->withProjectId($projectId);
+            }
+
+            return $factory;
+        });
     }
 
     public function boot(): void
