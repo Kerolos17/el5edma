@@ -30,7 +30,7 @@ class ScheduledVisitForm
                             if ($user->role === UserRole::FamilyLeader) {
                                 $query->where('service_group_id', $user->service_group_id);
                             } elseif ($user->role === UserRole::Servant) {
-                                $query->where('assigned_servant_id', $user->id);
+                                $query->where('service_group_id', $user->service_group_id);
                             }
 
                             return $query->pluck('full_name', 'id');
