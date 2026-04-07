@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\MinistryNotification;
 use App\Models\ScheduledVisit;
-use App\Services\PushNotificationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -14,14 +13,6 @@ class SendScheduledVisitReminders extends Command
     protected $signature = 'reminders:scheduled-visits';
 
     protected $description = 'إرسال تذكيرات الزيارات المجدولة للغد';
-
-    protected PushNotificationService $pushService;
-
-    public function __construct(PushNotificationService $pushService)
-    {
-        parent::__construct();
-        $this->pushService = $pushService;
-    }
 
     public function handle(): void
     {
