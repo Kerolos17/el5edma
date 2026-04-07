@@ -75,9 +75,13 @@ class AdminPanelProvider extends PanelProvider
                 'panels::topbar.end',
                 fn () => view('filament.widgets.notifications-bell-topbar'),
             )
+            ->renderHook(
+                'panels::topbar.end',
+                fn () => view('filament.mobile-search-topbar'),
+            )
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->globalSearchDebounce('500ms')
+            ->globalSearchDebounce('200ms')
 
             ->middleware([
                 EncryptCookies::class,

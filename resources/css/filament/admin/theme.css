@@ -596,3 +596,18 @@ button,
         display: none !important;
     }
 }
+
+/* ─── Mobile Search: hide native bar < sm, show popup btn ── */
+/*
+   الموبايل (< 640px): نخفي شريط البحث الأصلي ويظهر زر البحث
+   الديسكتوب (≥ 640px): نرجع شريط البحث الأصلي ويختفي الزر (sm:hidden)
+*/
+.fi-global-search-ctn {
+    display: none !important;
+}
+
+@media (min-width: 640px) {
+    .fi-global-search-ctn {
+        display: flex !important;
+    }
+}

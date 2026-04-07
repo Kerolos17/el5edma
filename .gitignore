@@ -25,6 +25,6 @@ Homestead.yaml
 Thumbs.db
 DEPLOYMENT.md
 test-results-*.md
-
+.htaccess
 # Firebase
 storage/app/firebase-credentials.json

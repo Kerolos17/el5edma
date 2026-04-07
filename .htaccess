@@ -1,11 +1,6 @@
-# حماية الملفات الحساسة في المجلد الرئيسي للمشروع
-# هذا الملف يُوضع في جذر المشروع (خارج public_html)
-
-<IfModule mod_authz_core.c>
-    Require all denied
+cat > /home/u524612520/public_html/.htaccess << 'EOF'
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
-
-<IfModule !mod_authz_core.c>
-    Order deny,allow
-    Deny from all
-</IfModule>
+EOF

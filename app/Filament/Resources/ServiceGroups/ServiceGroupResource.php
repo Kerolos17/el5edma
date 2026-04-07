@@ -29,6 +29,8 @@ class ServiceGroupResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     public static function getNavigationGroup(): ?string
     {
         return __('navigation.ministry');
@@ -47,6 +49,34 @@ class ServiceGroupResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('service_groups.title');
+    }
+
+    // ── Global Search ──
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'description'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->name;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('service_groups.leader')         => $record->leader?->name        ?? '—',
+            __('service_groups.service_leader') => $record->serviceLeader?->name ?? '—',
+            __('service_groups.is_active')      => $record->is_active
+                                                    ? __('beneficiaries.active')
+                                                    : __('beneficiaries.inactive'),
+        ];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return static::getUrl('view', ['record' => $record]);
     }
 
     public static function canAccess(): bool
