@@ -1,82 +1,137 @@
-const CACHE_NAME = 'ministry-pwa-v1';
+const CACHE_NAME = 'ministry-pwa-v2';
 const OFFLINE_URL = '/offline.html';
 
-const ASSETS_TO_CACHE = [
+// Assets to precache on install
+const PRECACHE_ASSETS = [
     OFFLINE_URL,
     '/manifest.json',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
-    '/images/favicon.ico'
+    '/icons/apple-touch-icon.png',
 ];
 
+// Static asset patterns - use stale-while-revalidate
+const STATIC_ASSET_PATTERNS = [
+    /\/build\/assets\//,
+    /\/icons\//,
+    /\/images\//,
+    /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
+    /\.(?:woff|woff2|ttf|eot)$/,
+];
+
+// Paths to never intercept
+const SKIP_PATHS = ['/fcm-token', '/login', '/logout', '/language', '/login-code'];
+
+// ---- Install ----------------------------------------------------------------
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
     );
     self.skipWaiting();
 });
 
+// ---- Activate: clean old caches --------------------------------------------
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.filter((name) => name !== CACHE_NAME)
-                    .map((name) => caches.delete(name))
-            );
-        })
+        caches.keys().then((names) =>
+            Promise.all(
+                names
+                    .filter((n) => n !== CACHE_NAME)
+                    .map((n) => caches.delete(n))
+            )
+        )
     );
     self.clients.claim();
 });
 
+// ---- Fetch -----------------------------------------------------------------
 self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') return;
-    
-    // API and Firebase requests shouldn't be touched by basic offline cache usually
-    if (event.request.url.includes('/api/') || event.request.url.includes('firebase')) return;
+    const { request } = event;
 
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // If the response is valid, we might choose to cache it. But for a highly dynamic admin panel, network-first is better.
-                return response;
+    // Only handle GET
+    if (request.method !== 'GET') return;
+
+    const url = new URL(request.url);
+
+    // Skip external requests and auth-sensitive paths
+    if (url.origin !== self.location.origin) return;
+    if (SKIP_PATHS.some((p) => url.pathname.startsWith(p))) return;
+    // Skip Firebase requests
+    if (url.hostname.includes('firebase') || url.hostname.includes('googleapis')) return;
+
+    const isStaticAsset = STATIC_ASSET_PATTERNS.some((p) => p.test(url.pathname));
+
+    if (isStaticAsset) {
+        // Stale-while-revalidate: serve cache instantly, update in background
+        event.respondWith(
+            caches.open(CACHE_NAME).then(async (cache) => {
+                const cached = await cache.match(request);
+                const networkFetch = fetch(request).then((res) => {
+                    if (res.ok) cache.put(request, res.clone());
+                    return res;
+                }).catch(() => null);
+                return cached || networkFetch;
             })
-            .catch(() => {
-                // Network failed, check cache
-                return caches.match(event.request).then((cachedResponse) => {
-                    if (cachedResponse) {
-                        return cachedResponse;
+        );
+    } else {
+        // Network-first for dynamic Filament pages
+        event.respondWith(
+            fetch(request).catch(() =>
+                caches.match(request).then(
+                    (cached) =>
+                        cached ||
+                        (request.mode === 'navigate'
+                            ? caches.match(OFFLINE_URL)
+                            : null)
+                )
+            )
+        );
+    }
+});
+
+// ---- Notification click: navigate to the specific record -------------------
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    // Read deep-link URL from notification data payload
+    const targetUrl = event.notification.data?.url || '/admin';
+
+    event.waitUntil(
+        clients
+            .matchAll({ type: 'window', includeUncontrolled: true })
+            .then((clientList) => {
+                // Focus and navigate existing window if open
+                for (const client of clientList) {
+                    if ('focus' in client) {
+                        client.focus();
+                        if ('navigate' in client) client.navigate(targetUrl);
+                        return;
                     }
-                    
-                    // If it's a navigation request and it fails, show offline page
-                    if (event.request.mode === 'navigate') {
-                        return caches.match(OFFLINE_URL);
-                    }
-                    
-                    return null;
-                });
+                }
+                // Otherwise open a new window at the target URL
+                if (clients.openWindow) {
+                    return clients.openWindow(targetUrl);
+                }
             })
     );
 });
 
-self.addEventListener('notificationclick', function(event) {
-    console.log('[Service Worker] Notification click received.');
-    event.notification.close();
-    
-    event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-            // If the window is already open, focus it
-            for (var i = 0; i < clientList.length; i++) {
-                var client = clientList[i];
-                if (client.url.includes('/admin') && 'focus' in client) {
-                    return client.focus();
-                }
-            }
-            // Otherwise, open a new window
-            if (clients.openWindow) {
-                return clients.openWindow('/admin');
-            }
-        })
-    );
+// ---- Push fallback (if FCM SW is not handling) -----------------------------
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+    try {
+        const data = event.data.json();
+        const title = data.notification?.title || 'إشعار جديد';
+        event.waitUntil(
+            self.registration.showNotification(title, {
+                body: data.notification?.body || '',
+                icon: '/icons/icon-192x192.png',
+                badge: '/icons/icon-72x72.png',
+                dir: 'rtl',
+                data: { url: data.data?.url || '/admin', ...data.data },
+            })
+        );
+    } catch (e) {
+        console.error('[sw.js] Push parse error:', e);
+    }
 });

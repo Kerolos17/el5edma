@@ -26,7 +26,7 @@
     }"
     @new-notification-sound.window="playSound()"
     class="relative flex items-center gap-1"
-    wire:poll.60s="loadNotifications">
+    wire:poll.60000ms.visible="loadNotifications">
 
     {{-- زر الكتم / التشغيل --}}
     <button @click="toggleMute()" type="button"
@@ -49,13 +49,40 @@
         @endif
     </button>
 
-    {{-- الـ Dropdown --}}
-    <div x-show="open" x-cloak @click.outside="open = false" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+    {{--
+        Backdrop: بديل عن @click.outside الذي يسبب الإغلاق الخاطئ أثناء wire:poll.
+        طبقة شفافة خلف الـ dropdown — الضغط عليها يغلقه فقط.
+    --}}
+    <div
+        x-show="open"
+        @click="open = false"
+        class="fixed inset-0 z-[59]"
+        style="display: none;"
+        aria-hidden="true">
+    </div>
+
+    {{--
+        الـ Dropdown:
+        - موبايل: fixed + full width تحت الهيدر مباشرة (يحل مشكلة الخروج عن الشاشة)
+        - شاشات أكبر (sm+): absolute dropdown عادي بجانب الجرس
+    --}}
+    <div
+        x-show="open"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-14 sm:top-12 inset-e-0 z-60 w-[90vw] sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        class="
+            fixed inset-x-2 top-[4.25rem] z-60
+            sm:absolute sm:inset-x-auto sm:top-12 sm:end-0 sm:w-96
+            bg-white dark:bg-gray-900 rounded-xl shadow-2xl
+            border border-gray-200 dark:border-gray-700 overflow-hidden
+        "
         style="display: none;">
+
         {{-- Header --}}
         <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
             <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -76,7 +103,7 @@
         </div>
 
         {{-- قائمة الإشعارات --}}
-        <div class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+        <div class="max-h-[60dvh] sm:max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
             @forelse ($notifications as $notification)
                 <div wire:key="notification-{{ $notification['id'] }}"
                     wire:click="markRead({{ $notification['id'] }}, '{{ $notification['url'] ?? '' }}')"
@@ -85,47 +112,27 @@
                             ? 'hover:bg-gray-50 dark:hover:bg-gray-800'
                             : 'bg-blue-50/50 dark:bg-blue-900/10 border-s-2' }}"
                     style="{{ !$notification['read'] ? 'border-color: #0073A3;' : '' }}">
+
                     {{-- أيقونة النوع --}}
                     <div
                         class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-base
                         {{ match ($notification['type']) {
-                            'birthday' => 'bg-amber-100',
-                            'critical_case' => 'bg-red-100',
-                            'visit_reminder' => 'bg-blue-100',
-                            'unvisited_alert' => 'bg-amber-100',
-                            'new_beneficiary' => 'bg-green-100',
+                            'birthday'           => 'bg-amber-100',
+                            'critical_case'      => 'bg-red-100',
+                            'visit_reminder'     => 'bg-blue-100',
+                            'unvisited_alert'    => 'bg-amber-100',
+                            'new_beneficiary'    => 'bg-green-100',
                             'servant_registered' => 'bg-blue-100',
-                            default => 'bg-gray-100',
-                        } }}
-                    ">
+                            default              => 'bg-gray-100',
+                        } }}">
                         @switch($notification['type'])
-                            @case('birthday')
-                                &#x1F382;
-                            @break
-
-                            @case('critical_case')
-                                &#x1F534;
-                            @break
-
-                            @case('visit_reminder')
-                                &#x1F4C5;
-                            @break
-
-                            @case('unvisited_alert')
-                                &#x23F0;
-                            @break
-
-                            @case('new_beneficiary')
-                                &#x2728;
-                            @break
-
-                            @case('servant_registered')
-                                &#x1F44B;
-                            @break
-
-                            @default
-                                &#x1F514;
-                            @break
+                            @case('birthday')          &#x1F382; @break
+                            @case('critical_case')     &#x1F534; @break
+                            @case('visit_reminder')    &#x1F4C5; @break
+                            @case('unvisited_alert')   &#x23F0;  @break
+                            @case('new_beneficiary')   &#x2728;  @break
+                            @case('servant_registered') &#x1F44B; @break
+                            @default                   &#x1F514; @break
                         @endswitch
                     </div>
 
@@ -143,24 +150,25 @@
                     </div>
 
                     @if (!$notification['read'])
-                        <div class="shrink-0 w-2 h-2 mt-2 rounded-full self-start" style="background-color: #0073A3;">
-                        </div>
+                        <div class="shrink-0 w-2 h-2 mt-2 rounded-full self-start"
+                            style="background-color: #0073A3;"></div>
                     @endif
                 </div>
-                @empty
-                    <div class="flex flex-col items-center justify-center py-8 text-gray-400">
-                        <x-heroicon-o-bell-slash class="w-8 h-8 mb-2" />
-                        <p class="text-sm">{{ __('notifications.no_notifications') }}</p>
-                    </div>
-                @endforelse
-            </div>
+            @empty
+                <div class="flex flex-col items-center justify-center py-8 text-gray-400">
+                    <x-heroicon-o-bell-slash class="w-8 h-8 mb-2" />
+                    <p class="text-sm">{{ __('notifications.no_notifications') }}</p>
+                </div>
+            @endforelse
+        </div>
 
-            {{-- Footer --}}
-            <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
-                <a href="{{ route('filament.admin.resources.ministry-notifications.index') }}"
-                    class="text-xs font-medium hover:opacity-80 transition" style="color: #0073A3;">
-                    {{ __('notifications.title') }} &#x2190;
-                </a>
-            </div>
+        {{-- Footer --}}
+        <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
+            <a href="{{ route('filament.admin.resources.ministry-notifications.index') }}"
+                @click="open = false"
+                class="text-xs font-medium hover:opacity-80 transition" style="color: #0073A3;">
+                {{ __('notifications.title') }} &#x2190;
+            </a>
         </div>
     </div>
+</div>
