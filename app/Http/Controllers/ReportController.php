@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
+use App\Models\Visit;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,11 +15,15 @@ class ReportController extends Controller
 
     public function beneficiariesPdf(Request $request)
     {
+        $this->authorize('viewAny', Beneficiary::class);
+
         return $this->service->beneficiariesPdf(Auth::user());
     }
 
     public function visitsPdf(Request $request)
     {
+        $this->authorize('viewAny', Visit::class);
+
         $request->validate([
             'date_from' => 'nullable|date',
             'date_to'   => 'nullable|date|after_or_equal:date_from',
@@ -33,6 +38,8 @@ class ReportController extends Controller
 
     public function unvisitedPdf(Request $request)
     {
+        $this->authorize('viewAny', Beneficiary::class);
+
         return $this->service->unvisitedPdf(Auth::user());
     }
 

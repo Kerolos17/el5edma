@@ -9,6 +9,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use App\Enums\UserRole;
+use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -76,6 +77,21 @@ class UserForm
                             return [UserRole::Servant->value => UserRole::Servant->label()];
                         })
                         ->required()
+                        ->rules([
+                            function (): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail): void {
+                                    $actor   = Auth::user();
+                                    $allowed = match (true) {
+                                        $actor->role === UserRole::SuperAdmin    => array_column(UserRole::cases(), 'value'),
+                                        $actor->role === UserRole::ServiceLeader => [UserRole::FamilyLeader->value, UserRole::Servant->value],
+                                        default                                  => [UserRole::Servant->value],
+                                    };
+                                    if (! in_array($value, $allowed, true)) {
+                                        $fail(__('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ])
                         ->live()
                         ->afterStateUpdated(fn ($state, callable $set) => in_array($state, [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])
                                 ? $set('service_group_id', null)

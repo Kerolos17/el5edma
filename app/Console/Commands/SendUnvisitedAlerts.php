@@ -114,7 +114,7 @@ class SendUnvisitedAlerts extends Command
 
                 if (! empty($tokens)) {
                     $title = __('notifications.unvisited_alert_title');
-                    $body  = __('notifications.unvisited_alert_body');
+                    $body  = __('notifications.unvisited_alert_body', ['name' => '', 'days' => '']);
                     SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
                 }
             });

@@ -39,5 +39,8 @@ jobs:
       - name: Generate app key
         run: php artisan key:generate
 
+      - name: Run migrations
+        run: php artisan migrate --force
+
       - name: Run tests
         run: composer test

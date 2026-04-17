@@ -77,8 +77,10 @@ class SendScheduledVisitReminders extends Command
             MinistryNotification::insert($rows);
 
             if (! empty($tokens)) {
+                App::setLocale('ar');
                 $title = __('notifications.visit_reminder_title');
-                $body  = __('notifications.visit_reminder_body');
+                $body  = __('notifications.visit_reminder_body', ['name' => '']);
+                App::setLocale($originalLocale);
                 SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
             }
 

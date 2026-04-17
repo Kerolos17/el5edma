@@ -57,4 +57,5 @@ return [
     'pending_only'                 => 'Pending Only',
     'approved_only'                => 'Approved Only',
     'no_records'                   => 'No users found',
+    'unauthorized_role'            => 'You are not authorized to assign this role',
 ];

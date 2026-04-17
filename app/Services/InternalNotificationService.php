@@ -92,7 +92,7 @@ class InternalNotificationService
             'type'    => $type,
             'title'   => $title,
             'body'    => $body,
-            'data'    => json_encode($data),
+            'data'    => $data,
         ]);
 
         Cache::forget('notifications_unread_' . $user->id);

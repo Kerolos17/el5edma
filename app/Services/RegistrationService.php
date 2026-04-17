@@ -49,11 +49,11 @@ class RegistrationService
                 // إشعار ترحيبي للخادم الجديد
                 $this->createWelcomeNotification($user, $serviceGroup);
 
-                // إرسال إشعارات للقادة
-                $this->notifyLeaders($user, $serviceGroup);
-
                 return $user;
             });
+
+            // إرسال إشعارات للقادة خارج الـ transaction — فشل الإشعار لا يلغي التسجيل
+            $this->notifyLeaders($user, $serviceGroup);
 
             Log::info('Self-registration completed', [
                 'user_id'          => $user->id,
