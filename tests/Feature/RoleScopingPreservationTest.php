@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Visits\VisitResource;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
@@ -205,9 +207,9 @@ class RoleScopingPreservationTest extends TestCase
         $user  = Auth::user();
         $query = Beneficiary::where('status', 'active');
 
-        if ($user->role === \App\Enums\UserRole::FamilyLeader) {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === \App\Enums\UserRole::Servant) {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 
@@ -230,9 +232,9 @@ class RoleScopingPreservationTest extends TestCase
         $user  = Auth::user();
         $query = Beneficiary::where('status', 'active');
 
-        if ($user->role === \App\Enums\UserRole::FamilyLeader) {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === \App\Enums\UserRole::Servant) {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 
@@ -276,9 +278,9 @@ class RoleScopingPreservationTest extends TestCase
         $user  = Auth::user();
         $query = Beneficiary::where('status', 'active');
 
-        if ($user->role === \App\Enums\UserRole::FamilyLeader) {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === \App\Enums\UserRole::Servant) {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
 

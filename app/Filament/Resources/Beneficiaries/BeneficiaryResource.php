@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Beneficiaries;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Beneficiaries\Pages\CreateBeneficiary;
 use App\Filament\Resources\Beneficiaries\Pages\EditBeneficiary;
 use App\Filament\Resources\Beneficiaries\Pages\ListBeneficiaries;
@@ -18,7 +19,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 

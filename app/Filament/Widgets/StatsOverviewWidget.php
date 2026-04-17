@@ -2,14 +2,14 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\Visit;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class StatsOverviewWidget extends BaseWidget
 {
@@ -19,7 +19,7 @@ class StatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         // $pageFilters is null until the dashboard filter form is submitted; default to 'week'
         $period = $this->filters['period'] ?? 'week';
 
@@ -33,8 +33,7 @@ class StatsOverviewWidget extends BaseWidget
 
             if ($user->role === UserRole::FamilyLeader) {
                 $beneficiaryQuery->where('service_group_id', $user->service_group_id);
-                $visitQuery->whereHas('beneficiary', fn($q) =>
-                    $q->where('service_group_id', $user->service_group_id)
+                $visitQuery->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
                 );
             } elseif ($user->role === UserRole::Servant) {
                 $beneficiaryQuery->where('assigned_servant_id', $user->id);
@@ -43,22 +42,22 @@ class StatsOverviewWidget extends BaseWidget
 
             $currentVisits = (clone $visitQuery)->where('type', 'home_visit')
                 ->whereBetween('visit_date', [$currentStart, $currentEnd])->count();
-            $currentCalls  = (clone $visitQuery)->where('type', 'phone_call')
+            $currentCalls = (clone $visitQuery)->where('type', 'phone_call')
                 ->whereBetween('visit_date', [$currentStart, $currentEnd])->count();
 
             $previousVisits = (clone $visitQuery)->where('type', 'home_visit')
                 ->whereBetween('visit_date', [$previousStart, $previousEnd])->count();
-            $previousCalls  = (clone $visitQuery)->where('type', 'phone_call')
+            $previousCalls = (clone $visitQuery)->where('type', 'phone_call')
                 ->whereBetween('visit_date', [$previousStart, $previousEnd])->count();
 
             return [
-                'beneficiaries'  => $beneficiaryQuery->where('status', 'active')->count(),
-                'visits'         => $currentVisits,
-                'calls'          => $currentCalls,
-                'critical'       => (clone $visitQuery)->where('is_critical', true)
+                'beneficiaries' => $beneficiaryQuery->where('status', 'active')->count(),
+                'visits'        => $currentVisits,
+                'calls'         => $currentCalls,
+                'critical'      => (clone $visitQuery)->where('is_critical', true)
                     ->whereNull('critical_resolved_at')->count(),
-                'prev_visits'    => $previousVisits,
-                'prev_calls'     => $previousCalls,
+                'prev_visits' => $previousVisits,
+                'prev_calls'  => $previousCalls,
             ];
         });
 
@@ -114,6 +113,7 @@ class StatsOverviewWidget extends BaseWidget
     private function getPeriodLabel(string $type, string $period): string
     {
         $periodLabel = __("dashboard.{$period}");
+
         return $type === 'visits'
             ? __('dashboard.visits_period', ['period' => $periodLabel])
             : __('dashboard.calls_period', ['period' => $periodLabel]);
@@ -140,15 +140,25 @@ class StatsOverviewWidget extends BaseWidget
 
     private function getTrendIcon(int $current, int $previous): ?string
     {
-        if ($current > $previous) return 'heroicon-m-arrow-trending-up';
-        if ($current < $previous) return 'heroicon-m-arrow-trending-down';
+        if ($current > $previous) {
+            return 'heroicon-m-arrow-trending-up';
+        }
+        if ($current < $previous) {
+            return 'heroicon-m-arrow-trending-down';
+        }
+
         return null;
     }
 
     private function getTrendColor(int $current, int $previous): string
     {
-        if ($current > $previous) return 'success';
-        if ($current < $previous) return 'danger';
+        if ($current > $previous) {
+            return 'success';
+        }
+        if ($current < $previous) {
+            return 'danger';
+        }
+
         return 'gray';
     }
 }

@@ -1,10 +1,12 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\AuditLog;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -17,7 +19,7 @@ class ServiceGroupModelTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function hasActiveRegistrationToken_returns_true_when_token_exists(): void
+    public function has_active_registration_token_returns_true_when_token_exists(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token'              => str_repeat('a', 64),
@@ -28,7 +30,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function hasActiveRegistrationToken_returns_false_when_token_is_null(): void
+    public function has_active_registration_token_returns_false_when_token_is_null(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token'              => null,
@@ -39,7 +41,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function hasActiveRegistrationToken_returns_false_when_token_is_empty_string(): void
+    public function has_active_registration_token_returns_false_when_token_is_empty_string(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token'              => '',
@@ -50,7 +52,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function getSelfRegisteredServantsCount_returns_zero_when_no_registrations(): void
+    public function get_self_registered_servants_count_returns_zero_when_no_registrations(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -60,7 +62,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function getSelfRegisteredServantsCount_returns_correct_count_for_single_registration(): void
+    public function get_self_registered_servants_count_returns_correct_count_for_single_registration(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create([
@@ -89,7 +91,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function getSelfRegisteredServantsCount_returns_correct_count_for_multiple_registrations(): void
+    public function get_self_registered_servants_count_returns_correct_count_for_multiple_registrations(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -121,7 +123,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function getSelfRegisteredServantsCount_only_counts_self_registered_servants(): void
+    public function get_self_registered_servants_count_only_counts_self_registered_servants(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -172,7 +174,7 @@ class ServiceGroupModelTest extends TestCase
     }
 
     #[Test]
-    public function getSelfRegisteredServantsCount_only_counts_for_specific_service_group(): void
+    public function get_self_registered_servants_count_only_counts_for_specific_service_group(): void
     {
         $serviceGroup1 = ServiceGroup::factory()->create();
         $serviceGroup2 = ServiceGroup::factory()->create();
@@ -233,7 +235,7 @@ class ServiceGroupModelTest extends TestCase
             'registration_token_generated_at' => $now,
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $serviceGroup->registration_token_generated_at);
+        $this->assertInstanceOf(Carbon::class, $serviceGroup->registration_token_generated_at);
         $this->assertEquals($now->timestamp, $serviceGroup->registration_token_generated_at->timestamp);
     }
 

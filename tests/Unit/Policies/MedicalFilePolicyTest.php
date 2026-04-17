@@ -12,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class MedicalFilePolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private MedicalFilePolicy $policy;
     private ServiceGroup $groupA;
@@ -20,21 +20,21 @@ class MedicalFilePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new MedicalFilePolicy();
+        $this->policy = new MedicalFilePolicy;
         $this->groupA = ServiceGroup::factory()->create();
     }
 
     public function test_update_always_returns_false(): void
     {
         $admin = $this->createSuperAdmin();
-        $mf = MedicalFile::factory()->create();
+        $mf    = MedicalFile::factory()->create();
         $this->assertFalse($this->policy->update($admin, $mf));
     }
 
     public function test_super_admin_can_view_create_delete(): void
     {
         $admin = $this->createSuperAdmin();
-        $mf = MedicalFile::factory()->create();
+        $mf    = MedicalFile::factory()->create();
         $this->assertTrue($this->policy->viewAny($admin));
         $this->assertTrue($this->policy->view($admin, $mf));
         $this->assertTrue($this->policy->create($admin));
@@ -43,9 +43,9 @@ class MedicalFilePolicyTest extends TestCase
 
     public function test_servant_view_scoped_to_assigned_beneficiary(): void
     {
-        $servant = $this->createServant($this->groupA);
+        $servant     = $this->createServant($this->groupA);
         $benAssigned = Beneficiary::factory()->create([
-            'service_group_id' => $this->groupA->id,
+            'service_group_id'    => $this->groupA->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $benOther = Beneficiary::factory()->create([
@@ -62,15 +62,15 @@ class MedicalFilePolicyTest extends TestCase
     public function test_servant_cannot_create_or_delete(): void
     {
         $servant = $this->createServant($this->groupA);
-        $mf = MedicalFile::factory()->create();
+        $mf      = MedicalFile::factory()->create();
         $this->assertFalse($this->policy->create($servant));
         $this->assertFalse($this->policy->delete($servant, $mf));
     }
 
     public function test_family_leader_scoped_to_group(): void
     {
-        $fl = $this->createFamilyLeader($this->groupA);
-        $benInGroup = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
+        $fl          = $this->createFamilyLeader($this->groupA);
+        $benInGroup  = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
         $benOutGroup = Beneficiary::factory()->create(['service_group_id' => ServiceGroup::factory()->create()->id]);
 
         $mfIn  = MedicalFile::factory()->create(['beneficiary_id' => $benInGroup->id]);

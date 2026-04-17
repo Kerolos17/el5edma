@@ -13,8 +13,8 @@ class MedicationModelTest extends TestCase
 
     public function test_beneficiary_relationship(): void
     {
-        $ben      = Beneficiary::factory()->create();
-        $med      = Medication::factory()->create(['beneficiary_id' => $ben->id]);
+        $ben = Beneficiary::factory()->create();
+        $med = Medication::factory()->create(['beneficiary_id' => $ben->id]);
 
         $this->assertInstanceOf(Beneficiary::class, $med->beneficiary);
         $this->assertSame($ben->id, $med->beneficiary->id);

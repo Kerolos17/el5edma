@@ -12,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class VisitPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private VisitPolicy $policy;
     private ServiceGroup $groupA;
@@ -23,7 +23,7 @@ class VisitPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new VisitPolicy();
+        $this->policy = new VisitPolicy;
         $this->groupA = ServiceGroup::factory()->create();
         $this->groupB = ServiceGroup::factory()->create();
 

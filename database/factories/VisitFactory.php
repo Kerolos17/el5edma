@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Beneficiary;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -10,8 +11,8 @@ class VisitFactory extends Factory
     public function definition(): array
     {
         return [
-            'beneficiary_id' => \App\Models\Beneficiary::factory(),
-            'type' => $this->faker->randomElement([
+            'beneficiary_id' => Beneficiary::factory(),
+            'type'           => $this->faker->randomElement([
                 'home_visit', 'phone_call', 'church_meeting',
             ]),
             'visit_date'         => $this->faker->dateTimeBetween('-6 months', 'now'),

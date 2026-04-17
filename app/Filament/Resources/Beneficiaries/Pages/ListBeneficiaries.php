@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Beneficiaries\Pages;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Beneficiaries\BeneficiaryResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ListBeneficiaries extends ListRecords
@@ -19,7 +19,7 @@ class ListBeneficiaries extends ListRecords
                 ->label(__('beneficiaries.add'))
                 ->visible(fn () => in_array(
                     Auth::user()?->role,
-                    [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
+                    [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader],
                 )),
         ];
     }

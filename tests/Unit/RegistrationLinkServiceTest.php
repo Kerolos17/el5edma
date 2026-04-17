@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\ServiceGroup;
@@ -20,7 +21,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function getOrCreateToken_generates_token_for_new_service_group(): void
+    public function get_or_create_token_generates_token_for_new_service_group(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token' => null,
@@ -35,7 +36,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function getOrCreateToken_reuses_existing_token(): void
+    public function get_or_create_token_reuses_existing_token(): void
     {
         $existingToken = str_repeat('a', 64);
         $serviceGroup  = ServiceGroup::factory()->create([
@@ -50,7 +51,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function getOrCreateToken_is_idempotent(): void
+    public function get_or_create_token_is_idempotent(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token' => null,
@@ -65,7 +66,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function regenerateToken_creates_new_token(): void
+    public function regenerate_token_creates_new_token(): void
     {
         $oldToken     = str_repeat('a', 64);
         $serviceGroup = ServiceGroup::factory()->create([
@@ -82,7 +83,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function regenerateToken_invalidates_old_token(): void
+    public function regenerate_token_invalidates_old_token(): void
     {
         $oldToken     = str_repeat('a', 64);
         $serviceGroup = ServiceGroup::factory()->create([
@@ -103,7 +104,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function validateToken_returns_service_group_for_valid_token(): void
+    public function validate_token_returns_service_group_for_valid_token(): void
     {
         $token        = str_repeat('b', 64);
         $serviceGroup = ServiceGroup::factory()->create([
@@ -119,7 +120,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function validateToken_returns_null_for_invalid_token(): void
+    public function validate_token_returns_null_for_invalid_token(): void
     {
         $result = $this->service->validateToken('invalid-token-that-does-not-exist');
 
@@ -127,7 +128,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function validateToken_returns_null_for_inactive_service_group(): void
+    public function validate_token_returns_null_for_inactive_service_group(): void
     {
         $token        = str_repeat('c', 64);
         $serviceGroup = ServiceGroup::factory()->create([
@@ -141,7 +142,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function generateRegistrationUrl_creates_token_if_not_exists(): void
+    public function generate_registration_url_creates_token_if_not_exists(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'registration_token' => null,
@@ -157,7 +158,7 @@ class RegistrationLinkServiceTest extends TestCase
     }
 
     #[Test]
-    public function generateRegistrationUrl_reuses_existing_token(): void
+    public function generate_registration_url_reuses_existing_token(): void
     {
         $existingToken = str_repeat('d', 64);
         $serviceGroup  = ServiceGroup::factory()->create([

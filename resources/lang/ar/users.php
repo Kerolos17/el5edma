@@ -1,25 +1,25 @@
 <?php
 
 return [
-    'title'               => 'المستخدمون',
-    'singular'            => 'مستخدم',
-    'add'                 => 'إضافة مستخدم',
-    'name'                => 'الاسم',
-    'email'               => 'البريد الإلكتروني',
-    'phone'               => 'الهاتف',
-    'password'            => 'كلمة المرور',
-    'personal_code'       => 'الكود الشخصي',
-    'role'                => 'الدور',
-    'service_group'       => 'الأسرة',
-    'locale'              => 'اللغة',
-    'is_active'           => 'نشط',
-    'last_login_at'       => 'آخر دخول',
+    'title'         => 'المستخدمون',
+    'singular'      => 'مستخدم',
+    'add'           => 'إضافة مستخدم',
+    'name'          => 'الاسم',
+    'email'         => 'البريد الإلكتروني',
+    'phone'         => 'الهاتف',
+    'password'      => 'كلمة المرور',
+    'personal_code' => 'الكود الشخصي',
+    'role'          => 'الدور',
+    'service_group' => 'الأسرة',
+    'locale'        => 'اللغة',
+    'is_active'     => 'نشط',
+    'last_login_at' => 'آخر دخول',
 
     // Roles
-    'super_admin'         => 'مدير النظام',
-    'service_leader'      => 'أمين الخدمة',
-    'family_leader'       => 'أمين الأسرة',
-    'servant'             => 'خادم',
+    'super_admin'    => 'مدير النظام',
+    'service_leader' => 'أمين الخدمة',
+    'family_leader'  => 'أمين الأسرة',
+    'servant'        => 'خادم',
 
     // Nested roles (used by UserRole enum)
     'roles' => [
@@ -30,12 +30,12 @@ return [
     ],
 
     // Locale
-    'arabic'              => 'العربية',
-    'english'             => 'الإنجليزية',
+    'arabic'  => 'العربية',
+    'english' => 'الإنجليزية',
 
-    'code_hint'           => 'الكود الشخصي مرئي لمدير النظام فقط',
-    'code_auto_generated' => 'يتم التوليد تلقائياً عند الإنشاء',
-    'generate_code'       => 'توليد كود جديد',
+    'code_hint'               => 'الكود الشخصي مرئي لمدير النظام فقط',
+    'code_auto_generated'     => 'يتم التوليد تلقائياً عند الإنشاء',
+    'generate_code'           => 'توليد كود جديد',
     'my_profile'              => 'ملفي الشخصي',
     'my_info'                 => 'بياناتي',
     'save_locale'             => 'حفظ اللغة',
@@ -47,7 +47,7 @@ return [
     'remove_photo'            => 'حذف الصورة',
     'remove_photo_confirm'    => 'هل أنت متأكد من حذف الصورة الشخصية؟',
     'uploading'               => 'جاري الرفع',
-    'cannot_delete_self'  => 'لا يمكنك حذف حسابك الخاص',
+    'cannot_delete_self'      => 'لا يمكنك حذف حسابك الخاص',
 
     // Servant approval
     'approve_servant'              => 'الموافقة على الخادم',

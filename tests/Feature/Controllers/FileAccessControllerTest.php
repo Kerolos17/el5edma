@@ -54,7 +54,7 @@ class FileAccessControllerTest extends TestCase
         $admin = User::factory()->create(['role' => UserRole::SuperAdmin]);
 
         $response = $this->actingAs($admin)->get(
-            route('private.file', ['path' => base64_encode('/etc/passwd')])
+            route('private.file', ['path' => base64_encode('/etc/passwd')]),
         );
 
         $response->assertForbidden();
@@ -62,7 +62,7 @@ class FileAccessControllerTest extends TestCase
 
     public function test_super_admin_can_access_existing_file(): void
     {
-        $admin   = User::factory()->create(['role' => UserRole::SuperAdmin]);
+        $admin    = User::factory()->create(['role' => UserRole::SuperAdmin]);
         $filePath = 'medical-files/test-document.pdf';
 
         Storage::disk('private')->put($filePath, 'PDF content');
@@ -70,7 +70,7 @@ class FileAccessControllerTest extends TestCase
         MedicalFile::factory()->create(['file_path' => $filePath]);
 
         $response = $this->actingAs($admin)->get(
-            route('private.file', ['path' => base64_encode($filePath)])
+            route('private.file', ['path' => base64_encode($filePath)]),
         );
 
         $response->assertOk();
@@ -88,7 +88,7 @@ class FileAccessControllerTest extends TestCase
         MedicalFile::factory()->create(['beneficiary_id' => $ben->id, 'file_path' => $filePath]);
 
         $response = $this->actingAs($servant)->get(
-            route('private.file', ['path' => base64_encode($filePath)])
+            route('private.file', ['path' => base64_encode($filePath)]),
         );
 
         $response->assertForbidden();

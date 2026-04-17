@@ -49,7 +49,7 @@ class ReminderSentAtPropertyTest extends TestCase
             for ($j = 0; $j < $count; $j++) {
                 $servant = User::factory()->create([
                     'fcm_token' => "reminder_token_{$i}_{$j}",
-                    'email' => "reminder_servant_{$i}_{$j}@example.com",
+                    'email'     => "reminder_servant_{$i}_{$j}@example.com",
                 ]);
 
                 $beneficiary = Beneficiary::factory()->create([
@@ -77,7 +77,7 @@ class ReminderSentAtPropertyTest extends TestCase
 
                 $this->assertNotNull(
                     $visit->reminder_sent_at,
-                    "Iteration {$i}: visit_id={$visitId} — reminder_sent_at should not be null after command runs"
+                    "Iteration {$i}: visit_id={$visitId} — reminder_sent_at should not be null after command runs",
                 );
             }
 
@@ -124,7 +124,7 @@ class ReminderSentAtPropertyTest extends TestCase
         $this->assertEquals(
             $sentAt->toDateTimeString(),
             $visit->reminder_sent_at->toDateTimeString(),
-            'Already-sent visits should not have their reminder_sent_at updated again'
+            'Already-sent visits should not have their reminder_sent_at updated again',
         );
 
         Queue::assertNothingPushed();

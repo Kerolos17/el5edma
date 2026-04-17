@@ -57,8 +57,7 @@ class ReportService
         $query = Visit::with(['beneficiary.serviceGroup', 'createdBy'])->latest('visit_date');
 
         if ($user->role === UserRole::FamilyLeader) {
-            $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === UserRole::Servant) {
             $query->where('created_by', $user->id);
@@ -100,10 +99,10 @@ class ReportService
                     });
             })
             ->when($user->role === UserRole::FamilyLeader,
-                fn($q) => $q->where('service_group_id', $user->service_group_id)
+                fn ($q) => $q->where('service_group_id', $user->service_group_id),
             )
             ->when($user->role === UserRole::Servant,
-                fn($q) => $q->where('assigned_servant_id', $user->id)
+                fn ($q) => $q->where('assigned_servant_id', $user->id),
             );
 
         $beneficiaries = $query->limit(500)->get();

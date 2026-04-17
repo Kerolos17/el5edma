@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Enums\UserRole;
@@ -9,6 +10,7 @@ use App\Models\MinistryNotification;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -22,10 +24,9 @@ class RegistrationService
      * معالجة طلب التسجيل وإنشاء الحساب
      * Requirements: 4.1-4.7, 3.1-3.7
      *
-     * @param  array         $data          بيانات التسجيل (name, email, phone, password)
+     * @param  array  $data  بيانات التسجيل (name, email, phone, password)
      * @param  ServiceGroup  $serviceGroup  مجموعة الخدمة المرتبطة بالرمز
-     * @param  string        $ipAddress     عنوان IP للطلب
-     * @return User
+     * @param  string  $ipAddress  عنوان IP للطلب
      *
      * @throws \Exception
      */
@@ -70,7 +71,6 @@ class RegistrationService
             ]);
 
             throw new \RuntimeException(__('registration.errors.duplicate'), 0, $e);
-
         } catch (\Exception $e) {
             Log::error('Self-registration failed', [
                 'email'            => $data['email'] ?? 'unknown',
@@ -87,9 +87,7 @@ class RegistrationService
      * التحقق من عدم وجود تسجيل مكرر
      * Requirements: 9.1, 9.2
      *
-     * @param  string  $email
-     * @param  string  $phone
-     * @return array   ['email' => bool, 'phone' => bool]
+     * @return array ['email' => bool, 'phone' => bool]
      */
     public function checkDuplicates(string $email, string $phone): array
     {
@@ -102,10 +100,6 @@ class RegistrationService
     /**
      * إرسال إشعارات للقادة
      * Requirements: 5.1-5.5
-     *
-     * @param  User          $newServant
-     * @param  ServiceGroup  $serviceGroup
-     * @return void
      */
     public function notifyLeaders(User $newServant, ServiceGroup $serviceGroup): void
     {
@@ -118,6 +112,7 @@ class RegistrationService
                     'user_id'          => $newServant->id,
                     'service_group_id' => $serviceGroup->id,
                 ]);
+
                 return;
             }
 
@@ -141,18 +136,12 @@ class RegistrationService
     /**
      * تسجيل عملية التسجيل في audit log
      * Requirements: 8.1-8.5
-     *
-     * @param  User          $user
-     * @param  ServiceGroup  $serviceGroup
-     * @param  string        $token
-     * @param  string        $ipAddress
-     * @return void
      */
     public function logRegistration(
         User $user,
         ServiceGroup $serviceGroup,
         string $token,
-        string $ipAddress
+        string $ipAddress,
     ): void {
         $maskedToken = $token ? substr($token, 0, 8) . '...' : '';
         AuditLog::logSelfRegistration($user, $serviceGroup, $maskedToken, $ipAddress);
@@ -161,11 +150,8 @@ class RegistrationService
     /**
      * الحصول على قادة مجموعة الخدمة + أمين الخدمة + مدير النظام
      * Requirements: 5.1, 5.2
-     *
-     * @param  ServiceGroup  $serviceGroup
-     * @return \Illuminate\Support\Collection
      */
-    protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): \Illuminate\Support\Collection
+    protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): Collection
     {
         // جمع IDs القادة من الأسرة
         $leaderIds = collect([
@@ -186,16 +172,11 @@ class RegistrationService
     /**
      * إنشاء سجلات الإشعارات في قاعدة البيانات
      * Requirements: 5.1, 5.2, 5.3, 5.5
-     *
-     * @param  User                              $newServant
-     * @param  ServiceGroup                      $serviceGroup
-     * @param  \Illuminate\Support\Collection    $leaders
-     * @return void
      */
     protected function createNotificationRecords(
         User $newServant,
         ServiceGroup $serviceGroup,
-        \Illuminate\Support\Collection $leaders
+        Collection $leaders,
     ): void {
         $now = now();
 
@@ -206,14 +187,14 @@ class RegistrationService
             app()->setLocale($leader->locale ?? 'ar');
 
             return [
-                'user_id'    => $leader->id,
-                'type'       => 'servant_registered',
-                'title'      => __('notifications.servant_registered.title'),
-                'body'       => __('notifications.servant_registered.body', [
+                'user_id' => $leader->id,
+                'type'    => 'servant_registered',
+                'title'   => __('notifications.servant_registered.title'),
+                'body'    => __('notifications.servant_registered.body', [
                     'name'          => $newServant->name,
                     'service_group' => $serviceGroup->name,
                 ]),
-                'data'       => json_encode([
+                'data' => json_encode([
                     'servant_id'       => $newServant->id,
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
@@ -244,7 +225,7 @@ class RegistrationService
                 'name'          => $newServant->name,
                 'service_group' => $serviceGroup->name,
             ]),
-            'data'    => json_encode([
+            'data' => json_encode([
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
             ]),
@@ -254,16 +235,11 @@ class RegistrationService
     /**
      * إرسال إشعارات FCM للقادة الذين لديهم tokens
      * Requirements: 5.4
-     *
-     * @param  User                              $newServant
-     * @param  ServiceGroup                      $serviceGroup
-     * @param  \Illuminate\Support\Collection    $leaders
-     * @return void
      */
     protected function dispatchFcmNotifications(
         User $newServant,
         ServiceGroup $serviceGroup,
-        \Illuminate\Support\Collection $leaders
+        Collection $leaders,
     ): void {
         try {
             $tokens = $leaders->pluck('fcm_token')->filter()->values()->toArray();

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit\Views;
 
 use Tests\TestCase;
@@ -15,7 +16,7 @@ class RegistrationLinkModalTest extends TestCase
             '<x-dynamic-component component="filament::modal">
                 @include("filament.modals.registration-link", ["url" => $url, "registeredCount" => $registeredCount])
             </x-dynamic-component>',
-            compact('url', 'registeredCount')
+            compact('url', 'registeredCount'),
         );
 
         $view->assertSee($url, false);
@@ -33,7 +34,7 @@ class RegistrationLinkModalTest extends TestCase
 
         $view = $this->blade(
             '@include("filament.modals.registration-link")',
-            compact('url', 'registeredCount')
+            compact('url', 'registeredCount'),
         );
 
         $view->assertSee('copyToClipboard', false);
@@ -49,7 +50,7 @@ class RegistrationLinkModalTest extends TestCase
 
         $view = $this->blade(
             '@include("filament.modals.registration-link")',
-            compact('url', 'registeredCount')
+            compact('url', 'registeredCount'),
         );
 
         $view->assertSee('readonly', false);
@@ -64,7 +65,7 @@ class RegistrationLinkModalTest extends TestCase
 
         $view = $this->blade(
             '@include("filament.modals.registration-link")',
-            compact('url', 'registeredCount')
+            compact('url', 'registeredCount'),
         );
 
         $view->assertSee('0');

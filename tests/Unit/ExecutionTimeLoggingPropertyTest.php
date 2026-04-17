@@ -43,14 +43,14 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
     /**
      * Helper: seed data for reminders:birthdays
      */
-    private function seedBirthdayData(int $count, string | int $iteration): void
+    private function seedBirthdayData(int $count, string|int $iteration): void
     {
         $targetDate = now()->addDays(3);
 
         for ($j = 0; $j < $count; $j++) {
             $servant = User::factory()->create([
                 'fcm_token' => "log_birthday_token_{$iteration}_{$j}",
-                'email' => "log_birthday_servant_{$iteration}_{$j}@example.com",
+                'email'     => "log_birthday_servant_{$iteration}_{$j}@example.com",
             ]);
 
             $serviceGroup = ServiceGroup::factory()->create();
@@ -67,12 +67,12 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
     /**
      * Helper: seed data for reminders:unvisited
      */
-    private function seedUnvisitedData(int $count, string | int $iteration): void
+    private function seedUnvisitedData(int $count, string|int $iteration): void
     {
         for ($j = 0; $j < $count; $j++) {
             $leader = User::factory()->create([
                 'fcm_token' => "log_unvisited_token_{$iteration}_{$j}",
-                'email' => "log_unvisited_leader_{$iteration}_{$j}@example.com",
+                'email'     => "log_unvisited_leader_{$iteration}_{$j}@example.com",
             ]);
 
             $serviceGroup = ServiceGroup::factory()->create([
@@ -89,14 +89,14 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
     /**
      * Helper: seed data for reminders:scheduled-visits
      */
-    private function seedScheduledVisitsData(int $count, string | int $iteration): void
+    private function seedScheduledVisitsData(int $count, string|int $iteration): void
     {
         $tomorrow = now()->addDay()->toDateString();
 
         for ($j = 0; $j < $count; $j++) {
             $servant = User::factory()->create([
                 'fcm_token' => "log_scheduled_token_{$iteration}_{$j}",
-                'email' => "log_scheduled_servant_{$iteration}_{$j}@example.com",
+                'email'     => "log_scheduled_servant_{$iteration}_{$j}@example.com",
             ]);
 
             $beneficiary = Beneficiary::factory()->create([
@@ -170,7 +170,7 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
             $logInfoCalls = collect(
                 \Mockery::getContainer()->mockery_getExpectationCount() >= 0
                     ? []
-                    : []
+                    : [],
             );
 
             // The primary assertion: Log::info must have been called.
@@ -199,22 +199,19 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
                     if (is_string($message)) {
                         return str_contains($message, 'reminders:birthdays');
                     }
+
                     return false;
                 })
                 ->atLeast()->once();
         } elseif ($command === 'reminders:unvisited') {
             // SendUnvisitedAlerts logs: Log::info("reminders:unvisited — تم إرسال {$count} تنبيه في {$elapsed} ثانية")
             Log::shouldHaveReceived('info')
-                ->withArgs(function ($message) {
-                    return is_string($message) && str_contains($message, 'reminders:unvisited');
-                })
+                ->withArgs(fn ($message) => is_string($message) && str_contains($message, 'reminders:unvisited'))
                 ->atLeast()->once();
         } elseif ($command === 'reminders:scheduled-visits') {
             // SendScheduledVisitReminders logs: Log::info("reminders:scheduled-visits — تم إرسال {$count} تذكير في {$elapsed} ثانية")
             Log::shouldHaveReceived('info')
-                ->withArgs(function ($message) {
-                    return is_string($message) && str_contains($message, 'reminders:scheduled-visits');
-                })
+                ->withArgs(fn ($message) => is_string($message) && str_contains($message, 'reminders:scheduled-visits'))
                 ->atLeast()->once();
         }
     }
@@ -248,11 +245,12 @@ class ExecutionTimeLoggingPropertyTest extends TestCase
                 ->withArgs(function ($message, $context = []) {
                     if ($message === 'reminders:birthdays') {
                         return array_key_exists('notifications_sent', $context)
-                        && array_key_exists('execution_time_sec', $context)
-                        && is_numeric($context['notifications_sent'])
-                        && is_numeric($context['execution_time_sec'])
+                            && array_key_exists('execution_time_sec', $context)
+                            && is_numeric($context['notifications_sent'])
+                            && is_numeric($context['execution_time_sec'])
                             && $context['execution_time_sec'] >= 0;
                     }
+
                     return false;
                 })
                 ->atLeast()->once();

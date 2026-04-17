@@ -33,6 +33,7 @@ class PrayerRequestPolicy
         // Family leaders can view prayer requests for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
             $prayerRequest->loadMissing('beneficiary');
+
             return $prayerRequest->beneficiary !== null
                 && $user->service_group_id === $prayerRequest->beneficiary->service_group_id;
         }
@@ -67,6 +68,7 @@ class PrayerRequestPolicy
         // Family leaders can update prayer requests for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
             $prayerRequest->loadMissing('beneficiary');
+
             return $prayerRequest->beneficiary !== null
                 && $user->service_group_id === $prayerRequest->beneficiary->service_group_id;
         }

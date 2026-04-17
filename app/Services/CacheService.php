@@ -56,14 +56,12 @@ class CacheService
      */
     public static function getActiveServants(): array
     {
-        return Cache::remember('filter_options:servants', self::TTL_SERVANTS, function () {
-            return User::query()
-                ->where('role', UserRole::Servant)
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->pluck('name', 'id')
-                ->toArray();
-        });
+        return Cache::remember('filter_options:servants', self::TTL_SERVANTS, fn () => User::query()
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray());
     }
 
     /**
@@ -79,15 +77,13 @@ class CacheService
         if ($user->service_group_id) {
             $cacheKey = "filter_options:servants:sg:{$user->service_group_id}";
 
-            return Cache::remember($cacheKey, self::TTL_SERVANTS, function () use ($user) {
-                return User::query()
-                    ->where('role', UserRole::Servant)
-                    ->where('is_active', true)
-                    ->where('service_group_id', $user->service_group_id)
-                    ->orderBy('name')
-                    ->pluck('name', 'id')
-                    ->toArray();
-            });
+            return Cache::remember($cacheKey, self::TTL_SERVANTS, fn () => User::query()
+                ->where('role', UserRole::Servant)
+                ->where('is_active', true)
+                ->where('service_group_id', $user->service_group_id)
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray());
         }
 
         return [];

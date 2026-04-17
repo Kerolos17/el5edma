@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Visits\Tables;
 
+use App\Enums\UserRole;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -14,7 +15,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitsTable
@@ -94,7 +94,7 @@ class VisitsTable
                     EditAction::make()
                         ->visible(fn ($record) => Auth::user()->can('update', $record)
                             && (! $record->is_critical
-                                || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]))
+                                || in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader])),
                         ),
 
                     // إغلاق الحالة الحرجة
@@ -105,7 +105,7 @@ class VisitsTable
                         ->requiresConfirmation()
                         ->visible(fn ($record) => $record->is_critical
                             && is_null($record->critical_resolved_at)
-                            && in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader])
+                            && in_array(Auth::user()?->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]),
                         )
                         ->action(function ($record) {
                             $record->update([
@@ -115,15 +115,15 @@ class VisitsTable
                         }),
 
                     DeleteAction::make()
-                        ->visible(fn($record) => ! $record->is_critical
-                            && Auth::user()?->role === UserRole::SuperAdmin
+                        ->visible(fn ($record) => ! $record->is_critical
+                            && Auth::user()?->role === UserRole::SuperAdmin,
                         ),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('visit_date', 'desc')

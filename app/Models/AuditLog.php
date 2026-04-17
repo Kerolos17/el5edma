@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +39,7 @@ class AuditLog extends Model
         User $user,
         ServiceGroup $serviceGroup,
         string $token,
-        string $ipAddress
+        string $ipAddress,
     ): self {
         return self::create([
             'user_id'    => $user->id,

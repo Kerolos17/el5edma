@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ServiceGroups;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\ServiceGroups\Pages\CreateServiceGroup;
 use App\Filament\Resources\ServiceGroups\Pages\EditServiceGroup;
 use App\Filament\Resources\ServiceGroups\Pages\ListServiceGroups;
@@ -18,7 +19,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceGroupResource extends Resource

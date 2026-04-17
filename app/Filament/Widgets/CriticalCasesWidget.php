@@ -2,13 +2,13 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UserRole;
 use App\Models\Visit;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class CriticalCasesWidget extends BaseWidget
@@ -31,8 +31,7 @@ class CriticalCasesWidget extends BaseWidget
             ->whereNull('critical_resolved_at');
 
         if ($user->role === UserRole::FamilyLeader) {
-            $query->whereHas('beneficiary', fn ($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === UserRole::Servant) {
             $query->where('created_by', $user->id);

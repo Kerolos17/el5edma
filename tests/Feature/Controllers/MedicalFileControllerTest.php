@@ -45,10 +45,10 @@ class MedicalFileControllerTest extends TestCase
 
     public function test_servant_can_download_assigned_beneficiary_file(): void
     {
-        $group    = ServiceGroup::factory()->create();
-        $servant  = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
-        $ben      = Beneficiary::factory()->create(['service_group_id' => $group->id, 'assigned_servant_id' => $servant->id]);
-        $medFile  = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
+        $group   = ServiceGroup::factory()->create();
+        $servant = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
+        $ben     = Beneficiary::factory()->create(['service_group_id' => $group->id, 'assigned_servant_id' => $servant->id]);
+        $medFile = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
 
         Storage::disk('private')->put($medFile->file_path, 'file content');
 
@@ -74,9 +74,9 @@ class MedicalFileControllerTest extends TestCase
 
     public function test_family_leader_can_download_same_group_file(): void
     {
-        $group  = ServiceGroup::factory()->create();
-        $fl     = User::factory()->create(['role' => UserRole::FamilyLeader, 'service_group_id' => $group->id]);
-        $ben    = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+        $group   = ServiceGroup::factory()->create();
+        $fl      = User::factory()->create(['role' => UserRole::FamilyLeader, 'service_group_id' => $group->id]);
+        $ben     = Beneficiary::factory()->create(['service_group_id' => $group->id]);
         $medFile = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
 
         Storage::disk('private')->put($medFile->file_path, 'file content');
@@ -88,10 +88,10 @@ class MedicalFileControllerTest extends TestCase
 
     public function test_family_leader_cannot_download_other_group_file(): void
     {
-        $groupA = ServiceGroup::factory()->create();
-        $groupB = ServiceGroup::factory()->create();
-        $fl     = User::factory()->create(['role' => UserRole::FamilyLeader, 'service_group_id' => $groupA->id]);
-        $ben    = Beneficiary::factory()->create(['service_group_id' => $groupB->id]);
+        $groupA  = ServiceGroup::factory()->create();
+        $groupB  = ServiceGroup::factory()->create();
+        $fl      = User::factory()->create(['role' => UserRole::FamilyLeader, 'service_group_id' => $groupA->id]);
+        $ben     = Beneficiary::factory()->create(['service_group_id' => $groupB->id]);
         $medFile = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
 
         Storage::disk('private')->put($medFile->file_path, 'file content');

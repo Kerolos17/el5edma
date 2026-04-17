@@ -35,7 +35,7 @@ return new class extends Migration
                         DB::table('users')->where('id', $user->id)->update([
                             'personal_code_hash' => hash('sha256', $decrypted),
                         ]);
-                    } catch (\Exception) {
+                    } catch (Exception) {
                         // تجاهل القيم التي لا يمكن فك تشفيرها
                     }
                 }
@@ -59,7 +59,7 @@ return new class extends Migration
                 DB::table('users')->where('id', $user->id)->update([
                     'personal_code' => $decrypted,
                 ]);
-            } catch (\Exception) {
+            } catch (Exception) {
                 // تجاهل القيم غير المشفرة
             }
         });
@@ -78,7 +78,7 @@ return new class extends Migration
             decrypt($value);
 
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }

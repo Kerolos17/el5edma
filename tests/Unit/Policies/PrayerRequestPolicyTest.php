@@ -12,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class PrayerRequestPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private PrayerRequestPolicy $policy;
     private ServiceGroup $groupA;
@@ -22,14 +22,14 @@ class PrayerRequestPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new PrayerRequestPolicy();
+        $this->policy = new PrayerRequestPolicy;
         $this->groupA = ServiceGroup::factory()->create();
-        $groupB = ServiceGroup::factory()->create();
+        $groupB       = ServiceGroup::factory()->create();
 
         $benA = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
         $benB = Beneficiary::factory()->create(['service_group_id' => $groupB->id]);
 
-        $servant = $this->createServant($this->groupA);
+        $servant   = $this->createServant($this->groupA);
         $this->prA = PrayerRequest::factory()->create(['beneficiary_id' => $benA->id, 'created_by' => $servant->id]);
         $this->prB = PrayerRequest::factory()->create(['beneficiary_id' => $benB->id]);
     }
@@ -55,9 +55,9 @@ class PrayerRequestPolicyTest extends TestCase
     public function test_servant_sees_own_only(): void
     {
         $servant = $this->createServant($this->groupA);
-        $ownPr = PrayerRequest::factory()->create([
+        $ownPr   = PrayerRequest::factory()->create([
             'beneficiary_id' => Beneficiary::factory()->create(['service_group_id' => $this->groupA->id])->id,
-            'created_by' => $servant->id,
+            'created_by'     => $servant->id,
         ]);
 
         $this->assertTrue($this->policy->view($servant, $ownPr));

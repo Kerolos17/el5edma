@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Services\PushNotificationService;
@@ -31,10 +32,10 @@ class SendFcmNotificationJob implements ShouldQueue
     public int $backoff = 60;
 
     /**
-     * @param array  $tokens  قائمة FCM tokens
-     * @param string $title   عنوان الإشعار
-     * @param string $body    نص الإشعار
-     * @param array  $data    بيانات إضافية اختيارية
+     * @param  array  $tokens  قائمة FCM tokens
+     * @param  string  $title  عنوان الإشعار
+     * @param  string  $body  نص الإشعار
+     * @param  array  $data  بيانات إضافية اختيارية
      */
     public function __construct(
         public readonly array $tokens,

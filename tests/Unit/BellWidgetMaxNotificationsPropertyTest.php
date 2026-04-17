@@ -54,13 +54,13 @@ class BellWidgetMaxNotificationsPropertyTest extends TestCase
             Cache::forget("notifications_unread_{$user->id}");
 
             // Mount the widget (calls loadNotifications internally)
-            $component = new NotificationsBellWidget();
+            $component = new NotificationsBellWidget;
             $component->mount();
 
             $this->assertCount(
                 8,
                 $component->notifications,
-                "Iteration {$i}: n={$n} — Widget should return exactly 8 notifications, got " . count($component->notifications)
+                "Iteration {$i}: n={$n} — Widget should return exactly 8 notifications, got " . count($component->notifications),
             );
 
             // Clean up for next iteration

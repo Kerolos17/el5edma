@@ -23,15 +23,14 @@ class VisitsChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         // $pageFilters is null until the dashboard filter form is submitted; default to 'week'
         $period = $this->filters['period'] ?? 'week';
 
         $baseQuery = Visit::query();
 
         if ($user->role === UserRole::FamilyLeader) {
-            $baseQuery->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $baseQuery->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === UserRole::Servant) {
             $baseQuery->where('created_by', $user->id);
@@ -124,9 +123,9 @@ class VisitsChartWidget extends ChartWidget
     private function buildYearlyData($baseQuery): array
     {
         $arMonths = [
-            1  => 'يناير', 2  => 'فبراير', 3  => 'مارس',
-            4  => 'أبريل', 5  => 'مايو',   6  => 'يونيو',
-            7  => 'يوليو', 8  => 'أغسطس',  9  => 'سبتمبر',
+            1  => 'يناير', 2 => 'فبراير', 3 => 'مارس',
+            4  => 'أبريل', 5 => 'مايو',   6 => 'يونيو',
+            7  => 'يوليو', 8 => 'أغسطس',  9 => 'سبتمبر',
             10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر',
         ];
 
@@ -142,7 +141,7 @@ class VisitsChartWidget extends ChartWidget
             ->where('visit_date', '>=', $startDate)
             ->groupByRaw($this->yearMonthGroupBy() . ', type')
             ->get()
-            ->groupBy(fn($row) => $row->y . '-' . $row->m);
+            ->groupBy(fn ($row) => $row->y . '-' . $row->m);
 
         $labels = [];
         $visits = [];

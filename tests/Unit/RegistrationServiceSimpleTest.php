@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Unit;
 
+use App\Enums\UserRole;
 use App\Models\AuditLog;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -37,13 +39,13 @@ class RegistrationServiceSimpleTest extends TestCase
 
         $this->assertEquals('Test Servant', $user->name);
         $this->assertEquals('servant@example.com', $user->email);
-        $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
+        $this->assertEquals(UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
         $this->assertFalse($user->is_active);
     }
 
     #[Test]
-    public function checkDuplicates_works_correctly(): void
+    public function check_duplicates_works_correctly(): void
     {
         User::factory()->create(['email' => 'existing@example.com', 'phone' => '01111111111']);
 
@@ -61,7 +63,7 @@ class RegistrationServiceSimpleTest extends TestCase
     }
 
     #[Test]
-    public function logRegistration_creates_audit_entry(): void
+    public function log_registration_creates_audit_entry(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Group']);
         $user         = User::factory()->create();

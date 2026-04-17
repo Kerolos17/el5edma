@@ -13,7 +13,7 @@
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 // Check if the request is for a file in public/storage
-if (strpos($uri, '/storage/') === 0) {
+if (str_starts_with($uri, '/storage/')) {
     // Map to the actual storage path
     // Remove '/storage/' prefix (8 characters) and prepend actual storage path
     $storagePath = __DIR__ . '/storage/app/public' . substr($uri, 8);

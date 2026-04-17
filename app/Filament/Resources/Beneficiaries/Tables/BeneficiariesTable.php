@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Beneficiaries\Tables;
 
+use App\Enums\UserRole;
 use App\Services\CacheService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -20,7 +21,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class BeneficiariesTable
@@ -87,12 +87,13 @@ class BeneficiariesTable
                 // آخر زيارة — من withMax المحسوب في Resource (بدون queries إضافية)
                 TextColumn::make('last_visit_date')
                     ->label(__('beneficiaries.last_visit'))
-                    ->getStateUsing(fn($record) => $record->visits_max_visit_date)
+                    ->getStateUsing(fn ($record) => $record->visits_max_visit_date)
                     ->formatStateUsing(function ($state) {
                         if (! $state) {
                             return __('beneficiaries.never_visited');
                         }
                         $days = (int) now()->diffInDays(Carbon::parse($state));
+
                         return __('beneficiaries.days_ago', ['days' => $days]);
                     })
                     ->badge()
@@ -267,7 +268,7 @@ class BeneficiariesTable
                     EditAction::make()
                         ->visible(fn () => in_array(
                             Auth::user()?->role,
-                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader],
                         )),
 
                     Action::make('whatsapp_beneficiary')
@@ -297,14 +298,14 @@ class BeneficiariesTable
                     DeleteAction::make()
                         ->visible(fn () => in_array(
                             Auth::user()?->role,
-                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader],
                         )),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('full_name')

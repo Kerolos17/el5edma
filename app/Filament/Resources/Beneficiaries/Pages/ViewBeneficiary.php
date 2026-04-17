@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Beneficiaries\Pages;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Beneficiaries\BeneficiaryResource;
 use App\Services\EagerLoadingService;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ViewBeneficiary extends ViewRecord
@@ -21,7 +21,7 @@ class ViewBeneficiary extends ViewRecord
             EditAction::make()
                 ->visible(fn () => in_array(
                     Auth::user()?->role,
-                    [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
+                    [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader],
                 )),
 
             Action::make('download_pdf')

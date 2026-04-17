@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
+use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Enums\UserRole;
-use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -53,9 +54,9 @@ class UserForm
                     TextInput::make('password')
                         ->label(__('users.password'))
                         ->password()
-                        ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                        ->dehydrated(fn($state) => filled($state))
-                        ->required(fn(string $operation) => $operation === 'create')
+                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                        ->dehydrated(fn ($state) => filled($state))
+                        ->required(fn (string $operation) => $operation === 'create')
                         ->maxLength(255),
                 ])->columns(2),
 
@@ -74,6 +75,7 @@ class UserForm
                                     ->mapWithKeys(fn ($r) => [$r->value => $r->label()])
                                     ->toArray();
                             }
+
                             return [UserRole::Servant->value => UserRole::Servant->label()];
                         })
                         ->required()

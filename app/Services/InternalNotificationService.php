@@ -43,12 +43,14 @@ class InternalNotificationService
 
         // 3. المشرفين العامين وأمناء الخدمة
         $superAdminsAndLeaders = User::whereIn('role', [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])->pluck('id')->toArray();
-        $userIds = array_merge($userIds, $superAdminsAndLeaders);
+        $userIds               = array_merge($userIds, $superAdminsAndLeaders);
 
         // إزالة التكرارات (في حال كان الخادم هو نفسه أمين الأسرة مثلاً)
         $userIds = array_unique($userIds);
 
-        if (empty($userIds)) return;
+        if (empty($userIds)) {
+            return;
+        }
 
         $users = User::whereIn('id', $userIds)->get();
 
@@ -61,7 +63,7 @@ class InternalNotificationService
     public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = []): void
     {
         $notifications = [];
-        $now = now();
+        $now           = now();
 
         foreach ($users as $user) {
             $notifications[] = [
@@ -77,7 +79,7 @@ class InternalNotificationService
             Cache::forget('notifications_unread_' . $user->id);
         }
 
-        if (!empty($notifications)) {
+        if (! empty($notifications)) {
             MinistryNotification::insert($notifications);
         }
     }

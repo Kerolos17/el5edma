@@ -66,7 +66,7 @@ class BirthdayNotificationCompletenessPropertyTest extends TestCase
                 if ($hasServant) {
                     $servant = User::factory()->create([
                         'fcm_token' => "bday_servant_{$i}_{$j}",
-                        'email' => "bday_servant_{$i}_{$j}@test.com",
+                        'email'     => "bday_servant_{$i}_{$j}@test.com",
                     ]);
                     $expectedRecipientIds[] = $servant->id;
                 }
@@ -74,7 +74,7 @@ class BirthdayNotificationCompletenessPropertyTest extends TestCase
                 if ($hasLeader) {
                     $leader = User::factory()->create([
                         'fcm_token' => "bday_leader_{$i}_{$j}",
-                        'email' => "bday_leader_{$i}_{$j}@test.com",
+                        'email'     => "bday_leader_{$i}_{$j}@test.com",
                     ]);
                 }
 
@@ -104,7 +104,7 @@ class BirthdayNotificationCompletenessPropertyTest extends TestCase
 
                 $this->assertTrue(
                     $exists,
-                    "Iteration {$i}: MinistryNotification must exist for user_id={$userId}"
+                    "Iteration {$i}: MinistryNotification must exist for user_id={$userId}",
                 );
             }
 
@@ -116,7 +116,7 @@ class BirthdayNotificationCompletenessPropertyTest extends TestCase
             $this->assertSame(
                 count($expectedRecipientIds),
                 $actualCount,
-                "Iteration {$i}: expected " . count($expectedRecipientIds) . " notifications, got {$actualCount}"
+                "Iteration {$i}: expected " . count($expectedRecipientIds) . " notifications, got {$actualCount}",
             );
 
             // Clean up for next iteration

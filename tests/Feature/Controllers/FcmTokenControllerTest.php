@@ -18,7 +18,7 @@ class FcmTokenControllerTest extends TestCase
 
     public function test_store_saves_token(): void
     {
-        $user = User::factory()->create();
+        $user     = User::factory()->create();
         $response = $this->actingAs($user)->postJson('/fcm-token', ['fcm_token' => 'fcm-token-123']);
         $response->assertOk();
         $this->assertSame('fcm-token-123', $user->fresh()->fcm_token);

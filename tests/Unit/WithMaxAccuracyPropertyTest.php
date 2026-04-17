@@ -75,7 +75,7 @@ class WithMaxAccuracyPropertyTest extends TestCase
                     $expectedMax,
                     $beneficiary->visits_max_visit_date,
                     "Iteration {$i}, beneficiary {$beneficiary->id}: " .
-                    "visits_max_visit_date via withMax() must equal MAX(visit_date) from separate query"
+                    'visits_max_visit_date via withMax() must equal MAX(visit_date) from separate query',
                 );
             }
 
@@ -125,7 +125,7 @@ class WithMaxAccuracyPropertyTest extends TestCase
 
         $this->assertSame(
             $beneficiary->visits()->max('visit_date'),
-            $result->visits_max_visit_date
+            $result->visits_max_visit_date,
         );
     }
 }

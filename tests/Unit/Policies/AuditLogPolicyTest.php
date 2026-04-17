@@ -3,6 +3,7 @@
 namespace Tests\Unit\Policies;
 
 use App\Models\AuditLog;
+use App\Models\ServiceGroup;
 use App\Policies\AuditLogPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -10,7 +11,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class AuditLogPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private AuditLogPolicy $policy;
     private AuditLog $log;
@@ -18,7 +19,7 @@ class AuditLogPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new AuditLogPolicy();
+        $this->policy = new AuditLogPolicy;
         $this->log    = AuditLog::factory()->create();
     }
 
@@ -30,7 +31,7 @@ class AuditLogPolicyTest extends TestCase
 
     public function test_non_admin_cannot_view_any(): void
     {
-        $group = \App\Models\ServiceGroup::factory()->create();
+        $group = ServiceGroup::factory()->create();
         $this->assertFalse($this->policy->viewAny($this->createFamilyLeader($group)));
         $this->assertFalse($this->policy->viewAny($this->createServant($group)));
     }
@@ -43,7 +44,7 @@ class AuditLogPolicyTest extends TestCase
 
     public function test_non_admin_cannot_view(): void
     {
-        $group = \App\Models\ServiceGroup::factory()->create();
+        $group = ServiceGroup::factory()->create();
         $this->assertFalse($this->policy->view($this->createServant($group), $this->log));
     }
 

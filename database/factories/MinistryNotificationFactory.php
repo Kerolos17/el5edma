@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -9,8 +10,8 @@ class MinistryNotificationFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'    => User::factory(),
-            'type'       => $this->faker->randomElement([
+            'user_id' => User::factory(),
+            'type'    => $this->faker->randomElement([
                 'birthday',
                 'critical_case',
                 'visit_reminder',
@@ -27,11 +28,11 @@ class MinistryNotificationFactory extends Factory
 
     public function read(): static
     {
-        return $this->state(fn() => ['read_at' => now()]);
+        return $this->state(fn () => ['read_at' => now()]);
     }
 
     public function unread(): static
     {
-        return $this->state(fn() => ['read_at' => null]);
+        return $this->state(fn () => ['read_at' => null]);
     }
 }

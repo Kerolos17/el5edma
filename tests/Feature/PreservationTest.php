@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Console\Commands\SendBirthdayReminders;
 use App\Console\Commands\SendScheduledVisitReminders;
 use App\Console\Commands\SendUnvisitedAlerts;
+use App\Enums\UserRole;
 use App\Exports\BeneficiariesExport;
 use App\Exports\VisitsExport;
 use App\Filament\Pages\Auth\Login;
@@ -219,7 +220,7 @@ class PreservationTest extends TestCase
         Auth::login($this->servant1);
 
         // Apply the same scoping logic as in BeneficiaryResource
-        if (in_array($this->servant1->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($this->servant1->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $servant1Query->where('service_group_id', $this->servant1->service_group_id);
         }
 
@@ -359,7 +360,7 @@ class PreservationTest extends TestCase
 
         $beneficiariesQuery = Beneficiary::query();
         // Apply same scoping as BeneficiaryResource
-        if (in_array($this->servant1->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($this->servant1->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $beneficiariesQuery->where('service_group_id', $this->servant1->service_group_id);
         }
 
@@ -371,7 +372,7 @@ class PreservationTest extends TestCase
         $this->actingAs($this->familyLeader);
 
         $beneficiariesQuery = Beneficiary::query();
-        if (in_array($this->familyLeader->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($this->familyLeader->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $beneficiariesQuery->where('service_group_id', $this->familyLeader->service_group_id);
         }
 
@@ -416,7 +417,7 @@ class PreservationTest extends TestCase
 
         // Verify user can receive notifications (structure preserved)
         $this->assertInstanceOf(User::class, $user);
-        $this->assertEquals(\App\Enums\UserRole::FamilyLeader, $user->role);
+        $this->assertEquals(UserRole::FamilyLeader, $user->role);
         $this->assertEquals('ar', $user->locale);
     }
 
@@ -538,7 +539,7 @@ class PreservationTest extends TestCase
 
         // Test filtering by status works
         $activeQuery = Beneficiary::where('status', 'active');
-        if (in_array($this->servant1->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($this->servant1->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $activeQuery->where('service_group_id', $this->servant1->service_group_id);
         }
 

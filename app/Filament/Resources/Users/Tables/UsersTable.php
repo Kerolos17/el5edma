@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Services\CacheService;
 use Filament\Actions\Action;
@@ -16,7 +18,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class UsersTable
@@ -38,14 +39,14 @@ class UsersTable
                 TextColumn::make('role')
                     ->label(__('users.role'))
                     ->badge()
-                    ->color(fn(UserRole $state): string => match ($state) {
-                        UserRole::SuperAdmin     => 'danger',
-                        UserRole::ServiceLeader  => 'warning',
-                        UserRole::FamilyLeader   => 'info',
-                        UserRole::Servant        => 'success',
-                        default                  => 'gray',
+                    ->color(fn (UserRole $state): string => match ($state) {
+                        UserRole::SuperAdmin    => 'danger',
+                        UserRole::ServiceLeader => 'warning',
+                        UserRole::FamilyLeader  => 'info',
+                        UserRole::Servant       => 'success',
+                        default                 => 'gray',
                     })
-                    ->formatStateUsing(fn(UserRole $state): string => __("users.roles.{$state->value}")),
+                    ->formatStateUsing(fn (UserRole $state): string => __("users.roles.{$state->value}")),
 
                 TextColumn::make('serviceGroup.name')
                     ->label(__('users.service_group'))
@@ -55,7 +56,7 @@ class UsersTable
                     ->label(__('users.personal_code'))
                     ->fontFamily('mono')
                     ->copyable()
-                    ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
+                    ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
 
                 IconColumn::make('is_active')
                     ->label(__('users.is_active'))
@@ -74,7 +75,7 @@ class UsersTable
 
                 SelectFilter::make('service_group_id')
                     ->label(__('users.service_group'))
-                    ->options(fn() => CacheService::getServiceGroups()),
+                    ->options(fn () => CacheService::getServiceGroups()),
 
                 TernaryFilter::make('is_active')
                     ->label(__('users.is_active')),
@@ -85,9 +86,9 @@ class UsersTable
                     ->trueLabel(__('users.pending_only'))
                     ->falseLabel(__('users.approved_only'))
                     ->queries(
-                        true: fn($query)  => $query->where('role', UserRole::Servant)->where('is_active', false),
-                        false: fn($query) => $query->where('role', UserRole::Servant)->where('is_active', true),
-                        blank: fn($query) => $query,
+                        true: fn ($query) => $query->where('role', UserRole::Servant)->where('is_active', false),
+                        false: fn ($query) => $query->where('role', UserRole::Servant)->where('is_active', true),
+                        blank: fn ($query) => $query,
                     ),
             ])
             ->recordActions([
@@ -100,10 +101,7 @@ class UsersTable
                         ->label(__('users.approve_servant'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn(User $record) =>
-                            ! $record->is_active &&
-                            $record->role === UserRole::Servant &&
-                            Auth::user()->can('update', $record)
+                        ->visible(fn (User $record) => ! $record->is_active && $record->role === UserRole::Servant && Auth::user()->can('update', $record),
                         )
                         ->requiresConfirmation()
                         ->modalHeading(__('users.approve_servant_confirmation'))
@@ -121,7 +119,7 @@ class UsersTable
                         ->label(__('users.generate_code'))
                         ->icon('heroicon-o-key')
                         ->color('warning')
-                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin)
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin)
                         ->requiresConfirmation()
                         ->action(function (User $record) {
                             do {

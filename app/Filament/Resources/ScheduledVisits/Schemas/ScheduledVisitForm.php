@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ScheduledVisits\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
@@ -10,7 +11,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduledVisitForm

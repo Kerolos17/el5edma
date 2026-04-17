@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Visits\VisitResource;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
@@ -125,9 +127,9 @@ class RoleScopingBugConditionTest extends TestCase
         $query = Beneficiary::where('status', 'active');
 
         // Replicate the FIXED closure logic from VisitForm
-        if ($user->role === \App\Enums\UserRole::FamilyLeader) {
+        if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === \App\Enums\UserRole::Servant) {
+        } elseif ($user->role === UserRole::Servant) {
             $query->where('service_group_id', $user->service_group_id);
         }
 

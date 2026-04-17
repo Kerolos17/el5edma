@@ -16,9 +16,9 @@
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Crypt;
 
 return new class extends Migration
 {
@@ -31,7 +31,7 @@ return new class extends Migration
                 DB::table('users')->where('id', $user->id)->update([
                     'personal_code' => $decrypted,
                 ]);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Already plain text, skip
             }
         });

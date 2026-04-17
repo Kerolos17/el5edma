@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Unit;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,7 +14,7 @@ class UserSelfRegistrationTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function generateUniquePersonalCode_generates_a_valid_code(): void
+    public function generate_unique_personal_code_generates_a_valid_code(): void
     {
         $code = User::generateUniquePersonalCode();
 
@@ -21,7 +23,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function generateUniquePersonalCode_generates_unique_codes(): void
+    public function generate_unique_personal_code_generates_unique_codes(): void
     {
         $codes = [];
 
@@ -33,7 +35,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function generateUniquePersonalCode_avoids_existing_codes(): void
+    public function generate_unique_personal_code_avoids_existing_codes(): void
     {
         // Create a user with a specific personal code
         $existingCode = '1234';
@@ -53,7 +55,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function createFromSelfRegistration_creates_user_with_correct_attributes(): void
+    public function create_from_self_registration_creates_user_with_correct_attributes(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -69,7 +71,7 @@ class UserSelfRegistrationTest extends TestCase
         $this->assertEquals('Test Servant', $user->name);
         $this->assertEquals('servant@example.com', $user->email);
         $this->assertEquals('01234567890', $user->phone);
-        $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
+        $this->assertEquals(UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
         $this->assertEquals(app()->getLocale(), $user->locale);
         $this->assertFalse($user->is_active);
@@ -77,7 +79,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function createFromSelfRegistration_hashes_password(): void
+    public function create_from_self_registration_hashes_password(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -96,7 +98,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function createFromSelfRegistration_generates_unique_personal_codes_for_multiple_users(): void
+    public function create_from_self_registration_generates_unique_personal_codes_for_multiple_users(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
@@ -113,7 +115,7 @@ class UserSelfRegistrationTest extends TestCase
         }
 
         // Extract all personal codes
-        $personalCodes = array_map(fn($user) => $user->personal_code, $users);
+        $personalCodes = array_map(fn ($user) => $user->personal_code, $users);
 
         // Ensure all codes are unique
         $this->assertCount(5, $personalCodes);
@@ -121,7 +123,7 @@ class UserSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function createFromSelfRegistration_links_user_to_service_group(): void
+    public function create_from_self_registration_links_user_to_service_group(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Group']);
 

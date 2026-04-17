@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Beneficiaries\BeneficiaryResource;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
@@ -252,9 +254,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
             'Table column access should use minimal queries. Found ' . count($queries) . " queries for {$beneficiaryCount} beneficiaries");
 
         // Verify no individual visit queries
-        $visitQueries = array_filter($queries, function ($query) {
-            return str_contains(strtolower($query['query']), 'select max(`visit_date`) from `visits`');
-        });
+        $visitQueries = array_filter($queries, fn ($query) => str_contains(strtolower($query['query']), 'select max(`visit_date`) from `visits`'));
 
         $this->assertEmpty($visitQueries,
             'Table column should not trigger individual visit queries');
@@ -361,7 +361,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $query = Beneficiary::query();
 
         // Apply role-based scoping like BeneficiaryResource does
-        if (in_array($user->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($user->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $query->where('service_group_id', $user->service_group_id);
         }
 
@@ -397,7 +397,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $query = Beneficiary::query();
 
         // Apply role-based scoping
-        if (in_array($user->role, [\App\Enums\UserRole::FamilyLeader, \App\Enums\UserRole::Servant])) {
+        if (in_array($user->role, [UserRole::FamilyLeader, UserRole::Servant])) {
             $query->where('service_group_id', $user->service_group_id);
         }
 
@@ -457,8 +457,8 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $this->assertGreaterThanOrEqual($beneficiaryCount * 0.8, $queryReduction,
             "Query reduction should be approximately equal to beneficiary count. Expected ~{$beneficiaryCount}, got {$queryReduction}");
 
-                                                                 // Execution time should not be dramatically worse (allow up to 10x for small datasets
-                                                                 // where timing is inherently variable and overhead can dominate at micro-benchmark scale)
+        // Execution time should not be dramatically worse (allow up to 10x for small datasets
+        // where timing is inherently variable and overhead can dominate at micro-benchmark scale)
         $timingFloor = max(0.01, $unoptimized['executionTime']); // minimum 10ms floor → threshold always at least 100ms
         $this->assertLessThanOrEqual($timingFloor * 10, $optimized['executionTime'],
             'Optimized query should not be dramatically slower');
@@ -467,7 +467,7 @@ class BeneficiariesPerformanceImprovementTest extends TestCase
         $this->assertEquals($unoptimized['resultCount'], $optimized['resultCount'],
             'Both queries should return the same number of results');
 
-                                       // Log performance metrics for documentation
+        // Log performance metrics for documentation
         $this->addToAssertionCount(1); // Prevent risky test warning
 
         echo "\n=== Performance Improvement Report ===\n";

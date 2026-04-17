@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ScheduledVisits\Tables;
 
-use App\Models\ScheduledVisit;
+use App\Enums\UserRole;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -12,7 +12,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduledVisitsTable
@@ -80,7 +79,7 @@ class ScheduledVisitsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
+                        ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
             ->defaultSort('scheduled_date', 'asc');

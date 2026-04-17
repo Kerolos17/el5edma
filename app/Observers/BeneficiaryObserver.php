@@ -16,7 +16,7 @@ class BeneficiaryObserver
     {
         $this->log($beneficiary, 'created', null, $beneficiary->getAttributes());
 
-        $notifier = app(InternalNotificationService::class);
+        $notifier  = app(InternalNotificationService::class);
         $adderName = Auth::check() ? Auth::user()->name : __('notifications.system');
 
         $notifier->notifyRelatedUsers(
@@ -30,7 +30,7 @@ class BeneficiaryObserver
             [
                 'beneficiary_id' => $beneficiary->id,
                 'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-            ]
+            ],
         );
     }
 

@@ -54,7 +54,7 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
             for ($j = 0; $j < $n; $j++) {
                 $servant = User::factory()->create([
                     'fcm_token' => "sv_token_{$i}_{$j}",
-                    'email' => "sv_servant_{$i}_{$j}@test.com",
+                    'email'     => "sv_servant_{$i}_{$j}@test.com",
                 ]);
 
                 $beneficiary = Beneficiary::factory()->create([
@@ -84,7 +84,7 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
 
                 $this->assertTrue(
                     $exists,
-                    "Iteration {$i}: MinistryNotification (visit_reminder) must exist for user_id={$userId}"
+                    "Iteration {$i}: MinistryNotification (visit_reminder) must exist for user_id={$userId}",
                 );
             }
 
@@ -96,7 +96,7 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
             $this->assertSame(
                 count($expectedServantIds),
                 $actualCount,
-                "Iteration {$i}: expected " . count($expectedServantIds) . " visit_reminder notifications, got {$actualCount}"
+                "Iteration {$i}: expected " . count($expectedServantIds) . " visit_reminder notifications, got {$actualCount}",
             );
 
             // Clean up for next iteration

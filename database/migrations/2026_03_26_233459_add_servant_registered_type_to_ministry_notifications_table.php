@@ -87,7 +87,7 @@ return new class extends Migration
             ->count();
 
         if ($count > 0) {
-            throw new \Exception("Cannot rollback: {$count} notifications with type 'servant_registered' exist.");
+            throw new Exception("Cannot rollback: {$count} notifications with type 'servant_registered' exist.");
         }
 
         if ($driver === 'mysql') {
@@ -102,7 +102,7 @@ return new class extends Migration
         } elseif ($driver === 'pgsql') {
             // PostgreSQL: لا يمكن حذف قيمة من enum type بسهولة
             // يتطلب إعادة إنشاء النوع بالكامل
-            throw new \Exception("Cannot remove enum value in PostgreSQL without recreating the type.");
+            throw new Exception('Cannot remove enum value in PostgreSQL without recreating the type.');
         }
         // SQLite: لا يدعم enum، لذا لا نحتاج لفعل شيء
     }

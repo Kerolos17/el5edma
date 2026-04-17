@@ -15,7 +15,7 @@ class AuditLogModelTest extends TestCase
     public function test_log_self_registration(): void
     {
         $group = ServiceGroup::factory()->create();
-        $user = User::factory()->create(['service_group_id' => $group->id]);
+        $user  = User::factory()->create(['service_group_id' => $group->id]);
         $token = 'abcdef1234567890abcdef1234567890';
 
         $log = AuditLog::logSelfRegistration($user, $group, $token, '192.168.1.1');
@@ -29,7 +29,7 @@ class AuditLogModelTest extends TestCase
     public function test_log_self_registration_truncates_token(): void
     {
         $group = ServiceGroup::factory()->create();
-        $user = User::factory()->create(['service_group_id' => $group->id]);
+        $user  = User::factory()->create(['service_group_id' => $group->id]);
         $token = 'abcdefgh1234567890abcdefgh1234567890';
 
         $log = AuditLog::logSelfRegistration($user, $group, $token, '127.0.0.1');
@@ -52,7 +52,7 @@ class AuditLogModelTest extends TestCase
     public function test_user_relationship(): void
     {
         $user = User::factory()->create();
-        $log = AuditLog::factory()->create(['user_id' => $user->id]);
+        $log  = AuditLog::factory()->create(['user_id' => $user->id]);
 
         $this->assertInstanceOf(User::class, $log->user);
         $this->assertSame($user->id, $log->user->id);

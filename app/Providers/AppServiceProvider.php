@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Providers;
 
+use App\Livewire\NotificationsBell;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -10,6 +12,8 @@ use App\Observers\ServiceGroupObserver;
 use App\Observers\UserObserver;
 use App\Observers\VisitObserver;
 use App\Services\QueryMonitoringService;
+use App\Services\RegistrationLinkService;
+use App\Services\RegistrationService;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Factory;
 use Livewire\Livewire;
@@ -19,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // تسجيل خدمات التسجيل الذاتي للخدام
-        $this->app->singleton(\App\Services\RegistrationLinkService::class);
-        $this->app->singleton(\App\Services\RegistrationService::class);
+        $this->app->singleton(RegistrationLinkService::class);
+        $this->app->singleton(RegistrationService::class);
 
         // ضمان معرفة Firebase بالـ Project ID دائماً
         $this->app->extend(Factory::class, function (Factory $factory) {
@@ -47,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
         // تسجيل الـ Livewire component
         Livewire::component(
             'notifications-bell',
-            \App\Livewire\NotificationsBell::class,
+            NotificationsBell::class,
         );
 
         // Enable query monitoring in production

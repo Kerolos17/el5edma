@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\ServiceGroup;
@@ -21,7 +22,7 @@ class ServiceGroupPolicyRegistrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ServiceGroupPolicy();
+        $this->policy = new ServiceGroupPolicy;
     }
 
     #[Test]

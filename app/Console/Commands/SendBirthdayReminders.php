@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Jobs\SendFcmNotificationJob;
@@ -50,7 +51,7 @@ class SendBirthdayReminders extends Command
                     'assignedServant:id,fcm_token,locale',
                     'serviceGroup.leader:id,fcm_token,locale',
                 ])
-                ->chunkById(100, function (Collection $chunk) use ($targetDate, &$count, $originalLocale) {
+                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale) {
                     $rows   = [];
                     $tokens = [];
 
@@ -78,11 +79,11 @@ class SendBirthdayReminders extends Command
                             $body  = __('notifications.birthday_body', $params);
 
                             $rows[] = [
-                                'user_id'    => $servant->id,
-                                'type'       => 'birthday',
-                                'title'      => $title,
-                                'body'       => $body,
-                                'data'       => json_encode([
+                                'user_id' => $servant->id,
+                                'type'    => 'birthday',
+                                'title'   => $title,
+                                'body'    => $body,
+                                'data'    => json_encode([
                                     'beneficiary_id' => $beneficiary->id,
                                     'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
                                 ]),
@@ -111,11 +112,11 @@ class SendBirthdayReminders extends Command
                             $body  = __('notifications.birthday_body', $params);
 
                             $rows[] = [
-                                'user_id'    => $leader->id,
-                                'type'       => 'birthday',
-                                'title'      => $title,
-                                'body'       => $body,
-                                'data'       => json_encode([
+                                'user_id' => $leader->id,
+                                'type'    => 'birthday',
+                                'title'   => $title,
+                                'body'    => $body,
+                                'data'    => json_encode([
                                     'beneficiary_id' => $beneficiary->id,
                                     'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
                                 ]),

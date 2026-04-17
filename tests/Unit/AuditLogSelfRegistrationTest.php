@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\AuditLog;
@@ -17,7 +18,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function logSelfRegistration_creates_audit_log_entry(): void
+    public function log_self_registration_creates_audit_log_entry(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Group']);
         $user         = User::factory()->create([
@@ -39,7 +40,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_user_id(): void
+    public function log_self_registration_records_user_id(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -50,7 +51,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_model_type_and_id(): void
+    public function log_self_registration_records_model_type_and_id(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -62,7 +63,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_action_as_servant_self_registered(): void
+    public function log_self_registration_records_action_as_servant_self_registered(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -73,7 +74,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_ip_address(): void
+    public function log_self_registration_records_ip_address(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -84,7 +85,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_user_details_in_new_values(): void
+    public function log_self_registration_records_user_details_in_new_values(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Group']);
         $user         = User::factory()->create([
@@ -105,7 +106,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_service_group_details_in_new_values(): void
+    public function log_self_registration_records_service_group_details_in_new_values(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Service Group']);
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -119,7 +120,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_records_partial_token_for_security(): void
+    public function log_self_registration_records_partial_token_for_security(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -135,7 +136,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_old_values_is_null(): void
+    public function log_self_registration_old_values_is_null(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -146,7 +147,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_handles_short_tokens(): void
+    public function log_self_registration_handles_short_tokens(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -159,7 +160,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_creates_immutable_record(): void
+    public function log_self_registration_creates_immutable_record(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user         = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -175,7 +176,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_can_be_queried_by_action(): void
+    public function log_self_registration_can_be_queried_by_action(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $user1        = User::factory()->create(['service_group_id' => $serviceGroup->id]);
@@ -201,7 +202,7 @@ class AuditLogSelfRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function logSelfRegistration_can_be_queried_by_service_group(): void
+    public function log_self_registration_can_be_queried_by_service_group(): void
     {
         $serviceGroup1 = ServiceGroup::factory()->create();
         $serviceGroup2 = ServiceGroup::factory()->create();

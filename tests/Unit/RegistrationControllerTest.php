@@ -1,10 +1,13 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\RegistrationLinkService;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class RegistrationControllerTest extends TestCase
@@ -20,9 +23,10 @@ class RegistrationControllerTest extends TestCase
     /**
      * إرسال POST request مع تجاوز CSRF فقط
      */
-    protected function postForm(string $uri, array $data = []): \Illuminate\Testing\TestResponse
+    protected function postForm(string $uri, array $data = []): TestResponse
     {
-        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::except($uri);
+        VerifyCsrfToken::except($uri);
+
         return $this->post($uri, $data);
     }
 

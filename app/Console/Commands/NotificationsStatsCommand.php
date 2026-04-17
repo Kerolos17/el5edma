@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\MinistryNotification;
@@ -23,7 +24,7 @@ class NotificationsStatsCommand extends Command
                 ['إشعارات غير مقروءة', $unread],
                 ['FCM tokens نشطة', $tokens],
                 ['إشعارات آخر 7 أيام', $recent],
-            ]
+            ],
         );
     }
 }

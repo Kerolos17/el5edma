@@ -1,6 +1,8 @@
 <?php
+
 namespace Tests\Unit;
 
+use App\Enums\UserRole;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
 use App\Models\MinistryNotification;
@@ -43,7 +45,7 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals('Test Servant', $user->name);
         $this->assertEquals('servant@example.com', $user->email);
         $this->assertEquals('01234567890', $user->phone);
-        $this->assertEquals(\App\Enums\UserRole::Servant, $user->role);
+        $this->assertEquals(UserRole::Servant, $user->role);
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
         $this->assertFalse($user->is_active);
         $this->assertEquals(app()->getLocale(), $user->locale);
@@ -197,7 +199,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function checkDuplicates_detects_existing_email(): void
+    public function check_duplicates_detects_existing_email(): void
     {
         User::factory()->create(['email' => 'existing@example.com']);
 
@@ -208,7 +210,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function checkDuplicates_detects_existing_phone(): void
+    public function check_duplicates_detects_existing_phone(): void
     {
         User::factory()->create(['phone' => '01234567890']);
 
@@ -219,7 +221,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function checkDuplicates_detects_both_duplicates(): void
+    public function check_duplicates_detects_both_duplicates(): void
     {
         User::factory()->create([
             'email' => 'existing@example.com',
@@ -233,7 +235,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function checkDuplicates_returns_false_for_new_credentials(): void
+    public function check_duplicates_returns_false_for_new_credentials(): void
     {
         $result = $this->service->checkDuplicates('new@example.com', '01111111111');
 
@@ -242,7 +244,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function notifyLeaders_handles_service_group_without_leaders(): void
+    public function notify_leaders_handles_service_group_without_leaders(): void
     {
         $serviceGroup = ServiceGroup::factory()->create([
             'leader_id'         => null,
@@ -257,7 +259,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function notifyLeaders_skips_inactive_leaders(): void
+    public function notify_leaders_skips_inactive_leaders(): void
     {
         $inactiveLeader = User::factory()->create([
             'role'      => 'family_leader',
@@ -274,7 +276,7 @@ class RegistrationServiceTest extends TestCase
     }
 
     #[Test]
-    public function logRegistration_creates_audit_log_with_correct_data(): void
+    public function log_registration_creates_audit_log_with_correct_data(): void
     {
         $serviceGroup = ServiceGroup::factory()->create(['name' => 'Test Group']);
         $user         = User::factory()->create([

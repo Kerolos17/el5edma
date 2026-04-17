@@ -41,7 +41,7 @@ class CleanupNotificationsPropertyTest extends TestCase
         $user = User::factory()->create(['email' => 'cleanup_test@example.com']);
 
         for ($i = 0; $i < 100; $i++) {
-                                 // Random counts for each category
+            // Random counts for each category
             $n = mt_rand(1, 20); // read + older than 90 days → should be deleted
             $m = mt_rand(0, 10); // read + newer than 90 days → should be kept
             $k = mt_rand(0, 10); // unread + 31-179 days old → should be kept
@@ -82,7 +82,7 @@ class CleanupNotificationsPropertyTest extends TestCase
                 0,
                 $remaining,
                 "Iteration {$i}: n={$n}, m={$m}, k={$k} — " .
-                "Found {$remaining} read notifications older than 90 days after cleanup"
+                "Found {$remaining} read notifications older than 90 days after cleanup",
             );
 
             // Assert: recent read notifications are preserved
@@ -94,7 +94,7 @@ class CleanupNotificationsPropertyTest extends TestCase
                 $m,
                 $recentRead,
                 "Iteration {$i}: n={$n}, m={$m}, k={$k} — " .
-                "Expected {$m} recent read notifications to be kept, found {$recentRead}"
+                "Expected {$m} recent read notifications to be kept, found {$recentRead}",
             );
 
             // Assert: unread old notifications are preserved
@@ -104,7 +104,7 @@ class CleanupNotificationsPropertyTest extends TestCase
                 $k,
                 $unreadOld,
                 "Iteration {$i}: n={$n}, m={$m}, k={$k} — " .
-                "Expected {$k} unread old notifications to be kept, found {$unreadOld}"
+                "Expected {$k} unread old notifications to be kept, found {$unreadOld}",
             );
 
             // Clean up for next iteration
