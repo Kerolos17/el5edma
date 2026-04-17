@@ -78,7 +78,7 @@ class SendScheduledVisitReminders extends Command
 
             if (! empty($tokens)) {
                 $title = __('notifications.visit_reminder_title');
-                $body  = __('notifications.visit_reminder_title');
+                $body  = __('notifications.visit_reminder_body');
                 SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
             }
 

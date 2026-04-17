@@ -16,10 +16,11 @@ class InternalNotificationService
      */
     public function notifyAll(string $type, string $title, string $body, array $data = []): void
     {
-        // هذه الدالة ستبقى للإشعارات العامة التي يجب أن تصل للجميع (إن وجدت)
-        $users = User::all();
-        
-        $this->notifyUsers($users, $type, $title, $body, $data);
+        User::where('is_active', true)
+            ->select(['id', 'locale'])
+            ->chunkById(200, function (Collection $chunk) use ($type, $title, $body, $data) {
+                $this->notifyUsers($chunk, $type, $title, $body, $data);
+            });
     }
 
     /**
@@ -91,7 +92,7 @@ class InternalNotificationService
             'type'    => $type,
             'title'   => $title,
             'body'    => $body,
-            'data'    => $data,
+            'data'    => json_encode($data),
         ]);
 
         Cache::forget('notifications_unread_' . $user->id);

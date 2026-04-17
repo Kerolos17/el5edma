@@ -81,7 +81,7 @@ class RegistrationLinkService
     {
         $token = $this->getOrCreateToken($serviceGroup);
 
-        return route('register.show', ['token' => $token]);
+        return route('registration.show', ['token' => $token]);
     }
 
     /**

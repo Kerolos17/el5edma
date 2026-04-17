@@ -50,9 +50,15 @@ class SendBirthdayReminders extends Command
                     'assignedServant:id,fcm_token,locale',
                     'serviceGroup.leader:id,fcm_token,locale',
                 ])
-                ->chunkById(100, function (Collection $chunk) use ($targetDate, &$count) {
-                    $rows   = []; // للـ bulk insert — Requirement 1.3
-                    $tokens = []; // للـ multicast  — Requirement 1.4
+                ->chunkById(100, function (Collection $chunk) use ($targetDate, &$count, $originalLocale) {
+                    $rows   = [];
+                    $tokens = [];
+
+                    // قيم افتراضية بالعربية للـ FCM multicast — تُستبدل بآخر قيمة من الدفعة
+                    App::setLocale('ar');
+                    $title = __('notifications.birthday_title', ['name' => '', 'age' => '', 'days' => 3]);
+                    $body  = __('notifications.birthday_body', ['name' => '', 'age' => '', 'days' => 3]);
+                    App::setLocale($originalLocale);
 
                     foreach ($chunk as $beneficiary) {
                         $age = $beneficiary->birth_date->age + 1;
@@ -129,10 +135,8 @@ class SendBirthdayReminders extends Command
                         MinistryNotification::insert($rows);
                     }
 
-                    // Requirement 1.4 — Multicast عبر Job بدل إرسال فردي
                     if (! empty($tokens)) {
-                        // استخدام آخر title/body من الدفعة (أو قيمة افتراضية)
-                        SendFcmNotificationJob::dispatch($tokens, $title ?? '', $body ?? '', []);
+                        SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
                     }
                 });
 
