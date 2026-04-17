@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasFactory, Notifiable;
 
@@ -139,6 +140,13 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // ── Filament ──
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->profile_photo
+            ? '/storage/' . $this->profile_photo
+            : null;
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {
