@@ -23,8 +23,6 @@ class AdminUserSeeder extends Seeder
                 'is_active'     => true,
             ],
         );
-        $admin->syncRoles(UserRole::SuperAdmin->value);
-
         // service_leader
         $leader = User::updateOrCreate(
             ['email' => 'leader@ministry.local'],
@@ -37,8 +35,6 @@ class AdminUserSeeder extends Seeder
                 'is_active'     => true,
             ],
         );
-        $leader->syncRoles(UserRole::ServiceLeader->value);
-
         // family_leader
         $familyLeader = User::updateOrCreate(
             ['email' => 'family@ministry.local'],
@@ -51,8 +47,6 @@ class AdminUserSeeder extends Seeder
                 'is_active'     => true,
             ],
         );
-        $familyLeader->syncRoles(UserRole::FamilyLeader->value);
-
         // servant
         $servant = User::updateOrCreate(
             ['email' => 'servant@ministry.local'],
@@ -65,8 +59,6 @@ class AdminUserSeeder extends Seeder
                 'is_active'     => true,
             ],
         );
-        $servant->syncRoles(UserRole::Servant->value);
-
         $this->command->info('✅ Users seeded:');
         $this->command->table(
             ['الدور', 'Email', 'Code'],

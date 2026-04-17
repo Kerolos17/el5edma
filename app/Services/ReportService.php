@@ -21,8 +21,9 @@ class ReportService
             mkdir($tmpDir, 0755, true);
         }
 
-        // Shared hosting often limits memory; bump it for PDF generation
+        // Shared hosting limits memory/time; SuperAdmin fetches full unscoped datasets
         @ini_set('memory_limit', '256M');
+        @ini_set('max_execution_time', '300');
 
         return new Mpdf([
             'mode'          => 'utf-8',
