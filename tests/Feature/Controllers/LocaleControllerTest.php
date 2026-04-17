@@ -23,10 +23,11 @@ class LocaleControllerTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_authenticated_locale_switch_without_permission_returns_403(): void
+    public function test_authenticated_locale_switch_updates_locale(): void
     {
         $user     = User::factory()->create(['locale' => 'ar']);
         $response = $this->actingAs($user)->post('/language/en');
-        $response->assertForbidden();
+        $response->assertRedirect();
+        $this->assertSame('en', $user->fresh()->locale);
     }
 }
