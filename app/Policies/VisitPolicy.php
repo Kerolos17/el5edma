@@ -25,13 +25,14 @@ class VisitPolicy
      */
     public function view(User $user, Visit $visit): bool
     {
-        // Super admin and service leader have full access
         if ($user->role->isAdminLevel()) {
             return true;
         }
 
-        // Family leaders and servants can only view visits for beneficiaries in their service group
-        return $user->service_group_id === $visit->beneficiary->service_group_id;
+        $visit->loadMissing('beneficiary');
+
+        return $visit->beneficiary !== null
+            && $user->service_group_id === $visit->beneficiary->service_group_id;
     }
 
     /**
@@ -53,9 +54,11 @@ class VisitPolicy
             return true;
         }
 
-        // Family leaders can update visits for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
-            return $user->service_group_id === $visit->beneficiary->service_group_id;
+            $visit->loadMissing('beneficiary');
+
+            return $visit->beneficiary !== null
+                && $user->service_group_id === $visit->beneficiary->service_group_id;
         }
 
         // Servants cannot update visits (they can create but not edit)

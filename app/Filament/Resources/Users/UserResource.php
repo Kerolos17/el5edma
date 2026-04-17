@@ -54,8 +54,8 @@ class UserResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
-        $user = Auth::user();
+        $query = parent::getEloquentQuery()->with(['serviceGroup']);
+        $user  = Auth::user();
 
         if ($user->isFamilyLeader()) {
             $query->where('service_group_id', $user->service_group_id);

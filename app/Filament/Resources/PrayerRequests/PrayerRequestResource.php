@@ -89,6 +89,11 @@ class PrayerRequestResource extends Resource
 
     // ── Authorization: Using Laravel Policies for centralized authorization ──
 
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', PrayerRequest::class);
+    }
+
     public static function canCreate(): bool
     {
         return Auth::user()->can('create', PrayerRequest::class);

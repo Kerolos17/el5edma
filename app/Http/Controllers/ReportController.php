@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Services\ReportService;
@@ -40,14 +39,7 @@ class ReportController extends Controller
     // ── تقرير مخدوم واحد ──
     public function singleBeneficiaryPdf(Beneficiary $beneficiary)
     {
-        // تأكد إن المستخدم عنده صلاحية يشوف المخدوم ده
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant && $beneficiary->service_group_id !== $user->service_group_id) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $beneficiary->service_group_id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $beneficiary);
 
         return $this->service->singleBeneficiaryPdf($beneficiary);
     }
@@ -55,13 +47,7 @@ class ReportController extends Controller
     // ── تقرير الأسرة ──
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupPdf($serviceGroup);
     }
@@ -69,13 +55,7 @@ class ReportController extends Controller
     // ── تقرير مخدومي الأسرة ──
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);
     }

@@ -85,6 +85,11 @@ class ScheduledVisitResource extends Resource
 
     // ── Authorization: Using Laravel Policies for centralized authorization ──
 
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', ScheduledVisit::class);
+    }
+
     public static function canCreate(): bool
     {
         return Auth::user()->can('create', ScheduledVisit::class);
