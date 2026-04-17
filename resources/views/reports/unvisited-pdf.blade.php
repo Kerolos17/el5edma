@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: cairo, sans-serif;
+            font-family: dejavusans, sans-serif;
             font-size: 12px;
             color: #1E2222;
         }

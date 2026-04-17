@@ -102,7 +102,7 @@ class BeneficiaryForm
                                         'nullable',
                                         'string',
                                         'max:20',
-                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                        'regex:/^((\+20|0020|20)1[0125][0-9]{8}|01[0125][0-9]{8})$/',
                                     ])
                                     ->validationMessages([
                                         'regex' => __('validation.egyptian_phone'),
@@ -116,7 +116,7 @@ class BeneficiaryForm
                                         'nullable',
                                         'string',
                                         'max:20',
-                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                        'regex:/^((\+20|0020|20)1[0125][0-9]{8}|01[0125][0-9]{8})$/',
                                     ])
                                     ->validationMessages([
                                         'regex' => __('validation.egyptian_phone'),
@@ -150,7 +150,7 @@ class BeneficiaryForm
                                         'nullable',
                                         'string',
                                         'max:20',
-                                        'regex:/^(\+20|0020|20)?[1-9][0-9]{8,9}$/',
+                                        'regex:/^((\+20|0020|20)1[0125][0-9]{8}|01[0125][0-9]{8})$/',
                                     ])
                                     ->validationMessages([
                                         'regex' => __('validation.egyptian_phone'),

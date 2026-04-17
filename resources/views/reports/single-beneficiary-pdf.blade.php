@@ -162,20 +162,22 @@
                 if (file_exists($imagePath)) {
                     $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
 
-                    // Convert WebP to PNG for mPDF compatibility
-                    if ($extension === 'webp' && function_exists('imagecreatefromwebp')) {
-                        $image = imagecreatefromwebp($imagePath);
-                        if ($image) {
-                            ob_start();
-                            imagepng($image, null, 9);
-                            $imageData = base64_encode(ob_get_clean());
-                            imagedestroy($image);
-                            $imageType = 'png';
+                    if ($extension === 'webp') {
+                        // Convert WebP to PNG only if GD supports it
+                        if (function_exists('imagecreatefromwebp')) {
+                            $image = @imagecreatefromwebp($imagePath);
+                            if ($image) {
+                                ob_start();
+                                imagepng($image, null, 9);
+                                $imageData = base64_encode(ob_get_clean());
+                                imagedestroy($image);
+                                $imageType = 'png';
+                            }
                         }
-                    } else {
-                        // For other formats, use as-is
+                        // If GD has no WebP support, skip the image (avoid corrupt data URI)
+                    } elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
                         $imageData = base64_encode(file_get_contents($imagePath));
-                        $imageType = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']) ? $extension : 'png';
+                        $imageType = $extension === 'jpeg' ? 'jpg' : $extension;
                     }
                 }
             @endphp

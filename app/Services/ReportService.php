@@ -21,6 +21,9 @@ class ReportService
             mkdir($tmpDir, 0755, true);
         }
 
+        // Shared hosting often limits memory; bump it for PDF generation
+        @ini_set('memory_limit', '256M');
+
         return new Mpdf([
             'mode'          => 'utf-8',
             'direction'     => $isAr ? 'rtl' : 'ltr',
