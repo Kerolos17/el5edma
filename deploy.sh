@@ -14,6 +14,15 @@ fi
 
 echo "🚀 بدء النشر..."
 
+# 0. بناء الـ assets (CSS/JS)
+if command -v node &> /dev/null && command -v npm &> /dev/null; then
+    echo "🏗️  بناء الـ Assets..."
+    npm ci --silent
+    npm run build
+else
+    echo "⚠️  Node/npm غير متاح — تأكد إن الـ assets اتبنت محلياً قبل الرفع."
+fi
+
 # 1. تثبيت الحزم (بدون dev dependencies)
 echo "📦 تثبيت Composer packages..."
 composer install --no-dev --optimize-autoloader --no-interaction
