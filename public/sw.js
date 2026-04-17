@@ -25,9 +25,10 @@ const SKIP_PATHS = ['/fcm-token', '/login', '/logout', '/language', '/login-code
 // ---- Install ----------------------------------------------------------------
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
+        caches.open(CACHE_NAME)
+            .then((cache) => cache.addAll(PRECACHE_ASSETS))
+            .then(() => self.skipWaiting())
     );
-    self.skipWaiting();
 });
 
 // ---- Activate: clean old caches --------------------------------------------

@@ -23,6 +23,18 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
+                .then(() => {
+                    // When a new SW takes over, do ONE clean reload to flush stale
+                    // Livewire component state. The `refreshing` flag prevents a
+                    // second reload if controllerchange fires more than once.
+                    let refreshing = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (!refreshing) {
+                            refreshing = true;
+                            window.location.reload();
+                        }
+                    });
+                })
                 .catch(err => console.warn('SW registration failed:', err));
         });
     }
