@@ -94,7 +94,7 @@ class BeneficiariesTable
                         }
                         $days = (int) now()->diffInDays(Carbon::parse($state));
 
-                        return __('beneficiaries.days_ago', ['days' => $days]);
+                        return __('beneficiaries.days_without_visit', ['days' => $days]);
                     })
                     ->badge()
                     ->color(function ($record) {

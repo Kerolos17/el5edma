@@ -16,7 +16,7 @@ class BirthdayWidget extends BaseWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    public function getHeading(): string
+    protected function getTableHeading(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
         return __('dashboard.birthdays_title');
     }
