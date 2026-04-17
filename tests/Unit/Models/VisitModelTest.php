@@ -6,6 +6,7 @@ use App\Models\Beneficiary;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class VisitModelTest extends TestCase
@@ -67,6 +68,6 @@ class VisitModelTest extends TestCase
     {
         $visit = Visit::factory()->create(['visit_date' => '2024-01-15 10:00:00']);
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $visit->visit_date);
+        $this->assertInstanceOf(Carbon::class, $visit->visit_date);
     }
 }

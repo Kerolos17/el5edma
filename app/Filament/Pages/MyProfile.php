@@ -20,7 +20,7 @@ class MyProfile extends Page
     protected static ?int $navigationSort = 99;
 
     public string $locale = 'ar';
-    public $newPhoto = null;
+    public $newPhoto      = null;
 
     public static function canAccess(): bool
     {
@@ -44,7 +44,7 @@ class MyProfile extends Page
 
     public function mount(): void
     {
-        $user = Auth::user();
+        $user         = Auth::user();
         $this->locale = $user->locale ?? 'ar';
     }
 

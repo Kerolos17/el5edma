@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\ServiceGroup;
 use App\Services\RegistrationLinkService;
 use App\Services\RegistrationService;
 use Illuminate\Http\RedirectResponse;
@@ -17,18 +19,15 @@ class RegistrationController extends Controller
 {
     public function __construct(
         protected RegistrationLinkService $registrationLinkService,
-        protected RegistrationService $registrationService
+        protected RegistrationService $registrationService,
     ) {}
 
     /**
      * عرض نموذج التسجيل
      * Route: GET /register/{token}
      * Requirements: 2.1-2.6
-     *
-     * @param  string  $token
-     * @return View|RedirectResponse
      */
-    public function show(string $token): View | RedirectResponse
+    public function show(string $token): View|RedirectResponse
     {
         // التحقق من صحة الرمز
         $serviceGroup = $this->registrationLinkService->validateToken($token);
@@ -51,10 +50,6 @@ class RegistrationController extends Controller
      * Route: POST /register/{token}
      * Requirements: 3.1-3.7, 4.1-4.7, 6.1-6.2
      * Middleware: throttle:5,60 (rate limiting)
-     *
-     * @param  Request  $request
-     * @param  string   $token
-     * @return RedirectResponse
      */
     public function store(Request $request, string $token): RedirectResponse
     {
@@ -101,7 +96,7 @@ class RegistrationController extends Controller
             $user = $this->registrationService->register(
                 $validated,
                 $serviceGroup,
-                $ipAddress
+                $ipAddress,
             );
 
             Log::info('Self-registration successful', [
@@ -130,13 +125,11 @@ class RegistrationController extends Controller
     /**
      * عرض نموذج التسجيل العام (بدون token)
      * Route: GET /register
-     *
-     * @return View
      */
     public function showPublic(): View
     {
         // جلب جميع مجموعات الخدمة النشطة
-        $serviceGroups = \App\Models\ServiceGroup::where('is_active', true)
+        $serviceGroups = ServiceGroup::where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -149,9 +142,6 @@ class RegistrationController extends Controller
      * معالجة طلب التسجيل العام (بدون token)
      * Route: POST /register
      * Middleware: throttle:5,60 (rate limiting)
-     *
-     * @param  Request  $request
-     * @return RedirectResponse
      */
     public function storePublic(Request $request): RedirectResponse
     {
@@ -183,7 +173,7 @@ class RegistrationController extends Controller
         }
 
         // جلب مجموعة الخدمة
-        $serviceGroup = \App\Models\ServiceGroup::find($validated['service_group_id']);
+        $serviceGroup = ServiceGroup::find($validated['service_group_id']);
 
         if (! $serviceGroup || ! $serviceGroup->is_active) {
             return back()
@@ -198,7 +188,7 @@ class RegistrationController extends Controller
             $user = $this->registrationService->register(
                 $validated,
                 $serviceGroup,
-                $ipAddress
+                $ipAddress,
             );
 
             Log::info('Public self-registration successful', [

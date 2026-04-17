@@ -9,7 +9,7 @@ use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => redirect('/admin'));
+Route::get('/', fn () => redirect('/admin'));
 
 Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')

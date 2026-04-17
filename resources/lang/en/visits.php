@@ -44,4 +44,5 @@ return [
     'completed'      => 'Completed',
     'cancelled'      => 'Cancelled',
     'reminder_sent'  => 'Reminder sent',
+    'no_records'     => 'No visits found',
 ];

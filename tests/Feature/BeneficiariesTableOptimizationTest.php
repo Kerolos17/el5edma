@@ -189,9 +189,7 @@ class BeneficiariesTableOptimizationTest extends TestCase
             'Query count should be minimal when using pre-loaded data. Found ' . count($queries) . ' queries.');
 
         // Verify no queries contain individual visits lookups
-        $visitQueries = array_filter($queries, function ($query) {
-            return str_contains(strtolower($query['query']), 'select max(`visit_date`) from `visits`');
-        });
+        $visitQueries = array_filter($queries, fn ($query) => str_contains(strtolower($query['query']), 'select max(`visit_date`) from `visits`'));
 
         $this->assertEmpty($visitQueries,
             'Should not have individual MAX(visit_date) queries when using pre-loaded data');

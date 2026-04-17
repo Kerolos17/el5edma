@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Console\Commands\SendBirthdayReminders;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
@@ -91,7 +93,7 @@ class LocaleManagementTest extends TestCase
         ]);
 
         // Force an exception inside the command by making the notifications table unavailable
-        \Illuminate\Support\Facades\DB::statement('DROP TABLE IF EXISTS ministry_notifications');
+        DB::statement('DROP TABLE IF EXISTS ministry_notifications');
 
         try {
             Artisan::call('reminders:unvisited');

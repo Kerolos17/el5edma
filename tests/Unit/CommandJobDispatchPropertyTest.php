@@ -56,7 +56,7 @@ class CommandJobDispatchPropertyTest extends TestCase
             for ($j = 0; $j < $count; $j++) {
                 $servant = User::factory()->create([
                     'fcm_token' => "birthday_token_{$i}_{$j}",
-                    'email' => "birthday_servant_{$i}_{$j}@example.com",
+                    'email'     => "birthday_servant_{$i}_{$j}@example.com",
                 ]);
 
                 $serviceGroup = ServiceGroup::factory()->create();
@@ -73,7 +73,7 @@ class CommandJobDispatchPropertyTest extends TestCase
 
             $this->assertTrue(
                 Queue::pushed(SendFcmNotificationJob::class)->isNotEmpty(),
-                "Iteration {$i}: count={$count} — reminders:birthdays should dispatch at least one SendFcmNotificationJob"
+                "Iteration {$i}: count={$count} — reminders:birthdays should dispatch at least one SendFcmNotificationJob",
             );
 
             // Clean up for next iteration
@@ -123,7 +123,7 @@ class CommandJobDispatchPropertyTest extends TestCase
             for ($j = 0; $j < $count; $j++) {
                 $leader = User::factory()->create([
                     'fcm_token' => "unvisited_token_{$i}_{$j}",
-                    'email' => "unvisited_leader_{$i}_{$j}@example.com",
+                    'email'     => "unvisited_leader_{$i}_{$j}@example.com",
                 ]);
 
                 $serviceGroup = ServiceGroup::factory()->create([
@@ -141,7 +141,7 @@ class CommandJobDispatchPropertyTest extends TestCase
 
             $this->assertTrue(
                 Queue::pushed(SendFcmNotificationJob::class)->isNotEmpty(),
-                "Iteration {$i}: count={$count} — reminders:unvisited should dispatch at least one SendFcmNotificationJob"
+                "Iteration {$i}: count={$count} — reminders:unvisited should dispatch at least one SendFcmNotificationJob",
             );
 
             // Clean up for next iteration
@@ -194,7 +194,7 @@ class CommandJobDispatchPropertyTest extends TestCase
             for ($j = 0; $j < $count; $j++) {
                 $servant = User::factory()->create([
                     'fcm_token' => "scheduled_token_{$i}_{$j}",
-                    'email' => "scheduled_servant_{$i}_{$j}@example.com",
+                    'email'     => "scheduled_servant_{$i}_{$j}@example.com",
                 ]);
 
                 $beneficiary = Beneficiary::factory()->create([
@@ -216,7 +216,7 @@ class CommandJobDispatchPropertyTest extends TestCase
 
             $this->assertTrue(
                 Queue::pushed(SendFcmNotificationJob::class)->isNotEmpty(),
-                "Iteration {$i}: count={$count} — reminders:scheduled-visits should dispatch at least one SendFcmNotificationJob"
+                "Iteration {$i}: count={$count} — reminders:scheduled-visits should dispatch at least one SendFcmNotificationJob",
             );
 
             // Clean up for next iteration

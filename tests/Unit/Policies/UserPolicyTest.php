@@ -3,7 +3,6 @@
 namespace Tests\Unit\Policies;
 
 use App\Models\ServiceGroup;
-use App\Models\User;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,7 +10,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class UserPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private UserPolicy $policy;
     private ServiceGroup $groupA;
@@ -19,7 +18,7 @@ class UserPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new UserPolicy();
+        $this->policy = new UserPolicy;
         $this->groupA = ServiceGroup::factory()->create();
     }
 

@@ -52,6 +52,7 @@ return [
 
             'credentials' => (function () {
                 $path = env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS'));
+
                 return ($path && file_exists($path)) ? $path : null;
             })(),
 
@@ -181,7 +182,7 @@ return [
              */
 
             'logging' => [
-                'http_log_channel' => env('FIREBASE_HTTP_LOG_CHANNEL'),
+                'http_log_channel'       => env('FIREBASE_HTTP_LOG_CHANNEL'),
                 'http_debug_log_channel' => env('FIREBASE_HTTP_DEBUG_LOG_CHANNEL'),
             ],
 

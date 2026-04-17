@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\User;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -39,7 +40,7 @@ class UserModelTest extends TestCase
     public function test_create_from_self_registration(): void
     {
         $group = ServiceGroup::factory()->create();
-        $user = User::createFromSelfRegistration([
+        $user  = User::createFromSelfRegistration([
             'name'     => 'Test User',
             'email'    => 'test@example.com',
             'phone'    => '01234567890',
@@ -56,15 +57,15 @@ class UserModelTest extends TestCase
 
     public function test_can_access_panel_active(): void
     {
-        $user = User::factory()->create(['is_active' => true]);
-        $panel = app(\Filament\Panel::class);
+        $user  = User::factory()->create(['is_active' => true]);
+        $panel = app(Panel::class);
         $this->assertTrue($user->canAccessPanel($panel));
     }
 
     public function test_can_access_panel_inactive(): void
     {
-        $user = User::factory()->create(['is_active' => false]);
-        $panel = app(\Filament\Panel::class);
+        $user  = User::factory()->create(['is_active' => false]);
+        $panel = app(Panel::class);
         $this->assertFalse($user->canAccessPanel($panel));
     }
 

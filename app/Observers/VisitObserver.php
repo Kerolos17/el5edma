@@ -55,9 +55,9 @@ class VisitObserver
         }
 
         $notifier = app(InternalNotificationService::class);
-        $title = __('notifications.critical_case_title');
-        $body = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-        $data = [
+        $title    = __('notifications.critical_case_title');
+        $body     = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
+        $data     = [
             'beneficiary_id' => $beneficiary->id,
             'visit_id'       => $visit->id,
             'url'            => route('filament.admin.resources.visits.view', ['record' => $visit->id]),
@@ -89,7 +89,9 @@ class VisitObserver
     {
         $userId = $visit->created_by;
 
-        if (! $userId) return;
+        if (! $userId) {
+            return;
+        }
 
         // Forget all period variants so the next request recomputes fresh stats
         foreach (['week', 'month', 'year'] as $period) {

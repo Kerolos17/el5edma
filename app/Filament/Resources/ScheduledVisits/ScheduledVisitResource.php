@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ScheduledVisits;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\ScheduledVisits\Pages\CreateScheduledVisit;
 use App\Filament\Resources\ScheduledVisits\Pages\EditScheduledVisit;
 use App\Filament\Resources\ScheduledVisits\Pages\ListScheduledVisits;
@@ -16,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -50,11 +50,10 @@ class ScheduledVisitResource extends Resource
         $user  = Auth::user();
 
         return match ($user?->role) {
-            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            UserRole::Servant      => $query->where('assigned_servant_id', $user->id),
-            default                => $query,
+            UserRole::Servant => $query->where('assigned_servant_id', $user->id),
+            default           => $query,
         };
     }
 
@@ -84,6 +83,11 @@ class ScheduledVisitResource extends Resource
     }
 
     // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', ScheduledVisit::class);
+    }
 
     public static function canCreate(): bool
     {

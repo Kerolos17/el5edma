@@ -26,7 +26,7 @@ class DatabaseIndexesTest extends TestCase
         $this->assertContains(
             'mn_user_created_idx',
             $this->getIndexNames('ministry_notifications'),
-            'الفهرس mn_user_created_idx غير موجود في جدول ministry_notifications'
+            'الفهرس mn_user_created_idx غير موجود في جدول ministry_notifications',
         );
     }
 
@@ -37,7 +37,7 @@ class DatabaseIndexesTest extends TestCase
         $this->assertContains(
             'mn_user_unread_idx',
             $this->getIndexNames('ministry_notifications'),
-            'الفهرس mn_user_unread_idx غير موجود في جدول ministry_notifications'
+            'الفهرس mn_user_unread_idx غير موجود في جدول ministry_notifications',
         );
     }
 
@@ -48,7 +48,7 @@ class DatabaseIndexesTest extends TestCase
         $this->assertContains(
             'users_fcm_token_idx',
             $this->getIndexNames('users'),
-            'الفهرس users_fcm_token_idx غير موجود في جدول users'
+            'الفهرس users_fcm_token_idx غير موجود في جدول users',
         );
     }
 }

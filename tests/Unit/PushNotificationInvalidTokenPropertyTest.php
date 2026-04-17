@@ -103,7 +103,7 @@ class PushNotificationInvalidTokenPropertyTest extends TestCase
             $this->assertSame(
                 $invalidCount,
                 $nullCount,
-                "Iteration {$i}: expected {$invalidCount} users with null fcm_token, got {$nullCount}"
+                "Iteration {$i}: expected {$invalidCount} users with null fcm_token, got {$nullCount}",
             );
 
             // Assert: valid token users still have their tokens intact

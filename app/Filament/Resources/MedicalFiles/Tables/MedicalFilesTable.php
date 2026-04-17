@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MedicalFiles\Tables;
 
+use App\Enums\UserRole;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -9,7 +10,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class MedicalFilesTable
@@ -70,7 +70,7 @@ class MedicalFilesTable
                     DeleteAction::make()
                         ->visible(fn () => in_array(
                             Auth::user()?->role,
-                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]
+                            [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader],
                         )),
                 ]),
             ])

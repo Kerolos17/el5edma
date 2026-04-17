@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\Visits;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Visits\Pages\CreateVisit;
 use App\Filament\Resources\Visits\Pages\EditVisit;
 use App\Filament\Resources\Visits\Pages\ListVisits;
@@ -17,7 +19,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitResource extends Resource
@@ -59,11 +60,10 @@ class VisitResource extends Resource
 
         // Apply role-based scoping first
         $query = match ($user?->role) {
-            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            UserRole::Servant      => $query->where('created_by', $user->id),
-            default                => $query,
+            UserRole::Servant => $query->where('created_by', $user->id),
+            default           => $query,
         };
 
         // Apply eager loading after scoping
@@ -81,7 +81,7 @@ class VisitResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('visits.type') => __("visits.{$record->type}"),
+            __('visits.type')               => __("visits.{$record->type}"),
             __('visits.visit_date')         => $record->visit_date?->format('Y-m-d'),
             __('visits.beneficiary_status') => __("visits.{$record->beneficiary_status}"),
         ];

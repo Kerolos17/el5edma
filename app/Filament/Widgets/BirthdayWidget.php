@@ -2,12 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Carbon;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class BirthdayWidget extends BaseWidget

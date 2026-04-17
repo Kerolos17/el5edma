@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Models\Beneficiary;
@@ -7,6 +8,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Policies\BeneficiaryPolicy;
 use App\Policies\VisitPolicy;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
@@ -284,7 +286,7 @@ class BugConditionExplorationTest extends TestCase
             'VisitPolicy does not exist. Authorization is scattered across resources instead of centralized.');
 
         // Check if policies are registered via the Gate (AuthServiceProvider registers them there)
-        $gate = app(\Illuminate\Contracts\Auth\Access\Gate::class);
+        $gate = app(Gate::class);
 
         $this->assertNotNull($gate->getPolicyFor(Beneficiary::class),
             'BeneficiaryPolicy is not registered in AuthServiceProvider.');
@@ -342,8 +344,8 @@ class BugConditionExplorationTest extends TestCase
         }
 
         // Should have indexes on visit_id and servant_id
-        $hasVisitIdIndex   = collect($indexNames)->contains(fn($name) => str_contains($name, 'visit_id'));
-        $hasServantIdIndex = collect($indexNames)->contains(fn($name) => str_contains($name, 'servant_id'));
+        $hasVisitIdIndex   = collect($indexNames)->contains(fn ($name) => str_contains($name, 'visit_id'));
+        $hasServantIdIndex = collect($indexNames)->contains(fn ($name) => str_contains($name, 'servant_id'));
 
         $this->assertTrue($hasVisitIdIndex,
             'Missing index on visit_servants.visit_id. This will cause slow queries on the pivot table.');
@@ -360,7 +362,7 @@ class BugConditionExplorationTest extends TestCase
             $visitIndexNames = array_column($visitsIndexes, 'Key_name');
         }
 
-        $hasCriticalResolvedByIndex = collect($visitIndexNames)->contains(fn($name) => str_contains($name, 'critical_resolved_by'));
+        $hasCriticalResolvedByIndex = collect($visitIndexNames)->contains(fn ($name) => str_contains($name, 'critical_resolved_by'));
 
         $this->assertTrue($hasCriticalResolvedByIndex,
             'Missing index on visits.critical_resolved_by. This will cause slow queries when filtering by resolver.');

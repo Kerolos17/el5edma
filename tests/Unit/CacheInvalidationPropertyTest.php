@@ -62,7 +62,7 @@ class CacheInvalidationPropertyTest extends TestCase
             // Randomly choose action: markRead (0) or markAllRead (1)
             $action = mt_rand(0, 1);
 
-            $component = new NotificationsBell();
+            $component = new NotificationsBell;
 
             if ($action === 0) {
                 // markRead: mark one random notification as read
@@ -87,14 +87,14 @@ class CacheInvalidationPropertyTest extends TestCase
             $this->assertNotEquals(
                 $staleValue,
                 $component->unreadCount,
-                "Iteration {$i}: unreadCount should not be the stale cache value ({$staleValue})"
+                "Iteration {$i}: unreadCount should not be the stale cache value ({$staleValue})",
             );
 
             $this->assertEquals(
                 $actualUnread,
                 $component->unreadCount,
                 "Iteration {$i}: unreadCount ({$component->unreadCount}) must equal actual DB count ({$actualUnread}) after " .
-                ($action === 0 ? 'markRead' : 'markAllRead')
+                ($action === 0 ? 'markRead' : 'markAllRead'),
             );
 
             // Clean up for next iteration
@@ -137,7 +137,7 @@ class CacheInvalidationPropertyTest extends TestCase
             Cache::put($cacheKey, $staleValue, 60);
 
             $action = mt_rand(0, 1);
-            $widget = new NotificationsBellWidget();
+            $widget = new NotificationsBellWidget;
 
             if ($action === 0) {
                 $targetNotification = $notifications->random();
@@ -153,13 +153,13 @@ class CacheInvalidationPropertyTest extends TestCase
             $this->assertNotEquals(
                 $staleValue,
                 $widget->unreadCount,
-                "Iteration {$i} (Widget): unreadCount should not be the stale cache value ({$staleValue})"
+                "Iteration {$i} (Widget): unreadCount should not be the stale cache value ({$staleValue})",
             );
 
             $this->assertEquals(
                 $actualUnread,
                 $widget->unreadCount,
-                "Iteration {$i} (Widget): unreadCount ({$widget->unreadCount}) must equal actual DB count ({$actualUnread})"
+                "Iteration {$i} (Widget): unreadCount ({$widget->unreadCount}) must equal actual DB count ({$actualUnread})",
             );
 
             // Clean up

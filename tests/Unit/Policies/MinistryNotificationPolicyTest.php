@@ -11,14 +11,14 @@ use Tests\Traits\CreatesTestUsers;
 
 class MinistryNotificationPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private MinistryNotificationPolicy $policy;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new MinistryNotificationPolicy();
+        $this->policy = new MinistryNotificationPolicy;
     }
 
     public function test_all_roles_can_view_any(): void

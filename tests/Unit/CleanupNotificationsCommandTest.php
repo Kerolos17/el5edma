@@ -6,7 +6,6 @@ namespace Tests\Unit;
 
 use App\Models\MinistryNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 use Tests\TestCase;
 
@@ -48,20 +47,18 @@ class CleanupNotificationsCommandTest extends TestCase
 
         $scheduledEvents = Schedule::events();
 
-        $cleanupEvent = collect($scheduledEvents)->first(function ($event) {
-            return str_contains($event->command ?? '', 'notifications:cleanup');
-        });
+        $cleanupEvent = collect($scheduledEvents)->first(fn ($event) => str_contains($event->command ?? '', 'notifications:cleanup'));
 
         $this->assertNotNull(
             $cleanupEvent,
-            'notifications:cleanup is not registered in the scheduler'
+            'notifications:cleanup is not registered in the scheduler',
         );
 
         // Scheduled every Friday at midnight: "0 0 * * 5"
         $this->assertEquals(
             '0 0 * * 5',
             $cleanupEvent->expression,
-            'notifications:cleanup is not scheduled weekly on Friday (expected cron: 0 0 * * 5)'
+            'notifications:cleanup is not scheduled weekly on Friday (expected cron: 0 0 * * 5)',
         );
     }
 }

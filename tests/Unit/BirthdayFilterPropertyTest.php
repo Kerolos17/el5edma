@@ -89,10 +89,8 @@ class BirthdayFilterPropertyTest extends TestCase
                 ->whereNotNull('birth_date')
                 ->whereIn('id', $createdIds)
                 ->get()
-                ->filter(function (Beneficiary $b) use ($targetMonth, $targetDay) {
-                    return (int) $b->birth_date->month === $targetMonth
-                    && (int) $b->birth_date->day === $targetDay;
-                })
+                ->filter(fn (Beneficiary $b) => (int) $b->birth_date->month === $targetMonth
+                    && (int) $b->birth_date->day                            === $targetDay)
                 ->pluck('id')
                 ->sort()
                 ->values()
@@ -101,7 +99,7 @@ class BirthdayFilterPropertyTest extends TestCase
             $this->assertSame(
                 $phpIds,
                 $sqlIds,
-                "Iteration {$i}: target={$targetMonth}/{$targetDay} — SQL filter result must match PHP filter result"
+                "Iteration {$i}: target={$targetMonth}/{$targetDay} — SQL filter result must match PHP filter result",
             );
 
             // Clean up for next iteration
@@ -173,9 +171,7 @@ class BirthdayFilterPropertyTest extends TestCase
             ->where('status', 'active')
             ->whereNotNull('birth_date')
             ->get()
-            ->filter(fn(Beneficiary $b) =>
-                (int) $b->birth_date->month === $targetMonth &&
-                (int) $b->birth_date->day === $targetDay
+            ->filter(fn (Beneficiary $b) => (int) $b->birth_date->month === $targetMonth && (int) $b->birth_date->day === $targetDay,
             )
             ->pluck('id')
             ->toArray();

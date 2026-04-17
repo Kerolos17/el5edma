@@ -67,7 +67,7 @@ class UnvisitedNotificationCompletenessPropertyTest extends TestCase
                 if ($hasServant) {
                     $servant = User::factory()->create([
                         'fcm_token' => "unvisited_servant_{$i}_{$j}",
-                        'email' => "unvisited_servant_{$i}_{$j}@test.com",
+                        'email'     => "unvisited_servant_{$i}_{$j}@test.com",
                     ]);
                     $expectedRecipientIds[] = $servant->id;
                 }
@@ -75,7 +75,7 @@ class UnvisitedNotificationCompletenessPropertyTest extends TestCase
                 if ($hasLeader) {
                     $leader = User::factory()->create([
                         'fcm_token' => "unvisited_leader_{$i}_{$j}",
-                        'email' => "unvisited_leader_{$i}_{$j}@test.com",
+                        'email'     => "unvisited_leader_{$i}_{$j}@test.com",
                     ]);
                 }
 
@@ -116,7 +116,7 @@ class UnvisitedNotificationCompletenessPropertyTest extends TestCase
 
                 $this->assertTrue(
                     $exists,
-                    "Iteration {$i}: MinistryNotification (unvisited_alert) must exist for user_id={$userId}"
+                    "Iteration {$i}: MinistryNotification (unvisited_alert) must exist for user_id={$userId}",
                 );
             }
 
@@ -128,7 +128,7 @@ class UnvisitedNotificationCompletenessPropertyTest extends TestCase
             $this->assertSame(
                 count($expectedRecipientIds),
                 $actualCount,
-                "Iteration {$i}: expected " . count($expectedRecipientIds) . " unvisited_alert notifications, got {$actualCount}"
+                "Iteration {$i}: expected " . count($expectedRecipientIds) . " unvisited_alert notifications, got {$actualCount}",
             );
 
             // Clean up for next iteration

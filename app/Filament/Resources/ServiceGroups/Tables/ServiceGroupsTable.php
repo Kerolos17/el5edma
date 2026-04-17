@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ServiceGroups\Tables;
 
+use App\Enums\UserRole;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -12,7 +13,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceGroupsTable

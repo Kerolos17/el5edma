@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Widgets;
 
 use App\Models\MinistryNotification;
@@ -28,9 +29,11 @@ class NotificationsBellWidget extends Widget
             ->limit(8)
             ->get();
 
-        $this->unreadCount = MinistryNotification::where('user_id', Auth::id())
-            ->whereNull('read_at')
-            ->count();
+        $this->unreadCount = Cache::remember(
+            'notifications_unread_' . Auth::id(),
+            60,
+            fn () => MinistryNotification::where('user_id', Auth::id())->whereNull('read_at')->count(),
+        );
 
         $this->notifications = $recent
             ->map(fn ($n) => [

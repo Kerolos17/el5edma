@@ -10,7 +10,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class ServiceGroupPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private ServiceGroupPolicy $policy;
     private ServiceGroup $groupA;
@@ -19,7 +19,7 @@ class ServiceGroupPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ServiceGroupPolicy();
+        $this->policy = new ServiceGroupPolicy;
         $this->groupA = ServiceGroup::factory()->create();
         $this->groupB = ServiceGroup::factory()->create();
     }

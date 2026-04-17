@@ -32,7 +32,10 @@ class ScheduledVisitPolicy
 
         // Family leaders can view scheduled visits for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
-            return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+            $scheduledVisit->loadMissing('beneficiary');
+
+            return $scheduledVisit->beneficiary !== null
+                && $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
         }
 
         // Servants can view scheduled visits assigned to them
@@ -65,7 +68,10 @@ class ScheduledVisitPolicy
 
         // Family leaders can update scheduled visits for beneficiaries in their service group
         if ($user->role === UserRole::FamilyLeader) {
-            return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+            $scheduledVisit->loadMissing('beneficiary');
+
+            return $scheduledVisit->beneficiary !== null
+                && $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
         }
 
         // Servants cannot update scheduled visits

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit\Jobs;
 
 use App\Jobs\SendFcmNotificationJob;
@@ -72,6 +73,7 @@ class SendFcmNotificationJobTest extends TestCase
             ->withArgs(function (string $message, array $context) use (&$loggedMessage, &$loggedContext) {
                 $loggedMessage = $message;
                 $loggedContext = $context;
+
                 return true;
             });
 
@@ -109,6 +111,7 @@ class SendFcmNotificationJobTest extends TestCase
             ->once()
             ->withArgs(function (string $message, array $context) use (&$loggedContext) {
                 $loggedContext = $context;
+
                 return true;
             });
 
@@ -144,12 +147,10 @@ class SendFcmNotificationJobTest extends TestCase
 
         SendFcmNotificationJob::dispatch($tokens, $title, $body);
 
-        Queue::assertPushed(SendFcmNotificationJob::class, function (SendFcmNotificationJob $job) use ($tokens, $title, $body) {
-            return $job->tokens === $tokens
-            && $job->title === $title
-            && $job->body === $body
-            && $job->tries === 3;
-        });
+        Queue::assertPushed(SendFcmNotificationJob::class, fn (SendFcmNotificationJob $job) => $job->tokens === $tokens
+            && $job->title                                                                                  === $title
+            && $job->body                                                                                   === $body
+            && $job->tries                                                                                  === 3);
     }
 
     /**
@@ -165,6 +166,7 @@ class SendFcmNotificationJobTest extends TestCase
             ->once()
             ->withArgs(function (string $message, array $context) use (&$loggedContext) {
                 $loggedContext = $context;
+
                 return true;
             });
 

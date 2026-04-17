@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use Filament\Facades\Filament;
 use Filament\GlobalSearch\GlobalSearchResults;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class MobileSearch extends Component
@@ -37,7 +38,7 @@ class MobileSearch extends Component
         return Filament::getGlobalSearchProvider()?->getResults($trimmed);
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): View
     {
         return view('livewire.mobile-search', [
             'results' => $this->getResults(),

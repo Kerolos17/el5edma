@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class MinistryNotificationModelTest extends TestCase
@@ -33,7 +34,7 @@ class MinistryNotificationModelTest extends TestCase
         $notification = MinistryNotification::factory()->create(['read_at' => now()]);
         $notification->refresh();
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $notification->read_at);
+        $this->assertInstanceOf(Carbon::class, $notification->read_at);
     }
 
     public function test_read_at_is_null_by_default(): void

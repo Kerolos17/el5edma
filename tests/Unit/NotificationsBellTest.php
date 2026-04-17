@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Filament\Widgets\NotificationsBellWidget;
@@ -41,7 +42,7 @@ class NotificationsBellTest extends TestCase
 
         Cache::flush();
 
-        $component = new NotificationsBell();
+        $component = new NotificationsBell;
         $component->mount();
 
         $this->assertEquals(3, $component->unreadCount);
@@ -59,7 +60,7 @@ class NotificationsBellTest extends TestCase
         // Seed cache with stale value
         Cache::put("notifications_unread_{$this->user->id}", 99, 60);
 
-        $component = new NotificationsBell();
+        $component = new NotificationsBell;
         $component->markRead($notification->id);
 
         // unreadCount should reflect actual DB value (0), not stale cache (99)
@@ -79,7 +80,7 @@ class NotificationsBellTest extends TestCase
         // Seed cache with stale value
         Cache::put("notifications_unread_{$this->user->id}", 99, 60);
 
-        $component = new NotificationsBell();
+        $component = new NotificationsBell;
         $component->markAllRead();
 
         // unreadCount should reflect actual DB value (0), not stale cache (99)
@@ -95,7 +96,7 @@ class NotificationsBellTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $component = new NotificationsBell();
+        $component = new NotificationsBell;
         $component->mount();
 
         $this->assertCount(8, $component->notifications);
@@ -111,7 +112,7 @@ class NotificationsBellTest extends TestCase
 
         Cache::flush();
 
-        $widget = new NotificationsBellWidget();
+        $widget = new NotificationsBellWidget;
         $widget->mount();
 
         $this->assertEquals(2, $widget->unreadCount);
@@ -127,7 +128,7 @@ class NotificationsBellTest extends TestCase
 
         Cache::put("notifications_unread_{$this->user->id}", 99, 60);
 
-        $widget = new NotificationsBellWidget();
+        $widget = new NotificationsBellWidget;
         $widget->markRead($notification->id);
 
         $this->assertEquals(0, $widget->unreadCount);
@@ -145,7 +146,7 @@ class NotificationsBellTest extends TestCase
 
         Cache::put("notifications_unread_{$this->user->id}", 99, 60);
 
-        $widget = new NotificationsBellWidget();
+        $widget = new NotificationsBellWidget;
         $widget->markAllRead();
 
         $this->assertEquals(0, $widget->unreadCount);
@@ -160,7 +161,7 @@ class NotificationsBellTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $widget = new NotificationsBellWidget();
+        $widget = new NotificationsBellWidget;
         $widget->mount();
 
         $this->assertCount(8, $widget->notifications);

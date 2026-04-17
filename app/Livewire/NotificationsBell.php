@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire;
 
 use App\Models\MinistryNotification;
@@ -36,7 +37,7 @@ class NotificationsBell extends Component
             $this->dispatch('new-notification-sound');
         }
 
-        $this->unreadCount = $newCount;
+        $this->unreadCount         = $newCount;
         $this->previousUnreadCount = $newCount;
 
         $this->notifications = $recent

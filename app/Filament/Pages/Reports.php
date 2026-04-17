@@ -2,13 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\UserRole;
 use App\Exports\BeneficiariesExport;
 use App\Exports\VisitsExport;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -21,7 +21,7 @@ class Reports extends Page implements HasForms
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     public ?string $dateFrom = null;
 

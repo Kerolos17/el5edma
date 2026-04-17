@@ -6,6 +6,7 @@ use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class BeneficiaryModelTest extends TestCase
@@ -45,10 +46,10 @@ class BeneficiaryModelTest extends TestCase
 
     public function test_relationships(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = User::factory()->create();
-        $ben = Beneficiary::factory()->create([
-            'service_group_id' => $group->id,
+        $ben     = Beneficiary::factory()->create([
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
 
@@ -59,6 +60,6 @@ class BeneficiaryModelTest extends TestCase
     public function test_casts(): void
     {
         $ben = Beneficiary::factory()->create(['birth_date' => '2000-01-15']);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $ben->birth_date);
+        $this->assertInstanceOf(Carbon::class, $ben->birth_date);
     }
 }

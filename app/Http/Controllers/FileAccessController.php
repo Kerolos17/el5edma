@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\MedicalFile;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class FileAccessController extends Controller
 {
@@ -24,7 +24,7 @@ class FileAccessController extends Controller
 
         // Normalize and ensure the resolved path stays within the private disk root
         $normalizedPath = str_replace('\\', '/', $decodedPath);
-        $realBase = realpath(Storage::disk('private')->path(''));
+        $realBase       = realpath(Storage::disk('private')->path(''));
 
         if ($realBase === false) {
             abort(500); // Private disk root is misconfigured
@@ -32,7 +32,7 @@ class FileAccessController extends Controller
 
         $realFile = realpath(Storage::disk('private')->path($normalizedPath));
 
-        if ($realFile === false || !str_starts_with($realFile, $realBase)) {
+        if ($realFile === false || ! str_starts_with($realFile, $realBase)) {
             abort(403);
         }
 
@@ -43,7 +43,7 @@ class FileAccessController extends Controller
 
         Gate::authorize('view', $medicalFile);
 
-        if (!Storage::disk('private')->exists($normalizedPath)) {
+        if (! Storage::disk('private')->exists($normalizedPath)) {
             abort(404);
         }
 

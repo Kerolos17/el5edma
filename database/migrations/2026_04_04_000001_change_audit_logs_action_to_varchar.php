@@ -13,7 +13,7 @@ return new class extends Migration
 
         if ($driver === 'mysql') {
             // Convert ENUM to VARCHAR — removes constraint, allows any action value
-            DB::statement("ALTER TABLE audit_logs MODIFY COLUMN action VARCHAR(50) NOT NULL");
+            DB::statement('ALTER TABLE audit_logs MODIFY COLUMN action VARCHAR(50) NOT NULL');
         } elseif ($driver === 'sqlite') {
             Schema::table('audit_logs', function (Blueprint $table) {
                 $table->string('action', 50)->change();

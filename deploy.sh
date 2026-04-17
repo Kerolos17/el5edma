@@ -42,9 +42,14 @@ chmod -R 755 public
 echo "🗄️  تشغيل Migrations..."
 php artisan migrate --force
 
-# 5. تشغيل الـ Seeders (roles + admin user فقط)
-echo "🌱 تشغيل Seeders..."
-php artisan db:seed --force
+# 5. تشغيل الـ Seeders — فقط عند أول تثبيت (جدول users فارغ)
+USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | grep -E '^[0-9]+$' | head -1)
+if [ "${USER_COUNT:-1}" = "0" ]; then
+    echo "🌱 قاعدة البيانات فارغة — تشغيل Seeders للمرة الأولى..."
+    php artisan db:seed --force
+else
+    echo "⏭️  Seeders — تم التخطي (البيانات موجودة مسبقاً)"
+fi
 
 # 6. إنشاء رابط storage
 echo "🔗 إنشاء Storage Link..."

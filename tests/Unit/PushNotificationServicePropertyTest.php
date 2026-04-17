@@ -55,7 +55,7 @@ class PushNotificationServicePropertyTest extends TestCase
             $result = $service->sendMulticast($tokens, 'Title', 'Body');
 
             $this->assertInstanceOf(MulticastResult::class, $result,
-                "Iteration {$i}: N={$n} — sendMulticast should return a MulticastResult"
+                "Iteration {$i}: N={$n} — sendMulticast should return a MulticastResult",
             );
 
             $messagingMock->mockery_verify();

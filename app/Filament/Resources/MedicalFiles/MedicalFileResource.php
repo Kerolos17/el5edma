@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MedicalFiles;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\MedicalFiles\Pages\CreateMedicalFile;
 use App\Filament\Resources\MedicalFiles\Pages\ListMedicalFiles;
 use App\Filament\Resources\MedicalFiles\Pages\ViewMedicalFile;
@@ -14,7 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -75,11 +75,9 @@ class MedicalFileResource extends Resource
         $user  = Auth::user();
 
         return match ($user?->role) {
-            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            UserRole::Servant => $query->whereHas('beneficiary', fn ($q) =>
-                $q->where('assigned_servant_id', $user->id)
+            UserRole::Servant => $query->whereHas('beneficiary', fn ($q) => $q->where('assigned_servant_id', $user->id),
             ),
             default => $query,
         };

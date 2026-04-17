@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
+use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -52,9 +54,9 @@ class UserForm
                     TextInput::make('password')
                         ->label(__('users.password'))
                         ->password()
-                        ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                        ->dehydrated(fn($state) => filled($state))
-                        ->required(fn(string $operation) => $operation === 'create')
+                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                        ->dehydrated(fn ($state) => filled($state))
+                        ->required(fn (string $operation) => $operation === 'create')
                         ->maxLength(255),
                 ])->columns(2),
 
@@ -62,8 +64,36 @@ class UserForm
                 ->schema([
                     Select::make('role')
                         ->label(__('users.role'))
-                        ->options(UserRole::options())
+                        ->options(function () {
+                            $user = Auth::user();
+                            if ($user->role === UserRole::SuperAdmin) {
+                                return UserRole::options();
+                            }
+                            if ($user->role === UserRole::ServiceLeader) {
+                                return collect(UserRole::cases())
+                                    ->filter(fn ($r) => in_array($r, [UserRole::FamilyLeader, UserRole::Servant]))
+                                    ->mapWithKeys(fn ($r) => [$r->value => $r->label()])
+                                    ->toArray();
+                            }
+
+                            return [UserRole::Servant->value => UserRole::Servant->label()];
+                        })
                         ->required()
+                        ->rules([
+                            function (): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail): void {
+                                    $actor   = Auth::user();
+                                    $allowed = match (true) {
+                                        $actor->role === UserRole::SuperAdmin    => array_column(UserRole::cases(), 'value'),
+                                        $actor->role === UserRole::ServiceLeader => [UserRole::FamilyLeader->value, UserRole::Servant->value],
+                                        default                                  => [UserRole::Servant->value],
+                                    };
+                                    if (! in_array($value, $allowed, true)) {
+                                        $fail(__('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ])
                         ->live()
                         ->afterStateUpdated(fn ($state, callable $set) => in_array($state, [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])
                                 ? $set('service_group_id', null)

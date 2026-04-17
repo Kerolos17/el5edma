@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\Resources\Visits\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
@@ -10,7 +12,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
 
 class VisitForm
@@ -94,7 +95,7 @@ class VisitForm
                             if ($beneficiaryId) {
                                 $query->whereIn(
                                     'service_group_id',
-                                    Beneficiary::where('id', $beneficiaryId)->whereNotNull('service_group_id')->pluck('service_group_id')
+                                    Beneficiary::where('id', $beneficiaryId)->whereNotNull('service_group_id')->pluck('service_group_id'),
                                 );
                             }
 
@@ -113,7 +114,7 @@ class VisitForm
                     Toggle::make('is_critical')
                         ->label(__('visits.is_critical'))
                         ->live()
-                        ->helperText(fn($get) => $get('is_critical')
+                        ->helperText(fn ($get) => $get('is_critical')
                                 ? __('visits.critical_alert')
                                 : null,
                         ),

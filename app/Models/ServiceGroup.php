@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Enums\UserRole;
@@ -47,8 +48,6 @@ class ServiceGroup extends Model
 
     /**
      * التحقق من وجود رمز تسجيل نشط
-     *
-     * @return bool
      */
     public function hasActiveRegistrationToken(): bool
     {
@@ -64,8 +63,6 @@ class ServiceGroup extends Model
     /**
      * الحصول على عدد الخدام المسجلين ذاتياً
      * (يتم تتبعهم من خلال audit logs)
-     *
-     * @return int
      */
     public function getSelfRegisteredServantsCount(): int
     {

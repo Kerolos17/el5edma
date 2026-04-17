@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Pages\Auth;
 
 use App\Models\User;

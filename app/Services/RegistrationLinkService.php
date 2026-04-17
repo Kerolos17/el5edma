@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\ServiceGroup;
@@ -9,9 +10,6 @@ class RegistrationLinkService
     /**
      * توليد أو استرجاع رمز التسجيل لمجموعة خدمة
      * Requirements: 1.1, 1.5
-     *
-     * @param ServiceGroup $serviceGroup
-     * @return string
      */
     public function getOrCreateToken(ServiceGroup $serviceGroup): string
     {
@@ -35,9 +33,6 @@ class RegistrationLinkService
     /**
      * إعادة توليد رمز جديد وإبطال القديم
      * Requirements: 1.6
-     *
-     * @param ServiceGroup $serviceGroup
-     * @return string
      */
     public function regenerateToken(ServiceGroup $serviceGroup): string
     {
@@ -56,9 +51,6 @@ class RegistrationLinkService
     /**
      * التحقق من صحة الرمز وإرجاع مجموعة الخدمة
      * Requirements: 2.4, 10.3
-     *
-     * @param string $token
-     * @return ServiceGroup|null
      */
     public function validateToken(string $token): ?ServiceGroup
     {
@@ -73,22 +65,17 @@ class RegistrationLinkService
     /**
      * توليد رابط التسجيل الكامل
      * Requirements: 1.2, 1.3
-     *
-     * @param ServiceGroup $serviceGroup
-     * @return string
      */
     public function generateRegistrationUrl(ServiceGroup $serviceGroup): string
     {
         $token = $this->getOrCreateToken($serviceGroup);
 
-        return route('register.show', ['token' => $token]);
+        return route('registration.show', ['token' => $token]);
     }
 
     /**
      * توليد token آمن باستخدام Str::random(64)
      * Requirements: 10.1, 10.2
-     *
-     * @return string
      */
     protected function generateToken(): string
     {

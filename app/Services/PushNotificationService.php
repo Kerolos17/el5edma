@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\DTOs\MulticastResult;
@@ -56,7 +57,7 @@ class PushNotificationService
      */
     public function sendMulticast(array $tokens, string $title, string $body, array $data = []): MulticastResult
     {
-        $result = new MulticastResult();
+        $result = new MulticastResult;
 
         if (empty($tokens)) {
             return $result;
@@ -81,15 +82,15 @@ class PushNotificationService
      * معالجة دفعة من إشعارات مختلفة (عناوين/محتوى مختلف)
      * Requirements 4.4
      *
-     * @param array $notifications  مصفوفة من ['tokens'=>[], 'title'=>'', 'body'=>'', 'data'=>[]]
+     * @param  array  $notifications  مصفوفة من ['tokens'=>[], 'title'=>'', 'body'=>'', 'data'=>[]]
      */
     public function sendBatch(array $notifications): void
     {
         foreach ($notifications as $notification) {
             $tokens = $notification['tokens'] ?? [];
-            $title  = $notification['title'] ?? '';
-            $body   = $notification['body'] ?? '';
-            $extra  = $notification['data'] ?? [];
+            $title  = $notification['title']  ?? '';
+            $body   = $notification['body']   ?? '';
+            $extra  = $notification['data']   ?? [];
 
             if (empty($tokens)) {
                 continue;
@@ -122,14 +123,14 @@ class PushNotificationService
             $stringData   = array_map('strval', $data);
 
             if (count($tokens) === 1) {
-                $message = CloudMessage::new ()
+                $message = CloudMessage::new()
                     ->withToken($tokens[0])
                     ->withNotification($notification)
                     ->withData($stringData);
 
                 $this->messaging->send($message);
             } else {
-                $message = CloudMessage::new ()
+                $message = CloudMessage::new()
                     ->withNotification($notification)
                     ->withData($stringData);
 
@@ -145,6 +146,7 @@ class PushNotificationService
 
         } catch (\Exception $e) {
             Log::error('Firebase Push Error: ' . $e->getMessage());
+
             return false;
         }
     }
@@ -157,10 +159,10 @@ class PushNotificationService
         array $batch,
         Notification $notification,
         array $stringData,
-        MulticastResult $result
+        MulticastResult $result,
     ): void {
         try {
-            $message = CloudMessage::new ()
+            $message = CloudMessage::new()
                 ->withNotification($notification)
                 ->withData($stringData);
 
@@ -184,6 +186,7 @@ class PushNotificationService
                 foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
                     if (str_contains(strtoupper($errorCode), $invalidCode)) {
                         $result->invalidTokens[] = $token;
+
                         break;
                     }
                 }

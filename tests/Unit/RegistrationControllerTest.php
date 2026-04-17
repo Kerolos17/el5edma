@@ -1,10 +1,13 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\RegistrationLinkService;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class RegistrationControllerTest extends TestCase
@@ -20,9 +23,10 @@ class RegistrationControllerTest extends TestCase
     /**
      * إرسال POST request مع تجاوز CSRF فقط
      */
-    protected function postForm(string $uri, array $data = []): \Illuminate\Testing\TestResponse
+    protected function postForm(string $uri, array $data = []): TestResponse
     {
-        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::except($uri);
+        VerifyCsrfToken::except($uri);
+
         return $this->post($uri, $data);
     }
 
@@ -34,7 +38,7 @@ class RegistrationControllerTest extends TestCase
         $token        = app(RegistrationLinkService::class)->getOrCreateToken($serviceGroup);
 
         // Act
-        $response = $this->get(route('register.show', ['token' => $token]));
+        $response = $this->get(route('registration.show', ['token' => $token]));
 
         // Assert
         $response->assertStatus(200);
@@ -46,7 +50,7 @@ class RegistrationControllerTest extends TestCase
     public function it_redirects_to_login_with_invalid_token(): void
     {
         // Act
-        $response = $this->get(route('register.show', ['token' => 'invalid-token']));
+        $response = $this->get(route('registration.show', ['token' => 'invalid-token']));
 
         // Assert
         $response->assertRedirect(route('filament.admin.auth.login'));
@@ -69,7 +73,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertRedirect(route('filament.admin.auth.login'));
@@ -81,7 +85,7 @@ class RegistrationControllerTest extends TestCase
             'phone'            => '01234567890',
             'role'             => 'servant',
             'service_group_id' => $serviceGroup->id,
-            'is_active'        => true,
+            'is_active'        => false,
             'locale'           => 'ar',
         ]);
     }
@@ -94,7 +98,7 @@ class RegistrationControllerTest extends TestCase
         $token        = app(RegistrationLinkService::class)->getOrCreateToken($serviceGroup);
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), []);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), []);
 
         // Assert
         $response->assertSessionHasErrors(['name', 'email', 'phone', 'password']);
@@ -116,7 +120,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act - email format
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertSessionHasErrors(['email']);
@@ -140,7 +144,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertSessionHasErrors(['email']);
@@ -164,7 +168,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertSessionHasErrors(['phone']);
@@ -186,7 +190,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertSessionHasErrors(['password']);
@@ -208,7 +212,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => $token]), $data);
+        $response = $this->postForm(route('registration.store', ['token' => $token]), $data);
 
         // Assert
         $response->assertSessionHasErrors(['password']);
@@ -227,7 +231,7 @@ class RegistrationControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->postForm(route('register.store', ['token' => 'invalid-token']), $data);
+        $response = $this->postForm(route('registration.store', ['token' => 'invalid-token']), $data);
 
         // Assert
         $response->assertRedirect(route('filament.admin.auth.login'));

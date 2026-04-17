@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PrayerRequests;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\PrayerRequests\Pages\CreatePrayerRequest;
 use App\Filament\Resources\PrayerRequests\Pages\EditPrayerRequest;
 use App\Filament\Resources\PrayerRequests\Pages\ListPrayerRequests;
@@ -15,7 +16,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -54,11 +54,10 @@ class PrayerRequestResource extends Resource
         $user  = Auth::user();
 
         return match ($user?->role) {
-            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            UserRole::Servant      => $query->where('created_by', $user->id),
-            default                => $query,
+            UserRole::Servant => $query->where('created_by', $user->id),
+            default           => $query,
         };
     }
 
@@ -88,6 +87,11 @@ class PrayerRequestResource extends Resource
     }
 
     // ── Authorization: Using Laravel Policies for centralized authorization ──
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('viewAny', PrayerRequest::class);
+    }
 
     public static function canCreate(): bool
     {

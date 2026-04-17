@@ -11,7 +11,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class BeneficiaryPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private BeneficiaryPolicy $policy;
     private ServiceGroup $groupA;
@@ -22,9 +22,9 @@ class BeneficiaryPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new BeneficiaryPolicy();
-        $this->groupA = ServiceGroup::factory()->create();
-        $this->groupB = ServiceGroup::factory()->create();
+        $this->policy       = new BeneficiaryPolicy;
+        $this->groupA       = ServiceGroup::factory()->create();
+        $this->groupB       = ServiceGroup::factory()->create();
         $this->beneficiaryA = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
         $this->beneficiaryB = Beneficiary::factory()->create(['service_group_id' => $this->groupB->id]);
     }

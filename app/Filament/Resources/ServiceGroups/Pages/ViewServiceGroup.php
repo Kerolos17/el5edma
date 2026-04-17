@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\ServiceGroups\Pages;
 
 use App\Filament\Resources\ServiceGroups\ServiceGroupResource;
@@ -23,9 +24,9 @@ class ViewServiceGroup extends ViewRecord
                 ->label(__('service_groups.registration_link'))
                 ->icon('heroicon-o-link')
                 ->color('success')
-                ->visible(fn() => Auth::user()->can('manageRegistrationLink', $this->record))
+                ->visible(fn () => Auth::user()->can('manageRegistrationLink', $this->record))
                 ->modalHeading(__('service_groups.registration_link'))
-                ->modalContent(fn() => view('filament.modals.registration-link', [
+                ->modalContent(fn () => view('filament.modals.registration-link', [
                     'url'             => app(RegistrationLinkService::class)->generateRegistrationUrl($this->record),
                     'registeredCount' => $this->record->getSelfRegisteredServantsCount(),
                 ]))
@@ -40,7 +41,7 @@ class ViewServiceGroup extends ViewRecord
                 ->requiresConfirmation()
                 ->modalHeading(__('service_groups.regenerate_token'))
                 ->modalDescription(__('service_groups.regenerate_token_confirm'))
-                ->visible(fn() => Auth::user()->can('manageRegistrationLink', $this->record))
+                ->visible(fn () => Auth::user()->can('manageRegistrationLink', $this->record))
                 ->action(function () {
                     app(RegistrationLinkService::class)->regenerateToken($this->record);
 
@@ -54,14 +55,14 @@ class ViewServiceGroup extends ViewRecord
                 ->label($this->record->name . ' — PDF')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('gray')
-                ->url(fn() => route('reports.service-group.pdf', $this->record))
+                ->url(fn () => route('reports.service-group.pdf', $this->record))
                 ->openUrlInNewTab(),
 
             Action::make('group_beneficiaries_pdf')
                 ->label(__('service_groups.beneficiaries_tab') . ' — PDF')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('info')
-                ->url(fn() => route('reports.service-group.beneficiaries.pdf', $this->record))
+                ->url(fn () => route('reports.service-group.beneficiaries.pdf', $this->record))
                 ->openUrlInNewTab(),
         ];
     }

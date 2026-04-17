@@ -53,7 +53,7 @@ class PushNotificationTokenIsolationPropertyTest extends TestCase
             $n = mt_rand(2, 50);
 
             // Build N unique tokens; the first one will fail
-            $tokens = array_map(fn($j) => "token_{$i}_{$j}", range(0, $n - 1));
+            $tokens = array_map(fn ($j) => "token_{$i}_{$j}", range(0, $n - 1));
 
             // Build a MulticastSendReport with 1 failure + (N-1) successes
             $items = [];
@@ -82,6 +82,7 @@ class PushNotificationTokenIsolationPropertyTest extends TestCase
             // The service must NOT throw an exception
             $threw  = false;
             $result = null;
+
             try {
                 $result = $service->sendMulticast($tokens, 'Title', 'Body');
             } catch (\Throwable $e) {
@@ -90,25 +91,25 @@ class PushNotificationTokenIsolationPropertyTest extends TestCase
 
             $this->assertFalse(
                 $threw,
-                "Iteration {$i}: N={$n} — service threw an exception when one token failed"
+                "Iteration {$i}: N={$n} — service threw an exception when one token failed",
             );
 
             $this->assertInstanceOf(
                 MulticastResult::class,
                 $result,
-                "Iteration {$i}: N={$n} — sendMulticast should return a MulticastResult"
+                "Iteration {$i}: N={$n} — sendMulticast should return a MulticastResult",
             );
 
             $this->assertSame(
                 $n - 1,
                 $result->successCount,
-                "Iteration {$i}: N={$n} — successCount should be N-1 = " . ($n - 1)
+                "Iteration {$i}: N={$n} — successCount should be N-1 = " . ($n - 1),
             );
 
             $this->assertSame(
                 1,
                 $result->failureCount,
-                "Iteration {$i}: N={$n} — failureCount should be exactly 1"
+                "Iteration {$i}: N={$n} — failureCount should be exactly 1",
             );
 
             $messagingMock->mockery_verify();
@@ -143,11 +144,12 @@ class PushNotificationTokenIsolationPropertyTest extends TestCase
 
         $threw  = false;
         $result = null;
+
         try {
             $result = $service->sendMulticast(
-                array_map(fn($j) => "token_{$j}", range(0, $n - 1)),
+                array_map(fn ($j) => "token_{$j}", range(0, $n - 1)),
                 'T',
-                'B'
+                'B',
             );
         } catch (\Throwable $e) {
             $threw = true;

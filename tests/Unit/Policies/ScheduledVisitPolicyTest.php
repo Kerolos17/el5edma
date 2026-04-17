@@ -12,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class ScheduledVisitPolicyTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private ScheduledVisitPolicy $policy;
     private ServiceGroup $groupA;
@@ -20,14 +20,14 @@ class ScheduledVisitPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ScheduledVisitPolicy();
+        $this->policy = new ScheduledVisitPolicy;
         $this->groupA = ServiceGroup::factory()->create();
     }
 
     public function test_super_admin_full_access(): void
     {
         $admin = $this->createSuperAdmin();
-        $sv = ScheduledVisit::factory()->create();
+        $sv    = ScheduledVisit::factory()->create();
         $this->assertTrue($this->policy->viewAny($admin));
         $this->assertTrue($this->policy->view($admin, $sv));
         $this->assertTrue($this->policy->create($admin));
@@ -38,10 +38,10 @@ class ScheduledVisitPolicyTest extends TestCase
     public function test_servant_view_assigned_only(): void
     {
         $servant = $this->createServant($this->groupA);
-        $ben = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
+        $ben     = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
 
         $assigned = ScheduledVisit::factory()->create([
-            'beneficiary_id' => $ben->id,
+            'beneficiary_id'      => $ben->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $other = ScheduledVisit::factory()->create([
@@ -55,7 +55,7 @@ class ScheduledVisitPolicyTest extends TestCase
     public function test_servant_cannot_create_update_delete(): void
     {
         $servant = $this->createServant($this->groupA);
-        $sv = ScheduledVisit::factory()->create();
+        $sv      = ScheduledVisit::factory()->create();
         $this->assertFalse($this->policy->create($servant));
         $this->assertFalse($this->policy->update($servant, $sv));
         $this->assertFalse($this->policy->delete($servant, $sv));
@@ -63,11 +63,11 @@ class ScheduledVisitPolicyTest extends TestCase
 
     public function test_family_leader_scoped_to_group(): void
     {
-        $fl = $this->createFamilyLeader($this->groupA);
-        $benIn = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
+        $fl     = $this->createFamilyLeader($this->groupA);
+        $benIn  = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
         $benOut = Beneficiary::factory()->create(['service_group_id' => ServiceGroup::factory()->create()->id]);
 
-        $svIn = ScheduledVisit::factory()->create(['beneficiary_id' => $benIn->id]);
+        $svIn  = ScheduledVisit::factory()->create(['beneficiary_id' => $benIn->id]);
         $svOut = ScheduledVisit::factory()->create(['beneficiary_id' => $benOut->id]);
 
         $this->assertTrue($this->policy->view($fl, $svIn));

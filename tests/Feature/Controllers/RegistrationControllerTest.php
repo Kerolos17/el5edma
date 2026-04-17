@@ -14,8 +14,9 @@ class RegistrationControllerTest extends TestCase
     public function test_show_with_valid_token_returns_form(): void
     {
         $group = ServiceGroup::factory()->create([
-            'registration_token' => 'valid-token-123',
-            'is_active' => true,
+            'registration_token'              => 'valid-token-123',
+            'is_active'                       => true,
+            'registration_token_generated_at' => now(),
         ]);
 
         $response = $this->get('/register/valid-token-123');
@@ -32,8 +33,9 @@ class RegistrationControllerTest extends TestCase
     public function test_store_with_valid_data_creates_user(): void
     {
         $group = ServiceGroup::factory()->create([
-            'registration_token' => 'valid-token-456',
-            'is_active' => true,
+            'registration_token'              => 'valid-token-456',
+            'is_active'                       => true,
+            'registration_token_generated_at' => now(),
         ]);
 
         $response = $this->post('/register/valid-token-456', [
@@ -55,8 +57,9 @@ class RegistrationControllerTest extends TestCase
     {
         User::factory()->create(['email' => 'existing@example.com']);
         $group = ServiceGroup::factory()->create([
-            'registration_token' => 'token-789',
-            'is_active' => true,
+            'registration_token'              => 'token-789',
+            'is_active'                       => true,
+            'registration_token_generated_at' => now(),
         ]);
 
         $response = $this->post('/register/token-789', [

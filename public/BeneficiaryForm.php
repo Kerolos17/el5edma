@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Beneficiaries\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
@@ -12,7 +13,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use App\Enums\UserRole;
 use Filament\Schemas\Schema;
 
 class BeneficiaryForm

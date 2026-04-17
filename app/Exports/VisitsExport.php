@@ -27,8 +27,7 @@ class VisitsExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithH
         $query = Visit::with(['beneficiary.serviceGroup', 'createdBy']);
 
         if ($this->user->role === UserRole::FamilyLeader) {
-            $query->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $this->user->service_group_id)
+            $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $this->user->service_group_id),
             );
         } elseif ($this->user->role === UserRole::Servant) {
             $query->where('created_by', $this->user->id);

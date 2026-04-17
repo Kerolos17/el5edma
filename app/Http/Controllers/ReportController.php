@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
+use App\Models\Visit;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,11 +15,15 @@ class ReportController extends Controller
 
     public function beneficiariesPdf(Request $request)
     {
+        $this->authorize('viewAny', Beneficiary::class);
+
         return $this->service->beneficiariesPdf(Auth::user());
     }
 
     public function visitsPdf(Request $request)
     {
+        $this->authorize('viewAny', Visit::class);
+
         $request->validate([
             'date_from' => 'nullable|date',
             'date_to'   => 'nullable|date|after_or_equal:date_from',
@@ -34,20 +38,15 @@ class ReportController extends Controller
 
     public function unvisitedPdf(Request $request)
     {
+        $this->authorize('viewAny', Beneficiary::class);
+
         return $this->service->unvisitedPdf(Auth::user());
     }
 
     // ── تقرير مخدوم واحد ──
     public function singleBeneficiaryPdf(Beneficiary $beneficiary)
     {
-        // تأكد إن المستخدم عنده صلاحية يشوف المخدوم ده
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant && $beneficiary->service_group_id !== $user->service_group_id) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $beneficiary->service_group_id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $beneficiary);
 
         return $this->service->singleBeneficiaryPdf($beneficiary);
     }
@@ -55,13 +54,7 @@ class ReportController extends Controller
     // ── تقرير الأسرة ──
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupPdf($serviceGroup);
     }
@@ -69,13 +62,7 @@ class ReportController extends Controller
     // ── تقرير مخدومي الأسرة ──
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
-        $user = Auth::user();
-        if ($user->role === UserRole::Servant) {
-            abort(403);
-        }
-        if ($user->role === UserRole::FamilyLeader && $serviceGroup->id !== $user->service_group_id) {
-            abort(403);
-        }
+        $this->authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);
     }

@@ -30,7 +30,7 @@ class QueryMonitoringService
 
         Log::channel($logChannel)->warning('Slow Query Detected', [
             'sql'        => $query->sql,
-            'bindings'   => $query->bindings,
+            'bindings'   => count($query->bindings),
             'time'       => $query->time . 'ms',
             'connection' => $query->connectionName,
         ]);

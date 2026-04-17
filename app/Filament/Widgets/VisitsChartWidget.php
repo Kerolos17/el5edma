@@ -2,12 +2,13 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UserRole;
 use App\Models\Visit;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\App;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VisitsChartWidget extends ChartWidget
 {
@@ -22,15 +23,14 @@ class VisitsChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         // $pageFilters is null until the dashboard filter form is submitted; default to 'week'
         $period = $this->filters['period'] ?? 'week';
 
         $baseQuery = Visit::query();
 
         if ($user->role === UserRole::FamilyLeader) {
-            $baseQuery->whereHas('beneficiary', fn($q) =>
-                $q->where('service_group_id', $user->service_group_id)
+            $baseQuery->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             );
         } elseif ($user->role === UserRole::Servant) {
             $baseQuery->where('created_by', $user->id);
@@ -93,9 +93,9 @@ class VisitsChartWidget extends ChartWidget
         $startDate = now()->subWeeks(3)->startOfWeek();
 
         $rawData = (clone $baseQuery)
-            ->selectRaw('YEARWEEK(visit_date, 3) as yw, type, COUNT(*) as total')
+            ->selectRaw($this->yearWeekSelect() . ', type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
-            ->groupByRaw('YEARWEEK(visit_date, 3), type')
+            ->groupByRaw($this->yearWeekGroupBy() . ', type')
             ->get()
             ->groupBy('yw');
 
@@ -123,9 +123,9 @@ class VisitsChartWidget extends ChartWidget
     private function buildYearlyData($baseQuery): array
     {
         $arMonths = [
-            1  => 'يناير', 2  => 'فبراير', 3  => 'مارس',
-            4  => 'أبريل', 5  => 'مايو',   6  => 'يونيو',
-            7  => 'يوليو', 8  => 'أغسطس',  9  => 'سبتمبر',
+            1  => 'يناير', 2 => 'فبراير', 3 => 'مارس',
+            4  => 'أبريل', 5 => 'مايو',   6 => 'يونيو',
+            7  => 'يوليو', 8 => 'أغسطس',  9 => 'سبتمبر',
             10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر',
         ];
 
@@ -137,11 +137,11 @@ class VisitsChartWidget extends ChartWidget
         $startDate = now()->subMonths(11)->startOfMonth();
 
         $rawData = (clone $baseQuery)
-            ->selectRaw('YEAR(visit_date) as y, MONTH(visit_date) as m, type, COUNT(*) as total')
+            ->selectRaw($this->yearMonthSelect() . ', type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
-            ->groupByRaw('YEAR(visit_date), MONTH(visit_date), type')
+            ->groupByRaw($this->yearMonthGroupBy() . ', type')
             ->get()
-            ->groupBy(fn($row) => $row->y . '-' . $row->m);
+            ->groupBy(fn ($row) => $row->y . '-' . $row->m);
 
         $labels = [];
         $visits = [];
@@ -188,5 +188,38 @@ class VisitsChartWidget extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+
+    private function isSqlite(): bool
+    {
+        return DB::getDriverName() === 'sqlite';
+    }
+
+    private function yearWeekSelect(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y%W', visit_date) as yw"
+            : 'YEARWEEK(visit_date, 3) as yw';
+    }
+
+    private function yearWeekGroupBy(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y%W', visit_date)"
+            : 'YEARWEEK(visit_date, 3)';
+    }
+
+    private function yearMonthSelect(): string
+    {
+        return $this->isSqlite()
+            ? "CAST(strftime('%Y', visit_date) AS INTEGER) as y, CAST(strftime('%m', visit_date) AS INTEGER) as m"
+            : 'YEAR(visit_date) as y, MONTH(visit_date) as m';
+    }
+
+    private function yearMonthGroupBy(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y', visit_date), strftime('%m', visit_date)"
+            : 'YEAR(visit_date), MONTH(visit_date)';
     }
 }

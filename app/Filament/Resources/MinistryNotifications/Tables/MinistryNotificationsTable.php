@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\MinistryNotifications\Tables;
 
 use App\Models\MinistryNotification;
@@ -20,7 +21,7 @@ class MinistryNotificationsTable
                 TextColumn::make('type')
                     ->label(__('notifications.title'))
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'birthday'           => 'warning',
                         'critical_case'      => 'danger',
                         'visit_reminder'     => 'info',
@@ -29,7 +30,7 @@ class MinistryNotificationsTable
                         'servant_registered' => 'info',
                         default              => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'birthday'           => '🎂 ' . __('notifications.birthday_title'),
                         'critical_case'      => '🔴 ' . __('notifications.critical_case_title'),
                         'visit_reminder'     => '📅 ' . __('notifications.visit_reminder_title'),
@@ -85,8 +86,8 @@ class MinistryNotificationsTable
                     ->label(__('notifications.mark_all_read'))
                     ->icon('heroicon-o-check')
                     ->color('gray')
-                    ->visible(fn($record) => is_null($record->read_at) && $record->user_id === Auth::id())
-                    ->action(fn($record) => $record->user_id === Auth::id() ? $record->update(['read_at' => now()]) : null),
+                    ->visible(fn ($record) => is_null($record->read_at) && $record->user_id === Auth::id())
+                    ->action(fn ($record) => $record->user_id === Auth::id() ? $record->update(['read_at' => now()]) : null),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

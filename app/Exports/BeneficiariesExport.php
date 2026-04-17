@@ -27,7 +27,7 @@ class BeneficiariesExport implements FromQuery, ShouldAutoSize, WithChunkReading
             $query->where('assigned_servant_id', $this->user->id);
         }
 
-        return $query;
+        return $query->limit(2000);
     }
 
     public function headings(): array
