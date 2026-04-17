@@ -14,7 +14,12 @@ class ReportService
 {
     private function makeMpdf(): Mpdf
     {
-        $isAr = app()->getLocale() === 'ar';
+        $isAr   = app()->getLocale() === 'ar';
+        $tmpDir = storage_path('app/mpdf-tmp');
+
+        if (! is_dir($tmpDir)) {
+            mkdir($tmpDir, 0755, true);
+        }
 
         return new Mpdf([
             'mode'          => 'utf-8',
@@ -24,6 +29,7 @@ class ReportService
             'margin_right'  => 15,
             'margin_top'    => 15,
             'margin_bottom' => 15,
+            'tempDir'       => $tmpDir,
         ]);
     }
 

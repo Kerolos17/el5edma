@@ -8,6 +8,7 @@ use App\Models\Visit;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
@@ -15,14 +16,14 @@ class ReportController extends Controller
 
     public function beneficiariesPdf(Request $request)
     {
-        $this->authorize('viewAny', Beneficiary::class);
+        Gate::authorize('viewAny', Beneficiary::class);
 
         return $this->service->beneficiariesPdf(Auth::user());
     }
 
     public function visitsPdf(Request $request)
     {
-        $this->authorize('viewAny', Visit::class);
+        Gate::authorize('viewAny', Visit::class);
 
         $request->validate([
             'date_from' => 'nullable|date',
@@ -38,7 +39,7 @@ class ReportController extends Controller
 
     public function unvisitedPdf(Request $request)
     {
-        $this->authorize('viewAny', Beneficiary::class);
+        Gate::authorize('viewAny', Beneficiary::class);
 
         return $this->service->unvisitedPdf(Auth::user());
     }
@@ -46,7 +47,7 @@ class ReportController extends Controller
     // ── تقرير مخدوم واحد ──
     public function singleBeneficiaryPdf(Beneficiary $beneficiary)
     {
-        $this->authorize('view', $beneficiary);
+        Gate::authorize('view', $beneficiary);
 
         return $this->service->singleBeneficiaryPdf($beneficiary);
     }
@@ -54,7 +55,7 @@ class ReportController extends Controller
     // ── تقرير الأسرة ──
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
-        $this->authorize('view', $serviceGroup);
+        Gate::authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupPdf($serviceGroup);
     }
@@ -62,7 +63,7 @@ class ReportController extends Controller
     // ── تقرير مخدومي الأسرة ──
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
-        $this->authorize('view', $serviceGroup);
+        Gate::authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);
     }
