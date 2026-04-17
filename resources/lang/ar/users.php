@@ -58,4 +58,5 @@ return [
     'all_servants'                 => 'جميع الخدام',
     'pending_only'                 => 'قيد الموافقة فقط',
     'approved_only'                => 'تمت الموافقة عليهم فقط',
+    'no_records'                   => 'لا يوجد مستخدمون',
 ];

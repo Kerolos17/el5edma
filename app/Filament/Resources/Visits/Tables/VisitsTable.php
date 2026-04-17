@@ -126,6 +126,8 @@ class VisitsTable
                         ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
-            ->defaultSort('visit_date', 'desc');
+            ->defaultSort('visit_date', 'desc')
+            ->emptyStateHeading(__('visits.no_records'))
+            ->emptyStateIcon('heroicon-o-clipboard-document-list');
     }
 }

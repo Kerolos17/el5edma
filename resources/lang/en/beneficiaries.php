@@ -92,4 +92,5 @@ return [
     'never_visited'        => 'Never visited',
     'last_visit'           => 'Last visit',
     'days_without_visit'   => ':days days without visit',
+    'no_records'           => 'No beneficiaries found',
 ];

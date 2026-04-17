@@ -56,4 +56,5 @@ return [
     'all_servants'                 => 'All Servants',
     'pending_only'                 => 'Pending Only',
     'approved_only'                => 'Approved Only',
+    'no_records'                   => 'No users found',
 ];

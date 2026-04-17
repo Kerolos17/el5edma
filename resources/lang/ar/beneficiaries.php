@@ -104,4 +104,5 @@ return [
     'never_visited'      => 'لم يُزَر',
     'last_visit'         => 'آخر زيارة',
     'days_without_visit' => ':days يوم بدون زيارة',
+    'no_records'         => 'لا يوجد مخدومون',
 ];

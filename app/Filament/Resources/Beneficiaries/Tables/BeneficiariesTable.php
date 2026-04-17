@@ -307,6 +307,8 @@ class BeneficiariesTable
                         ->visible(fn() => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
-            ->defaultSort('full_name');
+            ->defaultSort('full_name')
+            ->emptyStateHeading(__('beneficiaries.no_records'))
+            ->emptyStateIcon('heroicon-o-heart');
     }
 }

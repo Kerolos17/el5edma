@@ -156,6 +156,8 @@ class UsersTable
                         ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading(__('users.no_records'))
+            ->emptyStateIcon('heroicon-o-users');
     }
 }
