@@ -85,7 +85,7 @@ class RegistrationControllerTest extends TestCase
             'phone'            => '01234567890',
             'role'             => 'servant',
             'service_group_id' => $serviceGroup->id,
-            'is_active'        => true,
+            'is_active'        => false,
             'locale'           => 'ar',
         ]);
     }

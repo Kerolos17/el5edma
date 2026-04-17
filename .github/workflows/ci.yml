@@ -35,8 +35,9 @@ jobs:
 
       - name: Create fake Vite manifest for tests
         run: |
-          mkdir -p public/build
-          echo '{"resources/css/app.css":{"file":"assets/app.css","src":"resources/css/app.css"},"resources/js/app.js":{"file":"assets/app.js","src":"resources/js/app.js","isEntry":true}}' > public/build/manifest.json
+          mkdir -p public/build/assets
+          echo '{"resources/css/app.css":{"file":"assets/app.css","src":"resources/css/app.css","isEntry":true},"resources/css/filament/admin/theme.css":{"file":"assets/theme.css","src":"resources/css/filament/admin/theme.css","isEntry":true},"resources/js/app.js":{"file":"assets/app.js","src":"resources/js/app.js","isEntry":true}}' > public/build/manifest.json
+          touch public/build/assets/app.css public/build/assets/theme.css public/build/assets/app.js
 
       - name: Copy .env
         run: cp .env.example .env

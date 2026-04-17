@@ -108,8 +108,9 @@ class RegistrationLinkServiceTest extends TestCase
     {
         $token        = str_repeat('b', 64);
         $serviceGroup = ServiceGroup::factory()->create([
-            'registration_token' => $token,
-            'is_active'          => true,
+            'registration_token'              => $token,
+            'is_active'                       => true,
+            'registration_token_generated_at' => now(),
         ]);
 
         $result = $this->service->validateToken($token);
