@@ -62,7 +62,19 @@ class UserForm
                 ->schema([
                     Select::make('role')
                         ->label(__('users.role'))
-                        ->options(UserRole::options())
+                        ->options(function () {
+                            $user = Auth::user();
+                            if ($user->role === UserRole::SuperAdmin) {
+                                return UserRole::options();
+                            }
+                            if ($user->role === UserRole::ServiceLeader) {
+                                return collect(UserRole::cases())
+                                    ->filter(fn ($r) => in_array($r, [UserRole::FamilyLeader, UserRole::Servant]))
+                                    ->mapWithKeys(fn ($r) => [$r->value => $r->label()])
+                                    ->toArray();
+                            }
+                            return [UserRole::Servant->value => UserRole::Servant->label()];
+                        })
                         ->required()
                         ->live()
                         ->afterStateUpdated(fn ($state, callable $set) => in_array($state, [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])

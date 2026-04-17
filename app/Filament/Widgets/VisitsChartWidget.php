@@ -2,12 +2,13 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\UserRole;
 use App\Models\Visit;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\App;
-use App\Enums\UserRole;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VisitsChartWidget extends ChartWidget
 {
@@ -93,9 +94,9 @@ class VisitsChartWidget extends ChartWidget
         $startDate = now()->subWeeks(3)->startOfWeek();
 
         $rawData = (clone $baseQuery)
-            ->selectRaw('YEARWEEK(visit_date, 3) as yw, type, COUNT(*) as total')
+            ->selectRaw($this->yearWeekSelect() . ', type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
-            ->groupByRaw('YEARWEEK(visit_date, 3), type')
+            ->groupByRaw($this->yearWeekGroupBy() . ', type')
             ->get()
             ->groupBy('yw');
 
@@ -137,9 +138,9 @@ class VisitsChartWidget extends ChartWidget
         $startDate = now()->subMonths(11)->startOfMonth();
 
         $rawData = (clone $baseQuery)
-            ->selectRaw('YEAR(visit_date) as y, MONTH(visit_date) as m, type, COUNT(*) as total')
+            ->selectRaw($this->yearMonthSelect() . ', type, COUNT(*) as total')
             ->where('visit_date', '>=', $startDate)
-            ->groupByRaw('YEAR(visit_date), MONTH(visit_date), type')
+            ->groupByRaw($this->yearMonthGroupBy() . ', type')
             ->get()
             ->groupBy(fn($row) => $row->y . '-' . $row->m);
 
@@ -188,5 +189,38 @@ class VisitsChartWidget extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+
+    private function isSqlite(): bool
+    {
+        return DB::getDriverName() === 'sqlite';
+    }
+
+    private function yearWeekSelect(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y%W', visit_date) as yw"
+            : 'YEARWEEK(visit_date, 3) as yw';
+    }
+
+    private function yearWeekGroupBy(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y%W', visit_date)"
+            : 'YEARWEEK(visit_date, 3)';
+    }
+
+    private function yearMonthSelect(): string
+    {
+        return $this->isSqlite()
+            ? "CAST(strftime('%Y', visit_date) AS INTEGER) as y, CAST(strftime('%m', visit_date) AS INTEGER) as m"
+            : 'YEAR(visit_date) as y, MONTH(visit_date) as m';
+    }
+
+    private function yearMonthGroupBy(): string
+    {
+        return $this->isSqlite()
+            ? "strftime('%Y', visit_date), strftime('%m', visit_date)"
+            : 'YEAR(visit_date), MONTH(visit_date)';
     }
 }

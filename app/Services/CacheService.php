@@ -106,19 +106,29 @@ class CacheService
     }
 
     /**
-     * Invalidate service group related caches
+     * Invalidate service group related caches.
+     * Pass $serviceGroupId to also clear the per-group servant filter cache.
      */
-    public static function invalidateServiceGroupCaches(): void
+    public static function invalidateServiceGroupCaches(?int $serviceGroupId = null): void
     {
         Cache::forget('filter_options:service_groups');
+        Cache::forget('active_service_groups');
+        if ($serviceGroupId !== null) {
+            Cache::forget("filter_options:servants:sg:{$serviceGroupId}");
+        }
     }
 
     /**
-     * Invalidate user related caches
+     * Invalidate user related caches.
+     * Pass $userId to also clear the per-user service group filter cache.
      */
-    public static function invalidateUserCaches(): void
+    public static function invalidateUserCaches(?int $userId = null): void
     {
         Cache::forget('filter_options:servants');
+        Cache::forget('active_users');
+        if ($userId !== null) {
+            Cache::forget("filter_options:service_groups:user:{$userId}");
+        }
     }
 
     /**

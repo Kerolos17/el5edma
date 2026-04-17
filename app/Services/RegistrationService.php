@@ -134,9 +134,7 @@ class RegistrationService
                 'error'            => $e->getMessage(),
             ]);
 
-            if (app()->environment('testing')) {
-                throw $e;
-            }
+            throw $e;
         }
     }
 
