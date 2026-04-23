@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Beneficiaries\Schemas;
 use App\Enums\UserRole;
 use App\Models\ServiceGroup;
 use App\Models\User;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -14,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class BeneficiaryForm
 {
@@ -336,35 +338,112 @@ class BeneficiaryForm
                             ->schema([
                                 Select::make('service_group_id')
                                     ->label(__('beneficiaries.service_group'))
-                                    ->options(
-                                        ServiceGroup::where('is_active', true)
-                                            ->pluck('name', 'id'),
-                                    )
+                                    ->options(fn () => self::serviceGroupOptionsForActor(Auth::user()))
+                                    ->default(fn () => self::defaultServiceGroupIdForActor(Auth::user()))
+                                    ->disabled(fn () => Auth::user()?->role === UserRole::FamilyLeader)
+                                    ->dehydrated()
                                     ->searchable()
                                     ->required()
+                                    ->rules([
+                                        function (): Closure {
+                                            return function (string $attribute, mixed $value, Closure $fail): void {
+                                                $actor           = Auth::user();
+                                                $allowedGroupIds = self::allowedServiceGroupIdsForActor($actor);
+
+                                                if (! in_array((int) $value, $allowedGroupIds, true)) {
+                                                    $fail(__('users.unauthorized_role'));
+                                                }
+                                            };
+                                        },
+                                    ])
                                     ->live(),
 
                                 Select::make('assigned_servant_id')
                                     ->label(__('beneficiaries.assigned_servant'))
-                                    ->options(function ($get) {
-                                        $groupId = $get('service_group_id');
-                                        if (! $groupId) {
-                                            return User::where('role', UserRole::Servant)
-                                                ->where('is_active', true)
-                                                ->pluck('name', 'id');
-                                        }
-
-                                        return User::where('role', UserRole::Servant)
-                                            ->where('is_active', true)
-                                            ->where('service_group_id', $groupId)
-                                            ->pluck('name', 'id');
-                                    })
+                                    ->options(fn ($get) => self::servantOptionsForActorAndGroup(Auth::user(), $get('service_group_id')))
                                     ->searchable()
-                                    ->nullable(),
+                                    ->nullable()
+                                    ->rules([
+                                        function (callable $get): Closure {
+                                            return function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                                if (! $value) {
+                                                    return;
+                                                }
+
+                                                $groupId = (int) $get('service_group_id');
+                                                $servant = User::query()
+                                                    ->whereKey($value)
+                                                    ->where('role', UserRole::Servant)
+                                                    ->where('is_active', true)
+                                                    ->first();
+
+                                                if (! $servant || (int) $servant->service_group_id !== $groupId) {
+                                                    $fail(__('users.unauthorized_role'));
+                                                }
+                                            };
+                                        },
+                                    ]),
                             ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
             ])->columnSpanFull(),
         ]);
+    }
+
+    private static function allowedServiceGroupIdsForActor(?User $actor): array
+    {
+        if (! $actor) {
+            return [];
+        }
+
+        return match ($actor->role) {
+            UserRole::SuperAdmin => ServiceGroup::query()
+                ->where('is_active', true)
+                ->pluck('id')
+                ->all(),
+            UserRole::ServiceLeader => ServiceGroup::query()
+                ->where('is_active', true)
+                ->where('service_leader_id', $actor->id)
+                ->pluck('id')
+                ->all(),
+            UserRole::FamilyLeader => $actor->service_group_id ? [$actor->service_group_id] : [],
+            default                => [],
+        };
+    }
+
+    private static function serviceGroupOptionsForActor(?User $actor): array
+    {
+        return ServiceGroup::query()
+            ->whereIn('id', self::allowedServiceGroupIdsForActor($actor))
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
+    private static function defaultServiceGroupIdForActor(?User $actor): ?int
+    {
+        if (! $actor) {
+            return null;
+        }
+
+        return match ($actor->role) {
+            UserRole::FamilyLeader => $actor->service_group_id,
+            default                => null,
+        };
+    }
+
+    private static function servantOptionsForActorAndGroup(?User $actor, mixed $groupId): array
+    {
+        $groupId = (int) $groupId;
+
+        if (! $actor || ! $groupId || ! in_array($groupId, self::allowedServiceGroupIdsForActor($actor), true)) {
+            return [];
+        }
+
+        return User::query()
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->where('service_group_id', $groupId)
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }
