@@ -5,6 +5,7 @@ namespace Tests\Unit\Policies;
 use App\Models\Beneficiary;
 use App\Models\ScheduledVisit;
 use App\Models\ServiceGroup;
+use App\Models\User;
 use App\Policies\ScheduledVisitPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,12 +17,17 @@ class ScheduledVisitPolicyTest extends TestCase
 
     private ScheduledVisitPolicy $policy;
     private ServiceGroup $groupA;
+    private ServiceGroup $groupB;
+    private User $serviceLeader;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ScheduledVisitPolicy;
-        $this->groupA = ServiceGroup::factory()->create();
+        $this->policy        = new ScheduledVisitPolicy;
+        $this->groupA        = ServiceGroup::factory()->create();
+        $this->groupB        = ServiceGroup::factory()->create();
+        $this->serviceLeader = $this->createServiceLeader();
+        $this->groupA->update(['service_leader_id' => $this->serviceLeader->id]);
     }
 
     public function test_super_admin_full_access(): void
@@ -65,7 +71,7 @@ class ScheduledVisitPolicyTest extends TestCase
     {
         $fl     = $this->createFamilyLeader($this->groupA);
         $benIn  = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
-        $benOut = Beneficiary::factory()->create(['service_group_id' => ServiceGroup::factory()->create()->id]);
+        $benOut = Beneficiary::factory()->create(['service_group_id' => $this->groupB->id]);
 
         $svIn  = ScheduledVisit::factory()->create(['beneficiary_id' => $benIn->id]);
         $svOut = ScheduledVisit::factory()->create(['beneficiary_id' => $benOut->id]);
@@ -75,5 +81,22 @@ class ScheduledVisitPolicyTest extends TestCase
         $this->assertTrue($this->policy->create($fl));
         $this->assertTrue($this->policy->update($fl, $svIn));
         $this->assertFalse($this->policy->update($fl, $svOut));
+        $this->assertFalse($this->policy->delete($fl, $svOut));
+    }
+
+    public function test_service_leader_is_scoped_to_managed_groups(): void
+    {
+        $benIn  = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
+        $benOut = Beneficiary::factory()->create(['service_group_id' => $this->groupB->id]);
+        $svIn   = ScheduledVisit::factory()->create(['beneficiary_id' => $benIn->id]);
+        $svOut  = ScheduledVisit::factory()->create(['beneficiary_id' => $benOut->id]);
+
+        $this->assertTrue($this->policy->create($this->serviceLeader));
+        $this->assertTrue($this->policy->view($this->serviceLeader, $svIn));
+        $this->assertTrue($this->policy->update($this->serviceLeader, $svIn));
+        $this->assertTrue($this->policy->delete($this->serviceLeader, $svIn));
+        $this->assertFalse($this->policy->view($this->serviceLeader, $svOut));
+        $this->assertFalse($this->policy->update($this->serviceLeader, $svOut));
+        $this->assertFalse($this->policy->delete($this->serviceLeader, $svOut));
     }
 }

@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\User;
 use App\Models\Visit;
 use App\Services\InternalNotificationService;
+use App\Support\NotificationMetadata;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -57,11 +58,11 @@ class VisitObserver
         $notifier = app(InternalNotificationService::class);
         $title    = __('notifications.critical_case_title');
         $body     = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-        $data     = [
+        $data     = NotificationMetadata::enrich('critical_case', [
             'beneficiary_id' => $beneficiary->id,
             'visit_id'       => $visit->id,
             'url'            => route('filament.admin.resources.visits.view', ['record' => $visit->id]),
-        ];
+        ]);
 
         $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);
 

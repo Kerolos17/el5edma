@@ -25,3 +25,9 @@ Schedule::command('notifications:cleanup')
     ->weeklyOn(5, '00:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+// إعادة تنبيه الحالات الحرجة غير المقروءة كل 5 دقائق
+Schedule::command('notifications:retry-critical')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();

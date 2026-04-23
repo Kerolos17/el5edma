@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
+use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
@@ -43,12 +44,12 @@ class SendUnvisitedAlerts extends Command
                         ? (int) now()->diffInDays($lastVisit)
                         : null;
 
-                    $dataPayload = [
+                    $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
                         'beneficiary_id' => (string) $beneficiary->id,
                         'last_visit'     => (string) ($lastVisit ?? ''),
                         'days_unvisited' => (string) ($days ?? ''),
                         'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-                    ];
+                    ]);
 
                     // إشعار أمين الأسرة
                     if ($leader = $beneficiary->serviceGroup?->leader) {
@@ -116,7 +117,9 @@ class SendUnvisitedAlerts extends Command
                 if (! empty($tokens)) {
                     $title = __('notifications.unvisited_alert_title');
                     $body  = __('notifications.unvisited_alert_body', ['name' => '', 'days' => '']);
-                    SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
+                    SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('unvisited_alert', [
+                        'url' => route('filament.admin.resources.ministry-notifications.index'),
+                    ]));
                 }
             });
 

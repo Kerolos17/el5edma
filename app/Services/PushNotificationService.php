@@ -4,11 +4,15 @@ namespace App\Services;
 
 use App\DTOs\MulticastResult;
 use App\Models\User;
+use App\Support\NotificationMetadata;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Contract\Messaging;
+use Kreait\Firebase\Messaging\AndroidConfig;
+use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Messaging\WebPushConfig;
 
 class PushNotificationService
 {
@@ -63,9 +67,10 @@ class PushNotificationService
             return $result;
         }
 
-        $stringData   = array_map('strval', $data);
-        $notification = Notification::create($title, $body);
-        $batches      = array_chunk($tokens, self::BATCH_SIZE);
+        $notificationData = NotificationMetadata::enrich($data['type'] ?? 'generic', $data);
+        $stringData       = $this->stringifyData($notificationData);
+        $notification     = Notification::create($title, $body);
+        $batches          = array_chunk($tokens, self::BATCH_SIZE);
 
         foreach ($batches as $batch) {
             $this->processBatch($batch, $notification, $stringData, $result);
@@ -119,21 +124,16 @@ class PushNotificationService
     protected function sendNotification(array $tokens, string $title, string $body, array $data = []): bool
     {
         try {
-            $notification = Notification::create($title, $body);
-            $stringData   = array_map('strval', $data);
+            $notification     = Notification::create($title, $body);
+            $notificationData = NotificationMetadata::enrich($data['type'] ?? 'generic', $data);
+            $stringData       = $this->stringifyData($notificationData);
+            $message          = $this->buildMessage($notification, $stringData);
 
             if (count($tokens) === 1) {
-                $message = CloudMessage::new()
-                    ->withToken($tokens[0])
-                    ->withNotification($notification)
-                    ->withData($stringData);
+                $message = $message->withToken($tokens[0]);
 
                 $this->messaging->send($message);
             } else {
-                $message = CloudMessage::new()
-                    ->withNotification($notification)
-                    ->withData($stringData);
-
                 $this->messaging->sendMulticast($message, $tokens);
             }
 
@@ -162,9 +162,7 @@ class PushNotificationService
         MulticastResult $result,
     ): void {
         try {
-            $message = CloudMessage::new()
-                ->withNotification($notification)
-                ->withData($stringData);
+            $message = $this->buildMessage($notification, $stringData);
 
             $report = $this->messaging->sendMulticast($message, $batch);
 
@@ -202,5 +200,72 @@ class PushNotificationService
 
             $result->failureCount += count($batch);
         }
+    }
+
+    private function buildMessage(Notification $notification, array $stringData): CloudMessage
+    {
+        $androidConfig = AndroidConfig::fromArray([
+            'priority'     => $stringData['android_message_priority'] ?? 'normal',
+            'notification' => [
+                'sound'                   => 'default',
+                'default_sound'           => true,
+                'default_vibrate_timings' => true,
+                'notification_priority'   => $stringData['android_notification_priority'] ?? 'PRIORITY_DEFAULT',
+                'channel_id'              => ($stringData['severity'] ?? 'medium') === 'critical' ? 'critical-alerts' : 'general-alerts',
+            ],
+        ]);
+
+        $apnsConfig = ApnsConfig::fromArray([
+            'headers' => [
+                'apns-priority' => $stringData['apns_priority'] ?? '5',
+            ],
+            'payload' => [
+                'aps' => [
+                    'sound' => 'default',
+                    'badge' => 1,
+                ],
+            ],
+        ]);
+
+        $webPushConfig = WebPushConfig::fromArray([
+            'headers' => [
+                'Urgency' => $stringData['web_urgency'] ?? 'normal',
+                'TTL'     => '900',
+            ],
+            'notification' => [
+                'title'              => $notification->title(),
+                'body'               => $notification->body(),
+                'icon'               => '/icons/icon-192x192.png',
+                'badge'              => '/icons/icon-72x72.png',
+                'tag'                => $stringData['tag'] ?? 'ministry-generic',
+                'data'               => $stringData,
+                'vibrate'            => array_map('intval', json_decode($stringData['vibrate'] ?? '[]', true) ?: []),
+                'renotify'           => filter_var($stringData['renotify'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'requireInteraction' => filter_var($stringData['require_interaction'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'silent'             => false,
+            ],
+            'fcm_options' => [
+                'link' => $stringData['url'] ?? '/admin',
+            ],
+        ]);
+
+        return CloudMessage::new()
+            ->withNotification($notification)
+            ->withData($stringData)
+            ->withAndroidConfig($androidConfig)
+            ->withApnsConfig($apnsConfig)
+            ->withWebPushConfig($webPushConfig);
+    }
+
+    private function stringifyData(array $data): array
+    {
+        return collect($data)
+            ->map(fn (mixed $value): string => match (true) {
+                is_array($value) => json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                is_bool($value)  => $value ? 'true' : 'false',
+                $value === null  => '',
+                default          => (string) $value,
+            })
+            ->all();
     }
 }

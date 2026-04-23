@@ -25,16 +25,54 @@ const STATIC_ASSET_PATTERNS = [
 // Paths to never intercept
 const SKIP_PATHS = ['/fcm-token', '/login', '/logout', '/language', '/login-code'];
 
+function parseBooleanish(value, fallback = false) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'string') {
+        return value === 'true';
+    }
+
+    return fallback;
+}
+
+function parseVibrationPattern(value) {
+    if (Array.isArray(value)) {
+        return value.map((item) => Number(item)).filter((item) => Number.isFinite(item));
+    }
+
+    if (typeof value !== 'string' || value.length === 0) {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(value);
+
+        return Array.isArray(parsed)
+            ? parsed.map((item) => Number(item)).filter((item) => Number.isFinite(item))
+            : [];
+    } catch {
+        return [];
+    }
+}
+
 function showNotificationFromPayload(payload) {
+    const notificationData = payload.data ?? {};
     const notificationTitle = payload.notification?.title || 'إشعار جديد';
     const notificationOptions = {
         body: payload.notification?.body || '',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         dir: 'rtl',
+        tag: notificationData.tag || 'ministry-generic',
+        renotify: parseBooleanish(notificationData.renotify, false),
+        requireInteraction: parseBooleanish(notificationData.require_interaction, false),
+        vibrate: parseVibrationPattern(notificationData.vibrate),
+        silent: false,
         data: {
-            url: payload.data?.url || '/admin',
-            ...payload.data,
+            url: notificationData.url || '/admin',
+            ...notificationData,
         },
     };
 

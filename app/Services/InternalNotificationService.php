@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
+use App\Support\NotificationMetadata;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -64,6 +65,7 @@ class InternalNotificationService
     {
         $notifications = [];
         $now           = now();
+        $payload       = NotificationMetadata::enrich($type, $data);
 
         foreach ($users as $user) {
             $notifications[] = [
@@ -71,7 +73,7 @@ class InternalNotificationService
                 'type'       => $type,
                 'title'      => $title,
                 'body'       => $body,
-                'data'       => json_encode($data),
+                'data'       => json_encode($payload),
                 'created_at' => $now,
             ];
 
@@ -94,7 +96,7 @@ class InternalNotificationService
             'type'    => $type,
             'title'   => $title,
             'body'    => $body,
-            'data'    => $data,
+            'data'    => NotificationMetadata::enrich($type, $data),
         ]);
 
         Cache::forget('notifications_unread_' . $user->id);

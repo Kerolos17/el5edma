@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
+use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
@@ -75,18 +76,19 @@ class SendBirthdayReminders extends Command
                                 'days' => 3,
                             ];
 
-                            $title = __('notifications.birthday_title', $params);
-                            $body  = __('notifications.birthday_body', $params);
+                            $title            = __('notifications.birthday_title', $params);
+                            $body             = __('notifications.birthday_body', $params);
+                            $notificationData = NotificationMetadata::enrich('birthday', [
+                                'beneficiary_id' => $beneficiary->id,
+                                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                            ]);
 
                             $rows[] = [
-                                'user_id' => $servant->id,
-                                'type'    => 'birthday',
-                                'title'   => $title,
-                                'body'    => $body,
-                                'data'    => json_encode([
-                                    'beneficiary_id' => $beneficiary->id,
-                                    'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-                                ]),
+                                'user_id'    => $servant->id,
+                                'type'       => 'birthday',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode($notificationData),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -108,18 +110,19 @@ class SendBirthdayReminders extends Command
                                 'days' => 3,
                             ];
 
-                            $title = __('notifications.birthday_title', $params);
-                            $body  = __('notifications.birthday_body', $params);
+                            $title            = __('notifications.birthday_title', $params);
+                            $body             = __('notifications.birthday_body', $params);
+                            $notificationData = NotificationMetadata::enrich('birthday', [
+                                'beneficiary_id' => $beneficiary->id,
+                                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                            ]);
 
                             $rows[] = [
-                                'user_id' => $leader->id,
-                                'type'    => 'birthday',
-                                'title'   => $title,
-                                'body'    => $body,
-                                'data'    => json_encode([
-                                    'beneficiary_id' => $beneficiary->id,
-                                    'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
-                                ]),
+                                'user_id'    => $leader->id,
+                                'type'       => 'birthday',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode($notificationData),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -137,7 +140,9 @@ class SendBirthdayReminders extends Command
                     }
 
                     if (! empty($tokens)) {
-                        SendFcmNotificationJob::dispatch($tokens, $title, $body, []);
+                        SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('birthday', [
+                            'url' => route('filament.admin.resources.ministry-notifications.index'),
+                        ]));
                     }
                 });
 

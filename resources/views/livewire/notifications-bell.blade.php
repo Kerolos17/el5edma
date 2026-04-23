@@ -6,25 +6,47 @@
             this.muted = !this.muted;
             localStorage.setItem('notification-sound-muted', this.muted);
         },
-        playSound() {
+        playSound(mode = 'soft') {
             if (this.muted) return;
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.4);
+                const patterns = {
+                    soft: [
+                        { at: 0, frequency: 720, duration: 0.12, gain: 0.16 },
+                        { at: 0.18, frequency: 660, duration: 0.16, gain: 0.14 },
+                    ],
+                    alert: [
+                        { at: 0, frequency: 990, duration: 0.16, gain: 0.28 },
+                        { at: 0.2, frequency: 880, duration: 0.18, gain: 0.24 },
+                        { at: 0.44, frequency: 990, duration: 0.22, gain: 0.26 },
+                    ],
+                    alarm: [
+                        { at: 0, frequency: 1140, duration: 0.22, gain: 0.36 },
+                        { at: 0.26, frequency: 820, duration: 0.22, gain: 0.34 },
+                        { at: 0.56, frequency: 1140, duration: 0.28, gain: 0.38 },
+                        { at: 0.92, frequency: 820, duration: 0.34, gain: 0.34 },
+                    ],
+                };
+
+                for (const note of patterns[mode] ?? patterns.soft) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(note.frequency, ctx.currentTime + note.at);
+                    gain.gain.setValueAtTime(0.0001, ctx.currentTime + note.at);
+                    gain.gain.exponentialRampToValueAtTime(note.gain, ctx.currentTime + note.at + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + note.at + note.duration);
+                    osc.start(ctx.currentTime + note.at);
+                    osc.stop(ctx.currentTime + note.at + note.duration + 0.02);
+                }
+
+                setTimeout(() => ctx.close().catch(() => {}), 2000);
             } catch(e) {}
         }
     }"
-    @new-notification-sound.window="playSound()"
+    @new-notification-sound.window="playSound($event.detail || 'soft')"
     class="relative flex items-center gap-1"
     wire:poll.60000ms.visible="loadNotifications">
 

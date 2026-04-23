@@ -25,20 +25,24 @@ class ScheduledVisitPolicy
      */
     public function view(User $user, ScheduledVisit $scheduledVisit): bool
     {
-        // Super admin and service leader have full access
-        if ($user->role->isAdminLevel()) {
+        if ($user->role === UserRole::SuperAdmin) {
             return true;
         }
 
-        // Family leaders can view scheduled visits for beneficiaries in their service group
-        if ($user->role === UserRole::FamilyLeader) {
-            $scheduledVisit->loadMissing('beneficiary');
+        $scheduledVisit->loadMissing('beneficiary');
 
-            return $scheduledVisit->beneficiary !== null
-                && $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+        if ($scheduledVisit->beneficiary === null) {
+            return false;
         }
 
-        // Servants can view scheduled visits assigned to them
+        if ($user->role === UserRole::ServiceLeader) {
+            return $user->managesServiceGroup($scheduledVisit->beneficiary->service_group_id);
+        }
+
+        if ($user->role === UserRole::FamilyLeader) {
+            return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+        }
+
         if ($user->role === UserRole::Servant) {
             return $scheduledVisit->assigned_servant_id === $user->id;
         }
@@ -51,9 +55,9 @@ class ScheduledVisitPolicy
      */
     public function create(User $user): bool
     {
-        // Only super_admin, service_leader, and family_leader can create scheduled visits
-        // Servants cannot create scheduled visits
-        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
+        return $user->role === UserRole::SuperAdmin
+            || ($user->role === UserRole::ServiceLeader && ! empty($user->managedServiceGroupIds()))
+            || $user->role === UserRole::FamilyLeader;
     }
 
     /**
@@ -61,20 +65,24 @@ class ScheduledVisitPolicy
      */
     public function update(User $user, ScheduledVisit $scheduledVisit): bool
     {
-        // Super admin and service leader have full access
-        if ($user->role->isAdminLevel()) {
+        if ($user->role === UserRole::SuperAdmin) {
             return true;
         }
 
-        // Family leaders can update scheduled visits for beneficiaries in their service group
-        if ($user->role === UserRole::FamilyLeader) {
-            $scheduledVisit->loadMissing('beneficiary');
+        $scheduledVisit->loadMissing('beneficiary');
 
-            return $scheduledVisit->beneficiary !== null
-                && $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+        if ($scheduledVisit->beneficiary === null) {
+            return false;
         }
 
-        // Servants cannot update scheduled visits
+        if ($user->role === UserRole::ServiceLeader) {
+            return $user->managesServiceGroup($scheduledVisit->beneficiary->service_group_id);
+        }
+
+        if ($user->role === UserRole::FamilyLeader) {
+            return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+        }
+
         return false;
     }
 
@@ -83,9 +91,25 @@ class ScheduledVisitPolicy
      */
     public function delete(User $user, ScheduledVisit $scheduledVisit): bool
     {
-        // Only super_admin, service_leader, and family_leader can delete scheduled visits
-        // Servants cannot delete scheduled visits
-        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        $scheduledVisit->loadMissing('beneficiary');
+
+        if ($scheduledVisit->beneficiary === null) {
+            return false;
+        }
+
+        if ($user->role === UserRole::ServiceLeader) {
+            return $user->managesServiceGroup($scheduledVisit->beneficiary->service_group_id);
+        }
+
+        if ($user->role === UserRole::FamilyLeader) {
+            return $user->service_group_id === $scheduledVisit->beneficiary->service_group_id;
+        }
+
+        return false;
     }
 
     /**
@@ -93,8 +117,18 @@ class ScheduledVisitPolicy
      */
     public function restore(User $user, ScheduledVisit $scheduledVisit): bool
     {
-        // Only super_admin and service_leader can restore scheduled visits
-        return $user->role->isAdminLevel();
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        if ($user->role !== UserRole::ServiceLeader) {
+            return false;
+        }
+
+        $scheduledVisit->loadMissing('beneficiary');
+
+        return $scheduledVisit->beneficiary !== null
+            && $user->managesServiceGroup($scheduledVisit->beneficiary->service_group_id);
     }
 
     /**

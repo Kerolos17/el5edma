@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use App\Services\PushNotificationService;
+use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
 
 class TestPushNotification extends Command
@@ -47,12 +48,18 @@ class TestPushNotification extends Command
         $this->info("جاري إرسال إشعار إلى {$user->name}...");
 
         // 1. إنشاء الإشعار في لوحة التحكم (Dashboard)
+        $payload = NotificationMetadata::enrich('test_alert', [
+            'severity'  => 'high',
+            'url'       => route('filament.admin.resources.ministry-notifications.index'),
+            'test_data' => 'This is test payload',
+        ]);
+
         MinistryNotification::create([
             'user_id' => $user->id,
             'type'    => 'test_alert',
             'title'   => $this->option('title'),
             'body'    => $this->option('body'),
-            'data'    => ['test_data' => 'This is test payload'],
+            'data'    => $payload,
         ]);
         $this->info('✅ الإشعار تم إضافته داخل لوحة التحكم (Dashboard) بنجاح!');
 
@@ -61,7 +68,7 @@ class TestPushNotification extends Command
             $user,
             $this->option('title'),
             $this->option('body'),
-            ['test_data' => 'This is test payload'],
+            $payload,
         );
 
         if ($success) {

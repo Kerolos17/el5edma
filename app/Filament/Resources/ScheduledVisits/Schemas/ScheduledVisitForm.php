@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ScheduledVisits\Schemas;
 use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\User;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -23,31 +24,52 @@ class ScheduledVisitForm
                 ->schema([
                     Select::make('beneficiary_id')
                         ->label(__('visits.beneficiary'))
-                        ->options(function () {
-                            $user  = Auth::user();
-                            $query = Beneficiary::where('status', 'active');
-
-                            if ($user->role === UserRole::FamilyLeader) {
-                                $query->where('service_group_id', $user->service_group_id);
-                            } elseif ($user->role === UserRole::Servant) {
-                                $query->where('service_group_id', $user->service_group_id);
-                            }
-
-                            return $query->pluck('full_name', 'id');
-                        })
+                        ->options(fn () => self::beneficiaryOptionsForActor(Auth::user()))
                         ->searchable()
-                        ->required(),
+                        ->required()
+                        ->rules([
+                            function (): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail): void {
+                                    $beneficiary = Beneficiary::query()->find($value);
+
+                                    if (! $beneficiary) {
+                                        return;
+                                    }
+
+                                    if (! in_array((int) $beneficiary->service_group_id, self::allowedServiceGroupIdsForActor(Auth::user()), true)) {
+                                        $fail(__('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ])
+                        ->live(),
 
                     Select::make('assigned_servant_id')
                         ->label(__('beneficiaries.assigned_servant'))
-                        ->options(
-                            User::where('role', UserRole::Servant)
-                                ->where('is_active', true)
-                                ->pluck('name', 'id'),
-                        )
+                        ->options(fn ($get) => self::servantOptionsForBeneficiary(Auth::user(), $get('beneficiary_id')))
                         ->default(fn () => Auth::user()->role === UserRole::Servant ? Auth::id() : null)
                         ->searchable()
-                        ->required(),
+                        ->required()
+                        ->rules([
+                            function (callable $get): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                    if (! $value) {
+                                        return;
+                                    }
+
+                                    $beneficiary = Beneficiary::query()->find($get('beneficiary_id'));
+                                    $servant     = User::query()
+                                        ->whereKey($value)
+                                        ->where('role', UserRole::Servant)
+                                        ->where('is_active', true)
+                                        ->first();
+
+                                    if (! $beneficiary || ! $servant || (int) $servant->service_group_id !== (int) $beneficiary->service_group_id) {
+                                        $fail(__('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ]),
 
                     DatePicker::make('scheduled_date')
                         ->label(__('visits.scheduled_date'))
@@ -74,5 +96,56 @@ class ScheduledVisitForm
                         ->columnSpanFull(),
                 ])->columns(2),
         ]);
+    }
+
+    private static function allowedServiceGroupIdsForActor(?User $actor): array
+    {
+        if (! $actor) {
+            return [];
+        }
+
+        return match ($actor->role) {
+            UserRole::SuperAdmin => Beneficiary::query()
+                ->where('status', 'active')
+                ->distinct()
+                ->pluck('service_group_id')
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->all(),
+            UserRole::ServiceLeader => $actor->managedServiceGroupIds(),
+            UserRole::FamilyLeader, UserRole::Servant => $actor->service_group_id ? [(int) $actor->service_group_id] : [],
+            default => [],
+        };
+    }
+
+    private static function beneficiaryOptionsForActor(?User $actor): array
+    {
+        $allowedGroupIds = self::allowedServiceGroupIdsForActor($actor);
+
+        if (empty($allowedGroupIds)) {
+            return [];
+        }
+
+        return Beneficiary::query()
+            ->where('status', 'active')
+            ->whereIn('service_group_id', $allowedGroupIds)
+            ->pluck('full_name', 'id')
+            ->toArray();
+    }
+
+    private static function servantOptionsForBeneficiary(?User $actor, mixed $beneficiaryId): array
+    {
+        $beneficiary = Beneficiary::query()->find($beneficiaryId);
+
+        if (! $beneficiary || ! in_array((int) $beneficiary->service_group_id, self::allowedServiceGroupIdsForActor($actor), true)) {
+            return [];
+        }
+
+        return User::query()
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->where('service_group_id', $beneficiary->service_group_id)
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }

@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use App\Models\MinistryNotification;
 use App\Models\ServiceGroup;
 use App\Models\User;
+use App\Support\NotificationMetadata;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -194,13 +195,13 @@ class RegistrationService
                     'name'          => $newServant->name,
                     'service_group' => $serviceGroup->name,
                 ]),
-                'data' => json_encode([
+                'data' => json_encode(NotificationMetadata::enrich('servant_registered', [
                     'servant_id'       => $newServant->id,
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => $now->toIso8601String(),
                     'url'              => UserResource::getUrl('view', ['record' => $newServant->id]),
-                ]),
+                ])),
                 'read_at'    => null,
                 'created_at' => $now,
             ];
@@ -225,10 +226,10 @@ class RegistrationService
                 'name'          => $newServant->name,
                 'service_group' => $serviceGroup->name,
             ]),
-            'data' => json_encode([
+            'data' => json_encode(NotificationMetadata::enrich('welcome_servant', [
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
-            ]),
+            ])),
         ]);
     }
 
@@ -258,6 +259,9 @@ class RegistrationService
                 'servant_name'     => $newServant->name,
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
+                'type'             => 'servant_registered',
+                'severity'         => 'medium',
+                'url'              => UserResource::getUrl('view', ['record' => $newServant->id]),
             ];
 
             SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
