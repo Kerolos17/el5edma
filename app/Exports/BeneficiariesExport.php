@@ -24,7 +24,7 @@ class BeneficiariesExport implements FromQuery, ShouldAutoSize, WithChunkReading
         if ($this->user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $this->user->service_group_id);
         } elseif ($this->user->role === UserRole::Servant) {
-            $query->where('assigned_servant_id', $this->user->id);
+            $query->where('service_group_id', $this->user->service_group_id);
         }
 
         return $query->limit(2000);

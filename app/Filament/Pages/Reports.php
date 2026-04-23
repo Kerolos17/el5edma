@@ -44,13 +44,32 @@ class Reports extends Page implements HasForms
     public static function canAccess(): bool
     {
         return in_array(Auth::user()?->role, [
-            UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader,
-        ]);
+            UserRole::SuperAdmin,
+            UserRole::ServiceLeader,
+            UserRole::FamilyLeader,
+            UserRole::Servant,
+        ], true);
+    }
+
+    public function canAccessBeneficiaryReports(): bool
+    {
+        return self::canAccess();
+    }
+
+    public function canAccessManagementReports(): bool
+    {
+        return in_array(Auth::user()?->role, [
+            UserRole::SuperAdmin,
+            UserRole::ServiceLeader,
+            UserRole::FamilyLeader,
+        ], true);
     }
 
     // ── Excel — شغال مع Livewire ──
     public function exportBeneficiariesExcel(): BinaryFileResponse
     {
+        abort_unless($this->canAccessBeneficiaryReports(), 403);
+
         return Excel::download(
             new BeneficiariesExport(Auth::user()),
             'beneficiaries-' . now()->format('Y-m-d') . '.xlsx',
@@ -59,6 +78,8 @@ class Reports extends Page implements HasForms
 
     public function exportVisitsExcel(): BinaryFileResponse
     {
+        abort_unless($this->canAccessManagementReports(), 403);
+
         return Excel::download(
             new VisitsExport(
                 user: Auth::user(),

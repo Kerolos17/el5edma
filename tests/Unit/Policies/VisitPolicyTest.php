@@ -74,8 +74,14 @@ class VisitPolicyTest extends TestCase
 
     public function test_servant_view_scoped_to_group(): void
     {
-        $servant = $this->createServant($this->groupA);
-        $this->assertTrue($this->policy->view($servant, $this->visitA));
+        $servant  = $this->createServant($this->groupA);
+        $ownVisit = Visit::factory()->create([
+            'beneficiary_id' => $this->visitA->beneficiary_id,
+            'created_by'     => $servant->id,
+        ]);
+
+        $this->assertTrue($this->policy->view($servant, $ownVisit));
+        $this->assertFalse($this->policy->view($servant, $this->visitA));
         $this->assertFalse($this->policy->view($servant, $this->visitB));
     }
 }

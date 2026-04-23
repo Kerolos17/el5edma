@@ -29,18 +29,16 @@ class UserPolicy
             return true;
         }
 
-        // Super admin and service leader can view all users
-        if ($user->role->isAdminLevel()) {
+        if ($user->role === UserRole::SuperAdmin) {
             return true;
         }
 
-        // Family leaders can view users in their service group
-        if ($user->role === UserRole::FamilyLeader) {
-            return $user->service_group_id === $model->service_group_id;
+        if ($user->role === UserRole::ServiceLeader) {
+            return in_array($model->role, [UserRole::FamilyLeader, UserRole::Servant], true)
+                && $user->managesServiceGroup($model->service_group_id);
         }
 
-        // Servants can view users in their service group
-        if ($user->role === UserRole::Servant) {
+        if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $model->service_group_id;
         }
 
@@ -52,9 +50,8 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        // Only super_admin and service_leader can create users
-        // Family leaders and servants cannot create users
-        return $user->role->isAdminLevel();
+        return $user->role === UserRole::SuperAdmin
+            || ($user->role === UserRole::ServiceLeader && $user->managedServiceGroups()->isNotEmpty());
     }
 
     /**
@@ -67,17 +64,15 @@ class UserPolicy
             return true;
         }
 
-        // Super admin and service leader can update all users
-        if ($user->role->isAdminLevel()) {
+        if ($user->role === UserRole::SuperAdmin) {
             return true;
         }
 
-        // Family leaders can update users in their service group (limited updates)
-        if ($user->role === UserRole::FamilyLeader) {
-            return $user->service_group_id === $model->service_group_id;
+        if ($user->role === UserRole::ServiceLeader) {
+            return in_array($model->role, [UserRole::FamilyLeader, UserRole::Servant], true)
+                && $user->managesServiceGroup($model->service_group_id);
         }
 
-        // Servants cannot update other users
         return false;
     }
 
@@ -91,9 +86,7 @@ class UserPolicy
             return false;
         }
 
-        // Only super_admin and service_leader can delete users
-        // Family leaders and servants cannot delete users
-        return $user->role->isAdminLevel();
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -101,8 +94,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        // Only super_admin and service_leader can restore users
-        return $user->role->isAdminLevel();
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -144,7 +136,12 @@ class UserPolicy
             return false;
         }
 
-        // Only super_admin and service_leader can manage service group assignments
-        return $user->role->isAdminLevel();
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        return $user->role === UserRole::ServiceLeader
+            && in_array($model->role, [UserRole::FamilyLeader, UserRole::Servant], true)
+            && $user->managesServiceGroup($model->service_group_id);
     }
 }

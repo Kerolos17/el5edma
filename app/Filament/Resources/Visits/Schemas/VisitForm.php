@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Visits\Schemas;
 use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\User;
+use Closure;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -38,6 +39,23 @@ class VisitForm
                         })
                         ->searchable()
                         ->required()
+                        ->rules([
+                            function (): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail): void {
+                                    $actor       = Auth::user();
+                                    $beneficiary = Beneficiary::query()->find($value);
+
+                                    if (! $beneficiary) {
+                                        return;
+                                    }
+
+                                    if (in_array($actor->role, [UserRole::FamilyLeader, UserRole::Servant], true)
+                                        && $beneficiary->service_group_id !== $actor->service_group_id) {
+                                        $fail(__('visits.beneficiary') . ' ' . __('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ])
                         ->live(),
 
                     Select::make('type')

@@ -57,8 +57,18 @@ class UserResource extends Resource
         $query = parent::getEloquentQuery()->with(['serviceGroup']);
         $user  = Auth::user();
 
-        if ($user->isFamilyLeader()) {
-            $query->where('service_group_id', $user->service_group_id);
+        if ($user->isServiceLeader()) {
+            $managedGroupIds = $user->managedServiceGroupIds();
+
+            $query->where(function (Builder $scopedQuery) use ($managedGroupIds, $user) {
+                $scopedQuery->whereKey($user->id)
+                    ->orWhereIn('service_group_id', $managedGroupIds);
+            });
+        } elseif ($user->isFamilyLeader()) {
+            $query->where(function (Builder $scopedQuery) use ($user) {
+                $scopedQuery->whereKey($user->id)
+                    ->orWhere('service_group_id', $user->service_group_id);
+            });
         }
 
         return $query;

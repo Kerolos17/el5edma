@@ -1,5 +1,8 @@
-const CACHE_NAME = 'ministry-pwa-v2';
+const CACHE_NAME = 'ministry-pwa-v3';
 const OFFLINE_URL = '/offline.html';
+const FIREBASE_VERSION = '12.11.0';
+
+let firebaseMessaging = null;
 
 // Assets to precache on install
 const PRECACHE_ASSETS = [
@@ -22,11 +25,77 @@ const STATIC_ASSET_PATTERNS = [
 // Paths to never intercept
 const SKIP_PATHS = ['/fcm-token', '/login', '/logout', '/language', '/login-code'];
 
+function showNotificationFromPayload(payload) {
+    const notificationTitle = payload.notification?.title || 'إشعار جديد';
+    const notificationOptions = {
+        body: payload.notification?.body || '',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        dir: 'rtl',
+        data: {
+            url: payload.data?.url || '/admin',
+            ...payload.data,
+        },
+    };
+
+    return self.registration.showNotification(notificationTitle, notificationOptions);
+}
+
+function ensureFirebaseMessaging(config) {
+    if (!config) {
+        return null;
+    }
+
+    if (firebaseMessaging) {
+        return firebaseMessaging;
+    }
+
+    try {
+        if (typeof firebase === 'undefined') {
+            importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app-compat.js`);
+            importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-messaging-compat.js`);
+        }
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(config);
+        }
+
+        firebaseMessaging = firebase.messaging();
+        firebaseMessaging.onBackgroundMessage((payload) => {
+            console.log('[sw.js] Background Firebase message:', payload);
+
+            return showNotificationFromPayload(payload);
+        });
+
+        return firebaseMessaging;
+    } catch (error) {
+        console.error('[sw.js] Firebase messaging initialization error:', error);
+
+        return null;
+    }
+}
+
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'FIREBASE_CONFIG') {
+        ensureFirebaseMessaging(event.data.config);
+    }
+});
+
 // ---- Install ----------------------------------------------------------------
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(PRECACHE_ASSETS))
+            .then(async (cache) => {
+                await Promise.allSettled(PRECACHE_ASSETS.map(async (asset) => {
+                    const response = await fetch(asset, { cache: 'no-cache' });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to precache ${asset}: ${response.status}`);
+                    }
+
+                    await cache.put(asset, response);
+                }));
+            })
             .then(() => self.skipWaiting())
     );
 });
@@ -120,18 +189,10 @@ self.addEventListener('notificationclick', (event) => {
 // ---- Push fallback (if FCM SW is not handling) -----------------------------
 self.addEventListener('push', (event) => {
     if (!event.data) return;
+
     try {
         const data = event.data.json();
-        const title = data.notification?.title || 'إشعار جديد';
-        event.waitUntil(
-            self.registration.showNotification(title, {
-                body: data.notification?.body || '',
-                icon: '/icons/icon-192x192.png',
-                badge: '/icons/icon-72x72.png',
-                dir: 'rtl',
-                data: { url: data.data?.url || '/admin', ...data.data },
-            })
-        );
+        event.waitUntil(showNotificationFromPayload(data));
     } catch (e) {
         console.error('[sw.js] Push parse error:', e);
     }

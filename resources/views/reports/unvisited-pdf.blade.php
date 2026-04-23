@@ -76,8 +76,8 @@
                             : '—' }}
                     </td>
                     <td dir="ltr">
-                        {{ $b->visits()->max('visit_date')
-                            ? \Carbon\Carbon::parse($b->visits()->max('visit_date'))->format('Y-m-d')
+                        {{ $b->visits_max_visit_date
+                            ? \Carbon\Carbon::parse($b->visits_max_visit_date)->format('Y-m-d')
                             : ($isAr
                                 ? 'لم يُزَر'
                                 : 'Never') }}

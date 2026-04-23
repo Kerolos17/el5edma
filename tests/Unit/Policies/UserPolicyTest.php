@@ -3,6 +3,7 @@
 namespace Tests\Unit\Policies;
 
 use App\Models\ServiceGroup;
+use App\Models\User;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,12 +15,17 @@ class UserPolicyTest extends TestCase
 
     private UserPolicy $policy;
     private ServiceGroup $groupA;
+    private ServiceGroup $groupB;
+    private User $serviceLeader;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new UserPolicy;
-        $this->groupA = ServiceGroup::factory()->create();
+        $this->policy        = new UserPolicy;
+        $this->groupA        = ServiceGroup::factory()->create();
+        $this->groupB        = ServiceGroup::factory()->create();
+        $this->serviceLeader = $this->createServiceLeader();
+        $this->groupA->update(['service_leader_id' => $this->serviceLeader->id]);
     }
 
     public function test_super_admin_can_manage_all_users(): void
@@ -67,11 +73,42 @@ class UserPolicyTest extends TestCase
         $this->assertFalse($this->policy->view($fl, $other));
     }
 
+    public function test_service_leader_can_only_view_users_in_managed_groups(): void
+    {
+        $inScope  = $this->createServant($this->groupA);
+        $outScope = $this->createServant($this->groupB);
+
+        $this->assertTrue($this->policy->view($this->serviceLeader, $inScope));
+        $this->assertFalse($this->policy->view($this->serviceLeader, $outScope));
+    }
+
+    public function test_service_leader_can_update_managed_family_leaders_and_servants_only(): void
+    {
+        $familyLeader      = $this->createFamilyLeader($this->groupA);
+        $servant           = $this->createServant($this->groupA);
+        $otherGroupServant = $this->createServant($this->groupB);
+
+        $this->assertTrue($this->policy->update($this->serviceLeader, $familyLeader));
+        $this->assertTrue($this->policy->update($this->serviceLeader, $servant));
+        $this->assertFalse($this->policy->update($this->serviceLeader, $otherGroupServant));
+        $this->assertFalse($this->policy->delete($this->serviceLeader, $servant));
+    }
+
     public function test_service_leader_cannot_assign_roles(): void
     {
-        $leader = $this->createServiceLeader();
         $target = $this->createServant($this->groupA);
-        $this->assertFalse($this->policy->assignRole($leader, $target));
+        $this->assertFalse($this->policy->assignRole($this->serviceLeader, $target));
+    }
+
+    public function test_family_leader_cannot_manage_other_users(): void
+    {
+        $familyLeader = $this->createFamilyLeader($this->groupA);
+        $member       = $this->createServant($this->groupA);
+
+        $this->assertTrue($this->policy->view($familyLeader, $member));
+        $this->assertFalse($this->policy->create($familyLeader));
+        $this->assertFalse($this->policy->update($familyLeader, $member));
+        $this->assertFalse($this->policy->delete($familyLeader, $member));
     }
 
     public function test_user_cannot_assign_role_to_self(): void

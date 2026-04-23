@@ -31,8 +31,19 @@ class VisitPolicy
 
         $visit->loadMissing('beneficiary');
 
-        return $visit->beneficiary !== null
-            && $user->service_group_id === $visit->beneficiary->service_group_id;
+        if ($visit->beneficiary === null) {
+            return false;
+        }
+
+        if ($user->role === UserRole::FamilyLeader) {
+            return $user->service_group_id === $visit->beneficiary->service_group_id;
+        }
+
+        if ($user->role === UserRole::Servant) {
+            return $visit->created_by === $user->id;
+        }
+
+        return false;
     }
 
     /**

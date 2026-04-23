@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\Visit;
@@ -14,8 +15,28 @@ class ReportController extends Controller
 {
     public function __construct(private ReportService $service) {}
 
+    private function authorizeBeneficiaryReportsAccess(): void
+    {
+        abort_unless(in_array(Auth::user()?->role, [
+            UserRole::SuperAdmin,
+            UserRole::ServiceLeader,
+            UserRole::FamilyLeader,
+            UserRole::Servant,
+        ], true), 403);
+    }
+
+    private function authorizeManagementReportsAccess(): void
+    {
+        abort_unless(in_array(Auth::user()?->role, [
+            UserRole::SuperAdmin,
+            UserRole::ServiceLeader,
+            UserRole::FamilyLeader,
+        ], true), 403);
+    }
+
     public function beneficiariesPdf(Request $request)
     {
+        $this->authorizeBeneficiaryReportsAccess();
         Gate::authorize('viewAny', Beneficiary::class);
 
         return $this->service->beneficiariesPdf(Auth::user());
@@ -23,6 +44,7 @@ class ReportController extends Controller
 
     public function visitsPdf(Request $request)
     {
+        $this->authorizeManagementReportsAccess();
         Gate::authorize('viewAny', Visit::class);
 
         $request->validate([
@@ -39,6 +61,7 @@ class ReportController extends Controller
 
     public function unvisitedPdf(Request $request)
     {
+        $this->authorizeManagementReportsAccess();
         Gate::authorize('viewAny', Beneficiary::class);
 
         return $this->service->unvisitedPdf(Auth::user());
@@ -47,6 +70,7 @@ class ReportController extends Controller
     // ── تقرير مخدوم واحد ──
     public function singleBeneficiaryPdf(Beneficiary $beneficiary)
     {
+        $this->authorizeBeneficiaryReportsAccess();
         Gate::authorize('view', $beneficiary);
 
         return $this->service->singleBeneficiaryPdf($beneficiary);
@@ -55,6 +79,7 @@ class ReportController extends Controller
     // ── تقرير الأسرة ──
     public function serviceGroupPdf(ServiceGroup $serviceGroup)
     {
+        $this->authorizeManagementReportsAccess();
         Gate::authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupPdf($serviceGroup);
@@ -63,6 +88,7 @@ class ReportController extends Controller
     // ── تقرير مخدومي الأسرة ──
     public function serviceGroupBeneficiariesPdf(ServiceGroup $serviceGroup)
     {
+        $this->authorizeManagementReportsAccess();
         Gate::authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);

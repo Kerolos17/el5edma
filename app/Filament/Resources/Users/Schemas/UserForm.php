@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\UserRole;
 use App\Models\ServiceGroup;
+use App\Models\User;
 use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -64,30 +65,24 @@ class UserForm
                 ->schema([
                     Select::make('role')
                         ->label(__('users.role'))
-                        ->options(function () {
-                            $user = Auth::user();
-                            if ($user->role === UserRole::SuperAdmin) {
-                                return UserRole::options();
-                            }
-                            if ($user->role === UserRole::ServiceLeader) {
-                                return collect(UserRole::cases())
-                                    ->filter(fn ($r) => in_array($r, [UserRole::FamilyLeader, UserRole::Servant]))
-                                    ->mapWithKeys(fn ($r) => [$r->value => $r->label()])
-                                    ->toArray();
-                            }
-
-                            return [UserRole::Servant->value => UserRole::Servant->label()];
-                        })
-                        ->required()
+                        ->options(fn () => self::roleOptionsForActor(Auth::user()))
+                        ->visible(fn (?User $record) => self::canManageRoleFields(Auth::user(), $record))
+                        ->dehydrated(fn (?User $record) => self::canManageRoleFields(Auth::user(), $record))
+                        ->required(fn (?User $record) => self::canManageRoleFields(Auth::user(), $record))
                         ->rules([
                             function (): Closure {
                                 return function (string $attribute, mixed $value, Closure $fail): void {
-                                    $actor   = Auth::user();
-                                    $allowed = match (true) {
-                                        $actor->role === UserRole::SuperAdmin    => array_column(UserRole::cases(), 'value'),
-                                        $actor->role === UserRole::ServiceLeader => [UserRole::FamilyLeader->value, UserRole::Servant->value],
-                                        default                                  => [UserRole::Servant->value],
-                                    };
+                                    $actor  = Auth::user();
+                                    $record = request()->route('record');
+
+                                    if ($record instanceof User
+                                        && $record->id === $actor->id
+                                        && $value      === $actor->role->value) {
+                                        return;
+                                    }
+
+                                    $allowed = self::allowedRoleValuesForActor($actor);
+
                                     if (! in_array($value, $allowed, true)) {
                                         $fail(__('users.unauthorized_role'));
                                     }
@@ -102,12 +97,42 @@ class UserForm
 
                     Select::make('service_group_id')
                         ->label(__('users.service_group'))
-                        ->options(
-                            ServiceGroup::where('is_active', true)->pluck('name', 'id'),
-                        )
+                        ->options(fn () => self::serviceGroupOptionsForActor(Auth::user()))
                         ->searchable()
                         ->nullable()
-                        ->visible(fn ($get) => in_array($get('role'), [UserRole::FamilyLeader->value, UserRole::Servant->value])),
+                        ->dehydrated(fn ($get, ?User $record) => self::canManageRoleFields(Auth::user(), $record)
+                            && in_array($get('role'), [UserRole::FamilyLeader->value, UserRole::Servant->value], true),
+                        )
+                        ->required(fn ($get, ?User $record) => self::canManageRoleFields(Auth::user(), $record)
+                            && in_array($get('role'), [UserRole::FamilyLeader->value, UserRole::Servant->value], true),
+                        )
+                        ->visible(fn ($get, ?User $record) => self::canManageRoleFields(Auth::user(), $record)
+                            && in_array($get('role'), [UserRole::FamilyLeader->value, UserRole::Servant->value], true),
+                        )
+                        ->rules([
+                            function (callable $get): Closure {
+                                return function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                    $actor  = Auth::user();
+                                    $record = request()->route('record');
+
+                                    if ($record instanceof User && $record->id === $actor->id) {
+                                        return;
+                                    }
+
+                                    $role = $get('role');
+
+                                    if (! in_array($role, [UserRole::FamilyLeader->value, UserRole::Servant->value], true)) {
+                                        return;
+                                    }
+
+                                    $allowedGroupIds = self::allowedServiceGroupIdsForActor($actor);
+
+                                    if (! in_array((int) $value, $allowedGroupIds, true)) {
+                                        $fail(__('users.unauthorized_role'));
+                                    }
+                                };
+                            },
+                        ]),
 
                     Select::make('locale')
                         ->label(__('users.locale'))
@@ -120,7 +145,8 @@ class UserForm
 
                     Toggle::make('is_active')
                         ->label(__('users.is_active'))
-                        ->default(true),
+                        ->default(true)
+                        ->visible(fn (?User $record) => self::canManageRoleFields(Auth::user(), $record)),
                 ])->columns(2),
 
             Section::make(__('users.personal_code'))
@@ -135,5 +161,51 @@ class UserForm
                         ->placeholder(__('users.code_auto_generated')),
                 ])
                 ->visible(fn () => Auth::check() && Auth::user()->role === UserRole::SuperAdmin)]);
+    }
+
+    private static function canManageRoleFields(User $actor, ?User $record): bool
+    {
+        return $actor->role === UserRole::SuperAdmin
+            || ($actor->role === UserRole::ServiceLeader && $record?->id !== $actor->id);
+    }
+
+    private static function allowedRoleValuesForActor(User $actor): array
+    {
+        return match ($actor->role) {
+            UserRole::SuperAdmin    => array_column(UserRole::cases(), 'value'),
+            UserRole::ServiceLeader => [UserRole::FamilyLeader->value, UserRole::Servant->value],
+            default                 => [],
+        };
+    }
+
+    private static function roleOptionsForActor(User $actor): array
+    {
+        return collect(self::allowedRoleValuesForActor($actor))
+            ->mapWithKeys(fn (string $role) => [$role => UserRole::from($role)->label()])
+            ->toArray();
+    }
+
+    private static function allowedServiceGroupIdsForActor(User $actor): array
+    {
+        return match ($actor->role) {
+            UserRole::SuperAdmin => ServiceGroup::query()
+                ->where('is_active', true)
+                ->pluck('id')
+                ->all(),
+            UserRole::ServiceLeader => ServiceGroup::query()
+                ->where('is_active', true)
+                ->where('service_leader_id', $actor->id)
+                ->pluck('id')
+                ->all(),
+            default => [],
+        };
+    }
+
+    private static function serviceGroupOptionsForActor(User $actor): array
+    {
+        return ServiceGroup::query()
+            ->whereIn('id', self::allowedServiceGroupIdsForActor($actor))
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }

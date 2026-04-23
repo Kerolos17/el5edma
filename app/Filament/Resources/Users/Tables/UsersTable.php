@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\UserRole;
+use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\CacheService;
 use Filament\Actions\Action;
@@ -75,7 +76,22 @@ class UsersTable
 
                 SelectFilter::make('service_group_id')
                     ->label(__('users.service_group'))
-                    ->options(fn () => CacheService::getServiceGroups()),
+                    ->options(function () {
+                        $actor = Auth::user();
+
+                        return match ($actor?->role) {
+                            UserRole::SuperAdmin    => CacheService::getServiceGroups(),
+                            UserRole::ServiceLeader => ServiceGroup::query()
+                                ->where('service_leader_id', $actor->id)
+                                ->pluck('name', 'id')
+                                ->toArray(),
+                            UserRole::FamilyLeader => ServiceGroup::query()
+                                ->whereKey($actor->service_group_id)
+                                ->pluck('name', 'id')
+                                ->toArray(),
+                            default => [],
+                        };
+                    }),
 
                 TernaryFilter::make('is_active')
                     ->label(__('users.is_active')),

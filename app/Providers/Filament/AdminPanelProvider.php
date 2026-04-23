@@ -30,7 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Cairo', 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap')
             ->brandName(fn () => __('auth.system_name'))
             ->brandLogoHeight('40px')
-            ->favicon(asset('images/favicon.ico'))
+            ->favicon(asset('favicon.ico'))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('260px')

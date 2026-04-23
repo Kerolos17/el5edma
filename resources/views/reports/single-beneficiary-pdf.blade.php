@@ -153,40 +153,8 @@
 
     {{-- ── صورة المخدوم ── --}}
     <div class="profile-header">
-        @if ($beneficiary->photo)
-            @php
-                $imagePath = storage_path('app/public/' . $beneficiary->photo);
-                $imageData = null;
-                $imageType = 'png';
-
-                if (file_exists($imagePath)) {
-                    $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
-
-                    if ($extension === 'webp') {
-                        // Convert WebP to PNG only if GD supports it
-                        if (function_exists('imagecreatefromwebp')) {
-                            $image = @imagecreatefromwebp($imagePath);
-                            if ($image) {
-                                ob_start();
-                                imagepng($image, null, 9);
-                                $imageData = base64_encode(ob_get_clean());
-                                imagedestroy($image);
-                                $imageType = 'png';
-                            }
-                        }
-                        // If GD has no WebP support, skip the image (avoid corrupt data URI)
-                    } elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                        $imageData = base64_encode(file_get_contents($imagePath));
-                        $imageType = $extension === 'jpeg' ? 'jpg' : $extension;
-                    }
-                }
-            @endphp
-            @if ($imageData)
-                <img src="data:image/{{ $imageType }};base64,{{ $imageData }}" class="profile-photo"
-                    alt="{{ $beneficiary->full_name }}">
-            @else
-                <div class="profile-placeholder">{{ mb_substr($beneficiary->full_name, 0, 1) }}</div>
-            @endif
+        @if ($photoSrc)
+            <img src="{{ $photoSrc }}" class="profile-photo" alt="{{ $beneficiary->full_name }}">
         @else
             <div class="profile-placeholder">{{ mb_substr($beneficiary->full_name, 0, 1) }}</div>
         @endif

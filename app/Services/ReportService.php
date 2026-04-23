@@ -45,7 +45,7 @@ class ReportService
         if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
         } elseif ($user->role === UserRole::Servant) {
-            $query->where('assigned_servant_id', $user->id);
+            $query->where('service_group_id', $user->service_group_id);
         }
 
         $beneficiaries = $query->limit(500)->get();
@@ -104,8 +104,8 @@ class ReportService
             ->where('status', 'active')
             ->where(function ($q) use ($cutoff) {
                 $q->whereDoesntHave('visits')
-                    ->orWhereHas('visits', function ($vq) use ($cutoff) {
-                        $vq->havingRaw('MAX(visit_date) < ?', [$cutoff]);
+                    ->orWhereDoesntHave('visits', function ($vq) use ($cutoff) {
+                        $vq->where('visit_date', '>=', $cutoff);
                     });
             })
             ->when($user->role === UserRole::FamilyLeader,
@@ -142,8 +142,9 @@ class ReportService
             'prayerRequests',
         ]);
 
-        $isAr = app()->getLocale() === 'ar';
-        $html = view('reports.single-beneficiary-pdf', compact('beneficiary', 'isAr'))->render();
+        $isAr     = app()->getLocale() === 'ar';
+        $photoSrc = $this->resolveBeneficiaryPhotoSrc($beneficiary);
+        $html     = view('reports.single-beneficiary-pdf', compact('beneficiary', 'isAr', 'photoSrc'))->render();
 
         $mpdf = $this->makeMpdf();
         $mpdf->WriteHTML($html);
@@ -154,6 +155,52 @@ class ReportService
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
+    }
+
+    private function resolveBeneficiaryPhotoSrc(Beneficiary $beneficiary): ?string
+    {
+        if (! $beneficiary->photo) {
+            return null;
+        }
+
+        $imagePath = storage_path('app/public/' . $beneficiary->photo);
+
+        if (! is_file($imagePath)) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif'], true)) {
+            return $this->toFileUri($imagePath);
+        }
+
+        if ($extension !== 'webp' || ! function_exists('imagecreatefromwebp')) {
+            return null;
+        }
+
+        $tmpDir = storage_path('app/mpdf-tmp');
+
+        if (! is_dir($tmpDir)) {
+            mkdir($tmpDir, 0755, true);
+        }
+
+        $tmpPath = $tmpDir . DIRECTORY_SEPARATOR . 'beneficiary-photo-' . $beneficiary->id . '.png';
+        $image   = @imagecreatefromwebp($imagePath);
+
+        if (! $image) {
+            return null;
+        }
+
+        imagepng($image, $tmpPath, 9);
+        imagedestroy($image);
+
+        return $this->toFileUri($tmpPath);
+    }
+
+    private function toFileUri(string $path): string
+    {
+        return 'file:///' . ltrim(str_replace(DIRECTORY_SEPARATOR, '/', $path), '/');
     }
 
     // ── تقرير الأسرة (الخدام + الإحصائيات) ──

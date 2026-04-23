@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -99,6 +100,47 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function isServant(): bool
     {
         return $this->role === UserRole::Servant;
+    }
+
+    public function managedServiceGroups(): Collection
+    {
+        if ($this->role === UserRole::SuperAdmin) {
+            return ServiceGroup::query()->get();
+        }
+
+        if ($this->role === UserRole::ServiceLeader) {
+            return ServiceGroup::query()
+                ->where('service_leader_id', $this->id)
+                ->get();
+        }
+
+        if (in_array($this->role, [UserRole::FamilyLeader, UserRole::Servant], true) && $this->service_group_id) {
+            return ServiceGroup::query()
+                ->whereKey($this->service_group_id)
+                ->get();
+        }
+
+        return new Collection;
+    }
+
+    public function managedServiceGroupIds(): array
+    {
+        return $this->managedServiceGroups()
+            ->pluck('id')
+            ->all();
+    }
+
+    public function managesServiceGroup(?int $serviceGroupId): bool
+    {
+        if ($this->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        if (! $serviceGroupId) {
+            return false;
+        }
+
+        return in_array($serviceGroupId, $this->managedServiceGroupIds(), true);
     }
 
     // ── Self-Registration Methods ──
