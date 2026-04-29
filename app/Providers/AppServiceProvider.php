@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Broadcasting\TestBroadcaster;
 use App\Livewire\NotificationsBell;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
@@ -14,6 +15,7 @@ use App\Observers\VisitObserver;
 use App\Services\QueryMonitoringService;
 use App\Services\RegistrationLinkService;
 use App\Services\RegistrationService;
+use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Factory;
 use Livewire\Livewire;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // تسجيل خدمات التسجيل الذاتي للخدام
         $this->app->singleton(RegistrationLinkService::class);
         $this->app->singleton(RegistrationService::class);
+
 
         // ضمان معرفة Firebase بالـ Project ID دائماً
         $this->app->extend(Factory::class, function (Factory $factory) {
@@ -42,6 +45,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Register a 'test' broadcast driver for use in automated tests.
+        // This driver validates channel auth without requiring real WebSocket credentials.
+        if ($this->app->environment('testing')) {
+            /** @var BroadcastManager $manager */
+            $manager = $this->app->make(BroadcastManager::class);
+            $manager->extend('test', fn ($app) => $app->make(TestBroadcaster::class));
+        }
+
         // تسجيل الـ Observers
         Beneficiary::observe(BeneficiaryObserver::class);
         Visit::observe(VisitObserver::class);
