@@ -68,9 +68,9 @@ class PrayerRequestList extends Component
 
     public function render()
     {
-        $user = auth()->user();
+        $ownedBeneficiaryIds = $this->ownedBeneficiaryQuery()->pluck('id');
 
-        $prayerRequests = PrayerRequest::whereHas('beneficiary', fn ($q) => $this->ownedBeneficiaryScope($q, $user))
+        $prayerRequests = PrayerRequest::whereIn('beneficiary_id', $ownedBeneficiaryIds)
             ->with('beneficiary')
             ->when($this->filter !== 'all', fn ($q) => $q->where('status', $this->filter))
             ->latest()
@@ -94,15 +94,5 @@ class PrayerRequestList extends Component
                     fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
                 )
         );
-    }
-
-    private function ownedBeneficiaryScope(Builder $q, $user): Builder
-    {
-        return $q
-            ->where('assigned_servant_id', $user->id)
-            ->when(
-                $user->service_group_id,
-                fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-            );
     }
 }
