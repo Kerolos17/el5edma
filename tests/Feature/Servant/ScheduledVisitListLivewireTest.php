@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Servant;
 
 use App\Livewire\Servant\ScheduledVisitList;
@@ -81,7 +83,7 @@ class ScheduledVisitListLivewireTest extends TestCase
         Livewire::actingAs($servant1)
             ->test(ScheduledVisitList::class)
             ->call('cancel', $sv->id)
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     #[Test]

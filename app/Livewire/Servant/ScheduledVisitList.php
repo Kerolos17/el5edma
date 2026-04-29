@@ -19,9 +19,12 @@ class ScheduledVisitList extends Component
 
     public function cancel(int $id): void
     {
-        $sv = ScheduledVisit::findOrFail($id);
+        $sv = ScheduledVisit::where('assigned_servant_id', auth()->id())
+            ->where('id', $id)
+            ->first();
 
-        abort_unless((int) $sv->assigned_servant_id === (int) auth()->id(), 403);
+        abort_unless($sv !== null, 404);  // 404 whether the record doesn't exist or isn't owned
+
         abort_unless($sv->status === 'pending', 403);
 
         $sv->update(['status' => 'cancelled']);
@@ -29,11 +32,12 @@ class ScheduledVisitList extends Component
         $this->dispatch('toast', message: 'تم إلغاء الزيارة المجدولة', type: 'success');
     }
 
-    public function updatedFilter(): void {}
-
     public function render()
     {
-        $user  = auth()->user();
+        $user = auth()->user();
+
+        // ScheduledVisits are personally assigned — we intentionally use personal-only
+        // scope here, unlike BeneficiaryList which uses dual group scope.
         $query = ScheduledVisit::where('assigned_servant_id', $user->id)->with('beneficiary');
 
         $scheduledVisits = match ($this->filter) {
@@ -42,6 +46,7 @@ class ScheduledVisitList extends Component
                 ->where('scheduled_date', '>=', now()->toDateString())
                 ->orderBy('scheduled_date')
                 ->orderBy('scheduled_time')
+                ->limit(100)
                 ->get(),
             'past'     => (clone $query)
                 ->where(fn ($q) => $q
@@ -53,6 +58,7 @@ class ScheduledVisitList extends Component
                 ->get(),
             default    => (clone $query)
                 ->orderByDesc('scheduled_date')
+                ->limit(100)
                 ->get(),
         };
 
