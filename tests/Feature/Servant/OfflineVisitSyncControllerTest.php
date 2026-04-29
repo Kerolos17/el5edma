@@ -84,6 +84,23 @@ class OfflineVisitSyncControllerTest extends TestCase
     }
 
     #[Test]
+    public function servant_can_sync_visit_for_beneficiary_owned_via_group(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        // Beneficiary belongs to servant's group but is not directly assigned
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id'    => $group->id,
+            'assigned_servant_id' => null,
+        ]);
+
+        $this->actingAs($servant)
+            ->postJson(route('servant.visits.sync'), $this->validPayload($beneficiary->id))
+            ->assertCreated();
+    }
+
+    #[Test]
     public function validation_fails_for_missing_required_fields(): void
     {
         $group   = ServiceGroup::factory()->create();
