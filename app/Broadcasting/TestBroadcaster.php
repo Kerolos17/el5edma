@@ -27,10 +27,12 @@ class TestBroadcaster extends Broadcaster
     {
         $channelName = $this->normalizeChannelName($request->channel_name ?? '');
 
-        if ($this->isGuardedChannel($request->channel_name ?? '')) {
-            if (! $this->retrieveUser($request, $channelName)) {
-                throw new UnauthorizedHttpException('', 'Unauthenticated.');
-            }
+        if (! $this->isGuardedChannel($request->channel_name ?? '')) {
+            return $this->validAuthenticationResponse($request, true);
+        }
+
+        if (! $this->retrieveUser($request, $channelName)) {
+            throw new UnauthorizedHttpException('', 'Unauthenticated.');
         }
 
         return $this->verifyUserCanAccessChannel($request, $channelName);

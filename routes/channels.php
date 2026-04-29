@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Broadcasting\Broadcast;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Support\Facades\Broadcast as BroadcastFacade;
 
