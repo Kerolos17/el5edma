@@ -16,6 +16,13 @@ class NotificationsBell extends Component
 
     public array $notifications = [];
 
+    /**
+     * استمع لحدث الوصول من الجهة العميلة (JS) لتحديث قائمة الإشعارات فوراً
+     */
+    protected $listeners = [
+        'fcmMessageReceived' => 'loadNotifications',
+    ];
+
     public function mount(): void
     {
         $this->loadNotifications();
@@ -62,19 +69,23 @@ class NotificationsBell extends Component
         $this->loadNotifications();
     }
 
-    public function markRead(int $id, ?string $url = null): void
+    public function markRead(int $id): void
     {
-        MinistryNotification::where('id', $id)
+        $notification = MinistryNotification::where('id', $id)
             ->where('user_id', Auth::id())
-            ->update(['read_at' => now()]);
+            ->firstOrFail();
 
+        $notification->update(['read_at' => now()]);
         Cache::forget('notifications_unread_' . Auth::id());
 
-        if ($url) {
+        $url = $notification->data['url'] ?? null;
+
+        if ($url && str_starts_with($url, '/admin')) {
             $this->redirect($url, navigate: FilamentView::hasSpaMode());
-        } else {
-            $this->loadNotifications();
+            return;
         }
+
+        $this->loadNotifications();
     }
 
     public function render()

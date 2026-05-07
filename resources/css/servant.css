@@ -1,0 +1,506 @@
+@import 'tailwindcss';
+
+@source '../**/*.blade.php';
+@source '../../app/Livewire/Servant/**/*.php';
+
+[x-cloak] { display: none !important; }
+
+/* =========================================================
+   Design Tokens — Tailwind v4 @theme
+   ========================================================= */
+@theme {
+  /* Teal palette */
+  --color-teal-100: #C7E5E8;
+  --color-teal-300: #4D9BA3;
+  --color-teal-500: #006D77;
+  --color-teal-700: #005662;
+  --color-teal-900: #003942;
+
+  /* Gold palette */
+  --color-gold-100: #FDEBD0;
+  --color-gold-300: #F7BB86;
+  --color-gold-500: #F4A261;
+  --color-gold-700: #D68A3D;
+
+  /* Neutral */
+  --color-cream:      #FFF8F0;
+  --color-warm-white: #FFFBF7;
+  --color-soft-gray:  #F5F3F0;
+
+  /* Semantic */
+  --color-critical: #E63946;
+  --color-warning:  #F77F00;
+  --color-success:  #06A77D;
+  --color-info:     #457B9D;
+
+  /* Typography */
+  --font-display: 'Amiri', serif;
+  --font-body:    'Cairo', sans-serif;
+  --font-accent:  'Tajawal', sans-serif;
+
+  /* Radius */
+  --radius-card: 24px;
+  --radius-pill: 100px;
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background-color: #FFFBF7;
+    color: #2C3E50;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-bottom: 100px; /* space for bottom nav */
+  }
+
+  /* Noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Divine gold tint */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 60%;
+    background: radial-gradient(ellipse at top, rgba(244,162,97,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @media (min-width: 1024px) {
+    body { padding-bottom: 0; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #4D9BA3; border-radius: 3px; }
+}
+
+/* =========================================================
+   Keyframes
+   ========================================================= */
+@keyframes floatShape {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -20px) scale(1.05); }
+  66%       { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes revealUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(230,57,70,0.7); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(230,57,70,0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(230,57,70,0); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(244,162,97,0.3); }
+  50%       { box-shadow: 0 0 0 8px rgba(244,162,97,0.1); }
+}
+
+@keyframes navBounce {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-8px); }
+  60%  { transform: translateY(-4px); }
+  80%  { transform: translateY(-6px); }
+  100% { transform: translateY(-4px); }
+}
+
+@keyframes criticalPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* =========================================================
+   Utilities
+   ========================================================= */
+@layer utilities {
+  .gradient-deep {
+    background: linear-gradient(160deg, #006D77 0%, #003942 100%);
+  }
+
+  /* Organic background shapes */
+  .organic-shape {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .organic-shape-1 {
+    width: 300px; height: 300px;
+    top: -80px; left: -100px;
+    background: radial-gradient(circle, rgba(0,109,119,0.08) 0%, transparent 70%);
+    filter: blur(60px);
+    animation: floatShape 18s ease-in-out infinite;
+  }
+  .organic-shape-2 {
+    width: 250px; height: 250px;
+    bottom: 20%; right: -60px;
+    background: radial-gradient(circle, rgba(244,162,97,0.10) 0%, transparent 70%);
+    filter: blur(50px);
+    animation: floatShape 22s ease-in-out infinite reverse;
+  }
+  .organic-shape-3 {
+    width: 200px; height: 200px;
+    top: 40%; left: 30%;
+    background: radial-gradient(circle, rgba(0,109,119,0.06) 0%, transparent 70%);
+    filter: blur(70px);
+    animation: floatShape 25s ease-in-out infinite 3s;
+  }
+
+  /* Animation helpers */
+  .reveal-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: revealUp 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .badge-pulse      { animation: pulseRing 2s infinite; }
+  .timeline-dot-pulse { animation: pulseDot 2s ease infinite; }
+  .critical-indicator { animation: criticalPulse 1.5s ease infinite; }
+}
+
+/* =========================================================
+   Components
+   ========================================================= */
+@layer components {
+  /* ---- Card ---- */
+  .s-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 2px 8px rgba(0,61,66,0.06), 0 8px 24px rgba(0,61,66,0.08);
+  }
+
+  .card-lift {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 8px 16px rgba(0,61,66,0.10), 0 16px 48px rgba(0,61,66,0.15) !important;
+  }
+  .card-lift:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 6px rgba(0,61,66,0.08) !important;
+    transition-duration: 0.1s;
+  }
+
+  /* Stat card inner glows */
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -20%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%; right: -10%;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ---- Timeline ---- */
+  .timeline-line {
+    position: absolute;
+    right: 9px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #4D9BA3, transparent);
+  }
+
+  /* ---- Button effects ---- */
+  .btn-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s, opacity 0.6s;
+    opacity: 0;
+  }
+  .btn-ripple:active::after {
+    width: 300px; height: 300px;
+    opacity: 1;
+    transition: 0s;
+  }
+
+  /* ---- Badge pill ---- */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+  }
+  .badge-success  { background: linear-gradient(135deg, #06A77D 0%, #04C99E 100%); color: white; }
+  .badge-warning  { background: linear-gradient(135deg, #F77F00 0%, #F4A261 100%); color: white; }
+  .badge-critical { background: linear-gradient(135deg, #E63946 0%, #FF6B6B 100%); color: white; }
+  .badge-info     { background: linear-gradient(135deg, #457B9D 0%, #6BA3C7 100%); color: white; }
+
+  /* ---- Radio chip ---- */
+  .radio-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: 2px solid #E8E4DF;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .radio-chip:hover { border-color: #4D9BA3; }
+  .radio-chip.selected {
+    border-color: #006D77;
+    background: rgba(0,109,119,0.08);
+    color: #005662;
+  }
+
+  /* ---- Search input ---- */
+  .search-input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: #2C3E50;
+    box-shadow: 0 2px 12px rgba(0,61,66,0.06);
+    transition: all 0.3s ease;
+    outline: none;
+  }
+  .search-input:focus {
+    border-color: #4D9BA3;
+    box-shadow: 0 2px 12px rgba(0,109,119,0.12), 0 0 0 4px rgba(0,109,119,0.06);
+  }
+  .search-input::placeholder { color: #7A8B99; }
+
+  /* ---- Form textarea ---- */
+  .form-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 2px solid #E8E4DF;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: #2C3E50;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  .form-textarea:focus { border-color: #4D9BA3; }
+
+  /* ---- Avatar ring ---- */
+  .avatar-ring {
+    border: 3px solid #F7BB86;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  }
+
+  /* ---- WhatsApp button ---- */
+  .btn-whatsapp {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+    border: none;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(37,211,102,0.3);
+    flex-shrink: 0;
+  }
+  .btn-whatsapp:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+  }
+
+  /* ---- Toast ---- */
+  .s-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    z-index: 200;
+    padding: 14px 28px;
+    border-radius: 16px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .s-toast.show { transform: translateX(-50%) translateY(0); }
+  .s-toast-success { background: linear-gradient(135deg, #06A77D 0%, #04C99E 100%); color: white; }
+  .s-toast-warning { background: linear-gradient(135deg, #F77F00 0%, #F4A261 100%); color: white; }
+  .s-toast-error   { background: linear-gradient(135deg, #E63946 0%, #FF6B6B 100%); color: white; }
+
+  /* ---- Modal overlay ---- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,61,66,0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* ---- Bottom sheet ---- */
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    max-height: 92vh;
+    background: #FFFBF7;
+    border-radius: 28px 28px 0 0;
+    z-index: 151;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow-y: auto;
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+
+  /* ---- Step wizard connector ---- */
+  .step-connector {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background: #F5F3F0;
+    transition: background 0.5s ease;
+  }
+  .step-connector.completed { background: #006D77; }
+}
+
+/* =========================================================
+   Accessibility — Focus Styles
+   ========================================================= */
+@layer base {
+  /* Custom focus ring — visible للوحة المفاتيح، مخفية للماوس */
+  :focus-visible {
+    outline: 3px solid #4D9BA3;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* أزل الـ outline الافتراضي الدميم */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* إمكانية الوصول: اخف المحتوى بصرياً بس خليه للـ screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* =========================================================
+   Skeleton Loading
+   ========================================================= */
+@keyframes shimmer-ltr {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@layer components {
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      #F0EDEA 25%,
+      #E8E4DF 50%,
+      #F0EDEA 75%
+    );
+    background-size: 400% 100%;
+    animation: shimmer-ltr 1.6s ease-in-out infinite;
+  }
+}
+
+/* =========================================================
+   RTL Physical Property Fixes
+   ========================================================= */
+@layer utilities {
+  /* Tailwind v4 في RTL: استخدم ms-/me- بدلاً من mr-/ml- */
+  /* المتصفح يتولى الـ logical properties في RTL */
+
+  /* overflow-x hidden على المحتوى الأساسي لمنع الـ scroll الأفقي */
+  .servant-scroll-container {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   Reduced Motion
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .organic-shape,
+  .reveal-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .skeleton-shimmer {
+    animation: none !important;
+    background: #F0EDEA !important;
+  }
+}

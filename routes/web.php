@@ -7,6 +7,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MedicalFileController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UiPreviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect('/admin'));
@@ -62,6 +63,12 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->middleware('throttle:10,1');
 });
 
+Route::middleware(['web'])->get('/ui-preview/servant', [UiPreviewController::class, 'servant'])
+    ->name('ui-preview.servant');
+
+Route::middleware(['web'])->get('/ui-preview/full-demo', [UiPreviewController::class, 'fullDemo'])
+    ->name('ui-preview.full-demo');
+
 // Self-Registration
 Route::get('/register/{token}', [RegistrationController::class, 'show'])
     ->name('registration.show');
@@ -73,3 +80,6 @@ Route::get('/register', [RegistrationController::class, 'showPublic'])
 Route::post('/register', [RegistrationController::class, 'storePublic'])
     ->name('registration.public.store')
     ->middleware('throttle:5,60');
+
+require __DIR__ . '/servant.php';
+require __DIR__ . '/app.php';

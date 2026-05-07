@@ -76,7 +76,7 @@ class FileAccessControllerTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_servant_cannot_access_unassigned_file(): void
+    public function test_servant_can_access_same_group_file(): void
     {
         $group   = ServiceGroup::factory()->create();
         $servant = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
@@ -84,6 +84,24 @@ class FileAccessControllerTest extends TestCase
         $ben     = Beneficiary::factory()->create(['service_group_id' => $group->id, 'assigned_servant_id' => $other->id]);
 
         $filePath = 'medical-files/private-doc.pdf';
+        Storage::disk('private')->put($filePath, 'PDF content');
+        MedicalFile::factory()->create(['beneficiary_id' => $ben->id, 'file_path' => $filePath]);
+
+        $response = $this->actingAs($servant)->get(
+            route('private.file', ['path' => base64_encode($filePath)]),
+        );
+
+        $response->assertOk();
+    }
+
+    public function test_servant_cannot_access_other_group_file(): void
+    {
+        $group      = ServiceGroup::factory()->create();
+        $otherGroup = ServiceGroup::factory()->create();
+        $servant    = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
+        $ben        = Beneficiary::factory()->create(['service_group_id' => $otherGroup->id]);
+
+        $filePath = 'medical-files/other-group-doc.pdf';
         Storage::disk('private')->put($filePath, 'PDF content');
         MedicalFile::factory()->create(['beneficiary_id' => $ben->id, 'file_path' => $filePath]);
 

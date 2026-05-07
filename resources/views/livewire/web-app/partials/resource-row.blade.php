@@ -1,0 +1,23 @@
+@switch($this->section)
+    @case('beneficiaries')
+        @include('livewire.web-app.partials.rows.beneficiaries')
+        @break
+    @case('visits')
+        @include('livewire.web-app.partials.rows.visits')
+        @break
+    @case('scheduled-visits')
+        @include('livewire.web-app.partials.rows.scheduled-visits')
+        @break
+    @case('prayer-requests')
+        @include('livewire.web-app.partials.rows.prayer-requests')
+        @break
+    @case('medical-files')
+        @include('livewire.web-app.partials.rows.medical-files')
+        @break
+    @case('users')
+        @include('livewire.web-app.partials.rows.users')
+        @break
+    @case('service-groups')
+        @include('livewire.web-app.partials.rows.service-groups')
+        @break
+@endswitch

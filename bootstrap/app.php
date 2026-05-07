@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'app.access' => \App\Http\Middleware\EnsureAppAccess::class,
             'servant.access' => \App\Http\Middleware\EnsureServantAccess::class,
         ]);
 

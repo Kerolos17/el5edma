@@ -54,7 +54,7 @@ class ScheduledVisitResource extends Resource
             ),
             UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
-            UserRole::Servant => $query->where('assigned_servant_id', $user->id),
+            UserRole::Servant => $query->assignedTo($user),
             default           => $query,
         };
     }

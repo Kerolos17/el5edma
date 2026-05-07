@@ -44,7 +44,9 @@ class ScheduledVisitPolicy
         }
 
         if ($user->role === UserRole::Servant) {
-            return $scheduledVisit->assigned_servant_id === $user->id;
+            $scheduledVisit->loadMissing('servants');
+
+            return $scheduledVisit->isAssignedTo($user);
         }
 
         return false;

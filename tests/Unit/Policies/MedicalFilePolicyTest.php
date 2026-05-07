@@ -41,22 +41,27 @@ class MedicalFilePolicyTest extends TestCase
         $this->assertTrue($this->policy->delete($admin, $mf));
     }
 
-    public function test_servant_view_scoped_to_assigned_beneficiary(): void
+    public function test_servant_view_scoped_to_assigned_beneficiary_or_service_group(): void
     {
         $servant     = $this->createServant($this->groupA);
         $benAssigned = Beneficiary::factory()->create([
             'service_group_id'    => $this->groupA->id,
             'assigned_servant_id' => $servant->id,
         ]);
-        $benOther = Beneficiary::factory()->create([
+        $benSameGroup = Beneficiary::factory()->create([
             'service_group_id' => $this->groupA->id,
         ]);
+        $benOtherGroup = Beneficiary::factory()->create([
+            'service_group_id' => ServiceGroup::factory()->create()->id,
+        ]);
 
-        $mfAssigned = MedicalFile::factory()->create(['beneficiary_id' => $benAssigned->id]);
-        $mfOther    = MedicalFile::factory()->create(['beneficiary_id' => $benOther->id]);
+        $mfAssigned   = MedicalFile::factory()->create(['beneficiary_id' => $benAssigned->id]);
+        $mfSameGroup  = MedicalFile::factory()->create(['beneficiary_id' => $benSameGroup->id]);
+        $mfOtherGroup = MedicalFile::factory()->create(['beneficiary_id' => $benOtherGroup->id]);
 
         $this->assertTrue($this->policy->view($servant, $mfAssigned));
-        $this->assertFalse($this->policy->view($servant, $mfOther));
+        $this->assertTrue($this->policy->view($servant, $mfSameGroup));
+        $this->assertFalse($this->policy->view($servant, $mfOtherGroup));
     }
 
     public function test_servant_cannot_create_or_delete(): void

@@ -31,7 +31,7 @@ class CreateVisit extends CreateRecord
         $servantId     = $this->record->created_by;
 
         ScheduledVisit::where('beneficiary_id', $beneficiaryId)
-            ->where('assigned_servant_id', $servantId)
+            ->assignedTo($servantId)
             ->where('status', 'pending')
             ->whereDate('scheduled_date', today())
             ->update([

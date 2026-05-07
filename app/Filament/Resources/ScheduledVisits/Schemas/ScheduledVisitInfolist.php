@@ -17,7 +17,7 @@ class ScheduledVisitInfolist
                     TextEntry::make('beneficiary.full_name')
                         ->label(__('visits.beneficiary')),
 
-                    TextEntry::make('assignedServant.name')
+                    TextEntry::make('assigned_servant_names')
                         ->label(__('beneficiaries.assigned_servant')),
 
                     TextEntry::make('scheduled_date')

@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ScheduledVisitFactory extends Factory
 {
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\ScheduledVisit $scheduledVisit): void {
+            if ($scheduledVisit->assigned_servant_id) {
+                $scheduledVisit->syncAssignedServants([$scheduledVisit->assigned_servant_id]);
+            }
+        });
+    }
+
     public function definition(): array
     {
         return [

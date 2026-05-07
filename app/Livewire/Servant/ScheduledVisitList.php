@@ -19,7 +19,8 @@ class ScheduledVisitList extends Component
 
     public function cancel(int $id): void
     {
-        $sv = ScheduledVisit::where('assigned_servant_id', auth()->id())
+        $sv = ScheduledVisit::query()
+            ->assignedTo(auth()->id())
             ->where('id', $id)
             ->first();
 
@@ -38,7 +39,9 @@ class ScheduledVisitList extends Component
 
         // ScheduledVisits are personally assigned — we intentionally use personal-only
         // scope here, unlike BeneficiaryList which uses dual group scope.
-        $query = ScheduledVisit::where('assigned_servant_id', $user->id)->with('beneficiary');
+        $query = ScheduledVisit::query()
+            ->assignedTo($user)
+            ->with(['beneficiary', 'servants']);
 
         $scheduledVisits = match ($this->filter) {
             'upcoming' => (clone $query)

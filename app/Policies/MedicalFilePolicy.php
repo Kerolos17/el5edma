@@ -38,9 +38,13 @@ class MedicalFilePolicy
             return $user->service_group_id === $medicalFile->beneficiary->service_group_id;
         }
 
-        // Servants can view medical files for their assigned beneficiaries
+        // Servants can view medical files for their assigned beneficiaries and service group.
         if ($user->role === UserRole::Servant) {
-            return $medicalFile->beneficiary->assigned_servant_id === $user->id;
+            return $medicalFile->beneficiary->assigned_servant_id === $user->id
+                || (
+                    $user->service_group_id !== null
+                    && $user->service_group_id === $medicalFile->beneficiary->service_group_id
+                );
         }
 
         return false;

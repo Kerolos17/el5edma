@@ -31,6 +31,7 @@ class ScheduledVisitListLivewireTest extends TestCase
             'status'              => 'pending',
             'scheduled_date'      => now()->addDay(),
         ]);
+        $mine->syncAssignedServants([$servant->id, $this->createServant($group)->id]);
         $other = ScheduledVisit::factory()->create([
             'assigned_servant_id' => $this->createServant($group)->id,
             'beneficiary_id'      => $b->id,
@@ -57,6 +58,7 @@ class ScheduledVisitListLivewireTest extends TestCase
             'status'              => 'pending',
             'scheduled_date'      => now()->addDay(),
         ]);
+        $sv->syncAssignedServants([$servant->id, $this->createServant($group)->id]);
 
         Livewire::actingAs($servant)
             ->test(ScheduledVisitList::class)
@@ -99,6 +101,7 @@ class ScheduledVisitListLivewireTest extends TestCase
             'status'              => 'pending',
             'scheduled_date'      => now()->addDays(3),
         ]);
+        $upcoming->syncAssignedServants([$servant->id, $this->createServant($group)->id]);
         $past = ScheduledVisit::factory()->create([
             'assigned_servant_id' => $servant->id,
             'beneficiary_id'      => $b->id,

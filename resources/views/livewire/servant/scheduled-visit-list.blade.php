@@ -57,6 +57,10 @@
                                 {{ \Carbon\Carbon::parse($sv->scheduled_time)->format('g:i A') }}
                             </span>
                         @endif
+                        <span class="text-xs text-gray-500">
+                            <i class="ph ph-users-three text-xs" aria-hidden="true"></i>
+                            {{ $sv->assigned_servant_names }}
+                        </span>
                         <span @class([
                             'badge-pill text-xs px-2 py-0.5',
                             'badge-info'     => $sv->status === 'pending',

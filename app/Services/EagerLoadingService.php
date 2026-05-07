@@ -58,6 +58,7 @@ class EagerLoadingService
         return [
             'beneficiary',
             'assignedServant',
+            'servants',
         ];
     }
 

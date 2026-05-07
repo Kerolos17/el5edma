@@ -68,7 +68,7 @@ class DashboardLivewireTest extends TestCase
             'beneficiary_id'      => $b->id,
             'status'              => 'pending',
             'scheduled_date'      => now()->addDay(),
-        ]);
+        ])->syncAssignedServants([$servant->id, $this->createServant($group)->id]);
         ScheduledVisit::factory()->create([
             'assigned_servant_id' => $servant->id,
             'beneficiary_id'      => $b->id,

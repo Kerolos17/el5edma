@@ -44,17 +44,20 @@ class ScheduledVisitPolicyTest extends TestCase
     public function test_servant_view_assigned_only(): void
     {
         $servant = $this->createServant($this->groupA);
+        $coServant = $this->createServant($this->groupA);
         $ben     = Beneficiary::factory()->create(['service_group_id' => $this->groupA->id]);
 
         $assigned = ScheduledVisit::factory()->create([
             'beneficiary_id'      => $ben->id,
             'assigned_servant_id' => $servant->id,
         ]);
+        $assigned->syncAssignedServants([$servant->id, $coServant->id]);
         $other = ScheduledVisit::factory()->create([
             'beneficiary_id' => $ben->id,
         ]);
 
         $this->assertTrue($this->policy->view($servant, $assigned));
+        $this->assertTrue($this->policy->view($coServant, $assigned));
         $this->assertFalse($this->policy->view($servant, $other));
     }
 

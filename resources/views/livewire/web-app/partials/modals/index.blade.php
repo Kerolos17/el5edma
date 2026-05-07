@@ -1,0 +1,7 @@
+@include('livewire.web-app.partials.modals.beneficiary-form')
+@include('livewire.web-app.partials.modals.medical-file-form')
+@include('livewire.web-app.partials.modals.visit-form')
+@include('livewire.web-app.partials.modals.prayer-form')
+@include('livewire.web-app.partials.modals.user-form')
+@include('livewire.web-app.partials.modals.service-group-form')
+@include('livewire.web-app.partials.modals.scheduled-visit-form')

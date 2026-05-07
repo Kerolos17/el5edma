@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خادم الخاص — لوحة الخدمة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: { 100:'#C7E5E8', 300:'#4D9BA3', 500:'#006D77', 700:'#005662', 900:'#003942' },
+                        gold: { 100:'#FDEBD0', 300:'#F7BB86', 500:'#F4A261', 700:'#D68A3D' },
+                        cream: '#FFF8F0', 'warm-white': '#FFFBF7', 'soft-gray': '#F5F3F0',
+                        critical: '#E63946', warning: '#F77F00', success: '#06A77D', info: '#457B9D',
+                    },
+                    fontFamily: { display: ['Amiri', 'serif'], body: ['Cairo', 'sans-serif'], accent: ['Tajawal', 'sans-serif'] },
+                    borderRadius: { 'card': '24px', 'pill': '100px' }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --teal-900: #003942; --teal-700: #005662; --teal-500: #006D77; --teal-300: #4D9BA3; --teal-100: #C7E5E8;
+            --gold-700: #D68A3D; --gold-500: #F4A261; --gold-300: #F7BB86; --gold-100: #FDEBD0;
+            --cream: #FFF8F0; --warm-white: #FFFBF7; --soft-gray: #F5F3F0;
+            --text-dark: #2C3E50; --text-muted: #7A8B99;
+            --critical: #E63946; --warning: #F77F00; --success: #06A77D; --info: #457B9D;
+            --gradient-deep: linear-gradient(160deg, #006D77 0%, #003942 100%);
+            --gradient-divine: radial-gradient(ellipse at top, rgba(244,162,97,0.12) 0%, transparent 60%);
+            --font-display: 'Amiri', serif; --font-body: 'Cairo', sans-serif; --font-accent: 'Tajawal', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); color: var(--text-dark); background: var(--warm-white); overflow-x: hidden; min-height: 100vh; padding-bottom: 100px; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+        body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 60%; background: var(--gradient-divine); pointer-events: none; z-index: 0; }
+        .organic-shape { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+        .organic-shape-1 { width: 300px; height: 300px; top: -80px; left: -100px; background: radial-gradient(circle, rgba(0,109,119,0.08) 0%, transparent 70%); filter: blur(60px); animation: floatShape 18s ease-in-out infinite; }
+        .organic-shape-2 { width: 250px; height: 250px; bottom: 20%; right: -60px; background: radial-gradient(circle, rgba(244,162,97,0.1) 0%, transparent 70%); filter: blur(50px); animation: floatShape 22s ease-in-out infinite reverse; }
+        .organic-shape-3 { width: 200px; height: 200px; top: 40%; left: 30%; background: radial-gradient(circle, rgba(0,109,119,0.06) 0%, transparent 70%); filter: blur(70px); animation: floatShape 25s ease-in-out infinite 3s; }
+        @keyframes floatShape { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -20px) scale(1.05); } 66% { transform: translate(-20px, 30px) scale(0.95); } }
+        .reveal-card { opacity: 0; transform: translateY(30px); animation: revealUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+        .card-lift { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+        .card-lift:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 8px 16px rgba(0, 61, 66, 0.1), 0 16px 48px rgba(0, 61, 66, 0.15) !important; }
+        .btn-ripple { position: relative; overflow: hidden; }
+        .btn-ripple::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255,255,255,0.4); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s, opacity 0.6s; opacity: 0; }
+        .btn-ripple:active::after { width: 300px; height: 300px; opacity: 1; transition: 0s; }
+        @keyframes pulseRing { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(230, 57, 70, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); } }
+        .badge-pulse { animation: pulseRing 2s infinite; }
+        @keyframes pulseDot { 0%, 100% { box-shadow: 0 0 0 4px rgba(244, 162, 97, 0.3); } 50% { box-shadow: 0 0 0 8px rgba(244, 162, 97, 0.1); } }
+        .timeline-dot-pulse { animation: pulseDot 2s ease infinite; }
+        @keyframes navBounce { 0% { transform: translateY(0); } 40% { transform: translateY(-8px); } 60% { transform: translateY(-4px); } 80% { transform: translateY(-6px); } 100% { transform: translateY(-4px); } }
+        .stat-card::before { content: ''; position: absolute; top: -50%; left: -20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+        .stat-card::after { content: ''; position: absolute; bottom: -30%; right: -10%; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+        .timeline-line { position: absolute; right: 9px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--teal-300), transparent); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--teal-300); border-radius: 3px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 28px 28px 0 0; box-shadow: 0 -8px 32px rgba(0,0,0,0.1); z-index: 100; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; color: var(--text-muted); transition: all 0.3s ease; cursor: pointer; position: relative; flex: 1; text-decoration: none; }
+        .nav-item.active { color: var(--teal-500); }
+        .nav-item.active i { transform: translateY(-4px); animation: navBounce 0.5s ease; }
+        .nav-item-fab { margin-top: -28px; flex: none; width: 60px; display: flex; flex-direction: column; align-items: center; }
+        .fab-button { width: 56px; height: 56px; border-radius: 50%; background: var(--gradient-deep); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,109,119,0.4); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: none; cursor: pointer; font-size: 24px; }
+        .fab-button:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(0,109,119,0.5); }
+        .step-connector { height: 3px; flex: 1; border-radius: 2px; background: var(--soft-gray); transition: background 0.5s ease; }
+        .step-connector.completed { background: var(--teal-500); }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-120px); z-index: 200; padding: 14px 28px; border-radius: 16px; font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; box-shadow: 0 8px 32px rgba(0,0,0,0.15); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 10px; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast-success { background: linear-gradient(135deg, #06A77D 0%, #04C99E 100%); color: white; }
+        .toast-warning { background: linear-gradient(135deg, #F77F00 0%, #F4A261 100%); color: white; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 61, 66, 0.5); backdrop-filter: blur(6px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-content { position: fixed; bottom: 0; left: 0; right: 0; max-height: 92vh; background: var(--warm-white); border-radius: 28px 28px 0 0; z-index: 151; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); overflow-y: auto; }
+        .modal-content.open { transform: translateY(0); }
+        .section-page { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .section-page.active { display: block; opacity: 1; }
+        .badge-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; font-family: var(--font-body); }
+        .badge-success { background: linear-gradient(135deg, #06A77D 0%, #04C99E 100%); color: white; }
+        .badge-warning { background: linear-gradient(135deg, #F77F00 0%, #F4A261 100%); color: white; }
+        .badge-critical { background: linear-gradient(135deg, #E63946 0%, #FF6B6B 100%); color: white; }
+        .badge-info { background: linear-gradient(135deg, #457B9D 0%, #6BA3C7 100%); color: white; }
+        .btn-whatsapp { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(37,211,102,0.3); }
+        .btn-whatsapp:hover { transform: scale(1.1); box-shadow: 0 4px 16px rgba(37,211,102,0.4); }
+        .spiritual-accent { opacity: 0.08; position: absolute; pointer-events: none; }
+        .search-input { width: 100%; padding: 12px 20px 12px 44px; border-radius: 16px; border: 2px solid transparent; background: white; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-dark); box-shadow: 0 2px 12px rgba(0,61,66,0.06); transition: all 0.3s ease; outline: none; }
+        .search-input:focus { border-color: var(--teal-300); box-shadow: 0 2px 12px rgba(0,109,119,0.12), 0 0 0 4px rgba(0,109,119,0.06); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .form-textarea { width: 100%; min-height: 100px; padding: 14px 18px; border-radius: 16px; border: 2px solid #E8E4DF; background: white; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-dark); resize: vertical; outline: none; transition: border-color 0.3s ease; }
+        .form-textarea:focus { border-color: var(--teal-300); }
+        .radio-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 100px; border: 2px solid #E8E4DF; background: white; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; color: var(--text-dark); cursor: pointer; transition: all 0.3s ease; }
+        .radio-chip:hover { border-color: var(--teal-300); }
+        .radio-chip.selected { border-color: var(--teal-500); background: rgba(0,109,119,0.08); color: var(--teal-700); }
+        .avatar-ring { border: 3px solid var(--gold-300); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+        @keyframes criticalPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .critical-indicator { animation: criticalPulse 1.5s ease infinite; }
+        @media (min-width: 1024px) { .bottom-nav { display: none; } body { padding-bottom: 0; } }
+        @media (max-width: 1023px) { .desktop-sidebar { display: none !important; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+    </style>
+</head>
+<body class="relative">
+    <div class="organic-shape organic-shape-1"></div>
+    <div class="organic-shape organic-shape-2"></div>
+    <div class="organic-shape organic-shape-3"></div>
+
+    <header class="relative z-10 sticky top-0 bg-white/80 backdrop-blur-xl border-b border-teal-100/50" style="border-color: rgba(0,109,119,0.08);">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: var(--gradient-deep);">
+                    <i class="ph-duotone ph-hand-heart text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg font-bold text-teal-900 leading-tight">خادم الخاص</h1>
+                    <p class="text-xs text-teal-300 font-body">خدمة المحبة والرعاية</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="notifBtn" class="relative w-10 h-10 rounded-xl bg-soft-gray flex items-center justify-center hover:bg-teal-100 transition-all" aria-label="الإشعارات">
+                    <i class="ph-duotone ph-bell text-teal-700 text-xl"></i>
+                    <span class="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-critical text-white text-xs font-accent font-bold flex items-center justify-center badge-pulse">3</span>
+                </button>
+                <div class="w-10 h-10 rounded-xl overflow-hidden border-2 border-gold-300">
+                    <img src="https://picsum.photos/seed/servant1/80/80.jpg" alt="الخادم" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+        <svg class="spiritual-accent top-2 left-4" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.5" class="text-teal-900"/>
+        </svg>
+    </header>
+
+    <aside class="desktop-sidebar fixed top-0 right-0 w-64 h-full bg-white/90 backdrop-blur-xl border-l z-50 pt-20 px-4" style="border-color: rgba(0,109,119,0.08);">
+        <nav class="flex flex-col gap-2">
+            <a href="#" onclick="switchTab('dashboard'); return false;" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-teal-700 hover:bg-teal-100/50" data-tab="dashboard">
+                <i class="ph-duotone ph-house text-xl"></i><span class="font-body font-semibold text-sm">الرئيسية</span>
+            </a>
+            <a href="#" onclick="switchTab('beneficiaries'); return false;" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-teal-700 hover:bg-teal-100/50" data-tab="beneficiaries">
+                <i class="ph-duotone ph-users text-xl"></i><span class="font-body font-semibold text-sm">المخدومين</span>
+            </a>
+            <a href="#" onclick="switchTab('visits'); return false;" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-teal-700 hover:bg-teal-100/50" data-tab="visits">
+                <i class="ph-duotone ph-calendar-heart text-xl"></i><span class="font-body font-semibold text-sm">الزيارات</span>
+            </a>
+            <a href="#" onclick="switchTab('more'); return false;" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-teal-700 hover:bg-teal-100/50" data-tab="more">
+                <i class="ph-duotone ph-gear-six text-xl"></i><span class="font-body font-semibold text-sm">الإعدادات</span>
+            </a>
+            <div class="mt-auto pt-8">
+                <button onclick="openVisitModal()" class="w-full py-3 rounded-2xl text-white font-body font-bold text-sm btn-ripple flex items-center justify-center gap-2" style="background: var(--gradient-deep);">
+                    <i class="ph-duotone ph-plus text-lg"></i> تسجيل زيارة
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="relative z-10 max-w-6xl mx-auto px-4 py-6 lg:mr-64">
+        <section id="page-dashboard" class="section-page active">
+            <div class="mb-6 reveal-card" style="animation-delay: 0.05s;">
+                <h2 class="font-display text-2xl lg:text-3xl text-teal-900 mb-1">صباح المحبة يا أندرو</h2>
+                <p class="font-body text-sm" style="color: var(--text-muted);">عندك 3 زيارات محتاجة متابعة النهارده</p>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-8">
+                <div class="stat-card relative overflow-hidden rounded-card p-5 text-white reveal-card" style="background: var(--gradient-deep); animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><i class="ph-duotone ph-users text-lg"></i></div>
+                        <span class="text-xs bg-white/20 rounded-pill px-2 py-1 font-accent">+3</span>
+                    </div>
+                    <p class="font-accent text-3xl font-black leading-none mb-1">24</p>
+                    <p class="font-body text-xs opacity-80">مخدومي الخاص</p>
+                </div>
+                <div class="stat-card relative overflow-hidden rounded-card p-5 text-white reveal-card" style="background: linear-gradient(135deg, #F4A261 0%, #E76F51 100%); animation-delay: 0.15s;">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><i class="ph-duotone ph-calendar-heart text-lg"></i></div>
+                        <span class="text-xs bg-white/20 rounded-pill px-2 py-1 font-accent">هذا الشهر</span>
+                    </div>
+                    <p class="font-accent text-3xl font-black leading-none mb-1">12</p>
+                    <p class="font-body text-xs opacity-80">زيارة تمت</p>
+                </div>
+                <div class="stat-card relative overflow-hidden rounded-card p-5 text-white reveal-card" style="background: linear-gradient(135deg, #E63946 0%, #FF6B6B 100%); animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><i class="ph-duotone ph-warning-circle critical-indicator text-lg"></i></div>
+                        <span class="text-xs bg-white/20 rounded-pill px-2 py-1 font-accent">عاجل</span>
+                    </div>
+                    <p class="font-accent text-3xl font-black leading-none mb-1">3</p>
+                    <p class="font-body text-xs opacity-80">يحتاجوا متابعة</p>
+                </div>
+                <div class="stat-card relative overflow-hidden rounded-card p-5 text-white reveal-card" style="background: linear-gradient(135deg, #457B9D 0%, #6BA3C7 100%); animation-delay: 0.25s;">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><i class="ph-duotone ph-clock text-lg"></i></div>
+                        <span class="text-xs bg-white/20 rounded-pill px-2 py-1 font-accent">متأخر</span>
+                    </div>
+                    <p class="font-accent text-3xl font-black leading-none mb-1">5</p>
+                    <p class="font-body text-xs opacity-80">زيارة متأخرة</p>
+                </div>
+            </div>
+            <div class="mb-8 reveal-card" style="animation-delay: 0.3s;">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-xl text-teal-900 flex items-center gap-2"><i class="ph-duotone ph-heart text-critical"></i> محتاجين متابعة عاجلة</h3>
+                    <button class="font-body text-sm text-teal-500 font-semibold hover:text-teal-700 transition-colors">عرض الكل</button>
+                </div>
+                <div class="flex flex-col gap-3" id="urgentList"></div>
+            </div>
+            <div class="mb-6 reveal-card" style="animation-delay: 0.4s;">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-xl text-teal-900 flex items-center gap-2"><i class="ph-duotone ph-clock-counter-clockwise text-teal-500"></i> آخر الزيارات</h3>
+                    <button onclick="switchTab('visits')" class="font-body text-sm text-teal-500 font-semibold hover:text-teal-700 transition-colors">كل الزيارات</button>
+                </div>
+                <div class="relative pr-8" id="timelineContainer"><div class="timeline-line"></div></div>
+            </div>
+        </section>
+
+        <section id="page-beneficiaries" class="section-page">
+            <div class="mb-6">
+                <h2 class="font-display text-2xl text-teal-900 mb-3">المخدومين</h2>
+                <div class="relative mb-4">
+                    <i class="ph-duotone ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-teal-300 text-lg"></i>
+                    <input type="text" id="searchInput" class="search-input pr-12" placeholder="ابحث عن مخدوم بالاسم..." oninput="filterBeneficiaries()">
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button class="radio-chip selected" data-filter="all" onclick="setFilter(this, 'all')">الكل</button>
+                    <button class="radio-chip" data-filter="active" onclick="setFilter(this, 'active')">نشط</button>
+                    <button class="radio-chip" data-filter="needs-followup" onclick="setFilter(this, 'needs-followup')">يحتاج متابعة</button>
+                    <button class="radio-chip" data-filter="critical" onclick="setFilter(this, 'critical')">خطر</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="beneficiariesGrid"></div>
+        </section>
+
+        <section id="page-visits" class="section-page">
+            <div class="mb-6">
+                <h2 class="font-display text-2xl text-teal-900 mb-1">سجل الزيارات</h2>
+                <p class="font-body text-sm" style="color: var(--text-muted);">كل زياراتك مع المخدومين</p>
+            </div>
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button class="radio-chip selected" onclick="filterVisits(this, 'all')">الكل</button>
+                <button class="radio-chip" onclick="filterVisits(this, 'home')">منزلية</button>
+                <button class="radio-chip" onclick="filterVisits(this, 'church')">كنسية</button>
+                <button class="radio-chip" onclick="filterVisits(this, 'phone')">هاتفية</button>
+                <button class="radio-chip" onclick="filterVisits(this, 'hospital')">مستشفى</button>
+            </div>
+            <div class="relative pr-8" id="fullTimeline"><div class="timeline-line" style="background: linear-gradient(to bottom, var(--teal-500), var(--teal-300), transparent);"></div></div>
+        </section>
+
+        <section id="page-more" class="section-page">
+            <div class="mb-6">
+                <h2 class="font-display text-2xl text-teal-900 mb-1">الإعدادات</h2>
+                <p class="font-body text-sm" style="color: var(--text-muted);">إعداداتك الشخصية والتطبيق</p>
+            </div>
+            <div class="bg-white rounded-card p-6 mb-4 shadow-sm card-lift" style="box-shadow: 0 2px 8px rgba(0,61,66,0.06), 0 8px 24px rgba(0,61,66,0.08);">
+                <div class="flex items-center gap-4 mb-6">
+                    <img src="https://picsum.photos/seed/servant1/120/120.jpg" class="w-16 h-16 rounded-2xl object-cover avatar-ring" alt="الخادم">
+                    <div>
+                        <h3 class="font-display text-lg text-teal-900">أندرو جرجس</h3>
+                        <p class="font-body text-sm" style="color: var(--text-muted);">خادم خدمة الخاص — كنيسة مارجرجس</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-soft-gray rounded-2xl p-3"><p class="font-accent text-xl font-black text-teal-500">24</p><p class="font-body text-xs" style="color: var(--text-muted);">مخدوم</p></div>
+                    <div class="bg-soft-gray rounded-2xl p-3"><p class="font-accent text-xl font-black text-gold-500">87</p><p class="font-body text-xs" style="color: var(--text-muted);">زيارة</p></div>
+                    <div class="bg-soft-gray rounded-2xl p-3"><p class="font-accent text-xl font-black text-success">2 سنين</p><p class="font-body text-xs" style="color: var(--text-muted);">في الخدمة</p></div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button class="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all w-full text-right" style="box-shadow: 0 2px 8px rgba(0,61,66,0.04);">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center"><i class="ph-duotone ph-bell-ringing text-teal-500 text-lg"></i></div>
+                    <div class="flex-1"><p class="font-body font-semibold text-sm text-teal-900">الإشعارات</p><p class="font-body text-xs" style="color: var(--text-muted);">تذكيرات الزيارات والتنبيهات</p></div>
+                    <i class="ph-duotone ph-caret-left text-teal-300"></i>
+                </button>
+                <button class="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all w-full text-right" style="box-shadow: 0 2px 8px rgba(0,61,66,0.04);">
+                    <div class="w-10 h-10 rounded-xl bg-gold-100 flex items-center justify-center"><i class="ph-duotone ph-lock-key text-gold-500 text-lg"></i></div>
+                    <div class="flex-1"><p class="font-body font-semibold text-sm text-teal-900">الخصوصية</p><p class="font-body text-xs" style="color: var(--text-muted);">إعدادات خصوصية البيانات</p></div>
+                    <i class="ph-duotone ph-caret-left text-teal-300"></i>
+                </button>
+                <button class="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all w-full text-right" style="box-shadow: 0 2px 8px rgba(0,61,66,0.04)
+;">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center"><i class="ph-duotone ph-question text-teal-500 text-lg"></i></div>
+                    <div class="flex-1"><p class="font-body font-semibold text-sm text-teal-900">المساعدة</p><p class="font-body text-xs" style="color: var(--text-muted);">الأسئلة الشائعة والدعم</p></div>
+                    <i class="ph-duotone ph-caret-left text-teal-300"></i>
+                </button>
+                <button class="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all w-full text-right" style="box-shadow: 0 2px 8px rgba(0,61,66,0.04);">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(230,57,70,0.1);"><i class="ph-duotone ph-sign-out text-critical text-lg"></i></div>
+                    <div class="flex-1"><p class="font-body font-semibold text-sm text-critical">تسجيل الخروج</p></div>
+                    <i class="ph-duotone ph-caret-left text-teal-300"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <div id="visitModalOverlay" class="modal-overlay" onclick="closeVisitModal()"></div>
+    <div id="visitModal" class="modal-content">
+        <div class="p-6">
+            <div class="flex justify-center mb-4">
+                <div class="w-10 h-1 rounded-full bg-teal-200"></div>
+            </div>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-xl text-teal-900">تسجيل زيارة جديدة</h2>
+                <button onclick="closeVisitModal()" class="w-8 h-8 rounded-lg bg-soft-gray flex items-center justify-center hover:bg-teal-100 transition-colors" aria-label="إغلاق">
+                    <i class="ph-duotone ph-x text-teal-700"></i>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 mb-8" id="stepsIndicator">
+                <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-sm font-accent font-bold transition-all" style="background: var(--teal-500); color: white;">1</div>
+                <div class="step-connector" id="connector1"></div>
+                <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-sm font-accent font-bold transition-all bg-soft-gray text-teal-300" id="step2dot">2</div>
+                <div class="step-connector" id="connector2"></div>
+                <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-sm font-accent font-bold transition-all bg-soft-gray text-teal-300" id="step3dot">3</div>
+                <div class="step-connector" id="connector3"></div>
+                <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-sm font-accent font-bold transition-all bg-soft-gray text-teal-300" id="step4dot">4</div>
+            </div>
+            <div id="formStep1" class="form-step">
+                <h3 class="font-body font-bold text-teal-900 mb-1">اختار المخدوم</h3>
+                <p class="font-body text-sm mb-4" style="color: var(--text-muted);">اختار الشخص اللي زرته</p>
+                <div class="relative mb-3">
+                    <i class="ph-duotone ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-teal-300"></i>
+                    <input type="text" id="modalSearch" class="search-input pr-12" placeholder="ابحث بالاسم..." oninput="filterModalBeneficiaries()">
+                </div>
+                <div class="flex flex-col gap-2 max-h-52 overflow-y-auto" id="modalBeneficiaryList"></div>
+            </div>
+            <div id="formStep2" class="form-step" style="display:none;">
+                <h3 class="font-body font-bold text-teal-900 mb-1">نوع الزيارة</h3>
+                <p class="font-body text-sm mb-4" style="color: var(--text-muted);">اختار نوع الزيارة اللي عملتها</p>
+                <div class="flex flex-wrap gap-3" id="visitTypeChips">
+                    <button class="radio-chip" data-type="home" onclick="selectVisitType(this)"><i class="ph-duotone ph-house text-lg"></i> منزلية</button>
+                    <button class="radio-chip" data-type="church" onclick="selectVisitType(this)"><i class="ph-duotone ph-church text-lg"></i> كنسية</button>
+                    <button class="radio-chip" data-type="phone" onclick="selectVisitType(this)"><i class="ph-duotone ph-phone text-lg"></i> هاتفية</button>
+                    <button class="radio-chip" data-type="hospital" onclick="selectVisitType(this)"><i class="ph-duotone ph-hospital text-lg"></i> مستشفى</button>
+                </div>
+            </div>
+            <div id="formStep3" class="form-step" style="display:none;">
+                <h3 class="font-body font-bold text-teal-900 mb-1">تفاصيل الزيارة</h3>
+                <p class="font-body text-sm mb-4" style="color: var(--text-muted);">سجل ملاحظاتك عن الزيارة</p>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="font-body font-semibold text-sm text-teal-900 mb-2 block">الحالة الصحية</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="radio-chip" data-health="good" onclick="selectHealth(this)"><i class="ph-duotone ph-smiley text-success"></i> جيدة</button>
+                            <button class="radio-chip" data-health="stable" onclick="selectHealth(this)"><i class="ph-duotone ph-meh text-warning"></i> مستقرة</button>
+                            <button class="radio-chip" data-health="worse" onclick="selectHealth(this)"><i class="ph-duotone ph-frown text-critical"></i> تدهورت</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-body font-semibold text-sm text-teal-900 mb-2 block">احتياجات روحية</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="radio-chip" data-spiritual="communion" onclick="toggleSpiritual(this)">تناول</button>
+                            <button class="radio-chip" data-spiritual="confession" onclick="toggleSpiritual(this)">اعتراف</button>
+                            <button class="radio-chip" data-spiritual="prayer" onclick="toggleSpiritual(this)">صلاة</button>
+                            <button class="radio-chip" data-spiritual="bible" onclick="toggleSpiritual(this)">قراءة الكتاب</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-body font-semibold text-sm text-teal-900 mb-2 block">ملاحظات</label>
+                        <textarea class="form-textarea" placeholder="اكتب ملاحظاتك هنا..." id="visitNotes"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div id="formStep4" class="form-step" style="display:none;">
+                <h3 class="font-body font-bold text-teal-900 mb-1">ملخص الزيارة</h3>
+                <p class="font-body text-sm mb-4" style="color: var(--text-muted);">راجع البيانات قبل التأكيد</p>
+                <div class="bg-soft-gray rounded-2xl p-5 flex flex-col gap-3" id="visitSummary"></div>
+            </div>
+            <div class="flex items-center justify-between mt-8">
+                <button id="prevStepBtn" onclick="prevStep()" class="font-body font-semibold text-sm text-teal-500 hover:text-teal-700 transition-colors flex items-center gap-1" style="display:none;">
+                    <i class="ph-duotone ph-caret-right"></i> السابق
+                </button>
+                <div class="flex-1"></div>
+                <button id="nextStepBtn" onclick="nextStep()" class="py-3 px-8 rounded-2xl text-white font-body font-bold text-sm btn-ripple transition-all" style="background: var(--gradient-deep);">
+                    التالي <i class="ph-duotone ph-caret-left inline-block mr-1"></i>
+                </button>
+                <button id="submitVisitBtn" onclick="submitVisit()" class="py-3 px-8 rounded-2xl text-white font-body font-bold text-sm btn-ripple transition-all" style="background: linear-gradient(135deg, #06A77D 0%, #04C99E 100%); display:none;">
+                    <i class="ph-duotone ph-check-circle inline-block ml-1"></i> تأكيد الزيارة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast toast-success">
+        <i class="ph-duotone ph-check-circle text-xl"></i>
+        <span id="toastMsg">تم تسجيل الزيارة بنجاح</span>
+    </div>
+
+    <nav class="bottom-nav" aria-label="التنقل الرئيسي">
+        <div class="flex items-end justify-around">
+            <a class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                <i class="ph-duotone ph-house text-2xl"></i>
+                <span class="font-body text-xs font-semibold">الرئيسية</span>
+            </a>
+            <a class="nav-item" data-tab="beneficiaries" onclick="switchTab('beneficiaries')">
+                <i class="ph-duotone ph-users text-2xl"></i>
+                <span class="font-body text-xs font-semibold">المخدومين</span>
+            </a>
+            <div class="nav-item-fab">
+                <button class="fab-button btn-ripple" onclick="openVisitModal()" aria-label="تسجيل زيارة">
+                    <i class="ph-duotone ph-plus text-2xl"></i>
+                </button>
+            </div>
+            <a class="nav-item" data-tab="visits" onclick="switchTab('visits')">
+                <i class="ph-duotone ph-calendar-heart text-2xl"></i>
+                <span class="font-body text-xs font-semibold">الزيارات</span>
+            </a>
+            <a class="nav-item" data-tab="more" onclick="switchTab('more')">
+                <i class="ph-duotone ph-gear-six text-2xl"></i>
+                <span class="font-body text-xs font-semibold">المزيد</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        const beneficiaries = [
+            { id: 1, name: 'مريم سمير', age: 32, condition: 'متلازمة داون', status: 'active', lastVisit: 'منذ 5 أيام', photo: 'maryam1', phone: '01001234567', notes: 'بتحب الترانيم كتير' },
+            { id: 2, name: 'يوحنا عادل', age: 28, condition: 'إعاقة حركية', status: 'needs-followup', lastVisit: 'منذ 12 يوم', photo: 'yohanna2', phone: '01112345678', notes: 'محتاج كرسي متحرك جديد' },
+            { id: 3, name: 'كريستينا مراد', age: 45, condition: 'ضعف بصر', status: 'critical', lastVisit: 'منذ 20 يوم', photo: 'kristina3', phone: '01223456789', notes: 'حالتها اتدهورت - محتاجة زيارة عاجلة' },
+            { id: 4, name: 'مارك فؤاد', age: 19, condition: 'توحد', status: 'active', lastVisit: 'منذ 3 أيام', photo: 'mark4', phone: '01098765432', notes: 'تحسن ملحوظ في التواصل' },
+            { id: 5, name: 'مونيكا جورج', age: 38, condition: 'شلل دماغي', status: 'needs-followup', lastVisit: 'منذ 10 أيام', photo: 'monica5', phone: '01187654321', notes: 'محتاجين تنسيق مع المستشفى' },
+            { id: 6, name: 'أنطونيوس نبيل', age: 55, condition: 'إعاقة ذهنية', status: 'active', lastVisit: 'منذ 2 يوم', photo: 'antonios6', phone: '01276543210', notes: 'بيحب يشارك في التسبيح' },
+            { id: 7, name: 'مارينا سامي', age: 24, condition: 'متلازمة داون', status: 'active', lastVisit: 'منذ 4 أيام', photo: 'marina7', phone: '01512345678', notes: 'سعيدة بخدمة الكنيسة' },
+            { id: 8, name: 'بيتر مجدي', age: 41, condition: 'إعاقة سمعية', status: 'critical', lastVisit: 'منذ 18 يوم', photo: 'peter8', phone: '01623456789', notes: 'محتاج جهاز سمعي جديد' },
+        ];
+
+        const visits = [
+            { id: 1, beneficiaryId: 1, type: 'home', typeLabel: 'منزلية', date: 'منذ 2 يوم', health: 'جيدة', notes: 'حالتها مستقرة وفرحانة بالتسبيح', spiritual: ['صلاة', 'تناول'] },
+            { id: 2, beneficiaryId: 4, type: 'church', typeLabel: 'كنسية', date: 'منذ 3 أيام', health: 'جيدة', notes: 'شارك في القداس واتواصل مع الخدام', spiritual: ['تناول'] },
+            { id: 3, beneficiaryId: 2, type: 'phone', typeLabel: 'هاتفية', date: 'منذ 5 أيام', health: 'مستقرة', notes: 'ختلفنا على موعد الزيارة', spiritual: ['صلاة'] },
+            { id: 4, beneficiaryId: 6, type: 'home', typeLabel: 'منزلية', date: 'منذ أسبوع', health: 'جيدة', notes: 'كان فرحان جدا بالزيارة', spiritual: ['اعتراف', 'صلاة'] },
+            { id: 5, beneficiaryId: 3, type: 'hospital', typeLabel: 'مستشفى', date: 'منذ أسبوعين', health: 'تدهورت', notes: 'محتاجة متابعة طبية عاجلة - تم التواصل مع الكاهن', spiritual: ['تناول', 'صلاة'] },
+            { id: 6, beneficiaryId: 7, type: 'home', typeLabel: 'منزلية', date: 'منذ 4 أيام', health: 'جيدة', notes: 'أمها قالت إنها بقت تطلب تروح الكنيسة', spiritual: ['صلاة', 'قراءة الكتاب'] },
+        ];
+
+        let currentTab = 'dashboard';
+        let currentFilter = 'all';
+        let currentVisitStep = 1;
+        let selectedBeneficiary = null;
+        let selectedVisitType = null;
+        let selectedHealth = null;
+        let selectedSpiritual = [];
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.section-page').forEach(el => el.classList.remove('active'));
+            const page = document.getElementById('page-' + tabName);
+            if (page) {
+                page.classList.add('active');
+                page.querySelectorAll('.reveal-card').forEach(card => {
+                    card.style.animation = 'none';
+                    card.offsetHeight;
+                    card.style.animation = '';
+                });
+            }
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.tab === tabName));
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                const isActive = link.dataset.tab === tabName;
+                link.classList.toggle('bg-teal-100/50', isActive);
+                link.classList.toggle('text-teal-900', isActive);
+            });
+            currentTab = tabName;
+            if (tabName === 'beneficiaries') renderBeneficiaries();
+            if (tabName === 'visits') renderFullTimeline();
+        }
+
+        function renderUrgentList() {
+            const container = document.getElementById('urgentList');
+            const urgent = beneficiaries.filter(b => b.status === 'critical' || b.status === 'needs-followup');
+            container.innerHTML = urgent.map((b, i) => {
+                const isCritical = b.status === 'critical';
+                const statusBadge = isCritical
+                    ? '<span class="badge-pill badge-critical critical-indicator"><i class="ph-duotone ph-warning-circle"></i> خطر</span>'
+                    : '<span class="badge-pill badge-warning"><i class="ph-duotone ph-clock"></i> متابعة</span>';
+                return `
+                <div class="bg-white rounded-card p-4 flex items-center gap-4 card-lift reveal-card" style="box-shadow: 0 2px 8px rgba(0,61,66,0.06), 0 8px 24px rgba(0,61,66,0.08); animation-delay: ${0.3 + i * 0.08}s;">
+                    <img src="https://picsum.photos/seed/${b.photo}/100/100.jpg" alt="${b.name}" class="w-14 h-14 rounded-2xl object-cover avatar-ring">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-body font-bold text-teal-900 text-sm truncate">${b.name}</h4>
+                        <p class="font-body text-xs truncate" style="color: var(--text-muted);">${b.condition} — ${b.lastVisit}</p>
+                    </div>
+                    ${statusBadge}
+                    <button class="btn-whatsapp" onclick="window.open('https://wa.me/${b.phone}', '_blank')"><i class="ph-duotone ph-whatsapp-logo text-lg"></i></button>
+                </div>`;
+            }).join('');
+        }
+
+        function renderBeneficiaries(filteredData) {
+            const container = document.getElementById('beneficiariesGrid');
+            const data = filteredData || beneficiaries;
+            container.innerHTML = data.map((b, i) => {
+                const isCritical = b.status === 'critical';
+                const isActive = b.status === 'active';
+                const statusBadge = isCritical ? '<span class="badge-pill badge-critical critical-indicator"><i class="ph-duotone ph-warning-circle"></i> خطر</span>' :
+                                    isActive ? '<span class="badge-pill badge-success"><i class="ph-duotone ph-check-circle"></i> نشط</span>' :
+                                    '<span class="badge-pill badge-warning"><i class="ph-duotone ph-clock"></i> متابعة</span>';
+                return `
+                <div class="bg-white rounded-card p-5 card-lift reveal-card" style="box-shadow: 0 2px 8px rgba(0,61,66,0.06), 0 8px 24px rgba(0,61,66,0.08); animation-delay: ${i * 0.05}s;">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="https://picsum.photos/seed/${b.photo}/100/100.jpg" alt="${b.name}" class="w-14 h-14 rounded-2xl object-cover avatar-ring">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-body font-bold text-teal-900 truncate">${b.name}</h4>
+                            <p class="font-body text-xs" style="color: var(--text-muted);">${b.condition} — ${b.age} سنة</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        ${statusBadge}
+                        <span class="font-body text-xs" style="color: var(--text-muted);"><i class="ph-duotone ph-clock text-xs ml-1"></i>${b.lastVisit}</span>
+                    </div>
+                    <p class="font-body text-sm text-teal-700 mb-4 leading-relaxed">${b.notes}</p>
+                    <div class="flex items-center gap-2 border-t pt-4" style="border-color: rgba(0,109,119,0.06);">
+                        <button class="btn-whatsapp" onclick="window.open('https://wa.me/${b.phone}', '_blank')"><i class="ph-duotone ph-whatsapp-logo text-lg"></i></button>
+                        <button class="flex-1 py-2.5 rounded-xl text-teal-700 text-sm font-body font-bold border-2 border-teal-100 hover:bg-teal-50 transition-colors" onclick="switchTab('visits')">
+                            <i class="ph-duotone ph-clock-counter-clockwise ml-1"></i> السجل
+                        </button>
+                        <button class="flex-1 py-2.5 rounded-xl text-white text-sm font-body font-bold btn-ripple" style="background: var(--gradient-deep);" onclick="selectedBeneficiary=${b.id}; openVisitModal();">
+                            <i class="ph-duotone ph-plus ml-1"></i> زيارة
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+            if (data.length === 0) {
+                container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="ph-duotone ph-magnifying-glass text-5xl text-teal-200 mb-4 block"></i>
+                    <p class="font-body text-lg text-teal-700 font-semibold">مفيش نتائج</p>
+                    <p class="font-body text-sm" style="color: var(--text-muted);">جرب بحث بكلمات تانية</p>
+                </div>`;
+            }
+        }
+
+        function filterBeneficiaries() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            let filtered = beneficiaries.filter(b => {
+                const matchFilter = currentFilter === 'all' || b.status === currentFilter;
+                const matchSearch = b.name.toLowerCase().includes(query) || b.condition.toLowerCase().includes(query);
+                return matchFilter && matchSearch;
+            });
+            renderBeneficiaries(filtered);
+        }
+
+        function setFilter(btn, filter) {
+            currentFilter = filter;
+            document.querySelectorAll('#page-beneficiaries .radio-chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            filterBeneficiaries();
+        }
+
+        function renderTimeline(containerId, data, limit) {
+            const container = document.getElementById(containerId);
+            const items = limit ? data.slice(0, limit) : data;
+            container.innerHTML = `<div class="timeline-line"></div>` + items.map((v, i) => {
+                const b = beneficiaries.find(b => b.id === v.beneficiaryId);
+                if (!b) return '';
+                const typeIcon = v.type === 'home' ? 'ph-house' : v.type === 'church' ? 'ph-church' : v.type === 'phone' ? 'ph-phone' : 'ph-hospital';
+                const healthColor = v.health === 'جيدة' ? 'text-success' : v.health === 'مستقرة' ? 'text-warning' : 'text-critical';
+                return `
+                <div class="relative pr-8 mb-8 reveal-card" style="animation-delay: ${0.05 * i}s;">
+                    <div class="timeline-dot-pulse absolute right-0 top-1 w-5 h-5 rounded-full border-[3px] border-white" style="background: var(--gold-500); z-index: 2;"></div>
+                    <div class="bg-white rounded-2xl p-4 mr-4 shadow-sm card-lift" style="box-shadow: 0 2px 8px rgba(0,61,66,0.05);">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <img src="https://picsum.photos/seed/${b.photo}/60/60.jpg" class="w-8 h-8 rounded-full object-cover" alt="${b.name}">
+                                <h4 class="font-body font-bold text-sm text-teal-900">${b.name}</h4>
+                            </div>
+                            <span class="font-body text-xs px-2 py-1 rounded-lg bg-soft-gray" style="color: var(--text-muted);">${v.date}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="badge-pill bg-teal-50 text-teal-700 text-xs"><i class="ph-duotone ${typeIcon} ml-1"></i>${v.typeLabel}</span>
+                            <span class="font-body text-xs font-semibold ${healthColor}"><i class="ph-duotone ph-heart ml-1"></i>${v.health}</span>
+                        </div>
+                        <p class="font-body text-sm leading-relaxed" style="color: var(--text-dark);">${v.notes}</p>
+                        ${v.spiritual.length > 0 ? `<div class="flex gap-1 mt-2 flex-wrap">${v.spiritual.map(s => `<span class="text-xs bg-gold-100 text-gold-700 px-2 py-0.5 rounded-full font-body font-semibold">${s}</span>`).join('')}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderFullTimeline(type) {
+            let data = visits;
+            if (type && type !== 'all') data = visits.filter(v => v.type === type);
+            renderTimeline('fullTimeline', data);
+        }
+
+        function filterVisits(btn, type) {
+            document.querySelectorAll('#page-visits .radio-chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            renderFullTimeline(type);
+        }
+
+        function openVisitModal() {
+            currentVisitStep = 1;
+            selectedVisitType = null;
+            selectedHealth = null;
+            selectedSpiritual = [];
+            document.getElementById('visitNotes').value = '';
+            document.getElementById('visitModalOverlay').classList.add('open');
+            document.getElementById('visitModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            updateStepUI();
+            renderModalBeneficiaries();
+        }
+
+        function closeVisitModal() {
+            document.getElementById('visitModalOverlay').classList.remove('open');
+            document.getElementById('visitModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function renderModalBeneficiaries() {
+            const list = document.getElementById('modalBeneficiaryList');
+            list.innerHTML = beneficiaries.map(b => `
+                <button class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-teal-50 transition-colors text-right ${selectedBeneficiary === b.id ? 'bg-teal-50 border-2 border-teal-500' : 'border-2 border-transparent'}" onclick="selectModalBeneficiary(${b.id})">
+                    <img src="https://picsum.photos/seed/${b.photo}/60/60.jpg" class="w-10 h-10 rounded-xl object-cover" alt="${b.name}">
+                    <div class="flex-1">
+                        <h4 class="font-body font-bold text-sm text-teal-900">${b.name}</h4>
+                        <p class="font-body text-xs" style="color: var(--text-muted);">${b.condition}</p>
+                    </div>
+                    ${selectedBeneficiary === b.id ? '<i class="ph-duotone ph-check-circle text-teal-500 text-xl"></i>' : ''}
+                </button>`).join('');
+        }
+
+        function filterModalBeneficiaries() {
+            const query = document.getElementById('modalSearch').value.trim().toLowerCase();
+            const list = document.getElementById('modalBeneficiaryList');
+            const filtered = beneficiaries.filter(b => b.name.toLowerCase().includes(query));
+            list.innerHTML = filtered.map(b => `
+                <button class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-teal-50 transition-colors text-right ${selectedBeneficiary === b.id ? 'bg-teal-50 border-2 border-teal-500' : 'border-2 border-transparent'}" onclick="selectModalBeneficiary(${b.id})">
+                    <img src="https://picsum.photos/seed/${b.photo}/60/60.jpg" class="w-10 h-10 rounded-xl object-cover" alt="${b.name}">
+                    <div class="flex-1">
+                        <h4 class="font-body font-bold text-sm text-teal-900">${b.name}</h4>
+                        <p class="font-body text-xs" style="color: var(--text-muted);">${b.condition}</p>
+                    </div>
+                    ${selectedBeneficiary === b.id ? '<i class="ph-duotone ph-check-circle text-teal-500 text-xl"></i>' : ''}
+                </button>`).join('');
+        }
+
+        function selectModalBeneficiary(id) {
+            selectedBeneficiary = id;
+            renderModalBeneficiaries();
+        }
+
+        function selectVisitType(btn) {
+            document.querySelectorAll('#visitTypeChips .radio-chip').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedVisitType = btn.dataset.type;
+        }
+
+        function selectHealth(btn) {
+            document.querySelectorAll('[data-health]').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedHealth = btn.dataset.health;
+        }
+
+        function toggleSpiritual(btn) {
+            btn.classList.toggle('selected');
+            const val = btn.dataset.spiritual;
+            if (selectedSpiritual.includes(val)) {
+                selectedSpiritual = selectedSpiritual.filter(s => s !== val);
+            } else {
+                selectedSpiritual.push(val);
+            }
+        }
+
+        function nextStep() {
+            if (currentVisitStep === 1 && !selectedBeneficiary) { showToast('اختار المخدوم الأول', 'warning'); return; }
+            if (currentVisitStep === 2 && !selectedVisitType) { showToast('اختار نوع الزيارة', 'warning'); return; }
+            if (currentVisitStep === 3 && !selectedHealth) { showToast('سجل الحالة الصحية', 'warning'); return; }
+            if (currentVisitStep < 4) { currentVisitStep++; updateStepUI(); }
+        }
+
+        function prevStep() {
+            if (currentVisitStep > 1) { currentVisitStep--; updateStepUI(); }
+        }
+
+        function updateStepUI() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('formStep' + i).style.display = i === currentVisitStep ? 'block' : 'none';
+            }
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById('step' + i + 'dot') || (i === 1 ? document.querySelector('.step-dot') : null);
+                const connector = document.getElementById('connector' + i);
+                if (dot) {
+                    if (i <= currentVisitStep) {
+                        dot.style.background = 'var(--teal-500)';
+                        dot.style.color = 'white';
+                        dot.classList.remove('bg-soft-gray', 'text-teal-300');
+                    } else {
+                        dot.style.background = '';
+                        dot.classList.add('bg-soft-gray', 'text-teal-300');
+                        dot.style.color = '';
+                    }
+                }
+                if (connector) connector.classList.toggle('completed', i < currentVisitStep);
+            }
+            document.getElementById('prevStepBtn').style.display = currentVisitStep > 1 ? 'flex' : 'none';
+            document.getElementById('nextStepBtn').style.display = currentVisitStep < 4 ? 'inline-flex' : 'none';
+            document.getElementById('submitVisitBtn').style.display = currentVisitStep === 4 ? 'inline-flex' : 'none';
+            if (currentVisitStep === 4) {
+                const b = beneficiaries.find(b => b.id === selectedBeneficiary);
+                const typeNames = { home: 'منزلية', church: 'كنسية', phone: 'هاتفية', hospital: 'مستشفى' };
+                const healthNames = { good: 'جيدة', stable: 'مستقرة', worse: 'تدهورت' };
+                const spiritualNames = { communion: 'تناول', confession: 'اعتراف', prayer: 'صلاة', bible: 'قراءة الكتاب' };
+                document.getElementById('visitSummary').innerHTML = `
+                    <div class="flex justify-between items-center"><span class="font-body text-sm" style="color: var(--text-muted);">المخدوم</span><span class="font-body font-bold text-sm text-teal-900">${b ? b.name : '-'}</span></div>
+                    <div class="flex justify-between items-center"><span class="font-body text-sm" style="color: var(--text-muted);">نوع الزيارة</span><span class="font-body font-bold text-sm text-teal-900">${typeNames[selectedVisitType] || '-'}</span></div>
+                    <div class="flex justify-between items-center"><span class="font-body text-sm" style="color: var(--text-muted);">الحالة الصحية</span><span class="font-body font-bold text-sm text-teal-900">${healthNames[selectedHealth] || '-'}</span></div>
+                    <div class="flex justify-between items-start"><span class="font-body text-sm" style="color: var(--text-muted);">احتياجات روحية</span><span class="font-body font-bold text-sm text-teal-900 text-left">${selectedSpiritual.length > 0 ? selectedSpiritual.map(s => spiritualNames[s] || s).join('، ') : 'لا يوجد'}</span></div>
+                    <div class="flex justify-between items-start"><span class="font-body text-sm" style="color: var(--text-muted);">ملاحظات</span><span class="font-body font-bold text-sm text-teal-900 text-left max-w-[60%]">${document.getElementById('visitNotes').value || 'لا يوجد'}</span></div>`;
+            }
+        }
+
+        function submitVisit() {
+            const b = beneficiaries.find(b => b.id === selectedBeneficiary);
+            const typeNames = { home: 'منزلية', church: 'كنسية', phone: 'هاتفية', hospital: 'مستشفى' };
+            const healthNames = { good: 'جيدة', stable: 'مستقرة', worse: 'تدهورت' };
+            const spiritualNames = { communion: 'تناول', confession: 'اعتراف', prayer: 'صلاة', bible: 'قراءة الكتاب' };
+            visits.unshift({
+                id: visits.length + 1,
+                beneficiaryId: selectedBeneficiary,
+                type: selectedVisitType,
+                typeLabel: typeNames[selectedVisitType],
+                date: 'الآن',
+                health: healthNames[selectedHealth],
+                notes: document.getElementById('visitNotes').value || 'تمت الزيارة',
+                spiritual: selectedSpiritual.map(s => spiritualNames[s] || s)
+            });
+            closeVisitModal();
+            showToast('تم تسجيل الزيارة بنجاح! ربنا يبارك خدمتك', 'success');
+            renderUrgentList();
+            renderTimeline('timelineContainer', visits, 3);
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderUrgentList();
+            renderTimeline('timelineContainer', visits, 3);
+        });
+    </script>
+</body>
+</html>

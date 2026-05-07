@@ -7,6 +7,7 @@ use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use App\Support\NotificationMetadata;
+use App\Events\NewMinistryNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -79,6 +80,18 @@ class InternalNotificationService
 
             // مسح الكاش الخاص بعدد الإشعارات لهذا المستخدم لكي يظهر الإشعار في الحال (Livewire)
             Cache::forget('notifications_unread_' . $user->id);
+            // Dispatch a broadcast event so the user's browser updates in real-time
+            try {
+                event(new NewMinistryNotification($user->id, [
+                    'type' => $type,
+                    'title' => $title,
+                    'body' => $body,
+                    'data' => $payload,
+                    'created_at' => $now->toDateTimeString(),
+                ]));
+            } catch (\Throwable $e) {
+                // fail silently if broadcasting isn't configured
+            }
         }
 
         if (! empty($notifications)) {
@@ -100,5 +113,17 @@ class InternalNotificationService
         ]);
 
         Cache::forget('notifications_unread_' . $user->id);
+        // Dispatch a broadcast event so the user's browser updates in real-time
+        try {
+            event(new NewMinistryNotification($user->id, [
+                'type' => $type,
+                'title' => $title,
+                'body' => $body,
+                'data' => NotificationMetadata::enrich($type, $data),
+                'created_at' => now()->toDateTimeString(),
+            ]));
+        } catch (\Throwable $e) {
+            // broadcasting not configured — ignore
+        }
     }
 }

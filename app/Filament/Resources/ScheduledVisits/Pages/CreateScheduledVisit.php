@@ -14,11 +14,18 @@ class CreateScheduledVisit extends CreateRecord
 {
     protected static string $resource = ScheduledVisitResource::class;
 
+    protected array $pendingAssignedServantIds = [];
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['created_by'] = Auth::id();
 
         return $this->guardScheduledVisitAssignments($data);
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->record->syncAssignedServants($this->pendingAssignedServantIds);
     }
 
     protected function getRedirectUrl(): string
@@ -37,17 +44,37 @@ class CreateScheduledVisit extends CreateRecord
             ]);
         }
 
-        $servant = User::query()
-            ->whereKey($data['assigned_servant_id'] ?? null)
-            ->where('role', UserRole::Servant)
-            ->where('is_active', true)
-            ->first();
+        $servantIds = collect($data['assigned_servant_ids'] ?? [])
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
 
-        if (! $servant || (int) $servant->service_group_id !== (int) $beneficiary->service_group_id) {
+        if ($servantIds === []) {
             throw ValidationException::withMessages([
-                'assigned_servant_id' => __('users.unauthorized_role'),
+                'assigned_servant_ids' => __('users.unauthorized_role'),
             ]);
         }
+
+        $validIds = User::query()
+            ->whereIn('id', $servantIds)
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->where('service_group_id', $beneficiary->service_group_id)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if ($servantIds !== $validIds) {
+            throw ValidationException::withMessages([
+                'assigned_servant_ids' => __('users.unauthorized_role'),
+            ]);
+        }
+
+        $this->pendingAssignedServantIds = $servantIds;
+        $data['assigned_servant_id'] = $servantIds[0];
+        unset($data['assigned_servant_ids']);
 
         return $data;
     }

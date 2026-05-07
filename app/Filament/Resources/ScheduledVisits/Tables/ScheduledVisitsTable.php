@@ -25,7 +25,7 @@ class ScheduledVisitsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('assignedServant.name')
+                TextColumn::make('assigned_servant_names')
                     ->label(__('beneficiaries.assigned_servant'))
                     ->default('—'),
 

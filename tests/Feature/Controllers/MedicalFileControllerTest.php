@@ -57,13 +57,28 @@ class MedicalFileControllerTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_servant_cannot_download_unassigned_beneficiary_file(): void
+    public function test_servant_can_download_same_group_beneficiary_file(): void
     {
         $group   = ServiceGroup::factory()->create();
         $servant = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
         $other   = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
         $ben     = Beneficiary::factory()->create(['service_group_id' => $group->id, 'assigned_servant_id' => $other->id]);
         $medFile = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
+
+        Storage::disk('private')->put($medFile->file_path, 'file content');
+
+        $response = $this->actingAs($servant)->get(route('medical-files.download', $medFile));
+
+        $response->assertOk();
+    }
+
+    public function test_servant_cannot_download_other_group_beneficiary_file(): void
+    {
+        $group      = ServiceGroup::factory()->create();
+        $otherGroup = ServiceGroup::factory()->create();
+        $servant    = User::factory()->create(['role' => UserRole::Servant, 'service_group_id' => $group->id]);
+        $ben        = Beneficiary::factory()->create(['service_group_id' => $otherGroup->id]);
+        $medFile    = MedicalFile::factory()->create(['beneficiary_id' => $ben->id]);
 
         Storage::disk('private')->put($medFile->file_path, 'file content');
 

@@ -1,16 +1,16 @@
-const CACHE_NAME = 'ministry-pwa-v3';
-const OFFLINE_URL = '/offline.html';
-const FIREBASE_VERSION = '12.11.0';
+const CACHE_NAME = "ministry-pwa-v3";
+const OFFLINE_URL = "/offline.html";
+const FIREBASE_VERSION = "12.11.0";
 
 let firebaseMessaging = null;
 
 // Assets to precache on install
 const PRECACHE_ASSETS = [
     OFFLINE_URL,
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png',
-    '/icons/apple-touch-icon.png',
+    "/manifest.json",
+    "/icons/icon-192x192.png",
+    "/icons/icon-512x512.png",
+    "/icons/apple-touch-icon.png",
 ];
 
 // Static asset patterns - use stale-while-revalidate
@@ -23,15 +23,21 @@ const STATIC_ASSET_PATTERNS = [
 ];
 
 // Paths to never intercept
-const SKIP_PATHS = ['/fcm-token', '/login', '/logout', '/language', '/login-code'];
+const SKIP_PATHS = [
+    "/fcm-token",
+    "/login",
+    "/logout",
+    "/language",
+    "/login-code",
+];
 
 function parseBooleanish(value, fallback = false) {
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
         return value;
     }
 
-    if (typeof value === 'string') {
-        return value === 'true';
+    if (typeof value === "string") {
+        return value === "true";
     }
 
     return fallback;
@@ -39,10 +45,12 @@ function parseBooleanish(value, fallback = false) {
 
 function parseVibrationPattern(value) {
     if (Array.isArray(value)) {
-        return value.map((item) => Number(item)).filter((item) => Number.isFinite(item));
+        return value
+            .map((item) => Number(item))
+            .filter((item) => Number.isFinite(item));
     }
 
-    if (typeof value !== 'string' || value.length === 0) {
+    if (typeof value !== "string" || value.length === 0) {
         return [];
     }
 
@@ -50,7 +58,9 @@ function parseVibrationPattern(value) {
         const parsed = JSON.parse(value);
 
         return Array.isArray(parsed)
-            ? parsed.map((item) => Number(item)).filter((item) => Number.isFinite(item))
+            ? parsed
+                  .map((item) => Number(item))
+                  .filter((item) => Number.isFinite(item))
             : [];
     } catch {
         return [];
@@ -59,24 +69,30 @@ function parseVibrationPattern(value) {
 
 function showNotificationFromPayload(payload) {
     const notificationData = payload.data ?? {};
-    const notificationTitle = payload.notification?.title || 'إشعار جديد';
+    const notificationTitle = payload.notification?.title || "إشعار جديد";
     const notificationOptions = {
-        body: payload.notification?.body || '',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-72x72.png',
-        dir: 'rtl',
-        tag: notificationData.tag || 'ministry-generic',
+        body: payload.notification?.body || "",
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-72x72.png",
+        dir: "rtl",
+        tag: notificationData.tag || "ministry-generic",
         renotify: parseBooleanish(notificationData.renotify, false),
-        requireInteraction: parseBooleanish(notificationData.require_interaction, false),
+        requireInteraction: parseBooleanish(
+            notificationData.require_interaction,
+            false,
+        ),
         vibrate: parseVibrationPattern(notificationData.vibrate),
         silent: false,
         data: {
-            url: notificationData.url || '/admin',
+            url: notificationData.url || "/admin",
             ...notificationData,
         },
     };
 
-    return self.registration.showNotification(notificationTitle, notificationOptions);
+    return self.registration.showNotification(
+        notificationTitle,
+        notificationOptions,
+    );
 }
 
 function ensureFirebaseMessaging(config) {
@@ -89,9 +105,13 @@ function ensureFirebaseMessaging(config) {
     }
 
     try {
-        if (typeof firebase === 'undefined') {
-            importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app-compat.js`);
-            importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-messaging-compat.js`);
+        if (typeof firebase === "undefined") {
+            importScripts(
+                `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app-compat.js`,
+            );
+            importScripts(
+                `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-messaging-compat.js`,
+            );
         }
 
         if (!firebase.apps.length) {
@@ -100,64 +120,110 @@ function ensureFirebaseMessaging(config) {
 
         firebaseMessaging = firebase.messaging();
         firebaseMessaging.onBackgroundMessage((payload) => {
-            console.log('[sw.js] Background Firebase message:', payload);
+            console.log("[sw.js] Background Firebase message:", payload);
 
-            return showNotificationFromPayload(payload);
+            // Show the notification as before
+            showNotificationFromPayload(payload);
+
+            // Also notify any open clients (pages) so they can refresh UI in realtime
+            // This avoids requiring a full page refresh to see new notifications
+            try {
+                clients
+                    .matchAll({ type: "window", includeUncontrolled: true })
+                    .then((clientList) => {
+                        for (const client of clientList) {
+                            try {
+                                client.postMessage({
+                                    type: "FCM_BACKGROUND_MESSAGE",
+                                    payload,
+                                });
+                            } catch (e) {
+                                // ignore individual client post failures
+                            }
+                        }
+                    });
+            } catch (e) {
+                console.warn("[sw.js] Failed to postMessage to clients:", e);
+            }
+
+            return;
         });
 
         return firebaseMessaging;
     } catch (error) {
-        console.error('[sw.js] Firebase messaging initialization error:', error);
+        console.error(
+            "[sw.js] Firebase messaging initialization error:",
+            error,
+        );
 
         return null;
     }
 }
 
-self.addEventListener('message', (event) => {
-    if (event.data?.type === 'FIREBASE_CONFIG') {
+self.addEventListener("message", (event) => {
+    try {
+        console.log(
+            "[sw.js] Received message in SW:",
+            event.data?.type || event.data,
+        );
+    } catch (e) {}
+
+    if (event.data?.type === "FIREBASE_CONFIG") {
+        console.log(
+            "[sw.js] Initializing Firebase messaging with config from page",
+        );
         ensureFirebaseMessaging(event.data.config);
     }
 });
 
 // ---- Install ----------------------------------------------------------------
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
+        caches
+            .open(CACHE_NAME)
             .then(async (cache) => {
-                await Promise.allSettled(PRECACHE_ASSETS.map(async (asset) => {
-                    const response = await fetch(asset, { cache: 'no-cache' });
+                await Promise.allSettled(
+                    PRECACHE_ASSETS.map(async (asset) => {
+                        const response = await fetch(asset, {
+                            cache: "no-cache",
+                        });
 
-                    if (!response.ok) {
-                        throw new Error(`Failed to precache ${asset}: ${response.status}`);
-                    }
+                        if (!response.ok) {
+                            throw new Error(
+                                `Failed to precache ${asset}: ${response.status}`,
+                            );
+                        }
 
-                    await cache.put(asset, response);
-                }));
+                        await cache.put(asset, response);
+                    }),
+                );
             })
-            .then(() => self.skipWaiting())
+            .then(() => self.skipWaiting()),
     );
 });
 
 // ---- Activate: clean old caches --------------------------------------------
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
     event.waitUntil(
-        caches.keys().then((names) =>
-            Promise.all(
-                names
-                    .filter((n) => n !== CACHE_NAME)
-                    .map((n) => caches.delete(n))
-            )
-        )
+        caches
+            .keys()
+            .then((names) =>
+                Promise.all(
+                    names
+                        .filter((n) => n !== CACHE_NAME)
+                        .map((n) => caches.delete(n)),
+                ),
+            ),
     );
     self.clients.claim();
 });
 
 // ---- Fetch -----------------------------------------------------------------
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
     const { request } = event;
 
     // Only handle GET
-    if (request.method !== 'GET') return;
+    if (request.method !== "GET") return;
 
     const url = new URL(request.url);
 
@@ -165,54 +231,64 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
     if (SKIP_PATHS.some((p) => url.pathname.startsWith(p))) return;
     // Skip Firebase requests
-    if (url.hostname.includes('firebase') || url.hostname.includes('googleapis')) return;
+    if (
+        url.hostname.includes("firebase") ||
+        url.hostname.includes("googleapis")
+    )
+        return;
 
-    const isStaticAsset = STATIC_ASSET_PATTERNS.some((p) => p.test(url.pathname));
+    const isStaticAsset = STATIC_ASSET_PATTERNS.some((p) =>
+        p.test(url.pathname),
+    );
 
     if (isStaticAsset) {
         // Stale-while-revalidate: serve cache instantly, update in background
         event.respondWith(
             caches.open(CACHE_NAME).then(async (cache) => {
                 const cached = await cache.match(request);
-                const networkFetch = fetch(request).then((res) => {
-                    if (res.ok) cache.put(request, res.clone());
-                    return res;
-                }).catch(() => null);
+                const networkFetch = fetch(request)
+                    .then((res) => {
+                        if (res.ok) cache.put(request, res.clone());
+                        return res;
+                    })
+                    .catch(() => null);
                 return cached || networkFetch;
-            })
+            }),
         );
     } else {
         // Network-first for dynamic Filament pages
         event.respondWith(
             fetch(request).catch(() =>
-                caches.match(request).then(
-                    (cached) =>
-                        cached ||
-                        (request.mode === 'navigate'
-                            ? caches.match(OFFLINE_URL)
-                            : null)
-                )
-            )
+                caches
+                    .match(request)
+                    .then(
+                        (cached) =>
+                            cached ||
+                            (request.mode === "navigate"
+                                ? caches.match(OFFLINE_URL)
+                                : null),
+                    ),
+            ),
         );
     }
 });
 
 // ---- Notification click: navigate to the specific record -------------------
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
     event.notification.close();
 
     // Read deep-link URL from notification data payload
-    const targetUrl = event.notification.data?.url || '/admin';
+    const targetUrl = event.notification.data?.url || "/admin";
 
     event.waitUntil(
         clients
-            .matchAll({ type: 'window', includeUncontrolled: true })
+            .matchAll({ type: "window", includeUncontrolled: true })
             .then((clientList) => {
                 // Focus and navigate existing window if open
                 for (const client of clientList) {
-                    if ('focus' in client) {
+                    if ("focus" in client) {
                         client.focus();
-                        if ('navigate' in client) client.navigate(targetUrl);
+                        if ("navigate" in client) client.navigate(targetUrl);
                         return;
                     }
                 }
@@ -220,18 +296,18 @@ self.addEventListener('notificationclick', (event) => {
                 if (clients.openWindow) {
                     return clients.openWindow(targetUrl);
                 }
-            })
+            }),
     );
 });
 
 // ---- Push fallback (if FCM SW is not handling) -----------------------------
-self.addEventListener('push', (event) => {
+self.addEventListener("push", (event) => {
     if (!event.data) return;
 
     try {
         const data = event.data.json();
         event.waitUntil(showNotificationFromPayload(data));
     } catch (e) {
-        console.error('[sw.js] Push parse error:', e);
+        console.error("[sw.js] Push parse error:", e);
     }
 });

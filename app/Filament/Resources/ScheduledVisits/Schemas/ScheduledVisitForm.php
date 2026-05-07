@@ -44,27 +44,59 @@ class ScheduledVisitForm
                         ])
                         ->live(),
 
-                    Select::make('assigned_servant_id')
+                    Select::make('assigned_servant_ids')
                         ->label(__('beneficiaries.assigned_servant'))
                         ->options(fn ($get) => self::servantOptionsForBeneficiary(Auth::user(), $get('beneficiary_id')))
-                        ->default(fn () => Auth::user()->role === UserRole::Servant ? Auth::id() : null)
+                        ->default(fn () => Auth::user()->role === UserRole::Servant ? [Auth::id()] : [])
+                        ->afterStateHydrated(function (Select $component, mixed $state, mixed $record): void {
+                            if (! $record) {
+                                return;
+                            }
+
+                            $ids = $record->servants()
+                                ->pluck('users.id')
+                                ->whenEmpty(fn ($collection) => $record->assigned_servant_id ? $collection->push($record->assigned_servant_id) : $collection)
+                                ->unique()
+                                ->values()
+                                ->all();
+
+                            $component->state($ids);
+                        })
+                        ->multiple()
                         ->searchable()
                         ->required()
+                        ->minItems(1)
                         ->rules([
                             function (callable $get): Closure {
                                 return function (string $attribute, mixed $value, Closure $fail) use ($get): void {
-                                    if (! $value) {
+                                    if (! is_array($value) || $value === []) {
                                         return;
                                     }
 
                                     $beneficiary = Beneficiary::query()->find($get('beneficiary_id'));
-                                    $servant     = User::query()
-                                        ->whereKey($value)
+
+                                    if (! $beneficiary) {
+                                        $fail(__('users.unauthorized_role'));
+
+                                        return;
+                                    }
+
+                                    $validIds = User::query()
+                                        ->whereIn('id', $value)
                                         ->where('role', UserRole::Servant)
                                         ->where('is_active', true)
-                                        ->first();
+                                        ->where('service_group_id', $beneficiary->service_group_id)
+                                        ->pluck('id')
+                                        ->map(fn ($id) => (int) $id)
+                                        ->all();
 
-                                    if (! $beneficiary || ! $servant || (int) $servant->service_group_id !== (int) $beneficiary->service_group_id) {
+                                    $submittedIds = collect($value)
+                                        ->map(fn ($id) => (int) $id)
+                                        ->unique()
+                                        ->values()
+                                        ->all();
+
+                                    if ($submittedIds !== $validIds) {
                                         $fail(__('users.unauthorized_role'));
                                     }
                                 };

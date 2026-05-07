@@ -25,7 +25,7 @@ class SendScheduledVisitReminders extends Command
             ->where('status', 'pending')
             ->whereDate('scheduled_date', $tomorrow)
             ->whereNull('reminder_sent_at')
-            ->with(['beneficiary:id,full_name', 'assignedServant:id,fcm_token,locale'])
+            ->with(['beneficiary:id,full_name', 'assignedServant:id,fcm_token,locale', 'servants:id,fcm_token,locale'])
             ->get();
 
         $rows     = [];
@@ -35,39 +35,46 @@ class SendScheduledVisitReminders extends Command
         $originalLocale = App::getLocale();
 
         foreach ($visits as $visit) {
-            $servant = $visit->assignedServant;
+            $servants = $visit->servants
+                ->whenEmpty(function ($collection) use ($visit) {
+                    return $visit->assignedServant ? $collection->push($visit->assignedServant) : $collection;
+                })
+                ->unique('id')
+                ->values();
 
-            if (! $servant) {
+            if ($servants->isEmpty()) {
                 continue;
             }
 
-            App::setLocale($servant->locale ?? 'ar');
+            foreach ($servants as $servant) {
+                App::setLocale($servant->locale ?? 'ar');
 
-            $title = __('notifications.visit_reminder_title');
-            $body  = __('notifications.visit_reminder_body', [
-                'name' => $visit->beneficiary?->full_name ?? '—',
-            ]);
-            $dataPayload = NotificationMetadata::enrich('visit_reminder', [
-                'scheduled_visit_id' => (string) $visit->id,
-                'beneficiary_id'     => (string) $visit->beneficiary_id,
-                'scheduled_date'     => (string) $visit->scheduled_date,
-                'scheduled_time'     => (string) $visit->scheduled_time,
-                'url'                => route('filament.admin.resources.beneficiaries.view', ['record' => $visit->beneficiary_id]),
-            ]);
+                $title = __('notifications.visit_reminder_title');
+                $body  = __('notifications.visit_reminder_body', [
+                    'name' => $visit->beneficiary?->full_name ?? '—',
+                ]);
+                $dataPayload = NotificationMetadata::enrich('visit_reminder', [
+                    'scheduled_visit_id' => (string) $visit->id,
+                    'beneficiary_id'     => (string) $visit->beneficiary_id,
+                    'scheduled_date'     => (string) $visit->scheduled_date,
+                    'scheduled_time'     => (string) $visit->scheduled_time,
+                    'url'                => route('filament.admin.resources.beneficiaries.view', ['record' => $visit->beneficiary_id]),
+                ]);
 
-            App::setLocale($originalLocale);
+                App::setLocale($originalLocale);
 
-            $rows[] = [
-                'user_id'    => $servant->id,
-                'type'       => 'visit_reminder',
-                'title'      => $title,
-                'body'       => $body,
-                'data'       => json_encode($dataPayload),
-                'created_at' => now()->toDateTimeString(),
-            ];
+                $rows[] = [
+                    'user_id'    => $servant->id,
+                    'type'       => 'visit_reminder',
+                    'title'      => $title,
+                    'body'       => $body,
+                    'data'       => json_encode($dataPayload),
+                    'created_at' => now()->toDateTimeString(),
+                ];
 
-            if ($servant->fcm_token) {
-                $tokens[] = $servant->fcm_token;
+                if ($servant->fcm_token) {
+                    $tokens[] = $servant->fcm_token;
+                }
             }
 
             $visitIds[] = $visit->id;
