@@ -101,11 +101,6 @@ class WebAppScope
 
     public static function roleLabel(UserRole $role): string
     {
-        return match ($role) {
-            UserRole::SuperAdmin => 'مدير النظام',
-            UserRole::ServiceLeader => 'أمين الخدمة',
-            UserRole::FamilyLeader => 'أمين الأسرة',
-            UserRole::Servant => 'خادم',
-        };
+        return __("web_app.roles.{$role->value}");
     }
 }

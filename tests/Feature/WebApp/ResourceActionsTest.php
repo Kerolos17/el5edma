@@ -7,7 +7,7 @@ namespace Tests\Feature\WebApp;
 use App\Enums\UserRole;
 use App\Livewire\WebApp\BeneficiariesPage;
 use App\Livewire\WebApp\MedicalFilesPage;
-use App\Livewire\WebApp\PlaceholderPage;
+
 use App\Livewire\WebApp\PrayerRequestsPage;
 use App\Livewire\WebApp\ScheduledVisitsPage;
 use App\Livewire\WebApp\ServiceGroupsPage;
@@ -44,7 +44,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->call('openVisitForm', $beneficiary->id)
             ->set('visitType', 'home_visit')
             ->set('beneficiaryStatus', 'good')
@@ -105,7 +105,7 @@ class ResourceActionsTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->set('visitBeneficiaryId', $beneficiary->id)
             ->set('visitType', 'home_visit')
             ->set('visitDate', now()->format('Y-m-d\TH:i'))
@@ -129,7 +129,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->call('editVisit', $visit->id)
             ->assertSet('editingVisitId', $visit->id)
             ->set('visitType', 'phone_call')
@@ -168,7 +168,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->call('resolveVisitFollowUp', $visit->id)
             ->assertDispatched('toast');
 
@@ -195,7 +195,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->call('editVisit', $visit->id)
             ->assertForbidden();
     }
@@ -210,7 +210,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->call('openPrayerForm', $beneficiary->id)
             ->set('prayerTitle', 'صلاة لأجل الشفاء')
             ->set('prayerBody', 'احتياج متابعة هذا الأسبوع')
@@ -268,7 +268,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->call('markPrayerAnswered', $prayerRequest->id)
             ->assertDispatched('toast');
 
@@ -292,7 +292,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->call('closePrayerRequest', $prayerRequest->id)
             ->assertDispatched('toast');
 
@@ -303,7 +303,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->call('reopenPrayerRequest', $prayerRequest->id)
             ->assertDispatched('toast');
 
@@ -330,7 +330,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->call('markPrayerAnswered', $prayerRequest->id)
             ->assertForbidden();
 
@@ -347,12 +347,12 @@ class ResourceActionsTest extends TestCase
         $servant = $this->createServant($group);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'visits'])
+            ->test(VisitsPage::class)
             ->assertSee('تسجيل زيارة')
             ->assertDontSee('إضافة طلب صلاة');
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'prayer-requests'])
+            ->test(PrayerRequestsPage::class)
             ->assertSee('إضافة طلب صلاة');
     }
 
@@ -364,7 +364,7 @@ class ResourceActionsTest extends TestCase
         $servant = $this->createServant($group);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'beneficiaries'])
+            ->test(BeneficiariesPage::class)
             ->call('openBeneficiaryForm')
             ->set('beneficiaryFullName', 'New Beneficiary')
             ->set('beneficiaryBirthDate', now()->subYears(12)->toDateString())
@@ -412,6 +412,97 @@ class ResourceActionsTest extends TestCase
     }
 
     #[Test]
+    public function beneficiary_form_preserves_full_filament_profile_fields(): void
+    {
+        Storage::fake('public');
+
+        $group = ServiceGroup::factory()->create();
+        $familyLeader = $this->createFamilyLeader($group);
+        $servant = $this->createServant($group);
+        $photo = UploadedFile::fake()->create('profile.png', 64, 'image/png');
+
+        Livewire::actingAs($familyLeader)
+            ->test(BeneficiariesPage::class)
+            ->call('openBeneficiaryForm')
+            ->set('beneficiaryPhoto', $photo)
+            ->set('beneficiaryFullName', 'Complete Beneficiary')
+            ->set('beneficiaryBirthDate', now()->subYears(13)->toDateString())
+            ->set('beneficiaryGender', 'male')
+            ->set('beneficiaryRecordStatus', 'active')
+            ->set('beneficiaryAssignedServantId', $servant->id)
+            ->set('beneficiaryPhone', '01289012345')
+            ->set('beneficiaryWhatsapp', '01289012345')
+            ->set('beneficiaryFacebookUrl', 'https://facebook.com/example')
+            ->set('beneficiaryInstagramUrl', 'https://instagram.com/example')
+            ->set('beneficiaryGuardianName', 'Guardian Name')
+            ->set('beneficiaryGuardianPhone', '01590123456')
+            ->set('beneficiaryGuardianRelation', 'Father')
+            ->set('beneficiaryFatherStatus', 'alive')
+            ->set('beneficiaryMotherStatus', 'deceased')
+            ->set('beneficiaryMotherDeathDate', '2020-05-01')
+            ->set('beneficiarySiblingsCount', 2)
+            ->set('beneficiarySiblingsNote', 'Sibling notes')
+            ->set('beneficiaryFinancialStatus', 'moderate')
+            ->set('beneficiaryFinancialNotes', 'Financial notes')
+            ->set('beneficiaryAddressText', 'Detailed address')
+            ->set('beneficiaryArea', 'New Cairo')
+            ->set('beneficiaryGovernorate', 'Cairo')
+            ->set('beneficiaryGoogleMapsUrl', 'https://maps.google.com/?q=Cairo')
+            ->set('beneficiaryDisabilityType', 'Physical')
+            ->set('beneficiaryDisabilityDegree', 'mild')
+            ->set('beneficiaryDoctorName', 'Doctor Name')
+            ->set('beneficiaryHospitalName', 'Hospital Name')
+            ->set('beneficiaryLastMedicalUpdate', now()->subDay()->toDateString())
+            ->set('beneficiaryHealthStatus', 'Stable health')
+            ->set('beneficiaryMedicalNotes', 'Medical notes')
+            ->call('saveBeneficiary')
+            ->assertDispatched('toast')
+            ->assertSet('showBeneficiaryForm', false);
+
+        $this->assertDatabaseHas('beneficiaries', [
+            'full_name' => 'Complete Beneficiary',
+            'service_group_id' => $group->id,
+            'assigned_servant_id' => $servant->id,
+            'facebook_url' => 'https://facebook.com/example',
+            'instagram_url' => 'https://instagram.com/example',
+            'guardian_relation' => 'Father',
+            'father_status' => 'alive',
+            'mother_status' => 'deceased',
+            'siblings_count' => 2,
+            'financial_status' => 'moderate',
+            'area' => 'New Cairo',
+            'governorate' => 'Cairo',
+            'google_maps_url' => 'https://maps.google.com/?q=Cairo',
+            'disability_type' => 'Physical',
+            'disability_degree' => 'mild',
+            'doctor_name' => 'Doctor Name',
+            'hospital_name' => 'Hospital Name',
+            'health_status' => 'Stable health',
+            'medical_notes' => 'Medical notes',
+        ]);
+
+        $saved = Beneficiary::where('full_name', 'Complete Beneficiary')->firstOrFail();
+        $this->assertNotNull($saved->photo);
+        Storage::disk('public')->assertExists($saved->photo);
+    }
+
+    #[Test]
+    public function beneficiary_mobile_cards_render_daily_actions(): void
+    {
+        $group = ServiceGroup::factory()->create();
+        $familyLeader = $this->createFamilyLeader($group);
+        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+
+        Livewire::actingAs($familyLeader)
+            ->test(BeneficiariesPage::class)
+            ->assertSee('app-mobile-actions', false)
+            ->assertSee('openBeneficiaryForm(' . $beneficiary->id . ')', false)
+            ->assertSee('openVisitForm(' . $beneficiary->id . ')', false)
+            ->assertSee('openPrayerForm(' . $beneficiary->id . ')', false)
+            ->assertSee('openMedicalFileForm(' . $beneficiary->id . ')', false);
+    }
+
+    #[Test]
     public function beneficiary_assigned_servant_must_match_service_group_from_web_app(): void
     {
         $group = ServiceGroup::factory()->create();
@@ -420,7 +511,7 @@ class ResourceActionsTest extends TestCase
         $foreignServant = $this->createServant($otherGroup);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'beneficiaries'])
+            ->test(BeneficiariesPage::class)
             ->call('openBeneficiaryForm')
             ->set('beneficiaryFullName', 'Invalid Assignment')
             ->set('beneficiaryBirthDate', now()->subYears(10)->toDateString())
@@ -446,7 +537,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'beneficiaries'])
+            ->test(BeneficiariesPage::class)
             ->call('openBeneficiaryForm', $beneficiary->id)
             ->set('beneficiaryFullName', 'Updated Name')
             ->set('beneficiaryBirthDate', now()->subYears(11)->toDateString())
@@ -476,7 +567,7 @@ class ResourceActionsTest extends TestCase
         $file = UploadedFile::fake()->create('medical-report.pdf', 128, 'application/pdf');
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'medical-files'])
+            ->test(MedicalFilesPage::class)
             ->call('openMedicalFileForm', $beneficiary->id)
             ->set('medicalFileTitle', 'Medical Report')
             ->set('medicalFileType', 'report')
@@ -532,7 +623,7 @@ class ResourceActionsTest extends TestCase
         $servant = $this->createServant($group);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'medical-files'])
+            ->test(MedicalFilesPage::class)
             ->call('openMedicalFileForm')
             ->assertForbidden();
     }
@@ -552,7 +643,7 @@ class ResourceActionsTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'medical-files'])
+            ->test(MedicalFilesPage::class)
             ->set('medicalFileBeneficiaryId', $beneficiary->id)
             ->set('medicalFileTitle', 'Out of scope')
             ->set('medicalFileType', 'report')
@@ -572,7 +663,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('openScheduledVisitForm', $beneficiary->id)
             ->set('scheduledVisitAssignedServantIds', [$servant->id, $secondServant->id])
             ->set('scheduledVisitDate', now()->addDay()->toDateString())
@@ -653,7 +744,7 @@ class ResourceActionsTest extends TestCase
         $scheduledVisit->syncAssignedServants([$servant->id, $secondServant->id]);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('cancelScheduledVisit', $scheduledVisit->id)
             ->assertDispatched('toast');
 
@@ -682,7 +773,7 @@ class ResourceActionsTest extends TestCase
         $scheduledVisit->syncAssignedServants([$firstServant->id]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('editScheduledVisit', $scheduledVisit->id)
             ->assertSet('editingScheduledVisitId', $scheduledVisit->id)
             ->set('scheduledVisitAssignedServantIds', [$secondServant->id])
@@ -719,7 +810,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($admin)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('openScheduledVisitForm', $beneficiary->id)
             ->set('scheduledVisitAssignedServantIds', [$foreignServant->id])
             ->set('scheduledVisitDate', now()->addDay()->toDateString())
@@ -752,7 +843,7 @@ class ResourceActionsTest extends TestCase
         $scheduledVisit->syncAssignedServants([$servant->id, $secondServant->id]);
 
         Livewire::actingAs($servant)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('openVisitFromScheduled', $scheduledVisit->id)
             ->set('visitType', 'home_visit')
             ->set('beneficiaryStatus', 'good')
@@ -778,12 +869,12 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('cancelScheduledVisit', $scheduledVisit->id)
             ->assertForbidden();
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->call('openVisitFromScheduled', $scheduledVisit->id)
             ->assertForbidden();
 
@@ -810,7 +901,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'scheduled-visits'])
+            ->test(ScheduledVisitsPage::class)
             ->set('editingScheduledVisitId', $scheduledVisit->id)
             ->set('scheduledVisitBeneficiaryId', $beneficiary->id)
             ->set('scheduledVisitAssignedServantIds', [$servant->id])
@@ -834,7 +925,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($serviceLeader)
-            ->test(PlaceholderPage::class, ['section' => 'users'])
+            ->test(UsersPage::class)
             ->call('openUserForm')
             ->set('userName', 'New Servant')
             ->set('userEmail', 'new-servant@example.com')
@@ -896,7 +987,7 @@ class ResourceActionsTest extends TestCase
         $otherGroup = ServiceGroup::factory()->create();
 
         Livewire::actingAs($serviceLeader)
-            ->test(PlaceholderPage::class, ['section' => 'users'])
+            ->test(UsersPage::class)
             ->call('openUserForm')
             ->set('userName', 'Out Of Scope')
             ->set('userEmail', 'out-of-scope@example.com')
@@ -921,7 +1012,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($admin)
-            ->test(PlaceholderPage::class, ['section' => 'users'])
+            ->test(UsersPage::class)
             ->call('toggleUserActive', $target->id)
             ->assertDispatched('toast');
 
@@ -938,7 +1029,7 @@ class ResourceActionsTest extends TestCase
         $familyLeader = $this->createFamilyLeader($group);
 
         Livewire::actingAs($familyLeader)
-            ->test(PlaceholderPage::class, ['section' => 'users'])
+            ->test(UsersPage::class)
             ->call('openUserForm')
             ->assertForbidden();
     }
@@ -949,7 +1040,7 @@ class ResourceActionsTest extends TestCase
         $serviceLeader = $this->createServiceLeader();
 
         Livewire::actingAs($serviceLeader)
-            ->test(PlaceholderPage::class, ['section' => 'service-groups'])
+            ->test(ServiceGroupsPage::class)
             ->call('openServiceGroupForm')
             ->set('serviceGroupName', 'New Family Group')
             ->set('serviceGroupDescription', 'Created from web app')
@@ -1002,14 +1093,14 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($serviceLeader)
-            ->test(PlaceholderPage::class, ['section' => 'service-groups'])
+            ->test(ServiceGroupsPage::class)
             ->assertSee($managedGroup->name)
             ->assertDontSee($foreignGroup->name);
 
         $this->expectException(ModelNotFoundException::class);
 
         Livewire::actingAs($serviceLeader)
-            ->test(PlaceholderPage::class, ['section' => 'service-groups'])
+            ->test(ServiceGroupsPage::class)
             ->call('openServiceGroupForm', $foreignGroup->id);
     }
 
@@ -1024,7 +1115,7 @@ class ResourceActionsTest extends TestCase
         ]);
 
         Livewire::actingAs($admin)
-            ->test(PlaceholderPage::class, ['section' => 'service-groups'])
+            ->test(ServiceGroupsPage::class)
             ->call('toggleServiceGroupActive', $group->id)
             ->assertDispatched('toast');
 

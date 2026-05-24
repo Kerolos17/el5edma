@@ -54,6 +54,66 @@ class NotificationsBellLivewireTest extends TestCase
     }
 
     #[Test]
+    public function mark_read_redirects_to_safe_internal_notification_url(): void
+    {
+        $group = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        $notif = MinistryNotification::factory()->create([
+            'user_id' => $servant->id,
+            'read_at' => null,
+            'data' => ['url' => '/app/visits'],
+        ]);
+
+        Livewire::actingAs($servant)
+            ->test(NotificationsBell::class)
+            ->call('markRead', $notif->id)
+            ->assertRedirect('/app/visits');
+
+        $this->assertNotNull($notif->fresh()->read_at);
+    }
+
+    #[Test]
+    public function mark_read_maps_same_host_filament_notification_url_to_web_app(): void
+    {
+        $group = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        $notif = MinistryNotification::factory()->create([
+            'user_id' => $servant->id,
+            'read_at' => null,
+            'data' => ['url' => url('/admin/beneficiaries/1')],
+        ]);
+
+        Livewire::actingAs($servant)
+            ->test(NotificationsBell::class)
+            ->call('markRead', $notif->id)
+            ->assertRedirect('/app/beneficiaries');
+
+        $this->assertNotNull($notif->fresh()->read_at);
+    }
+
+    #[Test]
+    public function mark_read_maps_old_admin_visit_notification_url_to_web_app_visits(): void
+    {
+        $group = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        $notif = MinistryNotification::factory()->create([
+            'user_id' => $servant->id,
+            'read_at' => null,
+            'data' => ['url' => 'http://ministry-system.test/admin/visits/71'],
+        ]);
+
+        Livewire::actingAs($servant)
+            ->test(NotificationsBell::class)
+            ->call('markRead', $notif->id)
+            ->assertRedirect('/app/visits');
+
+        $this->assertNotNull($notif->fresh()->read_at);
+    }
+
+    #[Test]
     public function mark_all_read_marks_all_own_notifications(): void
     {
         $group   = ServiceGroup::factory()->create();

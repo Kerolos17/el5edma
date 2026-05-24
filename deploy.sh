@@ -1,76 +1,76 @@
-#!/bin/bash
-# =============================================================
-# سكريبت النشر على Shared Hosting
-# شغّله على السيرفر بعد رفع الملفات:  bash deploy.sh
-# =============================================================
+#!/usr/bin/env bash
 
-set -e
+# Production deployment helper for shared hosting or a single VPS.
+# Run from the project root after uploading/pulling the latest code.
 
-# Skip on CI environments without PHP (e.g. Cloudflare Pages)
-if ! command -v php &> /dev/null || ! command -v composer &> /dev/null; then
-    echo "⏭️  PHP/Composer not available, skipping deploy script."
-    exit 0
+set -euo pipefail
+
+if ! command -v php >/dev/null 2>&1; then
+    echo "PHP is not available."
+    exit 1
 fi
 
-echo "🚀 بدء النشر..."
+if ! command -v composer >/dev/null 2>&1; then
+    echo "Composer is not available."
+    exit 1
+fi
 
-# 0. بناء الـ assets (CSS/JS)
-if command -v node &> /dev/null && command -v npm &> /dev/null; then
-    echo "🏗️  بناء الـ Assets..."
-    npm ci --silent
+echo "Starting Ministry System deployment..."
+
+if [ ! -f ".env" ]; then
+    echo ".env is missing. Copy .env.example to .env and fill production values first."
+    exit 1
+fi
+
+if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+    echo "Installing and building frontend assets..."
+    npm ci
     npm run build
 else
-    echo "⚠️  Node/npm غير متاح — تأكد إن الـ assets اتبنت محلياً قبل الرفع."
+    echo "Node/npm not available. Make sure public/build was generated before upload."
 fi
 
-# 1. تثبيت الحزم (بدون dev dependencies)
-echo "📦 تثبيت Composer packages..."
+echo "Installing PHP dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
-# 2. توليد APP_KEY إن لم يكن موجوداً
-if grep -q "APP_KEY=$" .env || grep -q 'APP_KEY=""' .env; then
-    echo "🔑 توليد APP_KEY..."
+if grep -q '^APP_KEY=$' .env || grep -q '^APP_KEY=""$' .env; then
+    echo "Generating APP_KEY..."
     php artisan key:generate --force
 fi
 
-# 3. صلاحيات المجلدات
-echo "🔐 ضبط الصلاحيات..."
-chmod -R 775 storage bootstrap/cache
-chmod -R 755 public
+echo "Putting application in maintenance mode..."
+php artisan down --render="errors::503" || true
 
-# 4. تشغيل الـ migrations
-echo "🗄️  تشغيل Migrations..."
+echo "Preparing storage and cache directories..."
+chmod -R 775 storage bootstrap/cache || true
+chmod -R 755 public || true
+
+echo "Running database migrations..."
 php artisan migrate --force
 
-# 5. تشغيل الـ Seeders — فقط عند أول تثبيت (جدول users فارغ)
-USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | grep -E '^[0-9]+$' | head -1)
-if [ "${USER_COUNT:-1}" = "0" ]; then
-    echo "🌱 قاعدة البيانات فارغة — تشغيل Seeders للمرة الأولى..."
-    php artisan db:seed --force
-else
-    echo "⏭️  Seeders — تم التخطي (البيانات موجودة مسبقاً)"
-fi
-
-# 6. إنشاء رابط storage
-echo "🔗 إنشاء Storage Link..."
+echo "Creating storage symlink..."
 php artisan storage:link --force
 
-# 7. مسح وإعادة بناء الـ Cache
-echo "⚡ بناء Cache..."
+echo "Clearing stale caches..."
 php artisan optimize:clear
+
+echo "Building production caches..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 php artisan icons:cache
 
-# 8. مسح permission cache
-php artisan permission:cache-reset
+if php artisan list --raw | grep -q '^permission:cache-reset$'; then
+    php artisan permission:cache-reset
+fi
 
-echo ""
-echo "✅ تم النشر بنجاح!"
-echo ""
-echo "⚠️  تذكر:"
-echo "   - تأكد من إعداد Cron Job (راجع DEPLOYMENT.md)"
-echo "   - غيّر كلمات مرور المستخدمين الافتراضيين فوراً"
-echo "   - تأكد أن APP_DEBUG=false في .env"
+echo "Bringing application online..."
+php artisan up
+
+echo "Deployment finished."
+echo "Required server jobs:"
+echo "  * Cron: * * * * * php /path/to/project/artisan schedule:run >> /dev/null 2>&1"
+echo "  * Queue worker: php artisan queue:work --tries=3 --timeout=90"
+echo "  * Web root must point to /public"
+echo "  * Production .env must set APP_ENV=production and APP_DEBUG=false"

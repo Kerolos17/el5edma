@@ -1,28 +1,28 @@
 @if ($showPrayerForm)
     <div class="app-modal-backdrop" wire:click="closePrayerForm"></div>
-    <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="إضافة طلب صلاة">
+    <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.add_prayer_request') }}">
         <div class="app-modal-panel">
             <div class="app-modal-header">
-                <div><p class="app-section-label">إجراء يومي</p><h3>إضافة طلب صلاة</h3></div>
+                <div><p class="app-section-label">{{ __('web_app.forms.daily_action') }}</p><h3>{{ __('web_app.actions.add_prayer_request') }}</h3></div>
                 <button type="button" wire:click="closePrayerForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>
             </div>
             <div class="app-form-grid">
-                <label class="app-form-field">
-                    <span>المخدوم</span>
+                <label class="app-form-field app-form-field-full">
+                    <span>{{ __('visits.beneficiary') }}</span>
                     <select wire:model="prayerBeneficiaryId">
-                        <option value="">اختر المخدوم</option>
+                        <option value="">{{ __('web_app.forms.select.beneficiary') }}</option>
                         @foreach ($beneficiaryOptions as $beneficiary)
-                            <option value="{{ $beneficiary->id }}">{{ $beneficiary->full_name }}{{ $beneficiary->code ? ' - ' . $beneficiary->code : '' }}</option>
+                            <option value="{{ $beneficiary->id }}">{{ $beneficiary->full_name }} @if($beneficiary->code) - {{ $beneficiary->code }} @endif</option>
                         @endforeach
                     </select>
                     @error('prayerBeneficiaryId') <small>{{ $message }}</small> @enderror
                 </label>
-                <label class="app-form-field app-form-field-full"><span>عنوان الطلب</span><input type="text" wire:model="prayerTitle" placeholder="مثال: صلاة لأجل الشفاء">@error('prayerTitle') <small>{{ $message }}</small> @enderror</label>
-                <label class="app-form-field app-form-field-full"><span>تفاصيل الطلب</span><textarea wire:model="prayerBody" rows="4" placeholder="اكتب تفاصيل تساعد فريق الخدمة على المتابعة"></textarea>@error('prayerBody') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field app-form-field-full"><span>{{ __('prayer.request_title') }}</span><input type="text" wire:model="prayerTitle" placeholder="{{ __('web_app.forms.placeholders.prayer_title') }}">@error('prayerTitle') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field app-form-field-full"><span>{{ __('prayer.body') }}</span><textarea wire:model="prayerBody" rows="4" placeholder="{{ __('web_app.forms.placeholders.prayer_body') }}"></textarea>@error('prayerBody') <small>{{ $message }}</small> @enderror</label>
             </div>
             <div class="app-modal-actions">
-                <button type="button" wire:click="closePrayerForm" class="app-secondary-button">إلغاء</button>
-                <button type="button" wire:click="savePrayer" class="app-primary-button">حفظ الطلب</button>
+                <button type="button" wire:click="closePrayerForm" class="app-secondary-button">{{ __('web_app.actions.cancel') }}</button>
+                <button type="button" wire:click="savePrayer" wire:loading.attr="disabled" class="app-primary-button">{{ __('web_app.forms.prayer.save') }}</button>
             </div>
         </div>
     </section>

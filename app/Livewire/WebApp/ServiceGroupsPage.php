@@ -32,7 +32,7 @@ class ServiceGroupsPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.service-groups-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats(clone $baseQuery),
@@ -88,29 +88,29 @@ class ServiceGroupsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'مجموعات الخدمة',
-            'description' => 'عرض مجموعات الخدمة داخل نطاقك مع عدد المخدومين والخدام والمسؤولين عن كل مجموعة.',
+            'title' => __('web_app.resources.service-groups.title'),
+            'description' => __('web_app.resources.service-groups.description'),
             'icon' => 'ph-tree-structure',
-            'primaryAction' => ['label' => 'الخدام', 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
-            'secondaryAction' => ['label' => 'التقارير', 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
+            'primaryAction' => ['label' => __('web_app.actions.users'), 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
+            'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'active', 'label' => 'نشطة'],
-            ['value' => 'inactive', 'label' => 'غير نشطة'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'active', 'label' => __('web_app.filters.active')],
+            ['value' => 'inactive', 'label' => __('web_app.filters.inactive')],
         ];
     }
 
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'المجموعات', 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
-            ['label' => 'نشطة', 'value' => (clone $baseQuery)->where('is_active', true)->count(), 'tone' => 'emerald'],
-            ['label' => 'غير نشطة', 'value' => (clone $baseQuery)->where('is_active', false)->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.service_groups'), 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.active'), 'value' => (clone $baseQuery)->where('is_active', true)->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.inactive'), 'value' => (clone $baseQuery)->where('is_active', false)->count(), 'tone' => 'amber'],
         ];
     }
 

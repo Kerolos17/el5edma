@@ -23,28 +23,28 @@ class AuditLogPolicyTest extends TestCase
         $this->log    = AuditLog::factory()->create();
     }
 
-    public function test_admin_level_can_view_any(): void
+    public function test_super_admin_can_view_any(): void
     {
         $this->assertTrue($this->policy->viewAny($this->createSuperAdmin()));
-        $this->assertTrue($this->policy->viewAny($this->createServiceLeader()));
     }
 
-    public function test_non_admin_cannot_view_any(): void
+    public function test_non_super_admin_cannot_view_any(): void
     {
         $group = ServiceGroup::factory()->create();
+        $this->assertFalse($this->policy->viewAny($this->createServiceLeader()));
         $this->assertFalse($this->policy->viewAny($this->createFamilyLeader($group)));
         $this->assertFalse($this->policy->viewAny($this->createServant($group)));
     }
 
-    public function test_admin_level_can_view(): void
+    public function test_super_admin_can_view(): void
     {
         $this->assertTrue($this->policy->view($this->createSuperAdmin(), $this->log));
-        $this->assertTrue($this->policy->view($this->createServiceLeader(), $this->log));
     }
 
-    public function test_non_admin_cannot_view(): void
+    public function test_non_super_admin_cannot_view(): void
     {
         $group = ServiceGroup::factory()->create();
+        $this->assertFalse($this->policy->view($this->createServiceLeader(), $this->log));
         $this->assertFalse($this->policy->view($this->createServant($group), $this->log));
     }
 

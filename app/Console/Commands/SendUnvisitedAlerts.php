@@ -48,7 +48,7 @@ class SendUnvisitedAlerts extends Command
                         'beneficiary_id' => (string) $beneficiary->id,
                         'last_visit'     => (string) ($lastVisit ?? ''),
                         'days_unvisited' => (string) ($days ?? ''),
-                        'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                        'url'            => route('app.beneficiaries'),
                     ]);
 
                     // إشعار أمين الأسرة
@@ -118,7 +118,7 @@ class SendUnvisitedAlerts extends Command
                     $title = __('notifications.unvisited_alert_title');
                     $body  = __('notifications.unvisited_alert_body', ['name' => '', 'days' => '']);
                     SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('unvisited_alert', [
-                        'url' => route('filament.admin.resources.ministry-notifications.index'),
+                        'url' => route('app.notifications'),
                     ]));
                 }
             });

@@ -28,7 +28,7 @@ class VisitsPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.visits-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats(clone $baseQuery),
@@ -86,30 +86,30 @@ class VisitsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'الزيارات',
-            'description' => 'سجل الزيارات اليومية مع إبراز الحالات الحرجة والزيارات التي تحتاج تصعيد أو متابعة أسرع.',
+            'title' => __('web_app.resources.visits.title'),
+            'description' => __('web_app.resources.visits.description'),
             'icon' => 'ph-clipboard-text',
-            'primaryAction' => ['label' => 'المخدومون', 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
-            'secondaryAction' => ['label' => 'المجدولة', 'route' => route('app.scheduled-visits'), 'icon' => 'ph-calendar-check'],
+            'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+            'secondaryAction' => ['label' => __('web_app.actions.scheduled_visits'), 'route' => route('app.scheduled-visits'), 'icon' => 'ph-calendar-check'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'month', 'label' => 'هذا الشهر'],
-            ['value' => 'critical', 'label' => 'حرجة'],
-            ['value' => 'follow-up', 'label' => 'تحتاج متابعة'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'month', 'label' => __('web_app.filters.month')],
+            ['value' => 'critical', 'label' => __('web_app.filters.critical')],
+            ['value' => 'follow-up', 'label' => __('web_app.filters.follow_up')],
         ];
     }
 
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'إجمالي الزيارات', 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
-            ['label' => 'هذا الشهر', 'value' => (clone $baseQuery)->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year)->count(), 'tone' => 'emerald'],
-            ['label' => 'حرجة مفتوحة', 'value' => (clone $baseQuery)->where('is_critical', true)->whereNull('critical_resolved_at')->count(), 'tone' => 'rose'],
+            ['label' => __('web_app.stats.total_visits'), 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.this_month'), 'value' => (clone $baseQuery)->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year)->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.open_critical'), 'value' => (clone $baseQuery)->where('is_critical', true)->whereNull('critical_resolved_at')->count(), 'tone' => 'rose'],
         ];
     }
 
@@ -123,19 +123,19 @@ class VisitsPage extends PlaceholderPage
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => 'زيارة منزلية',
-            'phone_call' => 'مكالمة هاتفية',
-            'church_meeting' => 'اجتماع كنيسة',
+            'home_visit' => __('visits.home_visit'),
+            'phone_call' => __('visits.phone_call'),
+            'church_meeting' => __('visits.church_meeting'),
         ];
     }
 
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => 'ممتاز',
-            'good' => 'جيد',
-            'needs_follow' => 'يحتاج متابعة',
-            'critical' => 'حرج',
+            'great' => __('visits.great'),
+            'good' => __('visits.good'),
+            'needs_follow' => __('visits.needs_follow'),
+            'critical' => __('visits.critical'),
         ];
     }
 }

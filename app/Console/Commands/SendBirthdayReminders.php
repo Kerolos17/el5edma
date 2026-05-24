@@ -80,7 +80,7 @@ class SendBirthdayReminders extends Command
                             $body             = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
-                                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                                'url'            => route('app.beneficiaries'),
                             ]);
 
                             $rows[] = [
@@ -114,7 +114,7 @@ class SendBirthdayReminders extends Command
                             $body             = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
-                                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                                'url'            => route('app.beneficiaries'),
                             ]);
 
                             $rows[] = [
@@ -141,7 +141,7 @@ class SendBirthdayReminders extends Command
 
                     if (! empty($tokens)) {
                         SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('birthday', [
-                            'url' => route('filament.admin.resources.ministry-notifications.index'),
+                            'url' => route('app.notifications'),
                         ]));
                     }
                 });

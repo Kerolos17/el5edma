@@ -10,7 +10,7 @@ class CodeLoginControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_valid_code_logs_in_and_redirects_to_admin(): void
+    public function test_valid_code_logs_in_and_redirects_to_web_app(): void
     {
         $user = User::factory()->create([
             'personal_code' => '1234',
@@ -19,7 +19,7 @@ class CodeLoginControllerTest extends TestCase
 
         $response = $this->post(route('login.code'), ['code' => '1234']);
 
-        $response->assertRedirect('/admin');
+        $response->assertRedirect('/app/dashboard');
         $this->assertAuthenticatedAs($user);
     }
 

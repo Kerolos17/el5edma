@@ -28,7 +28,7 @@ class MedicalFilesPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.medical-files-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters($user),
             'stats' => $this->stats(clone $baseQuery),
@@ -85,11 +85,11 @@ class MedicalFilesPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'الملفات الطبية',
-            'description' => 'الوصول السريع للملفات الطبية المصرح بها داخل نطاقك، مع تنظيم حسب النوع وتاريخ الرفع.',
+            'title' => __('web_app.resources.medical-files.title'),
+            'description' => __('web_app.resources.medical-files.description'),
             'icon' => 'ph-file-lock',
-            'primaryAction' => ['label' => 'طلبات الصلاة', 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
-            'secondaryAction' => ['label' => 'التقارير', 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
+            'primaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
+            'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }
 
@@ -97,8 +97,8 @@ class MedicalFilesPage extends PlaceholderPage
     {
         $base = array_merge(
             [
-                ['value' => 'all', 'label' => 'الكل'],
-                ['value' => 'recent', 'label' => 'آخر 30 يوم'],
+                ['value' => 'all', 'label' => __('web_app.filters.all')],
+                ['value' => 'recent', 'label' => __('web_app.filters.last_30_days')],
             ],
             WebAppScope::medicalFiles($user)
                 ->select('file_type')
@@ -120,9 +120,9 @@ class MedicalFilesPage extends PlaceholderPage
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'إجمالي الملفات', 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
-            ['label' => 'آخر 30 يوم', 'value' => (clone $baseQuery)->where('created_at', '>=', now()->subDays(30))->count(), 'tone' => 'emerald'],
-            ['label' => 'أنواع مختلفة', 'value' => (clone $baseQuery)->select('file_type')->distinct()->count('file_type'), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.total_files'), 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.last_30_days'), 'value' => (clone $baseQuery)->where('created_at', '>=', now()->subDays(30))->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.distinct_types'), 'value' => (clone $baseQuery)->select('file_type')->distinct()->count('file_type'), 'tone' => 'amber'],
         ];
     }
 
@@ -136,9 +136,9 @@ class MedicalFilesPage extends PlaceholderPage
     private function medicalFileTypeOptions(): array
     {
         return [
-            'report' => 'تقرير',
-            'image' => 'صورة',
-            'document' => 'مستند',
+            'report' => __('medical.report'),
+            'image' => __('medical.image'),
+            'document' => __('medical.document'),
         ];
     }
 }

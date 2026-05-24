@@ -4,11 +4,14 @@
     $isVisits      = request()->routeIs('servant.visits');
     $isProfile     = request()->routeIs('servant.profile');
 
+    $isScheduledVisits = request()->routeIs('servant.scheduled-visits');
+
     $nav = [
-        ['route' => 'servant.dashboard',     'icon' => 'ph-house-simple',   'label' => 'الرئيسية',   'active' => $isDashboard],
-        ['route' => 'servant.beneficiaries', 'icon' => 'ph-users',           'label' => 'المخدومون',  'active' => $isBeneficiary],
-        ['route' => 'servant.visits',        'icon' => 'ph-calendar-check',  'label' => 'الزيارات',   'active' => $isVisits],
-        ['route' => 'servant.profile',       'icon' => 'ph-user-circle',     'label' => 'حسابي',      'active' => $isProfile],
+        ['route' => 'servant.dashboard',        'icon' => 'ph-house-simple',   'label' => 'الرئيسية',      'active' => $isDashboard],
+        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => 'المخدومون',     'active' => $isBeneficiary],
+        ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => 'الزيارات',      'active' => $isVisits],
+        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => 'مجدولة',        'active' => $isScheduledVisits],
+        ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => 'حسابي',         'active' => $isProfile],
     ];
 @endphp
 

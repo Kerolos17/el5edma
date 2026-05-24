@@ -16,8 +16,8 @@ class AuditLogPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Only super_admin and service_leader can view audit logs
-        return $user->role->isAdminLevel();
+        // Only super_admin can view audit logs
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**
@@ -25,8 +25,8 @@ class AuditLogPolicy
      */
     public function view(User $user, AuditLog $auditLog): bool
     {
-        // Only super_admin and service_leader can view audit logs
-        return $user->role->isAdminLevel();
+        // Only super_admin can view audit logs
+        return $user->role === UserRole::SuperAdmin;
     }
 
     /**

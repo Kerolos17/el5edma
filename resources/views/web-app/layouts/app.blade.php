@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ config('app.name') }}</title>
+    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ __('web_app.brand.name') }}</title>
+
+    <script>
+        (() => {
+            const storedTheme = localStorage.getItem('web-app-theme');
+            const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,14 +43,16 @@
         $appUser = auth()->user();
         $navigationItems = \App\Support\WebAppNavigation::items($appUser);
         $roleLabel = \App\Support\WebAppScope::roleLabel($appUser->role);
+        $nextLocale = app()->getLocale() === 'ar' ? 'en' : 'ar';
+        $nextLocaleLabel = strtoupper($nextLocale);
     @endphp
 
     <div class="app-shell">
-        <aside class="app-sidebar" aria-label="التنقل الرئيسي">
+        <aside class="app-sidebar" aria-label="{{ __('web_app.shell.main_navigation') }}">
             <div class="app-brand">
-                <div class="app-brand-mark">MS</div>
+                <div class="app-brand-mark">AS</div>
                 <div>
-                    <p class="app-brand-title">Ministry System</p>
+                    <p class="app-brand-title">{{ __('web_app.brand.name') }}</p>
                     <p class="app-brand-subtitle">{{ $roleLabel }}</p>
                 </div>
             </div>
@@ -56,20 +67,12 @@
                 @endforeach
             </nav>
 
-            <div class="app-sidebar-footer">
-                <p class="app-muted-label">لوحة Filament الاحتياطية</p>
-                <a href="/admin" class="app-admin-link">
-                    <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
-                    <span>فتح /admin</span>
-                </a>
-            </div>
         </aside>
 
         <div class="app-main">
             <header class="app-topbar" data-user-id="{{ $appUser->id }}">
                 <div>
-                    <p class="app-topbar-kicker">واجهة موحدة لكل الأدوار</p>
-                    <h1 class="app-topbar-title">{{ $title ?? 'لوحة التحكم' }}</h1>
+                    <h1 class="app-topbar-title">{{ $title ?? __('web_app.shell.dashboard') }}</h1>
                 </div>
 
                 <form action="{{ route('app.beneficiaries') }}" method="GET" class="app-global-search">
@@ -78,33 +81,60 @@
                         type="search"
                         name="q"
                         value="{{ request('q', '') }}"
-                        placeholder="ابحث عن مخدوم، زيارة، طلب صلاة..."
-                        aria-label="بحث سريع">
+                        placeholder="{{ __('web_app.shell.search_placeholder') }}"
+                        aria-label="{{ __('web_app.shell.search_label') }}">
                 </form>
 
                 <div class="app-topbar-actions">
-                    <a href="{{ route('app.dashboard') }}" wire:navigate class="app-icon-button" title="العودة للوحة التحكم">
+                    <a href="{{ route('app.dashboard') }}" wire:navigate class="app-icon-button" title="{{ __('web_app.shell.go_dashboard') }}">
                         <i class="ph ph-house-line" aria-hidden="true"></i>
                     </a>
 
-                    <a href="{{ route('language.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
-                        onclick="event.preventDefault(); document.getElementById('web-app-language-form').submit();"
-                        class="app-icon-button" title="تغيير اللغة">
+                    <button type="button" class="app-icon-button" data-theme-toggle title="{{ __('web_app.shell.toggle_dark_mode') }}">
+                        <i class="ph ph-moon" aria-hidden="true" data-theme-dark-icon></i>
+                        <i class="ph ph-sun" aria-hidden="true" data-theme-light-icon></i>
+                    </button>
+
+                    <button type="submit" form="web-app-language-form" class="app-icon-button app-language-button" title="{{ __('web_app.shell.switch_language') }}">
                         <i class="ph ph-translate" aria-hidden="true"></i>
-                    </a>
+                        <span>{{ $nextLocaleLabel }}</span>
+                    </button>
                     <form id="web-app-language-form" method="POST"
-                        action="{{ route('language.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
+                        action="{{ route('language.switch', $nextLocale) }}"
                         class="hidden">
                         @csrf
                     </form>
 
                     @livewire('servant.notifications-bell')
 
-                    <div class="app-profile-chip">
-                        <span>{{ mb_substr($appUser->name, 0, 1) }}</span>
-                        <div>
-                            <strong>{{ $appUser->name }}</strong>
-                            <small>{{ $roleLabel }}</small>
+                    <div style="position:relative">
+                        <button type="button"
+                            onclick="event.stopPropagation();var m=document.getElementById('prof-dd');m.style.display=m.style.display==='block'?'none':'block'"
+                            style="display:flex;align-items:center;justify-content:center;border:0;padding:0;background:transparent;cursor:pointer;border-radius:9999px">
+                            <div style="width:36px;height:36px;border-radius:9999px;overflow:hidden;border:2px solid #dbe3ee;background:#e5e7eb;display:flex;align-items:center;justify-content:center">
+                                @if ($appUser->profile_photo_url)
+                                    <img src="{{ $appUser->profile_photo_url }}" alt="" style="width:100%;height:100%;object-fit:cover">
+                                @else
+                                    <span style="font-size:12px;font-weight:800;color:#9ca3af">{{ mb_substr($appUser->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                        </button>
+                        <div id="prof-dd" class="prof-dropdown" style="display:none;position:absolute;top:calc(100% + 10px);inset-inline-end:0;min-width:220px;z-index:70;direction:{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+                            <div class="prof-dropdown-head">
+                                <p>{{ $appUser->name }}</p>
+                                <span>{{ $roleLabel }}</span>
+                            </div>
+                            <a href="{{ route('app.profile') }}" wire:navigate class="prof-dropdown-item">
+                                <i class="ph ph-user-circle" aria-hidden="true"></i>
+                                {{ __('web_app.navigation.profile') }}
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="prof-dropdown-item prof-dropdown-item-danger">
+                                    <i class="ph ph-sign-out" aria-hidden="true"></i>
+                                    {{ __('web_app.actions.logout') }}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -116,19 +146,31 @@
         </div>
     </div>
 
-    <nav class="app-mobile-nav" aria-label="تنقل الموبايل">
-        @foreach (array_slice($navigationItems, 0, 5) as $item)
+    <nav class="app-mobile-nav" aria-label="{{ __('web_app.shell.mobile_navigation') }}">
+        @php $mobileItems = array_slice($navigationItems, 0, 4); @endphp
+        @foreach ($mobileItems as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
                 class="app-mobile-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
                 <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>
                 <span>{{ $item['label'] }}</span>
             </a>
         @endforeach
+        <a href="{{ route('app.profile') }}" wire:navigate
+            class="app-mobile-nav-item {{ request()->routeIs('app.profile') ? 'is-active' : '' }}">
+            <i class="ph ph-user-circle" aria-hidden="true"></i>
+            <span>{{ __('web_app.navigation.profile') }}</span>
+        </a>
     </nav>
 
     <x-web-app.offline-banner />
     <x-web-app.install-prompt />
 
+    <script>
+        document.addEventListener('click', function () {
+            var m = document.getElementById('prof-dd');
+            if (m) m.style.display = 'none';
+        });
+    </script>
     @livewireScripts
 </body>
 

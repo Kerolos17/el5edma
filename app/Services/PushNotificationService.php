@@ -245,7 +245,7 @@ class PushNotificationService
                 'silent'             => false,
             ],
             'fcm_options' => [
-                'link' => $stringData['url'] ?? '/admin',
+                'link' => $stringData['url'] ?? '/app/dashboard',
             ],
         ]);
 

@@ -1,369 +1,134 @@
-<h1 align="center">Ministry System — نظام الخدمة</h1>
+# Ministry System
 
-<p align="center">
-  A comprehensive church ministry management system for tracking beneficiaries, coordinating visits, and managing servants.
-  <br/>
-  نظام متكامل لإدارة الخدمة الكنسية — متابعة المخدومين، تنسيق الزيارات، وإدارة فريق الخدمة.
-</p>
+Laravel 12 + Livewire 3 ministry management system for Arabic-first church service workflows.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 12"/>
-  <img src="https://img.shields.io/badge/Filament-4.x-FDAE4B?style=flat-square" alt="Filament 4"/>
-  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.2+"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"/>
-  <img src="https://img.shields.io/badge/i18n-AR%20%7C%20EN-blue?style=flat-square" alt="Bilingual"/>
-</p>
+The primary product interface is now the Web App under `/app/*`. Filament remains available at `/admin` as an internal fallback/admin panel during the migration.
 
----
+## Main URLs
 
-## Table of Contents
+- `/` redirects to `/app/dashboard`
+- `/app/dashboard` main dashboard
+- `/app/beneficiaries`
+- `/app/visits`
+- `/app/scheduled-visits`
+- `/app/prayer-requests`
+- `/app/medical-files`
+- `/app/reports`
+- `/app/users`
+- `/app/service-groups`
+- `/admin` Filament fallback/admin panel
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [User Roles](#user-roles)
-- [System Modules](#system-modules)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [Scheduled Commands](#scheduled-commands)
-- [Project Structure](#project-structure)
-- [License](#license)
+## Roles
 
----
+- `super_admin`: full system access
+- `service_leader`: manages service groups and scoped operational data
+- `family_leader`: manages one family/service group scope
+- `servant`: daily work interface for beneficiaries, visits, scheduled visits, prayer requests, and medical files
 
-## Overview
+## Local Setup
 
-The **Ministry System** (نظام الخدمة) is a full-featured web application built for churches and faith-based organizations to:
+Requirements:
 
-- Maintain detailed profiles for every **beneficiary** (مخدوم) they serve
-- Plan, assign, and track **home visits** and follow-ups
-- Organize servants into **service groups** (مجموعات الخدمة)
-- Manage **medical records** and **prayer requests** securely
-- Send **push notifications** and in-app alerts via Firebase Cloud Messaging
-- Generate **PDF and Excel reports** for leadership
+- PHP 8.4 recommended, PHP 8.2 minimum
+- Composer 2
+- Node.js 20+ and npm
+- SQLite for local development, MySQL/PostgreSQL recommended for production
 
-The system ships fully **bilingual (Arabic / English)** with RTL layout support, making it suitable for Arabic-speaking communities worldwide.
-
----
-
-## Features
-
-| Feature | Description |
-|---|---|
-| Beneficiary Management | Complete profiles including personal, family, health, and financial information |
-| Visit Tracking | Record visits with status, duration, critical-case flags, and servant assignment |
-| Scheduled Visits | Plan future visits with date/time and automatic reminders |
-| Service Groups | Organize servants into groups with designated leaders |
-| Medical Records | Immutable medical file uploads and medication tracking |
-| Prayer Requests | Track and follow up on prayer requests per beneficiary |
-| Push Notifications | Firebase Cloud Messaging for mobile push alerts |
-| In-App Notifications | Birthday reminders, unvisited alerts, critical case escalations |
-| Role-Based Access | Four permission levels controlling what each user can see and do |
-| Self-Registration | Token-based servant onboarding approved by leaders |
-| Reports | PDF and Excel reports for leadership review |
-| Audit Logs | Immutable audit trail of every action in the system |
-| Bilingual UI | Full Arabic and English support with RTL layout |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend Framework | Laravel 12.x (PHP 8.2+) |
-| Admin Panel | Filament 4.x |
-| Database | SQLite (dev) / MySQL or PostgreSQL (prod) |
-| Caching | Redis (optional) |
-| Push Notifications | Firebase Cloud Messaging (FCM) via Kreait |
-| Real-Time UI | Laravel Livewire |
-| PDF Generation | mPDF 8.x |
-| Excel Export | Maatwebsite Excel 3.x |
-| Authorization | Spatie Laravel Permission 7.x |
-| Asset Bundler | Vite |
-| Queue Driver | Database (configurable) |
-| Testing | PHPUnit 11.x |
-
----
-
-## User Roles
-
-The system enforces four roles with hierarchical permissions:
-
-```
-SuperAdmin  (مدير النظام)
-    |
-ServiceLeader  (أمين الخدمة)
-    |
-FamilyLeader  (أمين الأسرة)
-    |
-Servant  (خادم)
-```
-
-| Role | Capabilities |
-|---|---|
-| **SuperAdmin** | Full system access — users, groups, all data, settings |
-| **ServiceLeader** | Manage their service group, servants, beneficiaries, and reports |
-| **FamilyLeader** | Manage their family unit, visits, and assigned beneficiaries |
-| **Servant** | View assigned beneficiaries, record visits, submit prayer requests |
-
----
-
-## System Modules
-
-### Beneficiaries (مخدومين)
-Comprehensive profiles covering:
-- Personal information (name, age, gender, ID, phone)
-- Family situation (marital status, children, parent status)
-- Address and location
-- Health and disability information
-- Financial situation assessment
-- Assigned service group and servant
-
-### Visits (زيارات)
-- Record home visits, phone calls, and church meetings
-- Track visit status: Excellent / Good / Needs Follow-up / Critical
-- Flag critical cases for immediate escalation
-- Assign multiple servants per visit
-- Automatic notifications on critical status
-
-### Scheduled Visits (زيارات مجدولة)
-- Plan future visits with date and time
-- Assign responsible servant
-- Automatic reminder notifications before visit time
-- Track completion status and link to the recorded visit
-
-### Service Groups (مجموعات الخدمة)
-- Create groups with a Family Leader and Service Leader
-- Assign beneficiaries and servants to groups
-- Generate token-based invitation links for servant registration
-- Track group statistics
-
-### Medical Files (ملفات طبية)
-- Upload medical reports, images, and documents
-- Immutable records (no edits after upload)
-- Secure access control — only authorized roles can view
-
-### Medications (أدوية)
-- Track medications per beneficiary
-- Dosage, frequency, and timing details
-- Active/inactive status management
-
-### Prayer Requests (طلبات صلاة)
-- Log prayer requests with title and body
-- Track status: Open / Answered / Closed
-- Timestamped answers
-
-### Notifications (الإشعارات)
-Five automated notification types sent daily via scheduled commands:
-1. **Birthday reminders** — daily at 8:00 AM
-2. **Scheduled visit reminders** — daily at 9:00 AM
-3. **Unvisited beneficiary alerts** — every Friday at 10:00 AM
-4. **Critical case escalations** — triggered on visit creation
-5. **New beneficiary announcements** — triggered on beneficiary registration
-
-### Reports (التقارير)
-Available in PDF and Excel formats:
-- All beneficiaries report
-- Visits report with date filters
-- Unvisited beneficiaries report
-- Individual beneficiary report
-- Service group report
-
-### Audit Logs (سجل التدقيق)
-- Immutable log of every create, update, and delete action
-- Captures: user, model, action, old values, new values, IP address
-- Accessible to SuperAdmin only
-
----
-
-## Installation
-
-### Prerequisites
-
-- PHP 8.2 or higher
-- Composer 2.x
-- Node.js 18+ and npm
-- SQLite / MySQL / PostgreSQL
-- Redis (optional, for caching and queues)
-
-### Steps
+Commands:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-org/ministry-system.git
-cd ministry-system
-
-# 2. Install PHP dependencies
 composer install
-
-# 3. Install frontend dependencies
 npm install
-
-# 4. Copy environment file and generate app key
 cp .env.example .env
 php artisan key:generate
-
-# 5. Run database migrations and seeders
 php artisan migrate --seed
-
-# 6. Build frontend assets
 npm run build
-
-# 7. Create storage symlink
-php artisan storage:link
+php artisan serve
 ```
 
----
+In this workspace, PHP is available at:
 
-## Configuration
+```bash
+.\.tools\php-8.4.20\php.exe artisan test
+```
 
-### Environment Variables
+## Test Gates
 
-Edit `.env` and configure the following sections:
+Run these before deployment:
+
+```bash
+php artisan test
+npm run build
+php artisan route:cache
+php artisan route:clear
+```
+
+For focused Web App checks:
+
+```bash
+php artisan test tests/Feature/WebApp/AppShellTest.php tests/Feature/WebApp/ResourceActionsTest.php tests/Feature/WebApp/ViewStructureTest.php
+```
+
+## Production Checklist
+
+Set production environment values:
 
 ```env
-# Application
-APP_NAME="Ministry System"
-APP_URL=http://localhost
-APP_LOCALE=ar
-
-# Database
-DB_CONNECTION=sqlite
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=ministry_system
-# DB_USERNAME=root
-# DB_PASSWORD=
-
-# Queue (use 'redis' in production)
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.example
 QUEUE_CONNECTION=database
-
-# Cache (use 'redis' in production)
-CACHE_STORE=database
-
-# Firebase (required for push notifications)
-FIREBASE_CREDENTIALS=/path/to/firebase-credentials.json
-FIREBASE_PROJECT_ID=your-firebase-project-id
-
-# Registration token expiry in hours (default: 72)
-REGISTRATION_TOKEN_EXPIRY=72
+SESSION_DRIVER=database
+CACHE_STORE=file
 ```
 
-### Firebase Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com/) and create a project
-2. Download the service account JSON credentials file
-3. Set `FIREBASE_CREDENTIALS` to the absolute path of the file
-4. Set `FIREBASE_PROJECT_ID` to your Firebase project ID
-
----
-
-## Running the Application
-
-### Development
+Then run:
 
 ```bash
-# Start the development server
-php artisan serve
-
-# Start the queue worker (required for push notifications)
-php artisan queue:work
-
-# Watch frontend assets
-npm run dev
-```
-
-### Production
-
-```bash
-# Build optimized assets
+composer install --no-dev --optimize-autoloader
+npm ci
 npm run build
-
-# Cache configuration and routes
+php artisan migrate --force
+php artisan storage:link --force
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
-# Run queue worker with supervisor
-php artisan queue:work --sleep=3 --tries=3 --daemon
+php artisan event:cache
 ```
 
-### Access
+Server requirements:
 
-| URL | Description |
-|---|---|
-| `/admin` | Admin panel (all authenticated users) |
-| `/register/{token}` | Servant self-registration with invitation token |
-| `/login` | Login with email and password |
+- Web root must point to `public/`
+- HTTPS is required for PWA install and push notifications
+- Cron must run Laravel scheduler every minute:
 
----
-
-## Scheduled Commands
-
-The system includes four scheduled Artisan commands. Add this to your server crontab:
-
-```cron
-* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+```bash
+* * * * * php /path/to/project/artisan schedule:run >> /dev/null 2>&1
 ```
 
-| Command | Schedule | Purpose |
-|---|---|---|
-| `send:birthday-reminders` | Daily at 08:00 | Notify servants about beneficiary birthdays |
-| `send:scheduled-visit-reminders` | Daily at 09:00 | Remind servants of upcoming scheduled visits |
-| `send:unvisited-alerts` | Fridays at 10:00 | Alert leaders about beneficiaries not visited recently |
-| `notifications:cleanup` | Fridays at 00:00 | Remove old read notifications |
+- A queue worker must be running:
 
----
-
-## Project Structure
-
-```
-ministry-system/
-├── app/
-│   ├── Console/Commands/          # Scheduled notification commands
-│   ├── Filament/
-│   │   ├── Pages/                 # Custom Filament pages (Dashboard, MyProfile)
-│   │   └── Resources/             # CRUD resources per module
-│   │       ├── Beneficiaries/
-│   │       ├── MedicalFiles/
-│   │       ├── MinistryNotifications/
-│   │       ├── PrayerRequests/
-│   │       ├── ScheduledVisits/
-│   │       ├── ServiceGroups/
-│   │       ├── Users/
-│   │       └── Visits/
-│   ├── Http/Controllers/          # Web controllers (login, reports, registration)
-│   ├── Livewire/                  # Real-time Livewire components
-│   ├── Models/                    # Eloquent models
-│   ├── Observers/                 # Model event observers
-│   └── Services/                  # Business logic services
-├── database/
-│   ├── migrations/                # Database schema migrations
-│   └── seeders/                   # Initial data seeders
-├── lang/
-│   ├── ar/                        # Arabic translations
-│   └── en/                        # English translations
-├── resources/
-│   └── views/
-│       ├── filament/              # Filament blade overrides
-│       ├── livewire/              # Livewire component views
-│       └── reports/              # PDF report templates
-└── routes/
-    └── web.php                    # All web routes
+```bash
+php artisan queue:work --tries=3 --timeout=90
 ```
 
----
+## PWA Status
 
-## License
+Current:
 
-This project is proprietary software. All rights reserved.
+- Web App install prompt
+- Service worker registration
+- Offline shell
+- Online/offline banner
+- Firebase push notification plumbing
 
-For inquiries, contact the development team.
+Remaining for full PWA parity:
 
----
+- Offline read cache for core `/app` screens
+- Offline queue for safe daily actions in the Web App
+- Conflict handling UI for queued sync
 
-<p align="center">
-  Built with care for church communities — صُنع باهتمام لخدمة المجتمعات الكنسية
-</p>
+## Important Deployment Note
+
+The migration `2026_04_30_120000_create_scheduled_visit_servants_table.php` is required for multi-servant scheduled visits. If production already has data, run migrations before opening `/app/scheduled-visits`.

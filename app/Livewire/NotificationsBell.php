@@ -80,8 +80,8 @@ class NotificationsBell extends Component
 
         $url = $notification->data['url'] ?? null;
 
-        if ($url && str_starts_with($url, '/admin')) {
-            $this->redirect($url, navigate: FilamentView::hasSpaMode());
+        if ($url) {
+            $this->redirect($url, navigate: true);
             return;
         }
 

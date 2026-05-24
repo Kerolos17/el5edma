@@ -28,12 +28,12 @@ class CodeLoginController extends Controller
             ]);
         }
 
-        Auth::login($user); // No "remember me" — sessions expire on browser close for security
+        Auth::login($user); // No remember-me; sessions expire on browser close for security.
 
         $user->update(['last_login_at' => now()]);
 
         App::setLocale($user->locale ?? 'ar');
 
-        return redirect('/admin');
+        return redirect()->route('app.dashboard');
     }
 }

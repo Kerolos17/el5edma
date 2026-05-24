@@ -30,4 +30,15 @@ class LocaleController extends Controller
 
         return redirect()->back();
     }
+
+    public function switchGuest(string $locale)
+    {
+        if (! in_array($locale, ['ar', 'en'])) {
+            abort(400);
+        }
+
+        session(['locale' => $locale]);
+
+        return redirect()->back();
+    }
 }

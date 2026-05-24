@@ -194,7 +194,7 @@
 
             {{-- Footer --}}
             <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
-                <a href="{{ route('filament.admin.resources.ministry-notifications.index') }}" @click="open = false"
+                <a href="{{ route('app.notifications') }}" @click="open = false" wire:navigate
                     class="text-xs font-medium hover:opacity-80 transition" style="color: #0073A3;">
                     {{ __('notifications.title') }} &#x2190;
                 </a>

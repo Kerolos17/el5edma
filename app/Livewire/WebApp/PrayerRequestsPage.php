@@ -28,7 +28,7 @@ class PrayerRequestsPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.prayer-requests-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats(clone $baseQuery),
@@ -81,30 +81,30 @@ class PrayerRequestsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'طلبات الصلاة',
-            'description' => 'مساحة هادئة لمتابعة الطلبات المفتوحة والمجابة بدون ضوضاء، مع ربط واضح بالمخدوم وصاحب الطلب.',
+            'title' => __('web_app.resources.prayer-requests.title'),
+            'description' => __('web_app.resources.prayer-requests.description'),
             'icon' => 'ph-hands-praying',
-            'primaryAction' => ['label' => 'المخدومون', 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
-            'secondaryAction' => ['label' => 'الملفات الطبية', 'route' => route('app.medical-files'), 'icon' => 'ph-file-lock'],
+            'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+            'secondaryAction' => ['label' => __('web_app.actions.medical_files'), 'route' => route('app.medical-files'), 'icon' => 'ph-file-lock'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'open', 'label' => 'مفتوحة'],
-            ['value' => 'answered', 'label' => 'مستجابة'],
-            ['value' => 'closed', 'label' => 'مغلقة'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'open', 'label' => __('web_app.filters.open')],
+            ['value' => 'answered', 'label' => __('web_app.filters.answered')],
+            ['value' => 'closed', 'label' => __('web_app.filters.closed')],
         ];
     }
 
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'مفتوحة', 'value' => (clone $baseQuery)->where('status', 'open')->count(), 'tone' => 'blue'],
-            ['label' => 'مستجابة', 'value' => (clone $baseQuery)->where('status', 'answered')->count(), 'tone' => 'emerald'],
-            ['label' => 'آخر 7 أيام', 'value' => (clone $baseQuery)->where('created_at', '>=', now()->subDays(7))->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.open'), 'value' => (clone $baseQuery)->where('status', 'open')->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.answered'), 'value' => (clone $baseQuery)->where('status', 'answered')->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.last_7_days'), 'value' => (clone $baseQuery)->where('created_at', '>=', now()->subDays(7))->count(), 'tone' => 'amber'],
         ];
     }
 

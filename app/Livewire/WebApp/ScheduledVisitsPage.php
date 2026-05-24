@@ -29,7 +29,7 @@ class ScheduledVisitsPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.scheduled-visits-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats(clone $baseQuery),
@@ -88,30 +88,30 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'الزيارات المجدولة',
-            'description' => 'ترتيب المواعيد القادمة مع رؤية واضحة للمكلفين والحالات المكتملة أو المؤجلة.',
+            'title' => __('web_app.resources.scheduled-visits.title'),
+            'description' => __('web_app.resources.scheduled-visits.description'),
             'icon' => 'ph-calendar-check',
-            'primaryAction' => ['label' => 'الزيارات', 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
-            'secondaryAction' => ['label' => 'طلبات الصلاة', 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
+            'primaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
+            'secondaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'upcoming', 'label' => 'قادمة'],
-            ['value' => 'completed', 'label' => 'مكتملة'],
-            ['value' => 'past', 'label' => 'سابقة'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'upcoming', 'label' => __('web_app.filters.upcoming')],
+            ['value' => 'completed', 'label' => __('web_app.filters.completed')],
+            ['value' => 'past', 'label' => __('web_app.filters.past')],
         ];
     }
 
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'قادمة', 'value' => (clone $baseQuery)->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending')->count(), 'tone' => 'blue'],
-            ['label' => 'اليوم', 'value' => (clone $baseQuery)->whereDate('scheduled_date', now()->toDateString())->count(), 'tone' => 'emerald'],
-            ['label' => 'مكتملة', 'value' => (clone $baseQuery)->where('status', 'completed')->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.upcoming'), 'value' => (clone $baseQuery)->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending')->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.today'), 'value' => (clone $baseQuery)->whereDate('scheduled_date', now()->toDateString())->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.completed'), 'value' => (clone $baseQuery)->where('status', 'completed')->count(), 'tone' => 'amber'],
         ];
     }
 
@@ -146,19 +146,19 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => 'زيارة منزلية',
-            'phone_call' => 'مكالمة هاتفية',
-            'church_meeting' => 'اجتماع كنيسة',
+            'home_visit' => __('visits.home_visit'),
+            'phone_call' => __('visits.phone_call'),
+            'church_meeting' => __('visits.church_meeting'),
         ];
     }
 
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => 'ممتاز',
-            'good' => 'جيد',
-            'needs_follow' => 'يحتاج متابعة',
-            'critical' => 'حرج',
+            'great' => __('visits.great'),
+            'good' => __('visits.good'),
+            'needs_follow' => __('visits.needs_follow'),
+            'critical' => __('visits.critical'),
         ];
     }
 }

@@ -25,7 +25,7 @@ self.addEventListener('message', (event) => {
                     dir:   'rtl',
                     // Pass the deep-link URL so notificationclick can navigate to the right record
                     data: {
-                        url: payload.data?.url || '/admin',
+                        url: payload.data?.url || '/app/dashboard',
                         ...payload.data,
                     },
                 };
@@ -44,7 +44,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    const targetUrl = event.notification.data?.url || '/admin';
+    const targetUrl = event.notification.data?.url || '/app/dashboard';
 
     event.waitUntil(
         clients

@@ -59,7 +59,7 @@
             <a href="{{ route('servant.scheduled-visits') }}" wire:navigate
                class="flex flex-col items-center gap-1 px-3 py-1 transition-all duration-200 {{ $isScheduledVisits ? 'text-teal-600' : 'text-gray-400' }}"
                aria-label="الزيارات المجدولة">
-                <i class="{{ $isScheduledVisits ? 'ph-fill' : 'ph' }} ph-calendar-check text-2xl"></i>
+                <i class="{{ $isScheduledVisits ? 'ph-fill' : 'ph' }} ph-calendar-dots text-2xl"></i>
                 <span class="text-xs font-semibold">مجدولة</span>
                 @if($isScheduledVisits)
                     <span class="w-1 h-1 rounded-full bg-teal-500 mt-0.5"></span>

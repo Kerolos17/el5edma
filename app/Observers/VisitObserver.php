@@ -61,7 +61,7 @@ class VisitObserver
         $data     = NotificationMetadata::enrich('critical_case', [
             'beneficiary_id' => $beneficiary->id,
             'visit_id'       => $visit->id,
-            'url'            => route('filament.admin.resources.visits.view', ['record' => $visit->id]),
+            'url'            => route('app.visits'),
         ]);
 
         $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);

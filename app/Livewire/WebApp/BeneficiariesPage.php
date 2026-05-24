@@ -32,7 +32,7 @@ class BeneficiariesPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.beneficiaries-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats($user, clone $baseQuery),
@@ -92,30 +92,30 @@ class BeneficiariesPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'المخدومون',
-            'description' => 'متابعة قائمة المخدومين داخل نطاقك مع بحث سريع، فلاتر واضحة، وأولوية للحالات التي تحتاج متابعة.',
+            'title' => __('web_app.resources.beneficiaries.title'),
+            'description' => __('web_app.resources.beneficiaries.description'),
             'icon' => 'ph-users-three',
-            'primaryAction' => ['label' => 'لوحة التحكم', 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
-            'secondaryAction' => ['label' => 'الزيارات', 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
+            'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+            'secondaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'mine', 'label' => 'تعييني المباشر'],
-            ['value' => 'recent', 'label' => 'نشط خلال 30 يوم'],
-            ['value' => 'needs-visit', 'label' => 'بدون زيارات'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'mine', 'label' => __('web_app.filters.mine')],
+            ['value' => 'recent', 'label' => __('web_app.filters.recent')],
+            ['value' => 'needs-visit', 'label' => __('web_app.filters.needs_visit')],
         ];
     }
 
     private function stats(User $user, Builder $baseQuery): array
     {
         return [
-            ['label' => 'إجمالي المخدومين', 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
-            ['label' => 'تعيين مباشر', 'value' => (clone $baseQuery)->where('assigned_servant_id', $user->id)->count(), 'tone' => 'emerald'],
-            ['label' => 'بدون زيارات', 'value' => (clone $baseQuery)->whereDoesntHave('visits')->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.total_beneficiaries'), 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.direct_assignments'), 'value' => (clone $baseQuery)->where('assigned_servant_id', $user->id)->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.no_visits'), 'value' => (clone $baseQuery)->whereDoesntHave('visits')->count(), 'tone' => 'amber'],
         ];
     }
 
@@ -170,38 +170,38 @@ class BeneficiariesPage extends PlaceholderPage
     private function beneficiaryRecordStatusOptions(): array
     {
         return [
-            'active' => 'نشط',
-            'inactive' => 'غير نشط',
-            'moved' => 'انتقل',
-            'deceased' => 'متنيح',
+            'active' => __('beneficiaries.active'),
+            'inactive' => __('beneficiaries.inactive'),
+            'moved' => __('beneficiaries.moved'),
+            'deceased' => __('beneficiaries.deceased'),
         ];
     }
 
     private function medicalFileTypeOptions(): array
     {
         return [
-            'report' => 'تقرير',
-            'image' => 'صورة',
-            'document' => 'مستند',
+            'report' => __('medical.report'),
+            'image' => __('medical.image'),
+            'document' => __('medical.document'),
         ];
     }
 
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => 'زيارة منزلية',
-            'phone_call' => 'مكالمة هاتفية',
-            'church_meeting' => 'اجتماع كنيسة',
+            'home_visit' => __('visits.home_visit'),
+            'phone_call' => __('visits.phone_call'),
+            'church_meeting' => __('visits.church_meeting'),
         ];
     }
 
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => 'ممتاز',
-            'good' => 'جيد',
-            'needs_follow' => 'يحتاج متابعة',
-            'critical' => 'حرج',
+            'great' => __('visits.great'),
+            'good' => __('visits.good'),
+            'needs_follow' => __('visits.needs_follow'),
+            'critical' => __('visits.critical'),
         ];
     }
 }

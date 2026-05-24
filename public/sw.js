@@ -84,7 +84,7 @@ function showNotificationFromPayload(payload) {
         vibrate: parseVibrationPattern(notificationData.vibrate),
         silent: false,
         data: {
-            url: notificationData.url || "/admin",
+            url: notificationData.url || "/app/dashboard",
             ...notificationData,
         },
     };
@@ -278,7 +278,7 @@ self.addEventListener("notificationclick", (event) => {
     event.notification.close();
 
     // Read deep-link URL from notification data payload
-    const targetUrl = event.notification.data?.url || "/admin";
+    const targetUrl = event.notification.data?.url || "/app/dashboard";
 
     event.waitUntil(
         clients

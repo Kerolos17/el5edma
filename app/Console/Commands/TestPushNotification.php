@@ -50,7 +50,7 @@ class TestPushNotification extends Command
         // 1. إنشاء الإشعار في لوحة التحكم (Dashboard)
         $payload = NotificationMetadata::enrich('test_alert', [
             'severity'  => 'high',
-            'url'       => route('filament.admin.resources.ministry-notifications.index'),
+            'url'       => route('app.notifications'),
             'test_data' => 'This is test payload',
         ]);
 

@@ -29,7 +29,7 @@ class BeneficiaryObserver
             ]),
             [
                 'beneficiary_id' => $beneficiary->id,
-                'url'            => route('filament.admin.resources.beneficiaries.view', ['record' => $beneficiary->id]),
+                'url'            => route('app.beneficiaries'),
             ],
         );
     }

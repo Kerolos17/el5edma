@@ -45,6 +45,13 @@ class AppShellTest extends TestCase
     }
 
     #[Test]
+    public function root_site_url_redirects_to_web_app_dashboard(): void
+    {
+        $this->get('/')
+            ->assertRedirect('/app/dashboard');
+    }
+
+    #[Test]
     public function inactive_user_is_logged_out_from_app(): void
     {
         $group = ServiceGroup::factory()->create();
@@ -71,8 +78,55 @@ class AppShellTest extends TestCase
             $this->actingAs($user)
                 ->get(route('app.dashboard'))
                 ->assertOk()
-                ->assertSee('Ministry System')
-                ->assertSee('واجهة موحدة لكل الأدوار');
+                ->assertSee('الانبا صموئيل')
+                ->assertSee('مرحباً بعودتك');
+        }
+    }
+
+    #[Test]
+    public function english_locale_renders_ltr_shell_with_english_navigation(): void
+    {
+        $user = $this->createSuperAdmin(['locale' => 'en']);
+
+        $this->actingAs($user)
+            ->get(route('app.dashboard'))
+            ->assertOk()
+            ->assertSee('lang="en"', false)
+            ->assertSee('dir="ltr"', false)
+            ->assertSee('Dashboard')
+            ->assertSee('Beneficiaries')
+            ->assertSee('Toggle dark mode')
+            ->assertDontSee('dir="rtl"', false);
+    }
+
+    #[Test]
+    public function english_locale_renders_app_pages_without_hardcoded_arabic_ui(): void
+    {
+        $user = $this->createSuperAdmin(['locale' => 'en']);
+
+        foreach ([
+            'app.dashboard',
+            'app.beneficiaries',
+            'app.visits',
+            'app.scheduled-visits',
+            'app.prayer-requests',
+            'app.medical-files',
+            'app.reports',
+            'app.users',
+            'app.service-groups',
+        ] as $route) {
+            $content = $this->actingAs($user)
+                ->get(route($route))
+                ->assertOk()
+                ->getContent();
+
+            preg_match('/.{0,40}\p{Arabic}.{0,40}/u', $content, $arabicMatch);
+
+            $this->assertSame(
+                0,
+                preg_match('/\p{Arabic}/u', $content),
+                "Route [{$route}] still renders Arabic UI while locale is English. First match: " . ($arabicMatch[0] ?? ''),
+            );
         }
     }
 

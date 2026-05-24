@@ -23,7 +23,7 @@ class ReportsPage extends PlaceholderPage
     {
         $user = auth()->user();
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.reports-page', [
             'meta' => $this->meta(),
             'filters' => [],
             'stats' => $this->stats($user),
@@ -47,20 +47,20 @@ class ReportsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'التقارير',
-            'description' => 'مركز واحد لتقارير المتابعة والزيارات وملفات الأسر، مع روابط مباشرة للنسخ الحالية PDF.',
+            'title' => __('web_app.resources.reports.title'),
+            'description' => __('web_app.resources.reports.description'),
             'icon' => 'ph-chart-line-up',
-            'primaryAction' => ['label' => 'لوحة التحكم', 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
-            'secondaryAction' => ['label' => 'المخدومون', 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+            'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+            'secondaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
         ];
     }
 
     private function stats(User $user): array
     {
         return [
-            ['label' => 'التقارير المتاحة', 'value' => $this->reportCards($user)->count(), 'tone' => 'blue'],
-            ['label' => 'المجموعات ضمن نطاقك', 'value' => $user->can('viewAny', ServiceGroup::class) ? WebAppScope::serviceGroups($user)->count() : 0, 'tone' => 'emerald'],
-            ['label' => 'المخدومون ضمن نطاقك', 'value' => WebAppScope::beneficiaries($user)->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.available_reports'), 'value' => $this->reportCards($user)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.scoped_groups'), 'value' => $user->can('viewAny', ServiceGroup::class) ? WebAppScope::serviceGroups($user)->count() : 0, 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.scoped_beneficiaries'), 'value' => WebAppScope::beneficiaries($user)->count(), 'tone' => 'amber'],
         ];
     }
 
@@ -68,8 +68,8 @@ class ReportsPage extends PlaceholderPage
     {
         $cards = collect([
             [
-                'title' => 'تقرير المخدومين',
-                'description' => 'نسخة PDF عامة لقائمة المخدومين حسب صلاحيات المستخدم الحالي.',
+                'title' => __('web_app.reports.beneficiaries.title'),
+                'description' => __('web_app.reports.beneficiaries.description'),
                 'route' => route('reports.beneficiaries.pdf'),
                 'icon' => 'ph-users-three',
             ],
@@ -81,14 +81,14 @@ class ReportsPage extends PlaceholderPage
 
         $cards = $cards->merge([
             [
-                'title' => 'تقرير الزيارات',
-                'description' => 'ملخص PDF للزيارات المسجلة.',
+                'title' => __('web_app.reports.visits.title'),
+                'description' => __('web_app.reports.visits.description'),
                 'route' => route('reports.visits.pdf'),
                 'icon' => 'ph-clipboard-text',
             ],
             [
-                'title' => 'تقرير غير المزورين',
-                'description' => 'إبراز المخدومين الذين يحتاجون متابعة أو زيارة.',
+                'title' => __('web_app.reports.unvisited.title'),
+                'description' => __('web_app.reports.unvisited.description'),
                 'route' => route('reports.unvisited.pdf'),
                 'icon' => 'ph-warning-circle',
             ],
@@ -103,14 +103,14 @@ class ReportsPage extends PlaceholderPage
                 ->get()
                 ->flatMap(fn (ServiceGroup $group) => [
                     [
-                        'title' => "تقرير {$group->name}",
-                        'description' => 'ملف PDF لبيانات الأسرة ومؤشراتها الأساسية.',
+                        'title' => __('web_app.reports.service_group.title', ['name' => $group->name]),
+                        'description' => __('web_app.reports.service_group.description'),
                         'route' => route('reports.service-group.pdf', $group),
                         'icon' => 'ph-tree-structure',
                     ],
                     [
-                        'title' => "مخدومو {$group->name}",
-                        'description' => 'قائمة PDF لمخدومي المجموعة الحالية.',
+                        'title' => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
+                        'description' => __('web_app.reports.service_group_beneficiaries.description'),
                         'route' => route('reports.service-group.beneficiaries.pdf', $group),
                         'icon' => 'ph-users-three',
                     ],

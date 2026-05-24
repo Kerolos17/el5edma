@@ -10,16 +10,56 @@ use Tests\TestCase;
 class ViewStructureTest extends TestCase
 {
     #[Test]
-    public function placeholder_page_uses_shared_partials_for_common_sections(): void
+    public function resource_pages_use_dedicated_views(): void
     {
-        $view = file_get_contents(resource_path('views/livewire/web-app/placeholder-page.blade.php'));
+        $pages = [
+            'beneficiaries-page' => 'BeneficiariesPage',
+            'visits-page' => 'VisitsPage',
+            'users-page' => 'UsersPage',
+            'service-groups-page' => 'ServiceGroupsPage',
+            'medical-files-page' => 'MedicalFilesPage',
+            'prayer-requests-page' => 'PrayerRequestsPage',
+            'scheduled-visits-page' => 'ScheduledVisitsPage',
+            'reports-page' => 'ReportsPage',
+        ];
 
-        $this->assertStringContainsString("@include('livewire.web-app.partials.hero')", $view);
-        $this->assertStringContainsString("@include('livewire.web-app.partials.stats')", $view);
-        $this->assertStringContainsString("@include('livewire.web-app.partials.toolbar')", $view);
-        $this->assertStringContainsString("@include('livewire.web-app.partials.report-cards')", $view);
-        $this->assertStringContainsString("@include('livewire.web-app.partials.resource-table')", $view);
-        $this->assertStringContainsString("@include('livewire.web-app.partials.modals.index')", $view);
+        foreach ($pages as $view => $component) {
+            $viewPath = resource_path("views/livewire/web-app/{$view}.blade.php");
+            $this->assertFileExists($viewPath, "Missing view for {$component}");
+
+            $componentPath = app_path("Livewire/WebApp/{$component}.php");
+            $this->assertFileExists($componentPath, "Missing component for {$component}");
+        }
+    }
+
+    #[Test]
+    public function resource_pages_include_modals(): void
+    {
+        $pages = [
+            'beneficiaries-page',
+            'visits-page',
+            'users-page',
+            'service-groups-page',
+            'medical-files-page',
+            'prayer-requests-page',
+            'scheduled-visits-page',
+        ];
+
+        foreach ($pages as $view) {
+            $viewPath = resource_path("views/livewire/web-app/{$view}.blade.php");
+            $source = file_get_contents($viewPath);
+            $this->assertStringContainsString("@include('livewire.web-app.partials.modals.index')", $source);
+        }
+    }
+
+    #[Test]
+    public function web_app_shell_exposes_language_and_dark_mode_controls(): void
+    {
+        $layout = file_get_contents(resource_path('views/web-app/layouts/app.blade.php'));
+
+        $this->assertStringContainsString('data-theme-toggle', $layout);
+        $this->assertStringContainsString('web-app-language-form', $layout);
+        $this->assertStringContainsString("app()->getLocale() === 'ar' ? 'rtl' : 'ltr'", $layout);
     }
 
     #[Test]
@@ -41,24 +81,44 @@ class ViewStructureTest extends TestCase
     }
 
     #[Test]
-    public function resource_rows_and_mobile_cards_delegate_each_resource_to_its_own_partial(): void
+    public function placeholder_page_delegates_large_workflows_to_concerns(): void
     {
-        $headerView = file_get_contents(resource_path('views/livewire/web-app/partials/resource-headers.blade.php'));
-        $rowView = file_get_contents(resource_path('views/livewire/web-app/partials/resource-row.blade.php'));
-        $mobileView = file_get_contents(resource_path('views/livewire/web-app/partials/resource-mobile-card.blade.php'));
+        $component = file_get_contents(app_path('Livewire/WebApp/PlaceholderPage.php'));
 
         foreach ([
-            'beneficiaries',
-            'visits',
-            'scheduled-visits',
-            'prayer-requests',
-            'medical-files',
-            'users',
-            'service-groups',
-        ] as $section) {
-            $this->assertStringContainsString("@include('livewire.web-app.partials.headers.{$section}')", $headerView);
-            $this->assertStringContainsString("@include('livewire.web-app.partials.rows.{$section}')", $rowView);
-            $this->assertStringContainsString("@include('livewire.web-app.partials.mobile-cards.{$section}')", $mobileView);
+            'ManagesScheduledVisits',
+            'ManagesVisits',
+            'ManagesPrayerRequests',
+            'ManagesMedicalFiles',
+            'ManagesServiceGroups',
+            'ManagesUsers',
+            'ManagesBeneficiaries',
+        ] as $concern) {
+            $this->assertStringContainsString("use App\\Livewire\\WebApp\\Concerns\\{$concern};", $component);
+            $this->assertStringContainsString("use {$concern};", $component);
+            $this->assertFileExists(app_path("Livewire/WebApp/Concerns/{$concern}.php"));
+        }
+    }
+
+    #[Test]
+    public function placeholder_page_delegates_resource_listing_to_concern(): void
+    {
+        $component = file_get_contents(app_path('Livewire/WebApp/PlaceholderPage.php'));
+        $concern = app_path('Livewire/WebApp/Concerns/ManagesResourceListing.php');
+
+        $this->assertStringContainsString('use App\\Livewire\\WebApp\\Concerns\\ManagesResourceListing;', $component);
+        $this->assertStringContainsString('use ManagesResourceListing;', $component);
+        $this->assertFileExists($concern);
+
+        $concernSource = file_get_contents($concern);
+
+        foreach ([
+            'private function queryForSection',
+            'private function applySearch',
+            'private function applyFilter',
+            'private function applySort',
+        ] as $method) {
+            $this->assertStringContainsString($method, $concernSource);
         }
     }
 }

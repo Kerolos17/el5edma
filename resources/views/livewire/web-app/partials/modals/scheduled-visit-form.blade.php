@@ -1,16 +1,16 @@
 @if ($showScheduledVisitForm)
     <div class="app-modal-backdrop" wire:click="closeScheduledVisitForm"></div>
-    <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="جدولة زيارة">
+    <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.schedule_visit') }}">
         <div class="app-modal-panel">
             <div class="app-modal-header">
-                <div><p class="app-section-label">تنظيم الزيارات</p><h3>جدولة زيارة</h3></div>
+                <div><p class="app-section-label">{{ __('web_app.forms.scheduled_visit.section') }}</p><h3>{{ __('web_app.actions.schedule_visit') }}</h3></div>
                 <button type="button" wire:click="closeScheduledVisitForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>
             </div>
             <div class="app-form-grid">
                 <label class="app-form-field">
-                    <span>المخدوم</span>
+                    <span>{{ __('visits.beneficiary') }}</span>
                     <select wire:model="scheduledVisitBeneficiaryId">
-                        <option value="">اختر المخدوم</option>
+                        <option value="">{{ __('web_app.forms.select.beneficiary') }}</option>
                         @foreach ($beneficiaryOptions as $beneficiary)
                             <option value="{{ $beneficiary->id }}">{{ $beneficiary->full_name }}{{ $beneficiary->code ? ' - ' . $beneficiary->code : '' }}</option>
                         @endforeach
@@ -18,12 +18,12 @@
                     @error('scheduledVisitBeneficiaryId') <small>{{ $message }}</small> @enderror
                 </label>
                 <label class="app-form-field">
-                    <span>الخدام المكلفون</span>
+                    <span>{{ __('visits.servants') }}</span>
                     <div class="app-check-grid">
                         @forelse ($servantOptions as $servant)
                             <label class="app-check-row"><input type="checkbox" value="{{ $servant->id }}" wire:model="scheduledVisitAssignedServantIds"><span>{{ $servant->name }}</span></label>
                         @empty
-                            <div class="app-check-empty">اختر المخدوم أولًا لعرض خدام نفس المجموعة.</div>
+                            <div class="app-check-empty">{{ __('web_app.forms.scheduled_visit.select_beneficiary_first') }}</div>
                         @endforelse
                     </div>
                     @if (count($scheduledVisitAssignedServantIds) > 0)
@@ -36,13 +36,13 @@
                     @error('scheduledVisitAssignedServantIds') <small>{{ $message }}</small> @enderror
                     @error('scheduledVisitAssignedServantIds.*') <small>{{ $message }}</small> @enderror
                 </label>
-                <label class="app-form-field"><span>التاريخ</span><input type="date" wire:model="scheduledVisitDate">@error('scheduledVisitDate') <small>{{ $message }}</small> @enderror</label>
-                <label class="app-form-field"><span>الوقت</span><input type="time" wire:model="scheduledVisitTime">@error('scheduledVisitTime') <small>{{ $message }}</small> @enderror</label>
-                <label class="app-form-field app-form-field-full"><span>ملاحظات</span><textarea wire:model="scheduledVisitNotes" rows="4" placeholder="سبب الزيارة أو التنسيق المطلوب قبل الموعد"></textarea>@error('scheduledVisitNotes') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field"><span>{{ __('visits.scheduled_date') }}</span><input type="date" wire:model="scheduledVisitDate">@error('scheduledVisitDate') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field"><span>{{ __('visits.scheduled_time') }}</span><input type="time" wire:model="scheduledVisitTime">@error('scheduledVisitTime') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field app-form-field-full"><span>{{ __('visits.notes') }}</span><textarea wire:model="scheduledVisitNotes" rows="4" placeholder="{{ __('web_app.forms.placeholders.scheduled_notes') }}"></textarea>@error('scheduledVisitNotes') <small>{{ $message }}</small> @enderror</label>
             </div>
             <div class="app-modal-actions">
-                <button type="button" wire:click="closeScheduledVisitForm" class="app-secondary-button">إلغاء</button>
-                <button type="button" wire:click="saveScheduledVisit" class="app-primary-button">حفظ الموعد</button>
+                <button type="button" wire:click="closeScheduledVisitForm" class="app-secondary-button">{{ __('web_app.actions.cancel') }}</button>
+                <button type="button" wire:click="saveScheduledVisit" wire:loading.attr="disabled" class="app-primary-button">{{ __('web_app.forms.scheduled_visit.save') }}</button>
             </div>
         </div>
     </section>

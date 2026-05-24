@@ -58,7 +58,7 @@ class SendScheduledVisitReminders extends Command
                     'beneficiary_id'     => (string) $visit->beneficiary_id,
                     'scheduled_date'     => (string) $visit->scheduled_date,
                     'scheduled_time'     => (string) $visit->scheduled_time,
-                    'url'                => route('filament.admin.resources.beneficiaries.view', ['record' => $visit->beneficiary_id]),
+                    'url'                => route('app.beneficiaries'),
                 ]);
 
                 App::setLocale($originalLocale);
@@ -91,7 +91,7 @@ class SendScheduledVisitReminders extends Command
                 $body  = __('notifications.visit_reminder_body', ['name' => '']);
                 App::setLocale($originalLocale);
                 SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('visit_reminder', [
-                    'url' => route('filament.admin.resources.scheduled-visits.index'),
+                    'url' => route('app.scheduled-visits'),
                 ]));
             }
 

@@ -32,7 +32,7 @@ class UsersPage extends PlaceholderPage
             )
         )->paginate(12);
 
-        return view('livewire.web-app.placeholder-page', [
+        return view('livewire.web-app.users-page', [
             'meta' => $this->meta(),
             'filters' => $this->filters(),
             'stats' => $this->stats(clone $baseQuery),
@@ -90,32 +90,32 @@ class UsersPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => 'الخدام والمستخدمون',
-            'description' => 'رؤية عملية للمستخدمين داخل نطاقك: من النشط، أدوار الخدمة، ومجموعات الخدمة المرتبطة.',
+            'title' => __('web_app.resources.users.title'),
+            'description' => __('web_app.resources.users.description'),
             'icon' => 'ph-identification-card',
-            'primaryAction' => ['label' => 'مجموعات الخدمة', 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
-            'secondaryAction' => ['label' => 'التقارير', 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
+            'primaryAction' => ['label' => __('web_app.actions.service_groups'), 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
+            'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }
 
     private function filters(): array
     {
         return [
-            ['value' => 'all', 'label' => 'الكل'],
-            ['value' => 'active', 'label' => 'نشط'],
-            ['value' => 'inactive', 'label' => 'غير مفعل'],
-            ['value' => 'service_leader', 'label' => 'أمين خدمة'],
-            ['value' => 'family_leader', 'label' => 'أمين أسرة'],
-            ['value' => 'servant', 'label' => 'خادم'],
+            ['value' => 'all', 'label' => __('web_app.filters.all')],
+            ['value' => 'active', 'label' => __('web_app.filters.active')],
+            ['value' => 'inactive', 'label' => __('web_app.filters.inactive')],
+            ['value' => 'service_leader', 'label' => __('web_app.filters.service_leader')],
+            ['value' => 'family_leader', 'label' => __('web_app.filters.family_leader')],
+            ['value' => 'servant', 'label' => __('web_app.filters.servant')],
         ];
     }
 
     private function stats(Builder $baseQuery): array
     {
         return [
-            ['label' => 'إجمالي المستخدمين', 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
-            ['label' => 'نشطون', 'value' => (clone $baseQuery)->where('is_active', true)->count(), 'tone' => 'emerald'],
-            ['label' => 'خدام', 'value' => (clone $baseQuery)->where('role', UserRole::Servant->value)->count(), 'tone' => 'amber'],
+            ['label' => __('web_app.stats.total_users'), 'value' => (clone $baseQuery)->count(), 'tone' => 'blue'],
+            ['label' => __('web_app.stats.active_users'), 'value' => (clone $baseQuery)->where('is_active', true)->count(), 'tone' => 'emerald'],
+            ['label' => __('web_app.stats.servants'), 'value' => (clone $baseQuery)->where('role', UserRole::Servant->value)->count(), 'tone' => 'amber'],
         ];
     }
 
