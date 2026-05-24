@@ -99,7 +99,7 @@ class Dashboard extends Component
         $visitsChart = Visit::query()
             ->whereHas('beneficiary', fn (Builder $query) => $query->whereIn('id', (clone $beneficiaryScope)->select('id')))
             ->where('visit_date', '>=', now()->subMonths(6)->startOfMonth())
-            ->select(DB::raw("strftime('%Y-%m', visit_date) as month"), DB::raw('count(*) as total'))
+            ->select(DB::raw("DATE_FORMAT(visit_date, '%Y-%m') as month"), DB::raw('count(*) as total'))
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
