@@ -262,6 +262,7 @@ return [
         'stable' => 'Stable',
         'pending' => 'Pending',
         'cancelled' => 'Cancelled',
+        'completed' => 'Completed',
         'open' => 'Open',
         'answered' => 'Answered',
         'closed' => 'Closed',

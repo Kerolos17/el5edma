@@ -262,6 +262,7 @@ return [
         'stable' => 'مستقرة',
         'pending' => 'قيد الانتظار',
         'cancelled' => 'ملغية',
+        'completed' => 'مكتملة',
         'open' => 'مفتوحة',
         'answered' => 'مستجابة',
         'closed' => 'مغلقة',
