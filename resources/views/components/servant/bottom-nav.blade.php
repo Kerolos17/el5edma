@@ -3,7 +3,6 @@
         ['route' => 'servant.dashboard',        'icon' => 'ph-house',       'label' => 'الرئيسية',      'active' => request()->routeIs('servant.dashboard')],
         ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',       'label' => 'المخدومون',     'active' => request()->routeIs('servant.beneficiaries*')],
         ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar',    'label' => 'جدولي',         'active' => request()->routeIs('servant.scheduled-visits')],
-        ['route' => 'servant.profile',          'icon' => 'ph-user-circle', 'label' => 'حسابي',         'active' => request()->routeIs('servant.profile')],
     ];
 @endphp
 

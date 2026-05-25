@@ -20,9 +20,6 @@
             <i class="ph ph-list text-xl"></i>
         </button>
 
-        {{-- Title --}}
-        <span class="text-base font-extrabold text-teal-800 truncate">{{ $title ?? 'الرئيسية' }}</span>
-
         {{-- Search + Notifications --}}
         <div class="flex items-center gap-1">
             <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
@@ -47,7 +44,7 @@
          class="fixed top-0 right-0 h-full w-72 max-w-[85vw] z-50 shadow-2xl overflow-y-auto"
          style="background: linear-gradient(180deg, #0d555c 0%, #003942 100%);">
 
-        {{-- Drawer Header --}}
+        {{-- User Info --}}
         <div class="px-5 py-6 border-b border-white/10 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/20">
