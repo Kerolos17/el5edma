@@ -96,12 +96,17 @@ class Dashboard extends Component
             ->limit(5)
             ->get();
 
+        $isSqlite = DB::getDriverName() === 'sqlite';
+        $monthExpr = $isSqlite
+            ? "strftime('%Y-%m', visit_date)"
+            : "DATE_FORMAT(visit_date, '%Y-%m')";
+
         $visitsChart = Visit::query()
             ->whereHas('beneficiary', fn (Builder $query) => $query->whereIn('id', (clone $beneficiaryScope)->select('id')))
             ->where('visit_date', '>=', now()->subMonths(6)->startOfMonth())
-            ->select(DB::raw("DATE_FORMAT(visit_date, '%Y-%m') as month"), DB::raw('count(*) as total'))
-            ->groupBy('month')
-            ->orderBy('month')
+            ->select(DB::raw("{$monthExpr} as month"), DB::raw('count(*) as total'))
+            ->groupBy(DB::raw($monthExpr))
+            ->orderBy(DB::raw($monthExpr))
             ->pluck('total', 'month');
 
         return view('livewire.web-app.dashboard', [
