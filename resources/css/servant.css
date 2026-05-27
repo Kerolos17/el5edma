@@ -414,6 +414,228 @@
     transition: background 0.5s ease;
   }
   .step-connector.completed { background: #006D77; }
+
+  /* ---- Notification Bell ---- */
+  .app-notification-root {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .app-notification-mute,
+  .app-notification-bell {
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: #006d77;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease;
+  }
+
+  .app-notification-mute {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    opacity: 0.65;
+    font-size: 1.1rem;
+  }
+
+  .app-notification-bell {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    font-size: 1.4rem;
+  }
+
+  .app-notification-mute:hover,
+  .app-notification-bell:hover {
+    background: #eff6ff;
+  }
+
+  .app-notification-bell span {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    background: #e63946;
+    color: white;
+    font-size: 0.56rem;
+    font-weight: 800;
+  }
+
+  .app-notification-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+  }
+
+  .app-notification-panel {
+    position: fixed;
+    inset-inline: 0.75rem;
+    top: 4.25rem;
+    z-index: 60;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: #fffbf7;
+    border: 1px solid rgba(0, 109, 119, 0.12);
+    box-shadow: 0 20px 60px rgba(0, 109, 119, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .app-notification-header,
+  .app-notification-header > div,
+  .app-notification-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .app-notification-header {
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(0, 109, 119, 0.08);
+  }
+
+  .app-notification-header > div {
+    gap: 0.45rem;
+    color: #003942;
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  .app-notification-header strong {
+    min-width: 1.55rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: #006d77;
+    color: white;
+    font-size: 0.72rem;
+    text-align: center;
+  }
+
+  .app-notification-header button {
+    border: 0;
+    background: transparent;
+    color: #006d77;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .app-notification-list {
+    max-height: 65dvh;
+    overflow-y: auto;
+  }
+
+  .app-notification-item {
+    width: 100%;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 109, 119, 0.06);
+    background: transparent;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .app-notification-item.is-unread {
+    background: rgba(0, 109, 119, 0.05);
+    border-inline-start: 3px solid #006d77;
+  }
+
+  .app-notification-type {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: rgba(0, 109, 119, 0.1);
+    color: #006d77;
+  }
+
+  .app-notification-content {
+    min-width: 0;
+    display: grid;
+    gap: 0.15rem;
+    flex: 1;
+  }
+
+  .app-notification-content strong,
+  .app-notification-content small,
+  .app-notification-content time {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-notification-content strong {
+    color: #003942;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  .app-notification-content small {
+    color: #5f7b7e;
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .app-notification-content time {
+    color: #8aa2a5;
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .app-notification-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 0.45rem;
+    border-radius: 999px;
+    background: #006d77;
+  }
+
+  .app-notification-empty {
+    display: grid;
+    place-items: center;
+    gap: 0.4rem;
+    min-height: 8rem;
+    color: #8aa2a5;
+    text-align: center;
+  }
+
+  .app-notification-empty i {
+    font-size: 1.8rem;
+  }
+
+  .app-notification-empty p {
+    margin: 0;
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .app-notification-view-all {
+    color: #006d77;
+    font-size: 1.1rem;
+    text-decoration: none;
+  }
+
+  @media (min-width: 640px) {
+    .app-notification-panel {
+      position: absolute;
+      inset-inline: auto 0;
+      top: 3rem;
+      width: 22rem;
+    }
+  }
 }
 
 /* =========================================================
