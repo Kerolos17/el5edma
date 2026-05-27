@@ -70,9 +70,62 @@
         </aside>
 
         <div class="app-main">
-            <header class="app-topbar" data-user-id="{{ $appUser->id }}">
+            <header class="app-topbar" data-user-id="{{ $appUser->id }}" x-data="{ drawer: false }">
                 <div>
-                    <h1 class="app-topbar-title">{{ $title ?? __('web_app.shell.dashboard') }}</h1>
+                    <button @click="drawer = true" class="app-hamburger lg:hidden" aria-label="{{ __('web_app.shell.main_navigation') }}">
+                        <i class="ph ph-list"></i>
+                    </button>
+                </div>
+
+                <div x-cloak x-show="drawer" @click="drawer = false" class="app-drawer-backdrop lg:hidden" aria-hidden="true"></div>
+                <div x-cloak x-show="drawer"
+                     x-transition:enter="transition-transform duration-300 ease-out"
+                     x-transition:enter-start="translate-x-full"
+                     x-transition:enter-end="translate-x-0"
+                     x-transition:leave="transition-transform duration-200 ease-in"
+                     x-transition:leave-start="translate-x-0"
+                     x-transition:leave-end="translate-x-full"
+                     class="app-drawer lg:hidden">
+
+                    <div class="app-drawer-head">
+                        <div style="width:40px;height:40px;border-radius:9999px;overflow:hidden;border:2px solid rgba(148,163,184,0.35);background:#334155;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            @if ($appUser->profile_photo_url)
+                                <img src="{{ $appUser->profile_photo_url }}" alt="" style="width:100%;height:100%;object-fit:cover">
+                            @else
+                                <span style="font-size:14px;font-weight:800;color:#94a3b8">{{ mb_substr($appUser->name, 0, 1) }}</span>
+                            @endif
+                        </div>
+                        <div style="min-width:0">
+                            <p style="color:white;font-weight:800;font-size:0.94rem;margin:0;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $appUser->name }}</p>
+                            <span style="color:#94a3b8;font-size:0.75rem;font-weight:600">{{ $roleLabel }}</span>
+                        </div>
+                        <button @click="drawer = false" class="app-drawer-close" aria-label="{{ __('web_app.actions.close') }}">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+
+                    <nav class="app-drawer-nav">
+                        @foreach ($navigationItems as $item)
+                            <a href="{{ route($item['route']) }}" wire:navigate @click="drawer = false"
+                               class="app-drawer-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
+                                <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>
+                                <span>{{ $item['label'] }}</span>
+                            </a>
+                        @endforeach
+                    </nav>
+
+                    <div style="padding:0.75rem 1rem 1.25rem">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    style="width:100%;display:flex;align-items:center;gap:0.7rem;padding:0.75rem 1rem;border:0;background:transparent;color:rgba(255,255,255,0.45);font-size:0.88rem;font-weight:700;border-radius:0.75rem;cursor:pointer;transition:all 160ms ease"
+                                    onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(239,68,68,0.8)'"
+                                    onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.45)'">
+                                <i class="ph ph-sign-out" style="font-size:1.2rem" aria-hidden="true"></i>
+                                {{ __('web_app.actions.logout') }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <form action="{{ route('app.beneficiaries') }}" method="GET" class="app-global-search">
@@ -155,11 +208,6 @@
                 <span>{{ $item['label'] }}</span>
             </a>
         @endforeach
-        <a href="{{ route('app.profile') }}" wire:navigate
-            class="app-mobile-nav-item {{ request()->routeIs('app.profile') ? 'is-active' : '' }}">
-            <i class="ph ph-user-circle" aria-hidden="true"></i>
-            <span>{{ __('web_app.navigation.profile') }}</span>
-        </a>
     </nav>
 
     <x-web-app.offline-banner />
