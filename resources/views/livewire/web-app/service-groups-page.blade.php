@@ -44,7 +44,7 @@
                 <tbody>
                     @forelse ($records as $record)
                         <tr>
-                            <td><strong>{{ $record->name }}</strong></td>
+                            <td><a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="app-link-inline"><strong>{{ $record->name }}</strong></a></td>
                             <td>{{ $record->leader?->name ?? __('web_app.fallback.unassigned') }}</td>
                             <td>{{ $record->serviceLeader?->name ?? __('web_app.fallback.unassigned') }}</td>
                             <td><span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span></td>
@@ -72,13 +72,13 @@
 
         <div class="app-mobile-list">
             @forelse ($records as $record)
-                <article class="app-mobile-card">
+                <a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="app-mobile-card">
                     <strong>{{ $record->name }}</strong>
                     <p>{{ $record->leader?->name ?? $record->serviceLeader?->name ?? '—' }}</p>
                     <div class="app-mobile-meta">
                         <span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span>
                     </div>
-                </article>
+                </a>
             @empty
                 <div class="app-empty-state">
                     <i class="ph ph-tree-structure" aria-hidden="true"></i>

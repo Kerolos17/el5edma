@@ -10,6 +10,7 @@ use App\Livewire\WebApp\AuditLogsPage;
 use App\Livewire\WebApp\BeneficiaryProfilePage;
 use App\Livewire\WebApp\NotificationsPage;
 use App\Livewire\WebApp\ProfilePage;
+use App\Livewire\WebApp\ServiceGroupProfilePage;
 use App\Livewire\WebApp\ServiceGroupsPage;
 use App\Livewire\WebApp\UsersPage;
 use App\Livewire\WebApp\VisitsPage;
@@ -30,6 +31,7 @@ Route::middleware(['web', 'auth', 'app.access'])
         Route::get('/reports', ReportsPage::class)->name('reports');
         Route::get('/users', UsersPage::class)->name('users');
         Route::get('/service-groups', ServiceGroupsPage::class)->name('service-groups');
+        Route::get('/service-group/{serviceGroup}', ServiceGroupProfilePage::class)->name('service-group-profile');
         Route::get('/notifications', NotificationsPage::class)->name('notifications');
         Route::get('/audit-logs', AuditLogsPage::class)->name('audit-logs');
         Route::get('/beneficiary/{beneficiary}', BeneficiaryProfilePage::class)->name('beneficiary-profile');
