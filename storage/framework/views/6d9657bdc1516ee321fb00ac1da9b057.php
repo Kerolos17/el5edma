@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <?php if (! $__env->hasRenderedOnce('4d46d17d-9825-47a1-86ce-fe92ef0ca756')): $__env->markAsRenderedOnce('4d46d17d-9825-47a1-86ce-fe92ef0ca756'); ?>
+    <?php if (! $__env->hasRenderedOnce('0b01217c-bdb6-4f85-9e68-cf0c905b3ba1')): $__env->markAsRenderedOnce('0b01217c-bdb6-4f85-9e68-cf0c905b3ba1'); ?>
         <?php
             $manifestPath = public_path('build/manifest.json');
             $viteEntries = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) ?? [] : [];
@@ -39,7 +39,7 @@
 
 </head>
 
-<body class="web-app-body">
+<body class="web-app-body" x-data="{ drawer: false }">
     <?php
         $appUser = auth()->user();
         $navigationItems = \App\Support\WebAppNavigation::items($appUser);
@@ -71,7 +71,7 @@
         </aside>
 
         <div class="app-main">
-            <header class="app-topbar" data-user-id="<?php echo e($appUser->id); ?>" x-data="{ drawer: false }">
+            <header class="app-topbar" data-user-id="<?php echo e($appUser->id); ?>">
                 <div>
                     <button @click="drawer = true" class="app-hamburger lg:hidden" aria-label="<?php echo e(__('web_app.shell.main_navigation')); ?>">
                         <i class="ph ph-list"></i>
