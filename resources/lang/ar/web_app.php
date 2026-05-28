@@ -259,6 +259,8 @@ return [
         'inactive' => 'غير مفعل',
         'critical' => 'حرجة',
         'needs_follow_up' => 'تحتاج متابعة',
+        'yes' => 'نعم',
+        'no' => 'لا',
         'stable' => 'مستقرة',
         'pending' => 'قيد الانتظار',
         'cancelled' => 'ملغية',

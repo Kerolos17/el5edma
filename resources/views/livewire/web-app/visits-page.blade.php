@@ -72,7 +72,9 @@
                     @forelse ($records as $record)
                         <tr>
                             <td>
-                                <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
+                                <a href="{{ route('app.visit-profile', $record->id) }}" wire:navigate class="app-link-inline">
+                                    <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
+                                </a>
                                 <span>{{ $record->beneficiary?->serviceGroup?->name ?? __('web_app.fallback.no_group') }}</span>
                             </td>
                             <td>{{ optional($record->visit_date)->format('Y-m-d') }}</td>
@@ -117,14 +119,14 @@
 
         <div class="app-mobile-list">
             @forelse ($records as $record)
-                <article class="app-mobile-card">
+                <a href="{{ route('app.visit-profile', $record->id) }}" wire:navigate class="app-mobile-card">
                     <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
                     <p>{{ optional($record->visit_date)->format('Y-m-d') }} · {{ $record->type ? __("visits.{$record->type}") : __('visits.singular') }}</p>
                     <div class="app-mobile-meta">
                         <span>{{ $record->createdBy?->name ?? __('web_app.fallback.unassigned') }}</span>
                         <span>{{ $record->is_critical ? __('web_app.states.critical') : __('web_app.states.stable') }}</span>
                     </div>
-                </article>
+                </a>
             @empty
                 <div class="app-empty-state">
                     <i class="ph ph-clipboard-text" aria-hidden="true"></i>

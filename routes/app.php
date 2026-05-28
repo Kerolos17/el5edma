@@ -13,6 +13,7 @@ use App\Livewire\WebApp\ProfilePage;
 use App\Livewire\WebApp\ServiceGroupProfilePage;
 use App\Livewire\WebApp\ServiceGroupsPage;
 use App\Livewire\WebApp\UsersPage;
+use App\Livewire\WebApp\VisitProfilePage;
 use App\Livewire\WebApp\VisitsPage;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::middleware(['web', 'auth', 'app.access'])
         Route::get('/service-group/{serviceGroup}', ServiceGroupProfilePage::class)->name('service-group-profile');
         Route::get('/notifications', NotificationsPage::class)->name('notifications');
         Route::get('/audit-logs', AuditLogsPage::class)->name('audit-logs');
+        Route::get('/visit/{visit}', VisitProfilePage::class)->name('visit-profile');
         Route::get('/beneficiary/{beneficiary}', BeneficiaryProfilePage::class)->name('beneficiary-profile');
         Route::get('/profile', ProfilePage::class)->name('profile');
     });

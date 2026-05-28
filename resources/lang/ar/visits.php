@@ -49,5 +49,6 @@ return [
     'completed'      => 'مكتملة',
     'cancelled'      => 'ملغية',
     'reminder_sent'  => 'تم إرسال التذكير',
+    'minutes_short'  => 'دقيقة',
     'no_records'     => 'لا توجد افتقادات',
 ];

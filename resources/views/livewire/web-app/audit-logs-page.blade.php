@@ -136,66 +136,111 @@
         </table>
     </div>
 
+    {{-- Mobile Card List --}}
+    <div class="app-mobile-list">
+        @forelse ($records as $log)
+            <article class="app-mobile-card">
+                <div class="flex items-center gap-3">
+                    <div class="min-w-0 flex-1">
+                        <strong>{{ $log->user?->name ?? __('web_app.fallback.deleted_user') }}</strong>
+                        <p>
+                            <span class="app-status-pill" style="font-size:0.65rem;padding:0.1rem 0.4rem">
+                                {{ __("audit_logs.model_" . str(class_basename($log->model_type))->snake()) ?: class_basename($log->model_type) }}
+                            </span>
+                            <span class="font-mono ms-1">#{{ $log->model_id }}</span>
+                        </p>
+                    </div>
+                    <span class="app-status-pill"
+                          style="background: {{ match($log->action) {
+                              'created' => '#d1fae5',
+                              'updated' => '#fef3c7',
+                              'deleted' => '#ffe4e6',
+                              default   => '#f1f5f9',
+                          } }}; color: {{ match($log->action) {
+                              'created' => '#065f46',
+                              'updated' => '#92400e',
+                              'deleted' => '#9f1239',
+                              default   => '#475569',
+                          } }};">
+                        {{ __("audit_logs.{$log->action}") }}
+                    </span>
+                </div>
+                <div class="app-mobile-meta">
+                    <span>{{ $log->created_at->format('Y-m-d H:i') }}</span>
+                    <button wire:click="viewLog({{ $log->id }})" class="app-link-inline" style="margin-top:0">
+                        <i class="ph ph-eye" aria-hidden="true"></i>
+                        {{ __('web_app.actions.view') }}
+                    </button>
+                </div>
+            </article>
+        @empty
+            <div class="app-empty-state">
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <p>{{ __('audit_logs.no_records') }}</p>
+            </div>
+        @endforelse
+    </div>
+
     <div class="app-pagination-wrap">
         {{ $records->onEachSide(1)->links() }}
     </div>
 
     {{-- Detail Modal --}}
     @if ($viewingLog)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-             wire:click.self="closeView">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
-                <div class="app-modal-header !mb-0 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                        {{ __('audit_logs.singular') }} #{{ $viewingLog->id }}
-                    </h3>
-                    <button wire:click="closeView" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl leading-none">&times;</button>
+        <div class="app-modal-backdrop" wire:click.self="closeView"></div>
+        <div class="app-modal-sheet">
+            <div class="app-modal-panel app-modal-panel-wide">
+                <div class="app-modal-header">
+                    <h3>{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}</h3>
+                    <button type="button" wire:click="closeView" class="app-icon-button !border-0 !w-8 !h-8">
+                        <i class="ph ph-x" aria-hidden="true"></i>
+                    </button>
                 </div>
 
-                <div class="p-6 space-y-5">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('users.name') }}</span>
-                            <p class="mt-1 text-sm font-bold text-gray-900 dark:text-white">
-                                {{ $viewingLog->user?->name ?? __('web_app.fallback.deleted_user') }}
-                                <span class="text-gray-400 font-normal text-xs">@ {{ $viewingLog->created_at->format('Y-m-d H:i') }}</span>
-                            </p>
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.action') }}</span>
-                            <p class="mt-1">
-                                <span class="app-status-pill"
-                                      style="background: {{ match($viewingLog->action) {
-                                          'created' => '#d1fae5',
-                                          'updated' => '#fef3c7',
-                                          'deleted' => '#ffe4e6',
-                                          default   => '#f1f5f9',
-                                      } }}; color: {{ match($viewingLog->action) {
-                                          'created' => '#065f46',
-                                          'updated' => '#92400e',
-                                          'deleted' => '#9f1239',
-                                          default   => '#475569',
-                                      } }};">
-                                    {{ __("audit_logs.{$viewingLog->action}") }}
-                                </span>
-                            </p>
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.model') }}</span>
-                            <p class="mt-1 text-sm font-bold text-gray-900 dark:text-white">
-                                {{ __("audit_logs.model_" . str(class_basename($viewingLog->model_type))->snake()) ?: class_basename($viewingLog->model_type) }}
-                            </p>
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.model_id') }}</span>
-                            <p class="mt-1 font-mono text-sm font-bold text-gray-900 dark:text-white">#{{ $viewingLog->model_id }}</p>
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.ip_address') }}</span>
-                            <p class="mt-1 font-mono text-sm text-gray-900 dark:text-white">{{ $viewingLog->ip_address ?? '—' }}</p>
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('users.name') }}</span>
+                        <p class="mt-1 text-sm font-bold">
+                            {{ $viewingLog->user?->name ?? __('web_app.fallback.deleted_user') }}
+                            <span class="text-gray-400 font-normal text-xs">@ {{ $viewingLog->created_at->format('Y-m-d H:i') }}</span>
+                        </p>
                     </div>
+                    <div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.action') }}</span>
+                        <p class="mt-1">
+                            <span class="app-status-pill"
+                                  style="background: {{ match($viewingLog->action) {
+                                      'created' => '#d1fae5',
+                                      'updated' => '#fef3c7',
+                                      'deleted' => '#ffe4e6',
+                                      default   => '#f1f5f9',
+                                  } }}; color: {{ match($viewingLog->action) {
+                                      'created' => '#065f46',
+                                      'updated' => '#92400e',
+                                      'deleted' => '#9f1239',
+                                      default   => '#475569',
+                                  } }};">
+                                {{ __("audit_logs.{$viewingLog->action}") }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.model') }}</span>
+                        <p class="mt-1 text-sm font-bold">
+                            {{ __("audit_logs.model_" . str(class_basename($viewingLog->model_type))->snake()) ?: class_basename($viewingLog->model_type) }}
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.model_id') }}</span>
+                        <p class="mt-1 font-mono text-sm font-bold">#{{ $viewingLog->model_id }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('audit_logs.ip_address') }}</span>
+                        <p class="mt-1 font-mono text-sm">{{ $viewingLog->ip_address ?? '—' }}</p>
+                    </div>
+                </div>
 
+                <div class="mt-5 space-y-5">
                     @if ($viewingLog->old_values)
                         <div>
                             <span class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1 block">{{ __('audit_logs.old_values') }}</span>
@@ -215,8 +260,8 @@
                     @endif
                 </div>
 
-                <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end">
-                    <button wire:click="closeView" class="app-primary-button bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 !shadow-none">
+                <div class="app-modal-actions">
+                    <button type="button" wire:click="closeView" class="app-secondary-button">
                         <i class="ph ph-x" aria-hidden="true"></i>
                         {{ __('web_app.actions.close') }}
                     </button>

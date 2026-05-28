@@ -92,6 +92,18 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="app-mobile-list">
+                        @foreach ($criticalCases as $beneficiary)
+                            <article class="app-mobile-card">
+                                <strong>{{ $beneficiary->full_name }}</strong>
+                                <div class="app-mobile-meta">
+                                    <span>{{ $beneficiary->phone ?? '—' }}</span>
+                                    <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
                 </section>
             @endif
         </div>

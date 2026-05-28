@@ -259,6 +259,8 @@ return [
         'inactive' => 'Inactive',
         'critical' => 'Critical',
         'needs_follow_up' => 'Needs follow-up',
+        'yes' => 'Yes',
+        'no' => 'No',
         'stable' => 'Stable',
         'pending' => 'Pending',
         'cancelled' => 'Cancelled',
