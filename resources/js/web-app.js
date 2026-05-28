@@ -26,17 +26,33 @@ document.addEventListener('click', (event) => {
 function syncOnlineState() {
     const offlineBanner = document.querySelector('[data-offline-banner]');
     if (!offlineBanner) return;
-    offlineBanner.classList.toggle('is-visible', !navigator.onLine);
+
+    const showOffline = () => offlineBanner.classList.add('is-visible');
+    const hideOffline = () => offlineBanner.classList.remove('is-visible');
+
+    if (navigator.onLine) {
+        hideOffline();
+        return;
+    }
+
+    // navigator says offline — verify with a real HEAD request.
+    // HEAD bypasses the service worker (SW only intercepts GET).
+    // Any response (even 404) means we're online — only network errors show the banner.
+    const probe = fetch('/manifest.json', { method: 'HEAD', cache: 'no-store' });
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
+    Promise.race([probe, timeout]).then(hideOffline).catch(showOffline);
 }
 
 window.addEventListener('online', syncOnlineState);
 window.addEventListener('offline', syncOnlineState);
 document.addEventListener('livewire:navigated', () => {
     restoreTheme();
-    syncOnlineState();
+    // Delay slightly to let the SW settle after navigation
+    setTimeout(syncOnlineState, 500);
 });
 restoreTheme();
-syncOnlineState();
+// Delay initial check to prevent false offline flash
+setTimeout(syncOnlineState, 1000);
 
 window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
