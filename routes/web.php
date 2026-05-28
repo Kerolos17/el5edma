@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/app/dashboard');
 
+Route::get('/_pwa/ping', fn () => response()->noContent());
+
 Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')
     ->middleware('auth');

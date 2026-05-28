@@ -23,35 +23,71 @@ document.addEventListener('click', (event) => {
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
 });
 
+const PING_URL = '/_pwa/ping';
+let ongoingCheck = null;
+
 function syncOnlineState() {
     const offlineBanner = document.querySelector('[data-offline-banner]');
     if (!offlineBanner) return;
 
-    const showOffline = () => offlineBanner.classList.add('is-visible');
-    const hideOffline = () => offlineBanner.classList.remove('is-visible');
-
-    if (navigator.onLine) {
-        hideOffline();
-        return;
+    // Abort any in-flight connectivity check
+    if (ongoingCheck) {
+        ongoingCheck.abort();
+        ongoingCheck = null;
     }
 
-    // navigator says offline — verify with a real HEAD request.
-    // HEAD bypasses the service worker (SW only intercepts GET).
-    // Any response (even 404) means we're online — only network errors show the banner.
-    const probe = fetch('/manifest.json', { method: 'HEAD', cache: 'no-store' });
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
-    Promise.race([probe, timeout]).then(hideOffline).catch(showOffline);
+    const hide = () => offlineBanner.classList.remove('is-visible');
+    const show = () => offlineBanner.classList.add('is-visible');
+
+    // Browser says online — trust it immediately
+    if (navigator.onLine) return hide();
+
+    // navigator says offline — verify with a real server request.
+    // GET /_pwa/ping goes through the SW, which uses network-first:
+    //   online  → SW fetches from server (204) → promise resolves → hide
+    //   offline → SW fetch fails, no cache → promise rejects → show
+    // Require 2 consecutive failures to prevent brief glitches.
+    const check = (attempt = 0) => {
+        if (navigator.onLine) return hide();
+
+        const ctrl = new AbortController();
+        ongoingCheck = ctrl;
+        const ttl = attempt === 0 ? 3000 : 6000;
+
+        const timer = setTimeout(() => ctrl.abort(), ttl);
+
+        fetch(PING_URL, { cache: 'no-store', signal: ctrl.signal })
+            .then(() => { clearTimeout(timer); ongoingCheck = null; hide(); })
+            .catch(() => {
+                clearTimeout(timer); ongoingCheck = null;
+                if (navigator.onLine) return hide(); // came back during check
+                if (attempt === 0) {
+                    setTimeout(() => check(1), 2000);
+                } else {
+                    show(); // two consecutive failures — truly offline
+                }
+            });
+    };
+
+    check();
 }
 
-window.addEventListener('online', syncOnlineState);
-window.addEventListener('offline', syncOnlineState);
+// Debounce offline event — give network time to stabilize before checking
+let offlineTimer = null;
+window.addEventListener('online', () => {
+    clearTimeout(offlineTimer);
+    syncOnlineState();
+});
+window.addEventListener('offline', () => {
+    clearTimeout(offlineTimer);
+    offlineTimer = setTimeout(syncOnlineState, 3000);
+});
+
 document.addEventListener('livewire:navigated', () => {
     restoreTheme();
-    // Delay slightly to let the SW settle after navigation
     setTimeout(syncOnlineState, 500);
 });
 restoreTheme();
-// Delay initial check to prevent false offline flash
 setTimeout(syncOnlineState, 1000);
 
 window.addEventListener('beforeinstallprompt', (event) => {
