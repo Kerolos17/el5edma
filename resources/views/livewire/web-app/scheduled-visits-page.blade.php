@@ -31,7 +31,7 @@
         </div>
 
         <div class="app-table-wrap">
-            <table class="app-table">
+            <table class="app-table" aria-label="">
                 <thead>
                     <tr>
                         <th>{{ __('web_app.table.beneficiary') }}</th>
@@ -70,7 +70,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-gray-500 dark:text-gray-400">
+                            <td colspan="6" class="app-empty-cell">
                                 {{ __('web_app.resources.empty_table') }}
                             </td>
                         </tr>
@@ -90,10 +90,7 @@
                     </div>
                 </article>
             @empty
-                <div class="app-empty-state">
-                    <i class="ph ph-calendar-check" aria-hidden="true"></i>
-                    <p>{{ __('web_app.resources.empty_table') }}</p>
-                </div>
+                <x-web-app.empty-state icon="ph-calendar-check" :message="__('web_app.resources.empty_table')" />
             @endforelse
         </div>
 

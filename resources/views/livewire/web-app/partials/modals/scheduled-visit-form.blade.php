@@ -1,7 +1,7 @@
 @if ($showScheduledVisitForm)
     <div class="app-modal-backdrop" wire:click="closeScheduledVisitForm"></div>
     <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.schedule_visit') }}">
-        <div class="app-modal-panel">
+        <div class="app-modal-panel" tabindex="-1">
             <div class="app-modal-header">
                 <div><p class="app-section-label">{{ __('web_app.forms.scheduled_visit.section') }}</p><h3>{{ __('web_app.actions.schedule_visit') }}</h3></div>
                 <button type="button" wire:click="closeScheduledVisitForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>

@@ -57,7 +57,7 @@
         </div>
 
         <div class="app-table-wrap">
-            <table class="app-table">
+            <table class="app-table" aria-label="">
                 <thead>
                     <tr>
                         <th>{{ __('web_app.table.beneficiary') }}</th>
@@ -108,7 +108,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-gray-500 dark:text-gray-400">
+                            <td colspan="6" class="app-empty-cell">
                                 {{ __('web_app.resources.empty_table') }}
                             </td>
                         </tr>
@@ -128,10 +128,7 @@
                     </div>
                 </a>
             @empty
-                <div class="app-empty-state">
-                    <i class="ph ph-clipboard-text" aria-hidden="true"></i>
-                    <p>{{ __('web_app.resources.empty_table') }}</p>
-                </div>
+                <x-web-app.empty-state icon="ph-clipboard-text" :message="__('web_app.resources.empty_table')" />
             @endforelse
         </div>
 

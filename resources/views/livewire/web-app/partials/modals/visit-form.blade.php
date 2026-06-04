@@ -1,7 +1,7 @@
 @if ($showVisitForm)
     <div class="app-modal-backdrop" wire:click="closeVisitForm"></div>
     <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
-        <div class="app-modal-panel">
+        <div class="app-modal-panel" tabindex="-1">
             <div class="app-modal-header">
                 <div><p class="app-section-label">{{ __('web_app.forms.daily_action') }}</p><h3>{{ $editingVisitId ? __('web_app.forms.visit.edit_title') : __('web_app.actions.record_visit') }}</h3></div>
                 <button type="button" wire:click="closeVisitForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>

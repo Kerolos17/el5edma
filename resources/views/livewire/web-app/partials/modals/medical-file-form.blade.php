@@ -1,7 +1,7 @@
 @if ($showMedicalFileForm)
     <div class="app-modal-backdrop" wire:click="closeMedicalFileForm"></div>
     <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('medical.upload_file') }}">
-        <div class="app-modal-panel">
+        <div class="app-modal-panel" tabindex="-1">
             <div class="app-modal-header">
                 <div><p class="app-section-label">{{ __('medical.files_title') }}</p><h3>{{ __('medical.upload_file') }}</h3></div>
                 <button type="button" wire:click="closeMedicalFileForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>

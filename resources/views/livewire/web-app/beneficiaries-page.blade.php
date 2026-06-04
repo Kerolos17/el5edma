@@ -61,20 +61,26 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>{{ __('web_app.table.beneficiary') }}</th>
-                        <th>{{ __('web_app.table.group') }}</th>
-                        <th>{{ __('web_app.table.servant') }}</th>
-                        <th>{{ __('web_app.table.visits') }}</th>
-                        <th>{{ __('web_app.table.status') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col"></th>
+                        <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
+                        <th scope="col">{{ __('web_app.table.group') }}</th>
+                        <th scope="col">{{ __('web_app.table.servant') }}</th>
+                        <th scope="col">{{ __('web_app.table.visits') }}</th>
+                        <th scope="col">{{ __('web_app.table.status') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {{-- Skeleton rows shown while loading --}}
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="7" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td class="!pr-0 !w-12">
@@ -129,11 +135,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-gray-500 dark:text-gray-400">
+                            <td colspan="7" class="app-empty-cell">
                                 {{ __('web_app.resources.empty_table') }}
                             </td>
                         </tr>
                     @endforelse
+                    </template>{{-- end wire:loading.remove --}}
                 </tbody>
             </table>
         </div>
@@ -190,10 +197,10 @@
                     </div>
                 </article>
             @empty
-                <div class="app-empty-state">
-                    <i class="ph ph-users-three" aria-hidden="true"></i>
-                    <p>{{ __('web_app.resources.empty_table') }}</p>
-                </div>
+                <x-web-app.empty-state
+                    icon="ph-users-three"
+                    :message="__('web_app.resources.empty_table')"
+                />
             @endforelse
         </div>
 

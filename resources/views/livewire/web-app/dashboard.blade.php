@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="app-table-wrap">
-                        <table class="app-table">
+                        <table class="app-table" aria-label="">
                             <thead>
                                 <tr>
                                     <th>{{ __('web_app.table.name') }}</th>

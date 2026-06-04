@@ -1,7 +1,7 @@
 @if ($showServiceGroupForm)
     <div class="app-modal-backdrop" wire:click="closeServiceGroupForm"></div>
     <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.forms.service_group.manage') }}">
-        <div class="app-modal-panel">
+        <div class="app-modal-panel" tabindex="-1">
             <div class="app-modal-header">
                 <div><p class="app-section-label">{{ __('web_app.forms.service_group.section') }}</p><h3>{{ $editingServiceGroupId ? __('web_app.forms.service_group.edit_title') : __('web_app.forms.service_group.create_title') }}</h3></div>
                 <button type="button" wire:click="closeServiceGroupForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>

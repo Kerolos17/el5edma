@@ -1,7 +1,7 @@
 @if ($showUserForm)
     <div class="app-modal-backdrop" wire:click="closeUserForm"></div>
     <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('web_app.forms.user.manage') }}">
-        <div class="app-modal-panel">
+        <div class="app-modal-panel" tabindex="-1">
             <div class="app-modal-header">
                 <div><p class="app-section-label">{{ __('web_app.forms.user.section') }}</p><h3>{{ $editingUserId ? __('web_app.forms.user.edit_title') : __('web_app.forms.user.create_title') }}</h3></div>
                 <button type="button" wire:click="closeUserForm" class="app-icon-button"><i class="ph ph-x" aria-hidden="true"></i></button>

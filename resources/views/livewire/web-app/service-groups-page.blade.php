@@ -31,7 +31,7 @@
         </div>
 
         <div class="app-table-wrap">
-            <table class="app-table">
+            <table class="app-table" aria-label="">
                 <thead>
                     <tr>
                         <th>{{ __('web_app.table.name') }}</th>
@@ -61,7 +61,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-gray-500 dark:text-gray-400">
+                            <td colspan="5" class="app-empty-cell">
                                 {{ __('web_app.resources.empty_table') }}
                             </td>
                         </tr>
@@ -80,10 +80,7 @@
                     </div>
                 </a>
             @empty
-                <div class="app-empty-state">
-                    <i class="ph ph-tree-structure" aria-hidden="true"></i>
-                    <p>{{ __('web_app.resources.empty_table') }}</p>
-                </div>
+                <x-web-app.empty-state icon="ph-tree-structure" :message="__('web_app.resources.empty_table')" />
             @endforelse
         </div>
 
