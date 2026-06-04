@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير الفحص الشامل | نظام إدارة الخدمة الكنسية (خادم الخاص)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1020; --bg-soft:#111831; --card:#151d38; --card-2:#1b2547;
+  --line:#26305a; --text:#e9edf7; --muted:#9aa6c8; --muted-2:#6f7da6;
+  --brand:#6d8bff; --brand-2:#9a7bff; --accent:#3dd7c5;
+  --crit:#ff5d6c; --high:#ff9f43; --med:#ffd34d; --low:#5ad19a; --info:#5aa9ff;
+  --grad:linear-gradient(135deg,#6d8bff,#9a7bff 55%,#3dd7c5);
+  --shadow:0 20px 60px -25px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',system-ui,sans-serif;background:
+  radial-gradient(1200px 600px at 85% -10%,rgba(109,139,255,.18),transparent 60%),
+  radial-gradient(1000px 500px at 0% 0%,rgba(61,215,197,.12),transparent 55%),
+  var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+code,.mono{font-family:'JetBrains Mono',monospace;direction:ltr;unicode-bidi:embed}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+a{color:var(--brand);text-decoration:none}
+
+/* ===== Header ===== */
+.hero{position:relative;padding:64px 0 40px;border-bottom:1px solid var(--line);overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:
+  radial-gradient(600px 300px at 80% 0,rgba(154,123,255,.25),transparent 60%);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;
+  color:var(--accent);background:rgba(61,215,197,.1);border:1px solid rgba(61,215,197,.25);
+  padding:6px 14px;border-radius:999px;letter-spacing:.3px}
+.hero h1{font-size:clamp(1.9rem,1rem+3.5vw,3.1rem);font-weight:900;line-height:1.25;margin:18px 0 10px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.sub{color:var(--muted);max-width:760px;font-size:1.06rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-size:.86rem;color:var(--muted)}
+.chip b{color:var(--text);font-weight:700}
+
+/* ===== Score gauge ===== */
+.scoreboard{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
+  margin-top:34px;background:linear-gradient(180deg,var(--card),var(--bg-soft));
+  border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.gauge{--val:74;--c:#ff9f43;width:150px;height:150px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--c) calc(var(--val)*1%),rgba(255,255,255,.06) 0);position:relative}
+.gauge:before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--bg-soft)}
+.gauge .num{position:relative;text-align:center}
+.gauge .num b{font-size:2.5rem;font-weight:900;display:block;line-height:1}
+.gauge .num span{font-size:.72rem;color:var(--muted)}
+.score-note h3{font-size:1.18rem;margin-bottom:6px}
+.score-note p{color:var(--muted);font-size:.96rem}
+.verdict{display:inline-block;margin-top:10px;font-weight:800;color:var(--high);
+  background:rgba(255,159,67,.12);border:1px solid rgba(255,159,67,.3);padding:6px 14px;border-radius:10px}
+
+/* ===== Sections ===== */
+section{padding:52px 0;border-bottom:1px solid rgba(38,48,90,.5)}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.sec-head .dot{width:12px;height:12px;border-radius:4px;background:var(--grad)}
+.sec-head h2{font-size:1.6rem;font-weight:800}
+.sec-sub{color:var(--muted);margin-bottom:26px;max-width:820px}
+
+/* ===== Grid cards ===== */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:880px){.g2,.g3,.g4{grid-template-columns:1fr}.scoreboard{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.card{background:linear-gradient(180deg,var(--card),var(--bg-soft));border:1px solid var(--line);
+  border-radius:18px;padding:22px;transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:var(--brand)}
+.card h4{font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{color:var(--muted);font-size:.92rem}
+.kpi b{font-size:2rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi span{color:var(--muted);font-size:.85rem;display:block}
+
+/* ===== Scorecard table ===== */
+.scoretable{width:100%;border-collapse:separate;border-spacing:0 8px}
+.scoretable td{padding:14px 16px;background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.scoretable td:first-child{border-right:1px solid var(--line);border-radius:0 12px 12px 0;font-weight:700}
+.scoretable td:last-child{border-left:1px solid var(--line);border-radius:12px 0 0 12px}
+.bar{height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;border-radius:6px;background:var(--grad)}
+.gradeA{color:var(--low)} .gradeB{color:var(--accent)} .gradeC{color:var(--med)} .gradeD{color:var(--high)} .gradeF{color:var(--crit)}
+
+/* ===== Findings ===== */
+.finding{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:16px;
+  border-right:5px solid var(--line)}
+.finding.crit{border-right-color:var(--crit)} .finding.high{border-right-color:var(--high)}
+.finding.med{border-right-color:var(--med)} .finding.low{border-right-color:var(--low)} .finding.info{border-right-color:var(--info)}
+.finding .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px}
+.finding h4{font-size:1.08rem;font-weight:800;flex:1;min-width:240px}
+.badge{font-size:.72rem;font-weight:800;padding:4px 11px;border-radius:999px;letter-spacing:.3px;white-space:nowrap}
+.b-crit{background:rgba(255,93,108,.15);color:var(--crit);border:1px solid rgba(255,93,108,.4)}
+.b-high{background:rgba(255,159,67,.15);color:var(--high);border:1px solid rgba(255,159,67,.4)}
+.b-med{background:rgba(255,211,77,.13);color:var(--med);border:1px solid rgba(255,211,77,.4)}
+.b-low{background:rgba(90,209,154,.13);color:var(--low);border:1px solid rgba(90,209,154,.4)}
+.b-info{background:rgba(90,169,255,.13);color:var(--info);border:1px solid rgba(90,169,255,.4)}
+.tag{font-size:.72rem;color:var(--muted-2);background:rgba(255,255,255,.04);padding:3px 9px;border-radius:8px;border:1px solid var(--line)}
+.finding p{color:var(--muted);font-size:.93rem;margin:6px 0}
+.finding .fix{margin-top:10px;background:rgba(109,139,255,.07);border:1px solid rgba(109,139,255,.22);
+  border-radius:10px;padding:11px 14px;font-size:.9rem}
+.finding .fix b{color:var(--brand)}
+.finding code{background:rgba(0,0,0,.35);padding:2px 7px;border-radius:6px;font-size:.82rem;color:#bcd0ff}
+.path{font-size:.78rem;color:var(--muted-2);direction:ltr;unicode-bidi:embed;display:inline-block}
+
+/* ===== Strengths ===== */
+.pill-list{display:flex;flex-wrap:wrap;gap:10px}
+.pill{background:rgba(90,209,154,.08);border:1px solid rgba(90,209,154,.25);color:#bff3d8;
+  padding:8px 14px;border-radius:10px;font-size:.85rem;font-weight:600}
+
+/* ===== Plan timeline ===== */
+.phase{position:relative;padding:22px 26px;margin-bottom:18px;background:linear-gradient(180deg,var(--card-2),var(--bg-soft));
+  border:1px solid var(--line);border-radius:18px}
+.phase .ph-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:12px}
+.phase .pnum{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:900;font-size:1.1rem;
+  background:var(--grad);color:#0b1020;flex-shrink:0}
+.phase h3{font-size:1.2rem;font-weight:800;flex:1;min-width:200px}
+.phase .when{font-size:.8rem;font-weight:700;color:var(--accent);background:rgba(61,215,197,.1);
+  border:1px solid rgba(61,215,197,.25);padding:5px 12px;border-radius:999px}
+.tasklist{list-style:none;display:grid;gap:9px;margin-top:6px}
+.tasklist li{display:flex;gap:11px;align-items:flex-start;font-size:.93rem;color:var(--text)}
+.tasklist li:before{content:"";width:18px;height:18px;border-radius:6px;border:2px solid var(--brand);
+  flex-shrink:0;margin-top:4px;background:rgba(109,139,255,.12)}
+.tasklist li small{display:block;color:var(--muted-2);font-size:.8rem}
+.effort{font-size:.74rem;color:var(--muted);margin-right:auto;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);padding:3px 9px;border-radius:7px;white-space:nowrap}
+
+/* ===== Quick wins ===== */
+.qw{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:14px 16px}
+.qw .n{width:26px;height:26px;border-radius:8px;background:rgba(61,215,197,.15);color:var(--accent);
+  display:grid;place-items:center;font-weight:800;flex-shrink:0;font-size:.85rem}
+.qw p{font-size:.9rem;color:var(--text)} .qw small{color:var(--muted-2)}
+
+/* ===== Footer ===== */
+footer{padding:40px 0 60px;text-align:center;color:var(--muted-2);font-size:.85rem}
+.legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:18px 0}
+.legend span{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;color:var(--muted)}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.toc{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);padding:11px 0}
+.toc .wrap{display:flex;gap:6px;overflow-x:auto;flex-wrap:wrap}
+.toc a{font-size:.82rem;color:var(--muted);padding:6px 12px;border-radius:8px;white-space:nowrap}
+.toc a:hover{background:var(--card);color:var(--text)}
+.callout{background:linear-gradient(135deg,rgba(255,93,108,.1),rgba(154,123,255,.08));
+  border:1px solid rgba(255,93,108,.3);border-radius:16px;padding:20px 24px;margin-top:8px}
+.callout b{color:#ffb3ba}
+</style>
+</head>
+<body>
+
+<!-- ===== TOC ===== -->
+<nav class="toc"><div class="wrap">
+  <a href="#summary">الملخص التنفيذي</a>
+  <a href="#arch">البنية</a>
+  <a href="#scorecard">بطاقة التقييم</a>
+  <a href="#security">الأمان</a>
+  <a href="#performance">الأداء</a>
+  <a href="#testing">الاختبارات</a>
+  <a href="#uiux">UI / UX</a>
+  <a href="#quality">جودة الكود</a>
+  <a href="#data">البيانات والمجال</a>
+  <a href="#plan">خطة التنفيذ</a>
+  <a href="#quickwins">مكاسب سريعة</a>
+</div></nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">● تقرير فحص هندسي شامل</span>
+  <h1>نظام إدارة الخدمة الكنسية<br>خادم الخاص — Web App Audit</h1>
+  <p class="sub">فحص معمّق لتطبيق الويب (المسار <code>/app</code>) يغطي الأمان، الأداء، الاختبارات، تجربة المستخدم، جودة الكود، وحماية بيانات المخدومين من ذوي الاحتياجات الخاصة. هذا التقرير مبني على قراءة فعلية للكود وتشغيل فعلي لمجموعة الاختبارات.</p>
+  <div class="meta-row">
+    <div class="chip">المنصة: <b>Laravel 12 · PHP 8.4 · Livewire · Filament 4</b></div>
+    <div class="chip">التاريخ: <b>2026-06-04</b></div>
+    <div class="chip">ملفات الكود: <b>~150 ملف PHP</b></div>
+    <div class="chip">الاختبارات: <b>548 (515 ناجح / 33 فاشل)</b></div>
+    <div class="chip">الفرع: <b>main</b></div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="gauge" style="--val:74;--c:#ff9f43"><div class="num"><b>74</b><span>من 100</span></div></div>
+    <div class="score-note">
+      <h3>التقييم العام: أساس هندسي قوي مع مخاطر أمنية يجب إغلاقها قبل الإطلاق</h3>
+      <p>المشروع مبني باحتراف عالٍ: فصل الصلاحيات (Role Scoping)، Policies، Observers، خدمات مخصصة للأداء، واختبارات وفيرة. لكن توجد ثغرة أمنية حرجة في تخزين كود الدخول الشخصي، ومجموعة اختبارات حمراء جزئياً تخفي مخاطر، إضافةً إلى فجوات في تجربة المستخدم لواجهة الويب الجديدة.</p>
+      <span class="verdict">الحكم: جاهز تقنياً ~75% · غير جاهز أمنياً للإطلاق العام بعد</span>
+    </div>
+  </div>
+</div></header>
+
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<section id="summary"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>الملخص التنفيذي</h2></div>
+  <p class="sec-sub">خلاصة سريعة لصاحب القرار: أين يقف المشروع، وما الذي يجب إصلاحه فوراً قبل أن يخدم النظام كنيسة حقيقية وبيانات أشخاص حقيقيين.</p>
+
+  <div class="callout" style="border-color:rgba(90,209,154,.4);background:linear-gradient(135deg,rgba(90,209,154,.12),rgba(109,139,255,.08));margin-bottom:22px">
+    <b style="color:#7bf3b8">تم الإنجاز في جلسة المعالجة (2026-06-04):</b>
+    <ul class="tasklist" style="margin-top:10px">
+      <li>إصلاح كل الاختبارات الفاشلة: <b>من 33 فاشل إلى 555 ناجح / 0 فاشل</b> <small>السبب كان كاش config/routes قديم في bootstrap/cache يتجاوز إعدادات بيئة الاختبار</small></li>
+      <li>تحصين كود الدخول: تشفير عند التخزين (Crypt) + blind-index بـ HMAC مملّح بـ APP_KEY بدل SHA-256 + إضافته إلى $hidden <small>migration + 6 اختبارات أمان جديدة</small></li>
+      <li>توحيد حساب الهاش في helper مركزي واحد (5 مواضع كانت تكرر sha256)</li>
+      <li>Middleware رؤوس الأمان (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, HSTS بالإنتاج)</li>
+    </ul>
+    <p style="margin-top:8px;color:var(--muted)"><b style="color:var(--high)">المتبقي من المرحلة 0:</b> تحقيق صلاحية قنوات البث في الإنتاج · تشفير الحقول الطبية · زيادة طول الكود + lockout. ثم المراحل 2-5.</p>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:22px">
+    <div class="card kpi"><b>1</b><span>ثغرة أمنية حرجة (كود الدخول plaintext)</span></div>
+    <div class="card kpi"><b>33</b><span>اختبار فاشل يجب تحويله للأخضر</span></div>
+    <div class="card kpi"><b>3</b><span>واجهات متوازية (Admin · WebApp · Servant)</span></div>
+    <div class="card kpi"><b>0</b><span>أسرار مكشوفة في الكود (نظيف)</span></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>✅ نقاط القوة الجوهرية</h4>
+      <div class="pill-list" style="margin-top:10px">
+        <span class="pill">فصل صلاحيات محكم WebAppScope</span>
+        <span class="pill">9 Policies + 4 Observers</span>
+        <span class="pill">خدمات أداء مخصصة (Cache / EagerLoading / QueryMonitoring)</span>
+        <span class="pill">اختبارات N+1 و Indexes فعلية</span>
+        <span class="pill">Audit Logs مدمج</span>
+        <span class="pill">ثنائي اللغة + RTL</span>
+        <span class="pill">PWA + Offline Queue</span>
+        <span class="pill">بنية ملفات منظمة (Concerns/Services)</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>⚠️ أهم ما يجب معالجته الآن</h4>
+      <ul class="tasklist" style="margin-top:6px">
+        <li>كود الدخول الشخصي مخزّن كنص صريح + هاش SHA-256 بدون salt <small>خطر تسريب فوري عند اختراق قاعدة البيانات</small></li>
+        <li>33 اختبار فاشل (CSRF/Livewire/Broadcasting) <small>السويت الأحمر يخفي أي regression جديد</small></li>
+        <li>تأكيد تطبيق صلاحية قنوات البث الخاصة في الإنتاج <small>اختبار القناة يفشل حالياً</small></li>
+        <li>توحيد تجربة الويب: skeletons، focus-trap للنوافذ، حالات فارغة متسقة <small>واجهة /app أحدث من واجهة الخادم</small></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===== ARCHITECTURE ===== -->
+<section id="arch"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>خريطة البنية المعمارية</h2></div>
+  <p class="sec-sub">النظام يقدّم ثلاث واجهات فوق قاعدة كود واحدة. تركيزك الحالي على <b>WebApp</b> (المسار <code>/app</code>) وهو الأحدث والأكثر اكتمالاً للاستخدام المكتبي والميداني.</p>
+  <div class="grid g3">
+    <div class="card">
+      <h4>🛡️ Filament Admin</h4>
+      <p>9 Resources كاملة (CRUD) للمشرفين. لوحات Widgets، تقارير، صلاحيات. مستقرة وناضجة.</p>
+      <p style="margin-top:8px"><span class="tag">/admin</span> <span class="tag">Filament 4</span></p>
+    </div>
+    <div class="card" style="border-color:var(--brand)">
+      <h4>⭐ WebApp (التركيز)</h4>
+      <p>16 صفحة Livewire + 8 Concerns مشتركة. Dashboard، مستفيدون، زيارات، ملفات طبية، طلبات صلاة، مجموعات خدمة، تقارير، إشعارات، سجل تدقيق.</p>
+      <p style="margin-top:8px"><span class="tag">/app</span> <span class="tag">Livewire</span> <span class="tag">RTL</span></p>
+    </div>
+    <div class="card">
+      <h4>📱 Servant PWA</h4>
+      <p>10 مكونات Livewire للخادم الميداني على الموبايل، مع Offline Queue (IndexedDB) ومزامنة الزيارات.</p>
+      <p style="margin-top:8px"><span class="tag">/servant</span> <span class="tag">PWA</span> <span class="tag">Offline</span></p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:18px">
+    <b>ملاحظة معمارية:</b> واجهتا <code>/app</code> و <code>/servant</code> تتقاطعان وظيفياً بنسبة كبيرة (قوائم المستفيدين، الزيارات، الملفات الطبية). توجد ازدواجية منطق بين <span class="path">Livewire/WebApp/Concerns</span> و <span class="path">Livewire/Servant</span>. التوصية: استخراج طبقة خدمة استعلام مشتركة (Query/Read services) تستهلكها الواجهتان لتفادي انحراف السلوك بينهما مستقبلاً.
+  </div>
+</div></section>
+
+<!-- ===== SCORECARD ===== -->
+<section id="scorecard"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>بطاقة التقييم حسب المحور</h2></div>
+  <p class="sec-sub">تقييم كمّي لكل محور. الدرجة مبنية على الأدلة من الكود والاختبارات.</p>
+  <table class="scoretable">
+    <tr><td>🔐 الأمان</td><td><div class="bar"><i style="width:58%"></i></div></td><td class="gradeD">58 · C-</td><td>ثغرة كود الدخول + تأكيد قنوات البث</td></tr>
+    <tr><td>⚡ الأداء</td><td><div class="bar"><i style="width:84%"></i></div></td><td class="gradeA">84 · A-</td><td>خدمات أداء واختبارات N+1 ممتازة</td></tr>
+    <tr><td>🧪 الاختبارات</td><td><div class="bar"><i style="width:70%"></i></div></td><td class="gradeC">70 · B-</td><td>تغطية واسعة لكن 33 فاشل</td></tr>
+    <tr><td>🎨 UI / UX / إتاحة</td><td><div class="bar"><i style="width:72%"></i></div></td><td class="gradeC">72 · B-</td><td>إتاحة قوية بالخادم، الويب تحتاج لحاق</td></tr>
+    <tr><td>🧱 جودة الكود</td><td><div class="bar"><i style="width:86%"></i></div></td><td class="gradeA">86 · A</td><td>تنظيم ممتاز، ملفات مركّزة</td></tr>
+    <tr><td>🗂️ حماية بيانات المجال</td><td><div class="bar"><i style="width:66%"></i></div></td><td class="gradeC">66 · C+</td><td>بيانات طبية حساسة بدون تشفير عند التخزين</td></tr>
+    <tr><td>📦 جاهزية النشر</td><td><div class="bar"><i style="width:78%"></i></div></td><td class="gradeB">78 · B+</td><td>env إنتاج مضبوط، يحتاج Redis + تحصين</td></tr>
+  </table>
+</div></section>
+
+<!-- ===== SECURITY ===== -->
+<section id="security"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>🔐 الأمان</h2></div>
+  <p class="sec-sub">هذا أخطر محور بالنسبة لنظام كنسي يحفظ بيانات أشخاص ضعفاء (ذوي احتياجات خاصة، بيانات طبية، عناوين، أسر). أي تسريب له تبعات إنسانية وليست تقنية فقط.</p>
+
+  <div class="finding crit">
+    <div class="top"><h4>كود الدخول الشخصي مخزّن كنص صريح + هاش SHA-256 بدون salt</h4><span class="badge b-crit">CRITICAL</span><span class="tag">المصادقة</span></div>
+    <p>عمود <code>personal_code</code> مخزّن plaintext في <code>varchar(10)</code> (راجع migration <span class="path">..revert_personal_code_to_string.php</span>)، وعمود البحث <code>personal_code_hash</code> هو <code>sha256()</code> بدون salt. الكود من 4 إلى 6 خانات فقط، أي فضاء صغير جداً قابل للكسر فوراً بجداول قوس قزح عند تسريب قاعدة البيانات. الأسوأ: <code>personal_code</code> ليس ضمن <code>$hidden</code> في موديل User (المخفي هو الهاش فقط)، فأي تسلسل للموديل (toArray/JSON) قد يكشف الكود الصريح.</p>
+    <div class="fix"><b>الإصلاح:</b> إزالة العمود الصريح أو تشفيره عند التخزين (<code>encrypted</code> cast + توسعة العمود)، استبدال SHA-256 بـ <code>HMAC</code> بـ pepper من APP_KEY لعمود البحث، إضافة <code>personal_code</code> إلى <code>$hidden</code>، زيادة طول الكود إلى 8+، وإضافة قفل بعد محاولات فاشلة (lockout) فوق الـ throttle الحالي 5/دقيقة. عرض الكود الصريح يقتصر على SuperAdmin فقط مع تسجيله في Audit Log.</p></div>
+  </div>
+
+  <div class="finding high">
+    <div class="top"><h4>صلاحية قنوات البث الخاصة تفشل في الاختبار</h4><span class="badge b-high">HIGH</span><span class="tag">Broadcasting</span></div>
+    <p>اختبار <span class="path">ChannelAuthTest</span> يُرجع 200 بدل 403/401 عند محاولة الوصول لقناة مستخدم آخر. منطق التفويض في <span class="path">routes/channels.php</span> سليم ظاهرياً (<code>(int)$user->id === (int)$id</code>)، لكن الفشل يعني إما اختلال إعداد بيئة الاختبار أو أن البث غير مُفعّل فعلياً (<code>BROADCAST_CONNECTION=log</code>). يجب التأكد من السلوك الفعلي في الإنتاج.</p>
+    <div class="fix"><b>الإصلاح:</b> تثبيت إعداد bروكر بث حقيقي (Reverb/Pusher)، إصلاح الاختبار ليعكس الإنتاج، والتأكد أن الإشعارات الخاصة لا تتسرب بين المستخدمين.</p></div>
+  </div>
+
+  <div class="finding high">
+    <div class="top"><h4>البيانات الطبية والشخصية بدون تشفير عند التخزين</h4><span class="badge b-high">HIGH</span><span class="tag">PII/PHI</span></div>
+    <p>ملفات طبية، حالة إعاقة، أدوية، طلبات صلاة، عناوين، وبيانات الأسرة تُخزَّن كنص عادي. التحكم في الوصول جيد (Policies + <span class="path">FileAccessController</span> + مسار <code>private.file</code> محمي بـ auth)، لكن لا يوجد تشفير عند التخزين لأكثر الحقول حساسية.</p>
+    <div class="fix"><b>الإصلاح:</b> تطبيق <code>encrypted</code> cast على الحقول الطبية الأكثر حساسية، تسجيل وصول الملفات الطبية في Audit Log، وإضافة سياسة احتفاظ/حذف بيانات (data retention).</p></div>
+  </div>
+
+  <div class="finding med">
+    <div class="top"><h4>تأكيد ضبط الإنتاج النهائي</h4><span class="badge b-med">MEDIUM</span><span class="tag">Config</span></div>
+    <p>ملف <code>.env.production</code> مضبوط جيداً (<code>APP_DEBUG=false</code>, <code>SESSION_SECURE_COOKIE=true</code>). بيئة التطوير <code>APP_DEBUG=true</code> على <code>http</code> وهو طبيعي محلياً. يجب ضمان عدم نشر أي بيئة بـ debug مفعّل، وإضافة رؤوس أمان (HSTS, X-Frame-Options, CSP).</p>
+    <div class="fix"><b>الإصلاح:</b> Middleware لرؤوس الأمان + CSP بـ nonce، تفعيل <code>SESSION_ENCRYPT</code>، ومراجعة <code>same_site</code> لتكون <code>strict</code> حيث يمكن.</p></div>
+  </div>
+
+  <div class="finding low">
+    <div class="top"><h4>إيجابيات أمنية قائمة</h4><span class="badge b-low">GOOD</span></div>
+    <p>Throttling على الدخول (5/دقيقة) والتسجيل (5/60) و FCM (10/دقيقة) · لا أسرار مكشوفة في الكود · كلمات المرور بـ bcrypt · جلسات تنتهي بإغلاق المتصفح · فصل صلاحيات صارم عبر <code>WebAppScope</code> و 9 Policies.</p>
+  </div>
+</div></section>
+
+<!-- ===== PERFORMANCE ===== -->
+<section id="performance"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>⚡ الأداء</h2></div>
+  <p class="sec-sub">أقوى محاور المشروع. يوجد استثمار حقيقي في الأداء على مستوى نادر في مشاريع بهذا الحجم.</p>
+
+  <div class="finding low">
+    <div class="top"><h4>بنية تحتية ناضجة للأداء</h4><span class="badge b-low">STRENGTH</span></div>
+    <p><code>EagerLoadingService</code>, <code>CacheService</code>, <code>QueryMonitoringService</code> + اختبارات فعلية لـ N+1 (<span class="path">BeneficiaryN1OptimizationTest</span>) واختبار للفهارس (<span class="path">DatabaseIndexesTest</span>). معظم الاستعلامات تستخدم <code>with()</code> و <code>withCount()</code> بشكل صحيح في <code>WebAppScope</code>.</p>
+  </div>
+
+  <div class="finding med">
+    <div class="top"><h4>لوحة المعلومات تنفّذ عدة استعلامات count مع whereHas متداخل</h4><span class="badge b-med">MEDIUM</span><span class="tag">Dashboard</span></div>
+    <p>في <span class="path">Livewire/WebApp/Dashboard.php</span> تُحسب كل إحصائية باستعلام منفصل يستخدم <code>whereHas('beneficiary')</code> مع <code>whereIn(select id)</code>. مقبول حالياً لكنه يتمدد خطياً مع نمو البيانات وعدد الأدوار.</p>
+    <div class="fix"><b>الإصلاح:</b> تجميع الإحصائيات في استعلام/استعلامين مع <code>selectRaw</code> aggregates، وتخزين نتائج اللوحة في الكاش لمدة قصيرة (60-300 ثانية) عبر <code>CacheService</code> الموجود.</p></div>
+  </div>
+
+  <div class="finding med">
+    <div class="top"><h4>Cache و Queue على File / Database في الإنتاج</h4><span class="badge b-med">MEDIUM</span><span class="tag">Infra</span></div>
+    <p><code>CACHE_STORE=file</code> و <code>QUEUE_CONNECTION=database</code> في الإنتاج. مقبول لحجم صغير، لكن <code>predis</code> مثبّت بالفعل، فالانتقال لـ Redis متاح بلا تكلفة كبيرة ويحسّن الإشعارات والطوابير والجلسات.</p>
+    <div class="fix"><b>الإصلاح:</b> نقل Cache + Queue + Session إلى Redis عند الإطلاق، وتشغيل عامل طابور (queue worker) دائم عبر supervisor/PM2.</p></div>
+  </div>
+</div></section>
+
+<!-- ===== TESTING ===== -->
+<section id="testing"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>🧪 الاختبارات</h2></div>
+  <p class="sec-sub">شغّلت السويت فعلياً: <b>548 اختبار · 515 ناجح · 33 فاشل · 7507 تأكيد · مدة 267 ثانية</b>. التغطية واسعة جداً لكن اللون الأحمر خطر.</p>
+
+  <div class="finding high">
+    <div class="top"><h4>33 اختبار فاشل تخفي أي regression جديد</h4><span class="badge b-high">HIGH</span><span class="tag">CI</span></div>
+    <p>تتجمع الإخفاقات في فئات واضحة، وأغلبها انحراف بيئة اختبار بعد ترقية الإطار/Livewire وليست بالضرورة أعطالاً إنتاجية:</p>
+    <ul class="tasklist" style="margin-top:8px">
+      <li>أخطاء CSRF (419) في اختبارات Controllers <small>FcmToken / Locale / Registration لا تعطّل CSRF</small></li>
+      <li><code>assertSeeLivewire</code> لم يعد موجوداً على Response <small>AppShellTest يستخدم API قديم لـ Livewire v3</small></li>
+      <li>ChannelAuthTest (200 بدل 403) <small>يحتاج تحقيق فعلي — أمني</small></li>
+      <li>CodeLoginControllerTest (redirect/last_login) <small>قد يكون مرتبطاً بتغيير LoginResponse</small></li>
+    </ul>
+    <div class="fix"><b>الإصلاح:</b> تصنيف كل فشل: إصلاح اختبار (CSRF/Livewire API) مقابل عطل حقيقي (Channel auth). الهدف: سويت خضراء 100% + بوابة CI تمنع الدمج عند أي فشل. الوصول لتغطية 80%+ الموثّقة كمعيار للفريق.</p></div>
+  </div>
+</div></section>
+
+<!-- ===== UI/UX ===== -->
+<section id="uiux"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>🎨 تجربة المستخدم والإتاحة</h2></div>
+  <p class="sec-sub">واجهة الخادم (Servant) حظيت بعمل إتاحة ممتاز. واجهة الويب الجديدة <code>/app</code> تحتاج للحاق بنفس المستوى لأنها الواجهة التي ستُكمل.</p>
+
+  <div class="finding low">
+    <div class="top"><h4>أساس إتاحة قوي بواجهة الخادم</h4><span class="badge b-low">STRENGTH</span></div>
+    <p>safe-area-insets، <code>prefers-reduced-motion</code>، <code>:focus-visible</code>، <code>aria-live</code>/<code>role</code>، skeleton shimmer، touch targets 44px، lazy images. مكتبة مكونات UI مشتركة (<span class="path">components/ui</span>).</p>
+  </div>
+
+  <div class="finding med">
+    <div class="top"><h4>واجهة /app تحتاج توحيد التجربة</h4><span class="badge b-med">MEDIUM</span><span class="tag">WebApp</span></div>
+    <p>16 صفحة Livewire مع نوافذ منبثقة (modals partials). يجب التأكد من: skeleton loading أثناء الانتظار، focus-trap داخل النوافذ وإغلاقها بـ ESC، حالات فارغة متسقة، رسائل أخطاء واضحة، وتنقّل لوحة مفاتيح كامل عبر الجداول والنماذج.</p>
+    <div class="fix"><b>الإصلاح:</b> توحيد طبقة تصميم (design tokens) بين الواجهتين، مراجعة إتاحة لكل صفحة بنفس checklist الخادم، وإضافة skeletons و focus-trap للنوافذ.</p></div>
+  </div>
+
+  <div class="finding info">
+    <div class="top"><h4>تلميع بصري واتساق هوية</h4><span class="badge b-info">INFO</span></div>
+    <p>المشروع كنسي خدمي: نبرة بصرية دافئة ومحترمة، تباين ألوان متوافق مع WCAG AA، أيقونات Phosphor متسقة، وتجربة موبايل أولاً للخدمة الميدانية. تجنّب القوالب الجاهزة العامة.</p>
+  </div>
+</div></section>
+
+<!-- ===== CODE QUALITY ===== -->
+<section id="quality"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>🧱 جودة الكود</h2></div>
+  <p class="sec-sub">من أنظف ما يُرى في مشاريع بهذا الحجم. تنظيم حسب المجال، ملفات مركّزة، أنماط متسقة.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h4>✅ ممتاز</h4>
+      <ul class="tasklist">
+        <li>نمط Concerns/Traits لإعادة الاستخدام في WebApp</li>
+        <li>طبقات واضحة: Services / Policies / Observers / Enums / DTOs / Support</li>
+        <li>معظم الملفات أقل من 500 سطر · <code>declare(strict_types=1)</code></li>
+        <li>مخلفات تصحيح قليلة جداً (8 إشارات TODO/debug فقط)</li>
+        <li>Pint مُعدّ للتنسيق</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>🔧 للتحسين</h4>
+      <ul class="tasklist">
+        <li>blade ضخم: <span class="path">registration/public-form.blade.php</span> (1135 سطر) <small>يُقسَّم لمكونات</small></li>
+        <li>صفحات <span class="path">ui-preview/*</span> (~1000 سطر) <small>استبعادها من بناء الإنتاج</small></li>
+        <li><span class="path">ManagesResourceListing.php</span> (477 سطر) <small>مراقبة النمو وتقسيمه إن لزم</small></li>
+        <li>إزالة أي <code>dd()/dump()/console.log</code> قبل الإطلاق</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===== DATA/DOMAIN ===== -->
+<section id="data"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>🗂️ سلامة البيانات والمجال الكنسي</h2></div>
+  <p class="sec-sub">اعتبارات خاصة بطبيعة النظام: بيانات حساسة لأشخاص ضعفاء داخل سياق رعوي.</p>
+  <div class="grid g3">
+    <div class="card"><h4>🔒 خصوصية المخدوم</h4><p>تشفير الحقول الطبية، سياسة احتفاظ وحذف، وموافقة (consent) على جمع البيانات، وتسجيل كل وصول للملفات الطبية.</p></div>
+    <div class="card"><h4>👥 سلامة الإسناد</h4><p>التأكد من سلامة <code>assigned_servant_id</code> و <code>service_group_id</code> عند إعادة التعيين (يوجد بالفعل معالجة conflict 409 في مزامنة الخادم).</p></div>
+    <div class="card"><h4>📜 المساءلة</h4><p>Audit Log موجود — توسيعه ليشمل قراءة البيانات الحساسة وليس التعديل فقط، مع تقرير دوري للقيادة.</p></div>
+  </div>
+</div></section>
+
+<!-- ===== PLAN ===== -->
+<section id="plan"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>📋 خطة التنفيذ الكاملة</h2></div>
+  <p class="sec-sub">خطة مرحلية مرتّبة بالأولوية. كل مرحلة لها مخرجات واضحة وتقدير جهد. ابدأ بالمرحلة صفر (الأمان) قبل أي عمل جديد.</p>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">0</div><h3>تحصين أمني عاجل (بوابة الإطلاق)</h3><span class="when">أسبوع 1</span></div>
+    <ul class="tasklist">
+      <li>إعادة هندسة تخزين كود الدخول: إزالة/تشفير العمود الصريح، HMAC بـ pepper لعمود البحث، إضافته إلى <code>$hidden</code>، طول 8+، lockout بعد محاولات فاشلة <span class="effort">جهد: عالٍ</span></li>
+      <li>تحقيق وإصلاح صلاحية قنوات البث الخاصة (Channel auth) في الإنتاج <span class="effort">جهد: متوسط</span></li>
+      <li>تشفير الحقول الطبية الحساسة عند التخزين + تسجيل الوصول في Audit Log <span class="effort">جهد: متوسط</span></li>
+      <li>Middleware رؤوس الأمان (HSTS, X-Frame-Options, CSP بـ nonce) + <code>SESSION_ENCRYPT</code> <span class="effort">جهد: منخفض</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">1</div><h3>تثبيت مجموعة الاختبارات (سويت خضراء)</h3><span class="when">أسبوع 1-2</span></div>
+    <ul class="tasklist">
+      <li>تصنيف الـ 33 فشل: إصلاح اختبار (CSRF/Livewire v3 API) مقابل عطل حقيقي <span class="effort">جهد: متوسط</span></li>
+      <li>تحديث استدعاءات <code>assertSeeLivewire</code> لواجهة Livewire v3 الحالية <span class="effort">جهد: منخفض</span></li>
+      <li>إصلاح اختبارات CSRF (419) باستخدام الإعداد الصحيح للجلسة/التوكن <span class="effort">جهد: منخفض</span></li>
+      <li>بوابة CI تمنع الدمج عند أي فشل + هدف تغطية 80%+ <span class="effort">جهد: منخفض</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">2</div><h3>اكتمال وتلميع واجهة الويب /app</h3><span class="when">أسبوع 2-4</span></div>
+    <ul class="tasklist">
+      <li>مراجعة إتاحة لكل صفحة بنفس checklist الخادم (aria, focus-visible, reduced-motion) <span class="effort">جهد: متوسط</span></li>
+      <li>focus-trap + إغلاق ESC + skeleton loading لكل النوافذ والجداول <span class="effort">جهد: متوسط</span></li>
+      <li>توحيد design tokens وحالات فارغة ورسائل أخطاء بين الواجهتين <span class="effort">جهد: متوسط</span></li>
+      <li>تقسيم <span class="path">registration/public-form.blade.php</span> لمكونات + استبعاد <span class="path">ui-preview/*</span> من بناء الإنتاج <span class="effort">جهد: منخفض</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">3</div><h3>تحسين الأداء والبنية التحتية</h3><span class="when">أسبوع 3-4</span></div>
+    <ul class="tasklist">
+      <li>تجميع إحصائيات Dashboard في استعلام aggregate + كاش قصير <span class="effort">جهد: منخفض</span></li>
+      <li>نقل Cache + Queue + Session إلى Redis (predis مثبّت) <span class="effort">جهد: منخفض</span></li>
+      <li>عامل طابور دائم عبر supervisor + مراقبة عبر <code>QueryMonitoringService</code> <span class="effort">جهد: منخفض</span></li>
+      <li>استخراج طبقة Read services مشتركة بين WebApp و Servant لإزالة الازدواجية <span class="effort">جهد: عالٍ</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">4</div><h3>حوكمة البيانات والامتثال الرعوي</h3><span class="when">أسبوع 4-5</span></div>
+    <ul class="tasklist">
+      <li>سياسة احتفاظ/حذف بيانات + موافقة (consent) على جمع البيانات الطبية <span class="effort">جهد: متوسط</span></li>
+      <li>توسيع Audit Log ليشمل قراءة البيانات الحساسة + تقرير دوري للقيادة <span class="effort">جهد: منخفض</span></li>
+      <li>مراجعة صلاحية عرض كود الدخول (SuperAdmin فقط) <span class="effort">جهد: منخفض</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="pnum">5</div><h3>جاهزية الإطلاق والتشغيل</h3><span class="when">أسبوع 5-6</span></div>
+    <ul class="tasklist">
+      <li>اختبارات E2E للمسارات الحرجة (دخول، إنشاء زيارة، تقرير PDF، إشعار) <span class="effort">جهد: متوسط</span></li>
+      <li>سيناريو نسخ احتياطي واستعادة لقاعدة البيانات + الملفات الخاصة <span class="effort">جهد: منخفض</span></li>
+      <li>مراقبة أخطاء (logging/alerting) + Lighthouse للأداء وCore Web Vitals <span class="effort">جهد: منخفض</span></li>
+      <li>توثيق تشغيلي (runbook) + تدريب القادة على الأدوار <span class="effort">جهد: منخفض</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ===== QUICK WINS ===== -->
+<section id="quickwins"><div class="wrap">
+  <div class="sec-head"><span class="dot"></span><h2>⚡ مكاسب سريعة (يمكن تنفيذها اليوم)</h2></div>
+  <p class="sec-sub">إصلاحات منخفضة الجهد وعالية الأثر تُغلق مخاطر فوراً.</p>
+  <div class="grid g2">
+    <div class="qw"><div class="n">1</div><div><p>إضافة <code>personal_code</code> إلى <code>$hidden</code> في موديل User</p><small>يمنع تسريب الكود الصريح عبر أي تسلسل للموديل · دقائق</small></div></div>
+    <div class="qw"><div class="n">2</div><div><p>قصر عرض كود الدخول على SuperAdmin في Filament</p><small>تقليل سطح كشف بيانات المصادقة · دقائق</small></div></div>
+    <div class="qw"><div class="n">3</div><div><p>تحديث استدعاءات <code>assertSeeLivewire</code> لواجهة Livewire v3</p><small>يحوّل جزءاً كبيراً من السويت للأخضر · ساعة</small></div></div>
+    <div class="qw"><div class="n">4</div><div><p>Middleware رؤوس الأمان (X-Frame-Options, nosniff, HSTS)</p><small>تحصين فوري بلا مخاطر · ساعة</small></div></div>
+    <div class="qw"><div class="n">5</div><div><p>كاش إحصائيات Dashboard لمدة 60-300 ثانية</p><small>تقليل حمل قاعدة البيانات فوراً · ساعة</small></div></div>
+    <div class="qw"><div class="n">6</div><div><p>استبعاد <code>ui-preview/*</code> من بناء الإنتاج</p><small>تقليل حجم الإنتاج وسطح الهجوم · دقائق</small></div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="legend">
+    <span><i style="background:var(--crit)"></i>حرج</span>
+    <span><i style="background:var(--high)"></i>عالٍ</span>
+    <span><i style="background:var(--med)"></i>متوسط</span>
+    <span><i style="background:var(--low)"></i>قوة/جيد</span>
+    <span><i style="background:var(--info)"></i>معلومة</span>
+  </div>
+  <p>تقرير فحص هندسي شامل · نظام إدارة الخدمة الكنسية (خادم الخاص) · 2026-06-04</p>
+  <p style="margin-top:6px">مبني على قراءة فعلية للكود وتشغيل فعلي لـ 548 اختبار. الأولوية القصوى: إغلاق الثغرة الأمنية في كود الدخول قبل أي إطلاق عام.</p>
+</div></footer>
+
+</body>
+</html>

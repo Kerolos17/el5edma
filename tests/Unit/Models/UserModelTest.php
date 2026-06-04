@@ -13,13 +13,17 @@ class UserModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_personal_code_setter_stores_plain_and_hashes(): void
+    public function test_personal_code_setter_encrypts_and_hashes(): void
     {
         $user = User::factory()->create(['personal_code' => '1234']);
         $user->refresh();
 
-        $this->assertSame('1234', $user->getRawOriginal('personal_code'));
-        $this->assertSame(hash('sha256', '1234'), $user->personal_code_hash);
+        // Stored at rest as encrypted ciphertext, not plaintext.
+        $this->assertNotSame('1234', $user->getRawOriginal('personal_code'));
+        // Accessor transparently decrypts.
+        $this->assertSame('1234', $user->personal_code);
+        // Lookup hash is the peppered HMAC blind index.
+        $this->assertSame(User::hashPersonalCode('1234'), $user->personal_code_hash);
     }
 
     public function test_generate_unique_personal_code(): void

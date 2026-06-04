@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureAppAccess;
+use App\Http\Middleware\EnsureServantAccess;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,11 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             SetLocale::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->alias([
-            'app.access' => \App\Http\Middleware\EnsureAppAccess::class,
-            'servant.access' => \App\Http\Middleware\EnsureServantAccess::class,
+            'app.access'     => EnsureAppAccess::class,
+            'servant.access' => EnsureServantAccess::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('filament.admin.auth.login'));

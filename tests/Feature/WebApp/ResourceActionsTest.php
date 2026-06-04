@@ -7,13 +7,13 @@ namespace Tests\Feature\WebApp;
 use App\Enums\UserRole;
 use App\Livewire\WebApp\BeneficiariesPage;
 use App\Livewire\WebApp\MedicalFilesPage;
-
 use App\Livewire\WebApp\PrayerRequestsPage;
 use App\Livewire\WebApp\ScheduledVisitsPage;
 use App\Livewire\WebApp\ServiceGroupsPage;
 use App\Livewire\WebApp\UsersPage;
 use App\Livewire\WebApp\VisitsPage;
 use App\Models\Beneficiary;
+use App\Models\MedicalFile;
 use App\Models\PrayerRequest;
 use App\Models\ScheduledVisit;
 use App\Models\ServiceGroup;
@@ -36,11 +36,11 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_can_create_visit_from_web_app_page(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
         $beneficiary = Beneficiary::factory()->create([
             'assigned_servant_id' => $servant->id,
-            'service_group_id' => $group->id,
+            'service_group_id'    => $group->id,
         ]);
 
         Livewire::actingAs($servant)
@@ -55,21 +55,21 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showVisitForm', false);
 
         $this->assertDatabaseHas('visits', [
-            'beneficiary_id' => $beneficiary->id,
-            'type' => 'home_visit',
+            'beneficiary_id'     => $beneficiary->id,
+            'type'               => 'home_visit',
             'beneficiary_status' => 'good',
-            'created_by' => $servant->id,
+            'created_by'         => $servant->id,
         ]);
     }
 
     #[Test]
     public function dedicated_visits_page_can_create_visit(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
         $beneficiary = Beneficiary::factory()->create([
             'assigned_servant_id' => $servant->id,
-            'service_group_id' => $group->id,
+            'service_group_id'    => $group->id,
         ]);
 
         Livewire::actingAs($servant)
@@ -83,22 +83,22 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showVisitForm', false);
 
         $this->assertDatabaseHas('visits', [
-            'beneficiary_id' => $beneficiary->id,
-            'type' => 'phone_call',
+            'beneficiary_id'     => $beneficiary->id,
+            'type'               => 'phone_call',
             'beneficiary_status' => 'needs_follow',
-            'feedback' => 'Follow-up needed from dedicated visits page',
-            'created_by' => $servant->id,
+            'feedback'           => 'Follow-up needed from dedicated visits page',
+            'created_by'         => $servant->id,
         ]);
     }
 
     #[Test]
     public function servant_cannot_create_visit_for_out_of_scope_beneficiary_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group       = ServiceGroup::factory()->create();
+        $otherGroup  = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
         $beneficiary = Beneficiary::factory()->create([
-            'service_group_id' => $otherGroup->id,
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
@@ -116,16 +116,16 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_update_visit_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $visit = Visit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
-            'type' => 'home_visit',
+            'beneficiary_id'     => $beneficiary->id,
+            'type'               => 'home_visit',
             'beneficiary_status' => 'good',
-            'feedback' => 'Old feedback',
+            'feedback'           => 'Old feedback',
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -142,10 +142,10 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showVisitForm', false);
 
         $this->assertDatabaseHas('visits', [
-            'id' => $visit->id,
-            'type' => 'phone_call',
-            'beneficiary_status' => 'needs_follow',
-            'feedback' => 'Updated feedback',
+            'id'                  => $visit->id,
+            'type'                => 'phone_call',
+            'beneficiary_status'  => 'needs_follow',
+            'feedback'            => 'Updated feedback',
             'needs_family_leader' => true,
         ]);
     }
@@ -153,15 +153,15 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_resolve_visit_follow_up_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $visit = Visit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
-            'is_critical' => true,
-            'needs_family_leader' => true,
+            'beneficiary_id'       => $beneficiary->id,
+            'is_critical'          => true,
+            'needs_family_leader'  => true,
             'needs_service_leader' => true,
             'critical_resolved_at' => null,
             'critical_resolved_by' => null,
@@ -184,14 +184,14 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_cannot_update_visit_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
         $beneficiary = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $visit = Visit::factory()->create([
             'beneficiary_id' => $beneficiary->id,
-            'created_by' => $servant->id,
+            'created_by'     => $servant->id,
         ]);
 
         Livewire::actingAs($servant)
@@ -203,9 +203,9 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_create_prayer_request_for_group_beneficiary_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
 
@@ -220,18 +220,18 @@ class ResourceActionsTest extends TestCase
 
         $this->assertDatabaseHas('prayer_requests', [
             'beneficiary_id' => $beneficiary->id,
-            'title' => 'صلاة لأجل الشفاء',
-            'status' => 'open',
-            'created_by' => $familyLeader->id,
+            'title'          => 'صلاة لأجل الشفاء',
+            'status'         => 'open',
+            'created_by'     => $familyLeader->id,
         ]);
     }
 
     #[Test]
     public function dedicated_prayer_requests_page_can_create_prayer_request(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
 
@@ -246,25 +246,27 @@ class ResourceActionsTest extends TestCase
 
         $this->assertDatabaseHas('prayer_requests', [
             'beneficiary_id' => $beneficiary->id,
-            'title' => 'Dedicated prayer request',
-            'body' => 'Created from the dedicated prayer requests page',
-            'status' => 'open',
-            'created_by' => $familyLeader->id,
+            'title'          => 'Dedicated prayer request',
+            'status'         => 'open',
+            'created_by'     => $familyLeader->id,
         ]);
+        // body is encrypted at rest — verify via model accessor, not raw DB value.
+        $saved = PrayerRequest::where('title', 'Dedicated prayer request')->firstOrFail();
+        $this->assertSame('Created from the dedicated prayer requests page', $saved->body);
     }
 
     #[Test]
     public function family_leader_can_mark_prayer_request_answered_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $prayerRequest = PrayerRequest::factory()->create([
             'beneficiary_id' => $beneficiary->id,
-            'status' => 'open',
-            'answered_at' => null,
+            'status'         => 'open',
+            'answered_at'    => null,
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -281,14 +283,14 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_close_and_reopen_prayer_request_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $prayerRequest = PrayerRequest::factory()->create([
             'beneficiary_id' => $beneficiary->id,
-            'status' => 'open',
+            'status'         => 'open',
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -297,8 +299,8 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast');
 
         $this->assertDatabaseHas('prayer_requests', [
-            'id' => $prayerRequest->id,
-            'status' => 'closed',
+            'id'          => $prayerRequest->id,
+            'status'      => 'closed',
             'answered_at' => null,
         ]);
 
@@ -308,8 +310,8 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast');
 
         $this->assertDatabaseHas('prayer_requests', [
-            'id' => $prayerRequest->id,
-            'status' => 'open',
+            'id'          => $prayerRequest->id,
+            'status'      => 'open',
             'answered_at' => null,
         ]);
     }
@@ -317,16 +319,16 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_cannot_update_prayer_request_status_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
         $beneficiary = Beneficiary::factory()->create([
             'assigned_servant_id' => $servant->id,
-            'service_group_id' => $group->id,
+            'service_group_id'    => $group->id,
         ]);
         $prayerRequest = PrayerRequest::factory()->create([
             'beneficiary_id' => $beneficiary->id,
-            'created_by' => $servant->id,
-            'status' => 'open',
+            'created_by'     => $servant->id,
+            'status'         => 'open',
         ]);
 
         Livewire::actingAs($servant)
@@ -335,7 +337,7 @@ class ResourceActionsTest extends TestCase
             ->assertForbidden();
 
         $this->assertDatabaseHas('prayer_requests', [
-            'id' => $prayerRequest->id,
+            'id'     => $prayerRequest->id,
             'status' => 'open',
         ]);
     }
@@ -343,7 +345,7 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function users_page_shows_create_actions_only_for_relevant_sections(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         Livewire::actingAs($servant)
@@ -359,9 +361,9 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_create_beneficiary_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
+        $servant      = $this->createServant($group);
 
         Livewire::actingAs($familyLeader)
             ->test(BeneficiariesPage::class)
@@ -377,19 +379,19 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showBeneficiaryForm', false);
 
         $this->assertDatabaseHas('beneficiaries', [
-            'full_name' => 'New Beneficiary',
-            'service_group_id' => $group->id,
+            'full_name'           => 'New Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
-            'created_by' => $familyLeader->id,
+            'created_by'          => $familyLeader->id,
         ]);
     }
 
     #[Test]
     public function dedicated_beneficiaries_page_can_create_beneficiary(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
+        $servant      = $this->createServant($group);
 
         Livewire::actingAs($familyLeader)
             ->test(BeneficiariesPage::class)
@@ -404,10 +406,10 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showBeneficiaryForm', false);
 
         $this->assertDatabaseHas('beneficiaries', [
-            'full_name' => 'Dedicated Beneficiary',
-            'service_group_id' => $group->id,
+            'full_name'           => 'Dedicated Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
-            'created_by' => $familyLeader->id,
+            'created_by'          => $familyLeader->id,
         ]);
     }
 
@@ -416,10 +418,10 @@ class ResourceActionsTest extends TestCase
     {
         Storage::fake('public');
 
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
-        $photo = UploadedFile::fake()->create('profile.png', 64, 'image/png');
+        $servant      = $this->createServant($group);
+        $photo        = UploadedFile::fake()->create('profile.png', 64, 'image/png');
 
         Livewire::actingAs($familyLeader)
             ->test(BeneficiariesPage::class)
@@ -459,29 +461,31 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast')
             ->assertSet('showBeneficiaryForm', false);
 
+        // Non-encrypted fields can be checked directly in the DB.
         $this->assertDatabaseHas('beneficiaries', [
-            'full_name' => 'Complete Beneficiary',
-            'service_group_id' => $group->id,
+            'full_name'           => 'Complete Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
-            'facebook_url' => 'https://facebook.com/example',
-            'instagram_url' => 'https://instagram.com/example',
-            'guardian_relation' => 'Father',
-            'father_status' => 'alive',
-            'mother_status' => 'deceased',
-            'siblings_count' => 2,
-            'financial_status' => 'moderate',
-            'area' => 'New Cairo',
-            'governorate' => 'Cairo',
-            'google_maps_url' => 'https://maps.google.com/?q=Cairo',
-            'disability_type' => 'Physical',
-            'disability_degree' => 'mild',
-            'doctor_name' => 'Doctor Name',
-            'hospital_name' => 'Hospital Name',
-            'health_status' => 'Stable health',
-            'medical_notes' => 'Medical notes',
+            'facebook_url'        => 'https://facebook.com/example',
+            'instagram_url'       => 'https://instagram.com/example',
+            'guardian_relation'   => 'Father',
+            'father_status'       => 'alive',
+            'mother_status'       => 'deceased',
+            'siblings_count'      => 2,
+            'financial_status'    => 'moderate',
+            'area'                => 'New Cairo',
+            'governorate'         => 'Cairo',
+            'google_maps_url'     => 'https://maps.google.com/?q=Cairo',
+            'disability_type'     => 'Physical',
+            'disability_degree'   => 'mild',
+            'health_status'       => 'Stable health',
         ]);
 
         $saved = Beneficiary::where('full_name', 'Complete Beneficiary')->firstOrFail();
+        // Encrypted fields verified via model accessor (not raw DB).
+        $this->assertSame('Doctor Name', $saved->doctor_name);
+        $this->assertSame('Hospital Name', $saved->hospital_name);
+        $this->assertSame('Medical notes', $saved->medical_notes);
         $this->assertNotNull($saved->photo);
         Storage::disk('public')->assertExists($saved->photo);
     }
@@ -489,9 +493,9 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function beneficiary_mobile_cards_render_daily_actions(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+        $beneficiary  = Beneficiary::factory()->create(['service_group_id' => $group->id]);
 
         Livewire::actingAs($familyLeader)
             ->test(BeneficiariesPage::class)
@@ -505,9 +509,9 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function beneficiary_assigned_servant_must_match_service_group_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $otherGroup = ServiceGroup::factory()->create();
-        $familyLeader = $this->createFamilyLeader($group);
+        $group          = ServiceGroup::factory()->create();
+        $otherGroup     = ServiceGroup::factory()->create();
+        $familyLeader   = $this->createFamilyLeader($group);
         $foreignServant = $this->createServant($otherGroup);
 
         Livewire::actingAs($familyLeader)
@@ -528,12 +532,12 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_update_beneficiary_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
-            'full_name' => 'Old Name',
-            'status' => 'active',
+            'full_name'        => 'Old Name',
+            'status'           => 'active',
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -548,9 +552,9 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showBeneficiaryForm', false);
 
         $this->assertDatabaseHas('beneficiaries', [
-            'id' => $beneficiary->id,
+            'id'        => $beneficiary->id,
             'full_name' => 'Updated Name',
-            'status' => 'inactive',
+            'status'    => 'inactive',
         ]);
     }
 
@@ -559,9 +563,9 @@ class ResourceActionsTest extends TestCase
     {
         Storage::fake('private');
 
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $file = UploadedFile::fake()->create('medical-report.pdf', 128, 'application/pdf');
@@ -576,7 +580,7 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast')
             ->assertSet('showMedicalFileForm', false);
 
-        $medicalFile = \App\Models\MedicalFile::query()
+        $medicalFile = MedicalFile::query()
             ->where('beneficiary_id', $beneficiary->id)
             ->where('title', 'Medical Report')
             ->firstOrFail();
@@ -590,9 +594,9 @@ class ResourceActionsTest extends TestCase
     {
         Storage::fake('private');
 
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $file = UploadedFile::fake()->create('dedicated-medical-report.pdf', 64, 'application/pdf');
@@ -607,7 +611,7 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast')
             ->assertSet('showMedicalFileForm', false);
 
-        $medicalFile = \App\Models\MedicalFile::query()
+        $medicalFile = MedicalFile::query()
             ->where('beneficiary_id', $beneficiary->id)
             ->where('title', 'Dedicated Medical Report')
             ->firstOrFail();
@@ -619,7 +623,7 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_cannot_open_medical_file_upload_form_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         Livewire::actingAs($servant)
@@ -633,10 +637,10 @@ class ResourceActionsTest extends TestCase
     {
         Storage::fake('private');
 
-        $group = ServiceGroup::factory()->create();
-        $otherGroup = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
+        $otherGroup   = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $otherGroup->id,
         ]);
 
@@ -654,11 +658,11 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_create_scheduled_visit_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
+        $group         = ServiceGroup::factory()->create();
+        $familyLeader  = $this->createFamilyLeader($group);
+        $servant       = $this->createServant($group);
         $secondServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary   = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
 
@@ -674,10 +678,10 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showScheduledVisitForm', false);
 
         $this->assertDatabaseHas('scheduled_visits', [
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $servant->id,
-            'status' => 'pending',
-            'created_by' => $familyLeader->id,
+            'status'              => 'pending',
+            'created_by'          => $familyLeader->id,
         ]);
 
         $scheduledVisit = ScheduledVisit::query()
@@ -686,22 +690,22 @@ class ResourceActionsTest extends TestCase
 
         $this->assertDatabaseHas('scheduled_visit_servants', [
             'scheduled_visit_id' => $scheduledVisit->id,
-            'servant_id' => $servant->id,
+            'servant_id'         => $servant->id,
         ]);
         $this->assertDatabaseHas('scheduled_visit_servants', [
             'scheduled_visit_id' => $scheduledVisit->id,
-            'servant_id' => $secondServant->id,
+            'servant_id'         => $secondServant->id,
         ]);
     }
 
     #[Test]
     public function dedicated_scheduled_visits_page_can_create_multi_servant_scheduled_visit(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
+        $group         = ServiceGroup::factory()->create();
+        $familyLeader  = $this->createFamilyLeader($group);
+        $servant       = $this->createServant($group);
         $secondServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary   = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
 
@@ -730,16 +734,16 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_can_cancel_their_scheduled_visit_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group         = ServiceGroup::factory()->create();
+        $servant       = $this->createServant($group);
         $secondServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary   = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $scheduledVisit = ScheduledVisit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $servant->id,
-            'status' => 'pending',
+            'status'              => 'pending',
         ]);
         $scheduledVisit->syncAssignedServants([$servant->id, $secondServant->id]);
 
@@ -749,7 +753,7 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast');
 
         $this->assertDatabaseHas('scheduled_visits', [
-            'id' => $scheduledVisit->id,
+            'id'     => $scheduledVisit->id,
             'status' => 'cancelled',
         ]);
     }
@@ -757,18 +761,18 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_can_update_scheduled_visit_assignees_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $familyLeader = $this->createFamilyLeader($group);
-        $firstServant = $this->createServant($group);
+        $group         = ServiceGroup::factory()->create();
+        $familyLeader  = $this->createFamilyLeader($group);
+        $firstServant  = $this->createServant($group);
         $secondServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary   = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $scheduledVisit = ScheduledVisit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $firstServant->id,
-            'status' => 'pending',
-            'scheduled_date' => now()->addDay()->toDateString(),
+            'status'              => 'pending',
+            'scheduled_date'      => now()->addDay()->toDateString(),
         ]);
         $scheduledVisit->syncAssignedServants([$firstServant->id]);
 
@@ -784,28 +788,28 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showScheduledVisitForm', false);
 
         $this->assertDatabaseHas('scheduled_visits', [
-            'id' => $scheduledVisit->id,
+            'id'                  => $scheduledVisit->id,
             'assigned_servant_id' => $secondServant->id,
-            'scheduled_time' => '19:15',
+            'scheduled_time'      => '19:15',
         ]);
         $this->assertDatabaseMissing('scheduled_visit_servants', [
             'scheduled_visit_id' => $scheduledVisit->id,
-            'servant_id' => $firstServant->id,
+            'servant_id'         => $firstServant->id,
         ]);
         $this->assertDatabaseHas('scheduled_visit_servants', [
             'scheduled_visit_id' => $scheduledVisit->id,
-            'servant_id' => $secondServant->id,
+            'servant_id'         => $secondServant->id,
         ]);
     }
 
     #[Test]
     public function scheduled_visit_assignees_must_match_beneficiary_group_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $otherGroup = ServiceGroup::factory()->create();
-        $admin = $this->createSuperAdmin();
+        $group          = ServiceGroup::factory()->create();
+        $otherGroup     = ServiceGroup::factory()->create();
+        $admin          = $this->createSuperAdmin();
         $foreignServant = $this->createServant($otherGroup);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary    = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
 
@@ -819,7 +823,7 @@ class ResourceActionsTest extends TestCase
             ->assertHasErrors('scheduledVisitAssignedServantIds');
 
         $this->assertDatabaseMissing('scheduled_visits', [
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $foreignServant->id,
         ]);
     }
@@ -827,18 +831,18 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function recording_visit_from_scheduled_visit_marks_it_completed(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group         = ServiceGroup::factory()->create();
+        $servant       = $this->createServant($group);
         $secondServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary   = Beneficiary::factory()->create([
             'assigned_servant_id' => $servant->id,
-            'service_group_id' => $group->id,
+            'service_group_id'    => $group->id,
         ]);
         $scheduledVisit = ScheduledVisit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $servant->id,
-            'status' => 'pending',
-            'scheduled_date' => now()->toDateString(),
+            'status'              => 'pending',
+            'scheduled_date'      => now()->toDateString(),
         ]);
         $scheduledVisit->syncAssignedServants([$servant->id, $secondServant->id]);
 
@@ -858,14 +862,14 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function completed_scheduled_visit_cannot_be_cancelled_or_recorded_again_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $scheduledVisit = ScheduledVisit::factory()->create([
             'beneficiary_id' => $beneficiary->id,
-            'status' => 'completed',
+            'status'         => 'completed',
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -879,7 +883,7 @@ class ResourceActionsTest extends TestCase
             ->assertForbidden();
 
         $this->assertDatabaseHas('scheduled_visits', [
-            'id' => $scheduledVisit->id,
+            'id'     => $scheduledVisit->id,
             'status' => 'completed',
         ]);
     }
@@ -887,17 +891,17 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function cancelled_scheduled_visit_cannot_be_updated_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
-        $servant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $servant      = $this->createServant($group);
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $scheduledVisit = ScheduledVisit::factory()->create([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $servant->id,
-            'status' => 'cancelled',
-            'scheduled_date' => now()->addDay()->toDateString(),
+            'status'              => 'cancelled',
+            'scheduled_date'      => now()->addDay()->toDateString(),
         ]);
 
         Livewire::actingAs($familyLeader)
@@ -911,7 +915,7 @@ class ResourceActionsTest extends TestCase
             ->assertForbidden();
 
         $this->assertDatabaseHas('scheduled_visits', [
-            'id' => $scheduledVisit->id,
+            'id'     => $scheduledVisit->id,
             'status' => 'cancelled',
         ]);
     }
@@ -920,7 +924,7 @@ class ResourceActionsTest extends TestCase
     public function service_leader_can_create_servant_from_web_app_in_managed_group(): void
     {
         $serviceLeader = $this->createServiceLeader();
-        $group = ServiceGroup::factory()->create([
+        $group         = ServiceGroup::factory()->create([
             'service_leader_id' => $serviceLeader->id,
         ]);
 
@@ -939,11 +943,11 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showUserForm', false);
 
         $this->assertDatabaseHas('users', [
-            'name' => 'New Servant',
-            'email' => 'new-servant@example.com',
-            'role' => UserRole::Servant->value,
+            'name'             => 'New Servant',
+            'email'            => 'new-servant@example.com',
+            'role'             => UserRole::Servant->value,
             'service_group_id' => $group->id,
-            'is_active' => true,
+            'is_active'        => true,
         ]);
     }
 
@@ -951,7 +955,7 @@ class ResourceActionsTest extends TestCase
     public function dedicated_users_page_can_create_servant_in_managed_group(): void
     {
         $serviceLeader = $this->createServiceLeader();
-        $group = ServiceGroup::factory()->create([
+        $group         = ServiceGroup::factory()->create([
             'service_leader_id' => $serviceLeader->id,
         ]);
 
@@ -969,11 +973,11 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showUserForm', false);
 
         $this->assertDatabaseHas('users', [
-            'name' => 'Dedicated Servant',
-            'email' => 'dedicated-servant@example.com',
-            'role' => UserRole::Servant->value,
+            'name'             => 'Dedicated Servant',
+            'email'            => 'dedicated-servant@example.com',
+            'role'             => UserRole::Servant->value,
             'service_group_id' => $group->id,
-            'is_active' => true,
+            'is_active'        => true,
         ]);
     }
 
@@ -1005,9 +1009,9 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function super_admin_can_toggle_user_active_from_web_app(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin  = $this->createSuperAdmin();
         $target = User::factory()->create([
-            'role' => UserRole::ServiceLeader,
+            'role'      => UserRole::ServiceLeader,
             'is_active' => true,
         ]);
 
@@ -1017,7 +1021,7 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast');
 
         $this->assertDatabaseHas('users', [
-            'id' => $target->id,
+            'id'        => $target->id,
             'is_active' => false,
         ]);
     }
@@ -1025,7 +1029,7 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function family_leader_cannot_open_user_create_form_from_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group        = ServiceGroup::factory()->create();
         $familyLeader = $this->createFamilyLeader($group);
 
         Livewire::actingAs($familyLeader)
@@ -1049,10 +1053,10 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showServiceGroupForm', false);
 
         $this->assertDatabaseHas('service_groups', [
-            'name' => 'New Family Group',
-            'description' => 'Created from web app',
+            'name'              => 'New Family Group',
+            'description'       => 'Created from web app',
             'service_leader_id' => $serviceLeader->id,
-            'is_active' => true,
+            'is_active'         => true,
         ]);
     }
 
@@ -1071,10 +1075,10 @@ class ResourceActionsTest extends TestCase
             ->assertSet('showServiceGroupForm', false);
 
         $this->assertDatabaseHas('service_groups', [
-            'name' => 'Dedicated Family Group',
-            'description' => 'Created from dedicated service groups page',
+            'name'              => 'Dedicated Family Group',
+            'description'       => 'Created from dedicated service groups page',
             'service_leader_id' => $serviceLeader->id,
-            'is_active' => true,
+            'is_active'         => true,
         ]);
     }
 
@@ -1082,14 +1086,14 @@ class ResourceActionsTest extends TestCase
     public function service_leader_cannot_edit_unmanaged_service_group_from_web_app(): void
     {
         $serviceLeader = $this->createServiceLeader();
-        $managedGroup = ServiceGroup::factory()->create([
+        $managedGroup  = ServiceGroup::factory()->create([
             'service_leader_id' => $serviceLeader->id,
-            'name' => 'Managed Group',
+            'name'              => 'Managed Group',
         ]);
-        $otherLeader = $this->createServiceLeader();
+        $otherLeader  = $this->createServiceLeader();
         $foreignGroup = ServiceGroup::factory()->create([
             'service_leader_id' => $otherLeader->id,
-            'name' => 'Foreign Group',
+            'name'              => 'Foreign Group',
         ]);
 
         Livewire::actingAs($serviceLeader)
@@ -1107,11 +1111,11 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function disabling_service_group_from_web_app_marks_beneficiaries_inactive(): void
     {
-        $admin = $this->createSuperAdmin();
-        $group = ServiceGroup::factory()->create(['is_active' => true]);
+        $admin       = $this->createSuperAdmin();
+        $group       = ServiceGroup::factory()->create(['is_active' => true]);
         $beneficiary = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
-            'status' => 'active',
+            'status'           => 'active',
         ]);
 
         Livewire::actingAs($admin)
@@ -1120,11 +1124,11 @@ class ResourceActionsTest extends TestCase
             ->assertDispatched('toast');
 
         $this->assertDatabaseHas('service_groups', [
-            'id' => $group->id,
+            'id'        => $group->id,
             'is_active' => false,
         ]);
         $this->assertDatabaseHas('beneficiaries', [
-            'id' => $beneficiary->id,
+            'id'     => $beneficiary->id,
             'status' => 'inactive',
         ]);
     }

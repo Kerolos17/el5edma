@@ -33,6 +33,13 @@ class Beneficiary extends Model
             'father_death_date'   => 'date',
             'mother_death_date'   => 'date',
             'last_medical_update' => 'date',
+            // Sensitive PHI/PII — encrypted at rest via APP_KEY.
+            // Important: never add WHERE/LIKE queries on these columns;
+            // use PHP-level filtering after hydration instead.
+            'medical_notes'   => 'encrypted',
+            'financial_notes' => 'encrypted',
+            'doctor_name'     => 'encrypted',
+            'hospital_name'   => 'encrypted',
         ];
     }
 

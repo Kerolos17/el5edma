@@ -10,13 +10,14 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 
 trait ManagesResourceListing
 {
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
-        $meta = $this->meta();
+        $user               = auth()->user();
+        $meta               = $this->meta();
         $beneficiaryOptions = $this->beneficiaryOptionsQuery()
             ->orderBy('full_name')
             ->get(['id', 'full_name', 'code']);
@@ -26,51 +27,51 @@ trait ManagesResourceListing
 
         if ($this->section === 'reports') {
             return view('livewire.web-app.placeholder-page', [
-                'meta' => $meta,
-                'filters' => [],
-                'stats' => $this->reportStats($user),
-                'records' => collect(),
-                'reportCards' => $this->reportCards($user),
-                'beneficiaryOptions' => $beneficiaryOptions,
-                'servantOptions' => $servantOptions,
-                'userRoleOptions' => $this->userRoleOptionsForActor($user),
-                'userServiceGroupOptions' => $this->userServiceGroupOptionsForActor($user),
-                'serviceGroupLeaderOptions' => $this->serviceGroupLeaderOptions($user),
+                'meta'                             => $meta,
+                'filters'                          => [],
+                'stats'                            => $this->reportStats($user),
+                'records'                          => collect(),
+                'reportCards'                      => $this->reportCards($user),
+                'beneficiaryOptions'               => $beneficiaryOptions,
+                'servantOptions'                   => $servantOptions,
+                'userRoleOptions'                  => $this->userRoleOptionsForActor($user),
+                'userServiceGroupOptions'          => $this->userServiceGroupOptionsForActor($user),
+                'serviceGroupLeaderOptions'        => $this->serviceGroupLeaderOptions($user),
                 'serviceGroupServiceLeaderOptions' => $this->serviceGroupServiceLeaderOptions($user),
-                'beneficiaryServiceGroupOptions' => $this->beneficiaryServiceGroupOptions($user),
-                'beneficiaryServantOptions' => $this->beneficiaryServantOptions($user),
-                'beneficiaryRecordStatusOptions' => $this->beneficiaryRecordStatusOptions(),
-                'medicalFileTypeOptions' => $this->medicalFileTypeOptions(),
-                'visitTypeOptions' => $this->visitTypeOptions(),
-                'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
+                'beneficiaryServiceGroupOptions'   => $this->beneficiaryServiceGroupOptions($user),
+                'beneficiaryServantOptions'        => $this->beneficiaryServantOptions($user),
+                'beneficiaryRecordStatusOptions'   => $this->beneficiaryRecordStatusOptions(),
+                'medicalFileTypeOptions'           => $this->medicalFileTypeOptions(),
+                'visitTypeOptions'                 => $this->visitTypeOptions(),
+                'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
             ]);
         }
 
         $baseQuery = $this->queryForSection($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate($this->perPage());
 
         return view('livewire.web-app.placeholder-page', [
-            'meta' => $meta,
-            'filters' => $this->filters($user),
-            'stats' => $this->stats($user, clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $beneficiaryOptions,
-            'servantOptions' => $servantOptions,
-            'userRoleOptions' => $this->userRoleOptionsForActor($user),
-            'userServiceGroupOptions' => $this->userServiceGroupOptionsForActor($user),
-            'serviceGroupLeaderOptions' => $this->serviceGroupLeaderOptions($user),
+            'meta'                             => $meta,
+            'filters'                          => $this->filters($user),
+            'stats'                            => $this->stats($user, clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $beneficiaryOptions,
+            'servantOptions'                   => $servantOptions,
+            'userRoleOptions'                  => $this->userRoleOptionsForActor($user),
+            'userServiceGroupOptions'          => $this->userServiceGroupOptionsForActor($user),
+            'serviceGroupLeaderOptions'        => $this->serviceGroupLeaderOptions($user),
             'serviceGroupServiceLeaderOptions' => $this->serviceGroupServiceLeaderOptions($user),
-            'beneficiaryServiceGroupOptions' => $this->beneficiaryServiceGroupOptions($user),
-            'beneficiaryServantOptions' => $this->beneficiaryServantOptions($user),
-            'beneficiaryRecordStatusOptions' => $this->beneficiaryRecordStatusOptions(),
-            'medicalFileTypeOptions' => $this->medicalFileTypeOptions(),
-            'visitTypeOptions' => $this->visitTypeOptions(),
-            'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
+            'beneficiaryServiceGroupOptions'   => $this->beneficiaryServiceGroupOptions($user),
+            'beneficiaryServantOptions'        => $this->beneficiaryServantOptions($user),
+            'beneficiaryRecordStatusOptions'   => $this->beneficiaryRecordStatusOptions(),
+            'medicalFileTypeOptions'           => $this->medicalFileTypeOptions(),
+            'visitTypeOptions'                 => $this->visitTypeOptions(),
+            'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
         ]);
     }
 
@@ -80,13 +81,13 @@ trait ManagesResourceListing
             'beneficiaries' => WebAppScope::beneficiaries($user)
                 ->with(['serviceGroup', 'assignedServant'])
                 ->withCount('visits'),
-            'visits' => WebAppScope::visits($user),
+            'visits'           => WebAppScope::visits($user),
             'scheduled-visits' => WebAppScope::scheduledVisits($user),
-            'prayer-requests' => WebAppScope::prayerRequests($user),
-            'medical-files' => WebAppScope::medicalFiles($user),
-            'users' => WebAppScope::users($user),
-            'service-groups' => WebAppScope::serviceGroups($user),
-            default => WebAppScope::beneficiaries($user),
+            'prayer-requests'  => WebAppScope::prayerRequests($user),
+            'medical-files'    => WebAppScope::medicalFiles($user),
+            'users'            => WebAppScope::users($user),
+            'service-groups'   => WebAppScope::serviceGroups($user),
+            default            => WebAppScope::beneficiaries($user),
         };
     }
 
@@ -112,9 +113,9 @@ trait ManagesResourceListing
                 ->orWhereHas('beneficiary', fn (Builder $beneficiary) => $beneficiary->where('full_name', 'like', $term))
                 ->orWhereHas('servants', fn (Builder $servant) => $servant->where('name', 'like', $term))
                 ->orWhereHas('assignedServant', fn (Builder $servant) => $servant->where('name', 'like', $term))),
+            // NOTE: body is encrypted at rest — search by title and beneficiary name only.
             'prayer-requests' => $query->where(fn (Builder $builder) => $builder
                 ->where('title', 'like', $term)
-                ->orWhere('body', 'like', $term)
                 ->orWhereHas('beneficiary', fn (Builder $beneficiary) => $beneficiary->where('full_name', 'like', $term))),
             'medical-files' => $query->where(fn (Builder $builder) => $builder
                 ->where('title', 'like', $term)
@@ -135,39 +136,39 @@ trait ManagesResourceListing
     {
         return match ($this->section) {
             'beneficiaries' => match ($this->filter) {
-                'mine' => $query->where('assigned_servant_id', auth()->id()),
-                'recent' => $query->whereHas('visits', fn (Builder $builder) => $builder->where('visit_date', '>=', now()->subDays(30))),
+                'mine'        => $query->where('assigned_servant_id', auth()->id()),
+                'recent'      => $query->whereHas('visits', fn (Builder $builder) => $builder->where('visit_date', '>=', now()->subDays(30))),
                 'needs-visit' => $query->whereDoesntHave('visits'),
-                default => $query,
+                default       => $query,
             },
             'visits' => match ($this->filter) {
-                'month' => $query->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year),
-                'critical' => $query->where('is_critical', true)->whereNull('critical_resolved_at'),
+                'month'     => $query->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year),
+                'critical'  => $query->where('is_critical', true)->whereNull('critical_resolved_at'),
                 'follow-up' => $query->where(fn (Builder $builder) => $builder->where('needs_family_leader', true)->orWhere('needs_service_leader', true)),
-                default => $query,
+                default     => $query,
             },
             'scheduled-visits' => match ($this->filter) {
-                'upcoming' => $query->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending'),
+                'upcoming'  => $query->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending'),
                 'completed' => $query->where('status', 'completed'),
-                'past' => $query->where('scheduled_date', '<', now()->toDateString()),
-                default => $query,
+                'past'      => $query->where('scheduled_date', '<', now()->toDateString()),
+                default     => $query,
             },
             'prayer-requests' => $this->filter === 'all' ? $query : $query->where('status', $this->filter),
-            'medical-files' => match ($this->filter) {
+            'medical-files'   => match ($this->filter) {
                 'recent' => $query->where('created_at', '>=', now()->subDays(30)),
-                'all' => $query,
-                default => $query->where('file_type', $this->filter),
+                'all'    => $query,
+                default  => $query->where('file_type', $this->filter),
             },
             'users' => match ($this->filter) {
                 'inactive' => $query->where('is_active', false),
-                'active' => $query->where('is_active', true),
+                'active'   => $query->where('is_active', true),
                 'service_leader', 'family_leader', 'servant', 'super_admin' => $query->where('role', $this->filter),
                 default => $query,
             },
             'service-groups' => match ($this->filter) {
-                'active' => $query->where('is_active', true),
+                'active'   => $query->where('is_active', true),
                 'inactive' => $query->where('is_active', false),
-                default => $query,
+                default    => $query,
             },
             default => $query,
         };
@@ -176,14 +177,14 @@ trait ManagesResourceListing
     private function applySort(Builder $query): Builder
     {
         return match ($this->section) {
-            'beneficiaries' => $query->orderBy('full_name'),
-            'visits' => $query->latest('visit_date'),
+            'beneficiaries'    => $query->orderBy('full_name'),
+            'visits'           => $query->latest('visit_date'),
             'scheduled-visits' => $query->orderBy('scheduled_date')->orderBy('scheduled_time'),
-            'prayer-requests' => $query->latest(),
-            'medical-files' => $query->orderByDesc('created_at')->orderByDesc('id'),
-            'users' => $query->orderByDesc('is_active')->orderBy('name'),
-            'service-groups' => $query->orderBy('name'),
-            default => $query,
+            'prayer-requests'  => $query->latest(),
+            'medical-files'    => $query->orderByDesc('created_at')->orderByDesc('id'),
+            'users'            => $query->orderByDesc('is_active')->orderBy('name'),
+            'service-groups'   => $query->orderBy('name'),
+            default            => $query,
         };
     }
 
@@ -191,8 +192,8 @@ trait ManagesResourceListing
     {
         return match ($this->section) {
             'service-groups' => 8,
-            'users' => 10,
-            default => 12,
+            'users'          => 10,
+            default          => 12,
         };
     }
 
@@ -200,59 +201,59 @@ trait ManagesResourceListing
     {
         return [
             'beneficiaries' => [
-                'title' => __('web_app.resources.beneficiaries.title'),
-                'description' => __('web_app.resources.beneficiaries.description'),
-                'icon' => 'ph-users-three',
-                'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+                'title'           => __('web_app.resources.beneficiaries.title'),
+                'description'     => __('web_app.resources.beneficiaries.description'),
+                'icon'            => 'ph-users-three',
+                'primaryAction'   => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
                 'secondaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
             ],
             'visits' => [
-                'title' => __('web_app.resources.visits.title'),
-                'description' => __('web_app.resources.visits.description'),
-                'icon' => 'ph-clipboard-text',
-                'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+                'title'           => __('web_app.resources.visits.title'),
+                'description'     => __('web_app.resources.visits.description'),
+                'icon'            => 'ph-clipboard-text',
+                'primaryAction'   => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
                 'secondaryAction' => ['label' => __('web_app.actions.scheduled_visits'), 'route' => route('app.scheduled-visits'), 'icon' => 'ph-calendar-check'],
             ],
             'scheduled-visits' => [
-                'title' => __('web_app.resources.scheduled-visits.title'),
-                'description' => __('web_app.resources.scheduled-visits.description'),
-                'icon' => 'ph-calendar-check',
-                'primaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
+                'title'           => __('web_app.resources.scheduled-visits.title'),
+                'description'     => __('web_app.resources.scheduled-visits.description'),
+                'icon'            => 'ph-calendar-check',
+                'primaryAction'   => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
                 'secondaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
             ],
             'prayer-requests' => [
-                'title' => __('web_app.resources.prayer-requests.title'),
-                'description' => __('web_app.resources.prayer-requests.description'),
-                'icon' => 'ph-hands-praying',
-                'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+                'title'           => __('web_app.resources.prayer-requests.title'),
+                'description'     => __('web_app.resources.prayer-requests.description'),
+                'icon'            => 'ph-hands-praying',
+                'primaryAction'   => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
                 'secondaryAction' => ['label' => __('web_app.actions.medical_files'), 'route' => route('app.medical-files'), 'icon' => 'ph-file-lock'],
             ],
             'medical-files' => [
-                'title' => __('web_app.resources.medical-files.title'),
-                'description' => __('web_app.resources.medical-files.description'),
-                'icon' => 'ph-file-lock',
-                'primaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
+                'title'           => __('web_app.resources.medical-files.title'),
+                'description'     => __('web_app.resources.medical-files.description'),
+                'icon'            => 'ph-file-lock',
+                'primaryAction'   => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
                 'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
             ],
             'reports' => [
-                'title' => __('web_app.resources.reports.title'),
-                'description' => __('web_app.resources.reports.description'),
-                'icon' => 'ph-chart-line-up',
-                'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+                'title'           => __('web_app.resources.reports.title'),
+                'description'     => __('web_app.resources.reports.description'),
+                'icon'            => 'ph-chart-line-up',
+                'primaryAction'   => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
                 'secondaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
             ],
             'users' => [
-                'title' => __('web_app.resources.users.title'),
-                'description' => __('web_app.resources.users.description'),
-                'icon' => 'ph-identification-card',
-                'primaryAction' => ['label' => __('web_app.actions.service_groups'), 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
+                'title'           => __('web_app.resources.users.title'),
+                'description'     => __('web_app.resources.users.description'),
+                'icon'            => 'ph-identification-card',
+                'primaryAction'   => ['label' => __('web_app.actions.service_groups'), 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
                 'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
             ],
             'service-groups' => [
-                'title' => __('web_app.resources.service-groups.title'),
-                'description' => __('web_app.resources.service-groups.description'),
-                'icon' => 'ph-tree-structure',
-                'primaryAction' => ['label' => __('web_app.actions.users'), 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
+                'title'           => __('web_app.resources.service-groups.title'),
+                'description'     => __('web_app.resources.service-groups.description'),
+                'icon'            => 'ph-tree-structure',
+                'primaryAction'   => ['label' => __('web_app.actions.users'), 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
                 'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
             ],
         ][$this->section];
@@ -377,10 +378,10 @@ trait ManagesResourceListing
     {
         $cards = collect([
             [
-                'title' => __('web_app.reports.beneficiaries.title'),
+                'title'       => __('web_app.reports.beneficiaries.title'),
                 'description' => __('web_app.reports.beneficiaries.description'),
-                'route' => route('reports.beneficiaries.pdf'),
-                'icon' => 'ph-users-three',
+                'route'       => route('reports.beneficiaries.pdf'),
+                'icon'        => 'ph-users-three',
             ],
         ]);
 
@@ -390,16 +391,16 @@ trait ManagesResourceListing
 
         $cards = $cards->merge([
             [
-                'title' => __('web_app.reports.visits.title'),
+                'title'       => __('web_app.reports.visits.title'),
                 'description' => __('web_app.reports.visits.description'),
-                'route' => route('reports.visits.pdf'),
-                'icon' => 'ph-clipboard-text',
+                'route'       => route('reports.visits.pdf'),
+                'icon'        => 'ph-clipboard-text',
             ],
             [
-                'title' => __('web_app.reports.unvisited.title'),
+                'title'       => __('web_app.reports.unvisited.title'),
                 'description' => __('web_app.reports.unvisited.description'),
-                'route' => route('reports.unvisited.pdf'),
-                'icon' => 'ph-warning-circle',
+                'route'       => route('reports.unvisited.pdf'),
+                'icon'        => 'ph-warning-circle',
             ],
         ]);
 
@@ -412,18 +413,18 @@ trait ManagesResourceListing
                 ->get()
                 ->flatMap(fn (ServiceGroup $group) => [
                     [
-                        'title' => __('web_app.reports.service_group.title', ['name' => $group->name]),
+                        'title'       => __('web_app.reports.service_group.title', ['name' => $group->name]),
                         'description' => __('web_app.reports.service_group.description'),
-                        'route' => route('reports.service-group.pdf', $group),
-                        'icon' => 'ph-tree-structure',
+                        'route'       => route('reports.service-group.pdf', $group),
+                        'icon'        => 'ph-tree-structure',
                     ],
                     [
-                        'title' => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
+                        'title'       => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
                         'description' => __('web_app.reports.service_group_beneficiaries.description'),
-                        'route' => route('reports.service-group.beneficiaries.pdf', $group),
-                        'icon' => 'ph-users-three',
+                        'route'       => route('reports.service-group.beneficiaries.pdf', $group),
+                        'icon'        => 'ph-users-three',
                     ],
-                ])
+                ]),
         );
     }
 
@@ -435,8 +436,8 @@ trait ManagesResourceListing
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => __('visits.home_visit'),
-            'phone_call' => __('visits.phone_call'),
+            'home_visit'     => __('visits.home_visit'),
+            'phone_call'     => __('visits.phone_call'),
             'church_meeting' => __('visits.church_meeting'),
         ];
     }
@@ -444,19 +445,19 @@ trait ManagesResourceListing
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => __('visits.great'),
-            'good' => __('visits.good'),
+            'great'        => __('visits.great'),
+            'good'         => __('visits.good'),
             'needs_follow' => __('visits.needs_follow'),
-            'critical' => __('visits.critical'),
+            'critical'     => __('visits.critical'),
         ];
     }
 
     private function beneficiaryRecordStatusOptions(): array
     {
         return [
-            'active' => __('beneficiaries.active'),
+            'active'   => __('beneficiaries.active'),
             'inactive' => __('beneficiaries.inactive'),
-            'moved' => __('beneficiaries.moved'),
+            'moved'    => __('beneficiaries.moved'),
             'deceased' => __('beneficiaries.deceased'),
         ];
     }
@@ -464,8 +465,8 @@ trait ManagesResourceListing
     private function medicalFileTypeOptions(): array
     {
         return [
-            'report' => __('medical.report'),
-            'image' => __('medical.image'),
+            'report'   => __('medical.report'),
+            'image'    => __('medical.image'),
             'document' => __('medical.document'),
         ];
     }

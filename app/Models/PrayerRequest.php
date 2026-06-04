@@ -17,7 +17,12 @@ class PrayerRequest extends Model
 
     protected function casts(): array
     {
-        return ['answered_at' => 'datetime'];
+        return [
+            'answered_at' => 'datetime',
+            // Prayer request content is deeply personal — encrypted at rest.
+            // Search on this field must be done via title only.
+            'body' => 'encrypted',
+        ];
     }
 
     public function beneficiary(): BelongsTo

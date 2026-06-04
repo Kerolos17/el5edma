@@ -140,7 +140,7 @@ class UsersTable
                         ->action(function (User $record) {
                             do {
                                 $code = (string) random_int(1000, 999999);
-                                $hash = hash('sha256', $code);
+                                $hash = User::hashPersonalCode($code);
                             } while (User::where('personal_code_hash', $hash)->exists());
 
                             $record->update(['personal_code' => $code]);

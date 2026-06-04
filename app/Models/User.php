@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Crypt;
+use Throwable;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
@@ -22,7 +24,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     ];
 
     protected $hidden = [
-        'password', 'remember_token', 'fcm_token', 'personal_code_hash',
+        'password', 'remember_token', 'fcm_token', 'personal_code', 'personal_code_hash',
     ];
 
     protected function casts(): array
@@ -66,13 +68,49 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // ── Helpers ──
 
     /**
-     * تعيين الكود الشخصي مع توليد الـ hash تلقائياً للبحث
-     * الكود يُخزَّن كنص عادي في varchar(10) — الـ hash للبحث السريع
+     * Peppered blind-index hash for personal-code lookups.
+     *
+     * Uses HMAC-SHA256 keyed by APP_KEY (a pepper that lives outside the
+     * database) so a database-only leak cannot brute-force the short codes
+     * via rainbow tables.
+     */
+    public static function hashPersonalCode(string $code): string
+    {
+        return hash_hmac('sha256', $code, (string) config('app.key'));
+    }
+
+    /**
+     * تعيين الكود الشخصي: يُشفَّر عند التخزين ويُولَّد له blind-index hash للبحث.
+     * التشفير يحمي الكود في حال تسريب قاعدة البيانات، والـ HMAC يمنع الكسر بجداول قوس قزح.
      */
     public function setPersonalCodeAttribute(?string $value): void
     {
-        $this->attributes['personal_code']      = $value;
-        $this->attributes['personal_code_hash'] = $value !== null ? hash('sha256', $value) : null;
+        if ($value === null || $value === '') {
+            $this->attributes['personal_code']      = null;
+            $this->attributes['personal_code_hash'] = null;
+
+            return;
+        }
+
+        $this->attributes['personal_code']      = Crypt::encryptString($value);
+        $this->attributes['personal_code_hash'] = self::hashPersonalCode($value);
+    }
+
+    /**
+     * قراءة الكود الشخصي المشفّر. مع fallback آمن للقيم القديمة غير المشفّرة (plaintext)
+     * أثناء فترة الانتقال قبل تشغيل migration التشفير.
+     */
+    public function getPersonalCodeAttribute(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (Throwable) {
+            return $value; // legacy plaintext value, not yet migrated
+        }
     }
 
     public function getProfilePhotoUrlAttribute(): ?string
@@ -153,7 +191,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         do {
             $code   = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $hash   = hash('sha256', $code);
+            $hash   = self::hashPersonalCode($code);
             $exists = self::where('personal_code_hash', $hash)->exists();
         } while ($exists);
 

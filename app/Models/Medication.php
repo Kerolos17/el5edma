@@ -17,7 +17,11 @@ class Medication extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return [
+            'is_active' => 'boolean',
+            // Medication notes may contain sensitive clinical details — encrypted at rest.
+            'notes' => 'encrypted',
+        ];
     }
 
     public function beneficiary(): BelongsTo

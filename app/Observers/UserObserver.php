@@ -21,7 +21,7 @@ class UserObserver
             do {
                 $code = (string) random_int(100000, 999999);
                 // نتحقق من التكرار بالـ hash (blind index)
-            } while (User::where('personal_code_hash', hash('sha256', $code))->exists());
+            } while (User::where('personal_code_hash', User::hashPersonalCode($code))->exists());
 
             $user->personal_code = $code; // الـ mutator هيشفره ويولد الـ hash تلقائياً
         }

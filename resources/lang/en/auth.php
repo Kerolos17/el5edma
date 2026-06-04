@@ -4,6 +4,7 @@ return [
     'failed'              => 'These credentials do not match our records.',
     'password'            => 'The provided password is incorrect.',
     'throttle'            => 'Too many attempts. Please try again in :seconds seconds.',
+    'lockout'             => 'Access suspended due to repeated failures. Please try again in :seconds seconds.',
     'invalid_code'        => 'Invalid personal code or account is inactive.',
     'login'               => 'Login',
     'email'               => 'Email Address',

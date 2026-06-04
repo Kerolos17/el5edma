@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -18,34 +19,34 @@ class PrayerRequestsPage extends PlaceholderPage
         $this->section = 'prayer-requests';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->prayerRequestsQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.prayer-requests-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $this->beneficiaryOptions($user),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $this->beneficiaryOptions($user),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => [],
-            'beneficiaryStatusOptions' => [],
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => [],
+            'beneficiaryStatusOptions'         => [],
         ]);
     }
 
@@ -62,9 +63,9 @@ class PrayerRequestsPage extends PlaceholderPage
 
         $term = '%' . $this->search . '%';
 
+        // NOTE: body is encrypted at rest — search by title and beneficiary name only.
         return $query->where(fn (Builder $builder) => $builder
             ->where('title', 'like', $term)
-            ->orWhere('body', 'like', $term)
             ->orWhereHas('beneficiary', fn (Builder $beneficiary) => $beneficiary->where('full_name', 'like', $term)));
     }
 
@@ -81,10 +82,10 @@ class PrayerRequestsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.prayer-requests.title'),
-            'description' => __('web_app.resources.prayer-requests.description'),
-            'icon' => 'ph-hands-praying',
-            'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+            'title'           => __('web_app.resources.prayer-requests.title'),
+            'description'     => __('web_app.resources.prayer-requests.description'),
+            'icon'            => 'ph-hands-praying',
+            'primaryAction'   => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
             'secondaryAction' => ['label' => __('web_app.actions.medical_files'), 'route' => route('app.medical-files'), 'icon' => 'ph-file-lock'],
         ];
     }

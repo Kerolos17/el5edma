@@ -48,7 +48,7 @@ class Login extends BaseLogin
             ]);
         }
 
-        $codeHash = hash('sha256', $code);
+        $codeHash = User::hashPersonalCode($code);
 
         $user = User::where('personal_code_hash', $codeHash)
             ->where('is_active', true)
