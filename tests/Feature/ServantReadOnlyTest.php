@@ -43,7 +43,7 @@ class ServantReadOnlyTest extends TestCase
     }
 
     /** @test */
-    public function servant_cannot_edit_in_any_resource()
+    public function servant_cannot_edit_beneficiaries_but_can_edit_own_visits()
     {
         $serviceGroup = ServiceGroup::factory()->create();
         $servant      = User::factory()->create([
@@ -56,16 +56,25 @@ class ServantReadOnlyTest extends TestCase
             'assigned_servant_id' => $servant->id,
         ]);
 
-        $visit = Visit::factory()->create([
+        $ownVisit = Visit::factory()->create([
             'beneficiary_id' => $beneficiary->id,
             'created_by'     => $servant->id,
         ]);
 
+        $otherServant = User::factory()->create([
+            'role'             => UserRole::Servant,
+            'service_group_id' => $serviceGroup->id,
+        ]);
+        $otherVisit = Visit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'created_by'     => $otherServant->id,
+        ]);
+
         $this->actingAs($servant);
 
-        // Test all resources
         $this->assertFalse(BeneficiaryResource::canEdit($beneficiary), 'Servant should not edit beneficiaries');
-        $this->assertFalse(VisitResource::canEdit($visit), 'Servant should not edit visits');
+        $this->assertTrue(VisitResource::canEdit($ownVisit), 'Servant should edit own visits');
+        $this->assertFalse(VisitResource::canEdit($otherVisit), 'Servant should not edit visits created by others');
     }
 
     /** @test */

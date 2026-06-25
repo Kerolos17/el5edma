@@ -29,3 +29,6 @@ test-results-*.md
 .htaccess
 # Firebase
 storage/app/firebase-credentials.json
+
+# Test artifacts
+/output/

@@ -1,19 +1,20 @@
 <section class="app-page-stack">
     <x-slot:title>{{ $title }}</x-slot:title>
 
-    <div class="app-hero-panel">
+    <div class="app-hero-panel" data-role="{{ auth()->user()->role }}">
         <div>
-            <p class="app-section-label">{{ $roleLabel }}</p>
+            <p class="app-hero-kicker">{{ $roleLabel }} · {{ now()->isoFormat('dddd, D MMMM') }}</p>
             <h2>{{ __('web_app.dashboard.greeting', ['name' => auth()->user()->name]) }}</h2>
+            <p class="app-hero-description">{{ __('web_app.dashboard.hero_title') }}</p>
         </div>
         <div class="app-hero-actions">
-            <a href="{{ route('app.beneficiaries') }}" wire:navigate class="app-primary-button">
+            <a href="{{ route('app.visits') }}" wire:navigate class="app-primary-button">
+                <i class="ph ph-plus-circle" aria-hidden="true"></i>
+                {{ __('web_app.actions.record_visit') }}
+            </a>
+            <a href="{{ route('app.beneficiaries') }}" wire:navigate class="app-secondary-button">
                 <i class="ph ph-users-three" aria-hidden="true"></i>
                 {{ __('web_app.actions.beneficiaries') }}
-            </a>
-            <a href="{{ route('app.visits') }}" wire:navigate class="app-secondary-button">
-                <i class="ph ph-clipboard-text" aria-hidden="true"></i>
-                {{ __('web_app.actions.visits') }}
             </a>
         </div>
     </div>
@@ -33,7 +34,6 @@
     </div>
 
     <div class="app-dashboard-grid">
-        {{-- Left Column: Recent Visits + Critical Cases --}}
         <div class="space-y-6">
             <section class="app-panel">
                 <div class="app-panel-header">
@@ -46,17 +46,35 @@
 
                 <div class="app-activity-list">
                     @forelse ($recentVisits as $visit)
-                        <article class="app-activity-row">
-                            <div>
-                                <strong>{{ $visit->beneficiary?->full_name ?? __('web_app.dashboard.unknown_name') }}</strong>
-                                <span>{{ $visit->createdBy?->name ?? __('web_app.dashboard.unknown_user') }}</span>
+                        <a href="{{ route('app.visit-profile', $visit->id) }}" wire:navigate class="app-activity-row">
+                            <div class="app-activity-body">
+                                <span class="app-activity-icon type-{{ $visit->type }}">
+                                    @switch($visit->type)
+                                        @case('phone')<i class="ph ph-phone-call" aria-hidden="true"></i>@break
+                                        @case('church')<i class="ph ph-church" aria-hidden="true"></i>@break
+                                        @default<i class="ph ph-house-line" aria-hidden="true"></i>
+                                    @endswitch
+                                </span>
+                                <div>
+                                    <strong>{{ $visit->beneficiary?->full_name ?? __('web_app.dashboard.unknown_name') }}</strong>
+                                    <span>{{ $visit->createdBy?->name ?? __('web_app.dashboard.unknown_user') }}</span>
+                                </div>
                             </div>
-                            <time>{{ $visit->visit_date?->format('Y-m-d') }}</time>
-                        </article>
+                            <div class="app-activity-meta">
+                                @if ($visit->is_critical)
+                                    <span class="app-status-pill tone-rose">{{ __('web_app.dashboard.critical') }}</span>
+                                @endif
+                                <time>{{ $visit->visit_date?->isoFormat('D MMM') }}</time>
+                            </div>
+                        </a>
                     @empty
                         <div class="app-empty-state">
                             <i class="ph ph-clipboard-text" aria-hidden="true"></i>
                             <p>{{ __('web_app.dashboard.empty_visits') }}</p>
+                            <a href="{{ route('app.visits') }}" wire:navigate class="app-primary-button" style="margin-top:0.75rem">
+                                <i class="ph ph-plus-circle" aria-hidden="true"></i>
+                                {{ __('web_app.actions.record_visit') }}
+                            </a>
                         </div>
                     @endforelse
                 </div>
@@ -73,7 +91,7 @@
                     </div>
 
                     <div class="app-table-wrap">
-                        <table class="app-table" aria-label="">
+                        <table class="app-table">
                             <thead>
                                 <tr>
                                     <th>{{ __('web_app.table.name') }}</th>
@@ -84,9 +102,13 @@
                             <tbody>
                                 @foreach ($criticalCases as $beneficiary)
                                     <tr>
-                                        <td><strong>{{ $beneficiary->full_name }}</strong></td>
+                                        <td>
+                                            <a href="{{ route('app.beneficiary-profile', $beneficiary->id) }}" wire:navigate class="app-link-inline">
+                                                <strong>{{ $beneficiary->full_name }}</strong>
+                                            </a>
+                                        </td>
                                         <td><span>{{ $beneficiary->phone ?? '—' }}</span></td>
-                                        <td><span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span></td>
+                                        <td><span><a href="{{ route('app.service-group-profile', $beneficiary->serviceGroup?->id) }}" wire:navigate class="app-link-inline">{{ $beneficiary->serviceGroup?->name ?? '—' }}</a></span></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -95,20 +117,19 @@
 
                     <div class="app-mobile-list">
                         @foreach ($criticalCases as $beneficiary)
-                            <article class="app-mobile-card">
+                            <a href="{{ route('app.beneficiary-profile', $beneficiary->id) }}" wire:navigate class="app-mobile-card">
                                 <strong>{{ $beneficiary->full_name }}</strong>
                                 <div class="app-mobile-meta">
                                     <span>{{ $beneficiary->phone ?? '—' }}</span>
                                     <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
                                 </div>
-                            </article>
+                            </a>
                         @endforeach
                     </div>
                 </section>
             @endif
         </div>
 
-        {{-- Right Column: Side Metrics + Birthdays + Unvisited --}}
         <div class="space-y-6">
             <section class="app-panel">
                 <div class="app-panel-header">
@@ -147,21 +168,26 @@
                     <div class="app-panel-header">
                         <div>
                             <p class="app-section-label">{{ __('web_app.dashboard.today') }}</p>
-                            <h3>&#x1F382; {{ __('web_app.dashboard.birthdays') }}</h3>
+                            <h3>{{ __('web_app.dashboard.birthdays') }}</h3>
                         </div>
                     </div>
 
                     <div class="app-activity-list">
                         @foreach ($todayBirthdays as $beneficiary)
-                            <article class="app-activity-row">
-                                <div>
-                                    <strong>{{ $beneficiary->full_name }}</strong>
-                                    <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
+                            <a href="{{ route('app.beneficiary-profile', $beneficiary->id) }}" wire:navigate class="app-activity-row">
+                                <div class="app-activity-body">
+                                    <span class="app-activity-icon type-birthday">
+                                        <i class="ph ph-cake" aria-hidden="true"></i>
+                                    </span>
+                                    <div>
+                                        <strong>{{ $beneficiary->full_name }}</strong>
+                                        <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
+                                    </div>
                                 </div>
-                                <span class="app-status-pill" style="background:#fef3c7;color:#92400e">
-                                    {{ $beneficiary->birth_date?->format('M d') }}
-                                </span>
-                            </article>
+                                @if ($beneficiary->birth_date)
+                                    <span class="app-status-pill tone-amber">{{ $beneficiary->birth_date->isoFormat('D MMM') }}</span>
+                                @endif
+                            </a>
                         @endforeach
                     </div>
                 </section>
@@ -172,22 +198,25 @@
                     <div class="app-panel-header">
                         <div>
                             <p class="app-section-label">{{ __('web_app.dashboard.attention') }}</p>
-                            <h3>&#x23F0; {{ __('web_app.dashboard.unvisited') }}</h3>
+                            <h3>{{ __('web_app.dashboard.unvisited') }}</h3>
                         </div>
                         <a href="{{ route('app.beneficiaries', ['filter' => 'needs_visit']) }}" wire:navigate>{{ __('web_app.actions.view_all') }}</a>
                     </div>
 
                     <div class="app-activity-list">
                         @foreach ($unvisited as $beneficiary)
-                            <article class="app-activity-row">
-                                <div>
-                                    <strong>{{ $beneficiary->full_name }}</strong>
-                                    <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
+                            <a href="{{ route('app.beneficiary-profile', $beneficiary->id) }}" wire:navigate class="app-activity-row">
+                                <div class="app-activity-body">
+                                    <span class="app-activity-icon type-unvisited">
+                                        <i class="ph ph-clock-countdown" aria-hidden="true"></i>
+                                    </span>
+                                    <div>
+                                        <strong>{{ $beneficiary->full_name }}</strong>
+                                        <span>{{ $beneficiary->serviceGroup?->name ?? '—' }}</span>
+                                    </div>
                                 </div>
-                                <span class="app-status-pill" style="background:#fee2e2;color:#991b1b">
-                                    {{ __('web_app.dashboard.never_visited') }}
-                                </span>
-                            </article>
+                                <span class="app-status-pill tone-rose">{{ __('web_app.dashboard.never_visited') }}</span>
+                            </a>
                         @endforeach
                     </div>
                 </section>
@@ -195,7 +224,6 @@
         </div>
     </div>
 
-    {{-- Visits Chart --}}
     @if ($visitsChart->isNotEmpty())
         <section class="app-panel">
             <div class="app-panel-header">
@@ -203,27 +231,26 @@
                     <p class="app-section-label">{{ __('web_app.dashboard.stats.visits_this_month') }}</p>
                     <h3>{{ __('web_app.dashboard.visits_chart') }}</h3>
                 </div>
-                <span class="text-xs text-gray-400 dark:text-gray-500 font-bold">{{ $visitsChart->sum() }} total</span>
+                <span class="app-chart-total">{{ __('web_app.resources.visits_count', ['count' => $visitsChart->sum()]) }}</span>
             </div>
 
-            <div class="pt-6 pb-4 px-2">
+            <div class="app-chart">
                 @php $max = max(1, max($visitsChart->values()->toArray())); @endphp
-                <div class="space-y-2">
+                <div class="app-chart-bars">
                     @foreach ($visitsChart as $month => $count)
                         @php
                             $pct = ($count / $max) * 100;
                             $barColor = $count >= $max * 0.75 ? '#ef4444' : ($count >= $max * 0.5 ? '#f59e0b' : '#3b82f6');
+                            $monthLabel = \Carbon\Carbon::createFromFormat('Y-m', $month)->isoFormat('MMM');
                         @endphp
-                        <div class="flex items-center gap-3">
-                            <span class="w-12 text-xs font-bold text-gray-500 dark:text-gray-400 text-end flex-shrink-0">
-                                {{ \Carbon\Carbon::createFromFormat('Y-m', $month)->format('M') }}
-                            </span>
-                            <div class="flex-1 h-7 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 relative">
-                                <div class="h-full rounded-lg transition-all duration-500"
-                                     style="width: {{ max(4, $pct) }}%; background: linear-gradient(135deg, {{ $barColor }}, {{ $barColor }}dd);">
+                        <div class="app-chart-bar-group">
+                            <span class="app-chart-label">{{ $monthLabel }}</span>
+                            <div class="app-chart-track">
+                                <div class="app-chart-fill"
+                                     style="width: {{ max(4, $pct) }}%; background: {{ $barColor }}; animation-delay: {{ $loop->index * 0.06 }}s">
                                 </div>
                             </div>
-                            <span class="w-8 text-xs font-bold text-gray-600 dark:text-gray-300 text-end flex-shrink-0">{{ $count }}</span>
+                            <span class="app-chart-value">{{ $count }}</span>
                         </div>
                     @endforeach
                 </div>

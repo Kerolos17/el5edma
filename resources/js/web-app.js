@@ -99,56 +99,6 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// ── Connectivity / offline banner ─────────────────────────────
-
-const PING_URL = '/_pwa/ping';
-let ongoingCheck = null;
-
-function syncOnlineState() {
-    const offlineBanner = document.querySelector('[data-offline-banner]');
-    if (!offlineBanner) return;
-
-    if (ongoingCheck) {
-        ongoingCheck.abort();
-        ongoingCheck = null;
-    }
-
-    const hide = () => offlineBanner.classList.remove('is-visible');
-    const show = () => offlineBanner.classList.add('is-visible');
-
-    if (navigator.onLine) return hide();
-
-    const check = (attempt = 0) => {
-        if (navigator.onLine) return hide();
-
-        const ctrl = new AbortController();
-        ongoingCheck = ctrl;
-        const ttl = attempt === 0 ? 3000 : 6000;
-        const timer = setTimeout(() => ctrl.abort(), ttl);
-
-        fetch(PING_URL, { cache: 'no-store', signal: ctrl.signal })
-            .then(() => { clearTimeout(timer); ongoingCheck = null; hide(); })
-            .catch(() => {
-                clearTimeout(timer); ongoingCheck = null;
-                if (navigator.onLine) return hide();
-                if (attempt === 0) {
-                    setTimeout(() => check(1), 2000);
-                } else {
-                    show();
-                }
-            });
-    };
-
-    check();
-}
-
-let offlineTimer = null;
-window.addEventListener('online', () => { clearTimeout(offlineTimer); syncOnlineState(); });
-window.addEventListener('offline', () => {
-    clearTimeout(offlineTimer);
-    offlineTimer = setTimeout(syncOnlineState, 3000);
-});
-
 // ── PWA install prompt ─────────────────────────────────────────
 
 window.addEventListener('beforeinstallprompt', (event) => {
@@ -168,7 +118,10 @@ document.addEventListener('click', async (event) => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker
+            .register('/sw.js', { updateViaCache: 'none' })
+            .then((reg) => reg.update())
+            .catch(() => {});
     });
 }
 
@@ -177,10 +130,8 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('livewire:navigated', () => {
     restoreTheme();
     observeModals();
-    setTimeout(syncOnlineState, 500);
 });
 
 // Init
 restoreTheme();
 observeModals();
-setTimeout(syncOnlineState, 1000);

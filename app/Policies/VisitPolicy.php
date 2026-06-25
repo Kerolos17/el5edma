@@ -40,7 +40,7 @@ class VisitPolicy
         }
 
         if ($user->role === UserRole::Servant) {
-            return $visit->created_by === $user->id;
+            return $this->servantCanViewVisit($user, $visit);
         }
 
         return false;
@@ -65,15 +65,58 @@ class VisitPolicy
             return true;
         }
 
-        if ($user->role === UserRole::FamilyLeader) {
-            $visit->loadMissing('beneficiary');
+        $visit->loadMissing('beneficiary');
 
+        if ($user->role === UserRole::FamilyLeader) {
             return $visit->beneficiary !== null
                 && $user->service_group_id === $visit->beneficiary->service_group_id;
         }
 
-        // Servants cannot update visits (they can create but not edit)
+        // Servants can update visits they recorded or participated in.
+        if ($user->role === UserRole::Servant) {
+            return $this->servantCanUpdateVisit($user, $visit);
+        }
+
         return false;
+    }
+
+    /**
+     * Determine whether a servant can view a visit.
+     *
+     * Servants may view any visit for beneficiaries in their service group.
+     */
+    private function servantCanViewVisit(User $user, Visit $visit): bool
+    {
+        if ($visit->beneficiary === null) {
+            return false;
+        }
+
+        if ($user->service_group_id === null) {
+            return $visit->created_by === $user->id;
+        }
+
+        return $user->service_group_id === $visit->beneficiary->service_group_id;
+    }
+
+    /**
+     * Determine whether a servant can update a visit.
+     *
+     * Servants may update visits they created or where they are listed as a participant,
+     * provided the visit belongs to a beneficiary in their service group.
+     */
+    private function servantCanUpdateVisit(User $user, Visit $visit): bool
+    {
+        if (! $this->servantCanViewVisit($user, $visit)) {
+            return false;
+        }
+
+        if ($visit->created_by === $user->id) {
+            return true;
+        }
+
+        $visit->loadMissing('servants');
+
+        return $visit->servants->contains('id', $user->id);
     }
 
     /**

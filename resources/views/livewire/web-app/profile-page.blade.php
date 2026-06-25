@@ -94,6 +94,45 @@
                     </div>
                 </div>
             </section>
+
+            {{-- Password Change --}}
+            <section class="app-panel">
+                <div class="app-panel-header">
+                    <div>
+                        <p class="app-section-label">{{ __('web_app.profile.security') }}</p>
+                        <h3>{{ __('web_app.profile.change_password') }}</h3>
+                    </div>
+                </div>
+
+                <form wire:submit="updatePassword">
+                    <div class="app-form-grid">
+                        <div class="app-form-field">
+                            <span>{{ __('web_app.profile.current_password') }}</span>
+                            <input type="password" wire:model="currentPassword" required>
+                            @error('currentPassword') <small>{{ $message }}</small> @enderror
+                        </div>
+
+                        <div class="app-form-field">
+                            <span>{{ __('web_app.profile.new_password') }}</span>
+                            <input type="password" wire:model="newPassword" required minlength="8">
+                            <em>{{ __('web_app.profile.password_hint') }}</em>
+                            @error('newPassword') <small>{{ $message }}</small> @enderror
+                        </div>
+
+                        <div class="app-form-field">
+                            <span>{{ __('web_app.profile.new_password_confirmation') }}</span>
+                            <input type="password" wire:model="newPasswordConfirmation" required minlength="8">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="app-primary-button">
+                            <i class="ph ph-check" aria-hidden="true"></i>
+                            {{ __('web_app.actions.save') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
         </div>
 
         {{-- Photo Card --}}

@@ -3,7 +3,7 @@
     "short_name": "الافتقاد",
     "description": "نظام متكامل لإدارة خدمة الافتقاد والمخدومين",
     "id": "ministry-system-pwa",
-    "start_url": "/admin",
+    "start_url": "/app/dashboard",
     "scope": "/",
     "display": "standalone",
     "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
@@ -74,21 +74,28 @@
             "name": "المخدومين",
             "short_name": "مخدومين",
             "description": "قائمة المخدومين",
-            "url": "/admin/beneficiaries",
+            "url": "/app/beneficiaries",
             "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
         },
         {
             "name": "الزيارات",
             "short_name": "زيارات",
             "description": "سجل الزيارات",
-            "url": "/admin/visits",
+            "url": "/app/visits",
             "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
         },
         {
             "name": "الزيارات المجدولة",
             "short_name": "مجدولة",
             "description": "الزيارات المجدولة القادمة",
-            "url": "/admin/scheduled-visits",
+            "url": "/app/scheduled-visits",
+            "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "الإشعارات",
+            "short_name": "إشعارات",
+            "description": "الإشعارات والتنبيهات",
+            "url": "/app/notifications",
             "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
         }
     ]

@@ -449,6 +449,13 @@ return [
         'personal_code' => 'الكود الشخصي',
         'member_since' => 'عضو منذ',
         'last_login' => 'آخر دخول',
+        'security' => 'الأمان',
+        'change_password' => 'تغيير كلمة المرور',
+        'current_password' => 'كلمة المرور الحالية',
+        'new_password' => 'كلمة المرور الجديدة',
+        'new_password_confirmation' => 'تأكيد كلمة المرور الجديدة',
+        'password_hint' => '8 أحرف على الأقل',
+        'password_updated' => 'تم تغيير كلمة المرور بنجاح.',
     ],
     'notifications' => [
         'title' => 'الإشعارات',
@@ -465,6 +472,8 @@ return [
     ],
     'pwa' => [
         'offline_banner' => 'أنت تعمل بدون اتصال. سيتم استخدام البيانات المحفوظة عندما تكون متاحة.',
+        'retry_connection' => 'إعادة محاولة الاتصال',
+        'dont_show_again' => 'لا تظهر مرة أخرى',
         'install_prompt' => 'تثبيت التطبيق',
     ],
 ];

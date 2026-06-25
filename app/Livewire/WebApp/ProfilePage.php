@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\WebApp;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -21,6 +22,12 @@ class ProfilePage extends Component
     public string $phone = '';
 
     public string $locale = 'ar';
+
+    public string $currentPassword = '';
+
+    public string $newPassword = '';
+
+    public string $newPasswordConfirmation = '';
 
     public mixed $newPhoto = null;
 
@@ -86,6 +93,28 @@ class ProfilePage extends Component
         session(['locale' => $this->locale]);
 
         $this->dispatch('toast', message: __('web_app.toasts.profile_updated'), type: 'success');
+    }
+
+    public function updatePassword(): void
+    {
+        $user = auth()->user();
+
+        $this->validate([
+            'currentPassword' => ['required'],
+            'newPassword' => ['required', 'string', 'min:8', 'confirmed:newPasswordConfirmation'],
+        ]);
+
+        if (! Hash::check($this->currentPassword, $user->password)) {
+            $this->addError('currentPassword', __('auth.password'));
+
+            return;
+        }
+
+        $user->update(['password' => Hash::make($this->newPassword)]);
+
+        $this->reset('currentPassword', 'newPassword', 'newPasswordConfirmation');
+
+        $this->dispatch('toast', message: __('web_app.profile.password_updated'), type: 'success');
     }
 
     public function render(): \Illuminate\View\View

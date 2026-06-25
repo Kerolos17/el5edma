@@ -56,19 +56,24 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table" aria-label="">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th>{{ __('web_app.table.beneficiary') }}</th>
-                        <th>{{ __('web_app.table.date') }}</th>
-                        <th>{{ __('web_app.table.type') }}</th>
-                        <th>{{ __('web_app.table.created_by') }}</th>
-                        <th>{{ __('web_app.table.follow_up') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
+                        <th scope="col">{{ __('web_app.table.date') }}</th>
+                        <th scope="col">{{ __('web_app.table.type') }}</th>
+                        <th scope="col">{{ __('web_app.table.created_by') }}</th>
+                        <th scope="col">{{ __('web_app.table.follow_up') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="6" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td>
@@ -113,6 +118,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    </template>
                 </tbody>
             </table>
         </div>

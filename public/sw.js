@@ -1,4 +1,4 @@
-const CACHE_NAME = "ministry-pwa-v3";
+const CACHE_NAME = "ministry-pwa-v4";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
 
@@ -24,6 +24,7 @@ const STATIC_ASSET_PATTERNS = [
 
 // Paths to never intercept
 const SKIP_PATHS = [
+    "/_pwa/ping",
     "/fcm-token",
     "/login",
     "/logout",

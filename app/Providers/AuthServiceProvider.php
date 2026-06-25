@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\AuditLog;
 use App\Models\Beneficiary;
 use App\Models\MedicalFile;
+use App\Models\Medication;
 use App\Models\MinistryNotification;
 use App\Models\PrayerRequest;
 use App\Models\ScheduledVisit;
@@ -14,6 +15,7 @@ use App\Models\Visit;
 use App\Policies\AuditLogPolicy;
 use App\Policies\BeneficiaryPolicy;
 use App\Policies\MedicalFilePolicy;
+use App\Policies\MedicationPolicy;
 use App\Policies\MinistryNotificationPolicy;
 use App\Policies\PrayerRequestPolicy;
 use App\Policies\ScheduledVisitPolicy;
@@ -33,6 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         AuditLog::class             => AuditLogPolicy::class,
         Beneficiary::class          => BeneficiaryPolicy::class,
         MedicalFile::class          => MedicalFilePolicy::class,
+        Medication::class           => MedicationPolicy::class,
         MinistryNotification::class => MinistryNotificationPolicy::class,
         PrayerRequest::class        => PrayerRequestPolicy::class,
         ScheduledVisit::class       => ScheduledVisitPolicy::class,

@@ -30,19 +30,24 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table" aria-label="">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th>{{ __('web_app.table.title') }}</th>
-                        <th>{{ __('web_app.table.type') }}</th>
-                        <th>{{ __('web_app.table.beneficiary') }}</th>
-                        <th>{{ __('web_app.table.uploaded_by') }}</th>
-                        <th>{{ __('web_app.table.date') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col">{{ __('web_app.table.title') }}</th>
+                        <th scope="col">{{ __('web_app.table.type') }}</th>
+                        <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
+                        <th scope="col">{{ __('web_app.table.uploaded_by') }}</th>
+                        <th scope="col">{{ __('web_app.table.date') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="6" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td><strong>{{ $record->title ?? __('web_app.fallback.no_title') }}</strong></td>
@@ -54,7 +59,7 @@
                                 <div class="app-inline-actions">
                                     <a href="{{ route('medical-files.download', $record->id) }}" class="app-link-inline">
                                         <i class="ph ph-download-simple" aria-hidden="true"></i>
-                                        {{ __('web_app.actions.download') }}
+                                        {{ __('web_app.table.download') }}
                                     </a>
                                 </div>
                             </td>
@@ -66,6 +71,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    </template>
                 </tbody>
             </table>
         </div>

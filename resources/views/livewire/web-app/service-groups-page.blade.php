@@ -30,18 +30,23 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table" aria-label="">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th>{{ __('web_app.table.name') }}</th>
-                        <th>{{ __('web_app.table.leader') }}</th>
-                        <th>{{ __('web_app.table.service_leader') }}</th>
-                        <th>{{ __('web_app.table.status') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col">{{ __('web_app.table.name') }}</th>
+                        <th scope="col">{{ __('web_app.table.leader') }}</th>
+                        <th scope="col">{{ __('web_app.table.service_leader') }}</th>
+                        <th scope="col">{{ __('web_app.table.status') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="5" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td><a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="app-link-inline"><strong>{{ $record->name }}</strong></a></td>
@@ -66,6 +71,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    </template>
                 </tbody>
             </table>
         </div>

@@ -30,19 +30,24 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table" aria-label="">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th>{{ __('web_app.table.beneficiary') }}</th>
-                        <th>{{ __('web_app.table.date') }}</th>
-                        <th>{{ __('web_app.table.time') }}</th>
-                        <th>{{ __('web_app.table.servant') }}</th>
-                        <th>{{ __('web_app.table.status') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
+                        <th scope="col">{{ __('web_app.table.date') }}</th>
+                        <th scope="col">{{ __('web_app.table.time') }}</th>
+                        <th scope="col">{{ __('web_app.table.servant') }}</th>
+                        <th scope="col">{{ __('web_app.table.status') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="6" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td>
@@ -52,7 +57,7 @@
                             <td>{{ optional($record->scheduled_date)->format('Y-m-d') }}</td>
                             <td>{{ optional($record->scheduled_time)->format('H:i') ?? '—' }}</td>
                             <td>{{ $record->assignedServant?->name ?? __('web_app.fallback.unassigned') }}</td>
-                            <td><span class="app-status-pill @switch($record->status) @case('completed') tone-emerald @case('cancelled') tone-rose @default tone-amber @endswitch">{{ __("web_app.states.{$record->status}") }}</span></td>
+                            <td><span class="app-status-pill @switch($record->status) @case('completed') tone-emerald @break @case('cancelled') tone-rose @break @default tone-amber @endswitch">{{ __("web_app.states.{$record->status}") }}</span></td>
                             <td>
                                 <div class="app-inline-actions">
                                     @can('update', $record)
@@ -75,6 +80,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    </template>
                 </tbody>
             </table>
         </div>

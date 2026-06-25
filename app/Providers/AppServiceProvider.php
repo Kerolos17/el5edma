@@ -7,10 +7,16 @@ namespace App\Providers;
 use App\Broadcasting\TestBroadcaster;
 use App\Livewire\NotificationsBell;
 use App\Models\Beneficiary;
+use App\Models\MedicalFile;
+use App\Models\PrayerRequest;
+use App\Models\ScheduledVisit;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Models\Visit;
 use App\Observers\BeneficiaryObserver;
+use App\Observers\MedicalFileObserver;
+use App\Observers\PrayerRequestObserver;
+use App\Observers\ScheduledVisitObserver;
 use App\Observers\ServiceGroupObserver;
 use App\Observers\UserObserver;
 use App\Observers\VisitObserver;
@@ -60,6 +66,9 @@ class AppServiceProvider extends ServiceProvider
         Visit::observe(VisitObserver::class);
         User::observe(UserObserver::class);
         ServiceGroup::observe(ServiceGroupObserver::class);
+        MedicalFile::observe(MedicalFileObserver::class);
+        PrayerRequest::observe(PrayerRequestObserver::class);
+        ScheduledVisit::observe(ScheduledVisitObserver::class);
 
         // تسجيل الـ Livewire component
         Livewire::component(

@@ -15,7 +15,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                     <h2 class="text-xl sm:text-2xl font-bold">{{ $beneficiary->full_name }}</h2>
                     <span class="app-muted-badge">{{ $beneficiary->code ?: __('web_app.fallback.no_code') }}</span>
-                    <span class="app-muted-badge @switch($beneficiary->status) @case('inactive') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @case('suspended') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @default bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 @endswitch">
+                    <span class="app-muted-badge @switch($beneficiary->status) @case('inactive') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @break @case('suspended') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @break @default bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 @endswitch">
                         {{ $beneficiary->status ? __("beneficiaries.{$beneficiary->status}") : __('beneficiaries.active') }}
                     </span>
                 </div>
@@ -92,7 +92,7 @@
             <div class="app-stat-icon"><i class="ph ph-heartbeat" aria-hidden="true"></i></div>
             <div>
                 <p>{{ __('web_app.table.health') }}</p>
-                <span class="app-status-pill mt-1 @switch($beneficiary->health_status) @case('critical') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @case('needs_follow_up') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @default bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 @endswitch">
+                <span class="app-status-pill mt-1 @switch($beneficiary->health_status) @case('critical') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @break @case('needs_follow_up') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @break @default bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 @endswitch">
                     {{ $beneficiary->health_status ? __("visits.{$beneficiary->health_status}") : __('visits.good') }}
                 </span>
             </div>

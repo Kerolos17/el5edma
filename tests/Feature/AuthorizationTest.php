@@ -77,7 +77,7 @@ class AuthorizationTest extends TestCase
     // ── VisitPolicy ──
 
     #[Test]
-    public function servant_can_create_visits_but_not_edit_or_delete(): void
+    public function servant_can_create_visits_and_edit_own_visits_but_not_delete(): void
     {
         $group = ServiceGroup::factory()->create();
 
@@ -94,7 +94,7 @@ class AuthorizationTest extends TestCase
 
         $this->assertTrue($servant->can('create', Visit::class));
         $this->assertTrue($servant->can('view', $visit));
-        $this->assertFalse($servant->can('update', $visit));
+        $this->assertTrue($servant->can('update', $visit));
         $this->assertFalse($servant->can('delete', $visit));
     }
 

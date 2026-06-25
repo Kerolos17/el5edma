@@ -182,7 +182,7 @@ class ResourceActionsTest extends TestCase
     }
 
     #[Test]
-    public function servant_cannot_update_visit_from_web_app(): void
+    public function servant_can_update_own_visit_from_web_app(): void
     {
         $group       = ServiceGroup::factory()->create();
         $servant     = $this->createServant($group);
@@ -192,6 +192,27 @@ class ResourceActionsTest extends TestCase
         $visit = Visit::factory()->create([
             'beneficiary_id' => $beneficiary->id,
             'created_by'     => $servant->id,
+        ]);
+
+        Livewire::actingAs($servant)
+            ->test(VisitsPage::class)
+            ->call('editVisit', $visit->id)
+            ->assertSet('editingVisitId', $visit->id)
+            ->assertSet('showVisitForm', true);
+    }
+
+    #[Test]
+    public function servant_cannot_update_visit_created_by_another_servant(): void
+    {
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
+        $otherServant = $this->createServant($group);
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+        $visit = Visit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'created_by'     => $otherServant->id,
         ]);
 
         Livewire::actingAs($servant)

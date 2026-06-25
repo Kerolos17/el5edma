@@ -70,19 +70,24 @@
     </div>
 
     {{-- Table --}}
-    <div class="app-table-wrap">
-        <table class="app-table" aria-label="">
+    <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="filterAction,filterModel,gotoPage,nextPage,previousPage">
+        <table class="app-table" aria-label="{{ __('audit_logs.title') }}">
             <thead>
                 <tr>
-                    <th>{{ __('users.name') }}</th>
-                    <th>{{ __('audit_logs.model') }}</th>
-                    <th>{{ __('audit_logs.model_id') }}</th>
-                    <th>{{ __('audit_logs.action') }}</th>
-                    <th>{{ __('beneficiaries.created_at') }}</th>
-                    <th>{{ __('web_app.table.actions') }}</th>
+                    <th scope="col">{{ __('users.name') }}</th>
+                    <th scope="col">{{ __('audit_logs.model') }}</th>
+                    <th scope="col">{{ __('audit_logs.model_id') }}</th>
+                    <th scope="col">{{ __('audit_logs.action') }}</th>
+                    <th scope="col">{{ __('beneficiaries.created_at') }}</th>
+                    <th scope="col">{{ __('web_app.table.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
+                <template wire:loading wire:target="filterAction,filterModel,gotoPage,nextPage,previousPage">
+                    <x-web-app.table-skeleton :cols="6" :rows="6" />
+                </template>
+
+                <template wire:loading.remove wire:target="filterAction,filterModel,gotoPage,nextPage,previousPage">
                 @forelse ($records as $log)
                     <tr>
                         <td>
@@ -132,6 +137,7 @@
                         </td>
                     </tr>
                 @endforelse
+                </template>
             </tbody>
         </table>
     </div>
@@ -188,7 +194,7 @@
     {{-- Detail Modal --}}
     @if ($viewingLog)
         <div class="app-modal-backdrop" wire:click.self="closeView"></div>
-        <div class="app-modal-sheet">
+        <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}">
             <div class="app-modal-panel app-modal-panel-wide">
                 <div class="app-modal-header">
                     <h3>{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}</h3>
@@ -267,6 +273,6 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
     @endif
 </section>

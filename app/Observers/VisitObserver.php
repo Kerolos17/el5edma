@@ -94,10 +94,10 @@ class VisitObserver
             return;
         }
 
-        // Forget all period variants so the next request recomputes fresh stats
-        foreach (['week', 'month', 'year'] as $period) {
-            Cache::forget("dashboard:stats:{$userId}:{$period}");
-        }
+        Cache::forget("dashboard:stats:{$userId}");
+        Cache::forget("dashboard:secondary:{$userId}");
+        Cache::forget("dashboard:chart:{$userId}");
+        Cache::forget("dashboard:birthdays:{$userId}");
     }
 
     private function log($model, string $action, ?array $old, ?array $new): void

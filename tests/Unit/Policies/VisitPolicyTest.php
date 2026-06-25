@@ -63,13 +63,20 @@ class VisitPolicyTest extends TestCase
         $this->assertFalse($this->policy->update($fl, $this->visitB));
     }
 
-    public function test_servant_can_create_but_not_update_or_delete(): void
+    public function test_servant_can_create_and_update_own_group_visits_but_not_delete(): void
     {
         $servant = $this->createServant($this->groupA);
+        $ownVisit = Visit::factory()->create([
+            'beneficiary_id' => $this->visitA->beneficiary_id,
+            'created_by'     => $servant->id,
+        ]);
+
         $this->assertTrue($this->policy->viewAny($servant));
         $this->assertTrue($this->policy->create($servant));
+        $this->assertTrue($this->policy->view($servant, $ownVisit));
+        $this->assertTrue($this->policy->update($servant, $ownVisit));
         $this->assertFalse($this->policy->update($servant, $this->visitA));
-        $this->assertFalse($this->policy->delete($servant, $this->visitA));
+        $this->assertFalse($this->policy->delete($servant, $ownVisit));
     }
 
     public function test_servant_view_scoped_to_group(): void
@@ -81,7 +88,7 @@ class VisitPolicyTest extends TestCase
         ]);
 
         $this->assertTrue($this->policy->view($servant, $ownVisit));
-        $this->assertFalse($this->policy->view($servant, $this->visitA));
+        $this->assertTrue($this->policy->view($servant, $this->visitA));
         $this->assertFalse($this->policy->view($servant, $this->visitB));
     }
 }

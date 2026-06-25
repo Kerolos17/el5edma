@@ -28,19 +28,24 @@
             @endif
         </div>
 
-        <div class="app-table-wrap">
-            <table class="app-table" aria-label="">
+        <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
+            <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th>{{ __('web_app.table.title') }}</th>
-                        <th>{{ __('web_app.table.beneficiary') }}</th>
-                        <th>{{ __('web_app.table.created_by') }}</th>
-                        <th>{{ __('web_app.table.date') }}</th>
-                        <th>{{ __('web_app.table.status') }}</th>
-                        <th>{{ __('web_app.table.actions') }}</th>
+                        <th scope="col">{{ __('web_app.table.title') }}</th>
+                        <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
+                        <th scope="col">{{ __('web_app.table.created_by') }}</th>
+                        <th scope="col">{{ __('web_app.table.date') }}</th>
+                        <th scope="col">{{ __('web_app.table.status') }}</th>
+                        <th scope="col">{{ __('web_app.table.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
+                        <x-web-app.table-skeleton :cols="6" :rows="6" />
+                    </template>
+
+                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td>
@@ -52,7 +57,7 @@
                             <td>{{ $record->beneficiary?->full_name ?? '—' }}</td>
                             <td>{{ $record->createdBy?->name ?? '—' }}</td>
                             <td>{{ optional($record->created_at)->format('Y-m-d') }}</td>
-                            <td><span class="app-status-pill @switch($record->status) @case('answered') tone-emerald @case('closed') tone-slate @default tone-blue @endswitch">{{ __("web_app.states.{$record->status}") }}</span></td>
+                            <td><span class="app-status-pill @switch($record->status) @case('answered') tone-emerald @break @case('closed') tone-slate @break @default tone-blue @endswitch">{{ __("web_app.states.{$record->status}") }}</span></td>
                             <td>
                                 <div class="app-inline-actions">
                                     @can('update', $record)
@@ -71,6 +76,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    </template>
                 </tbody>
             </table>
         </div>
@@ -82,7 +88,7 @@
                     <p>{{ $record->beneficiary?->full_name ?? '—' }} · {{ optional($record->created_at)->format('Y-m-d') }}</p>
                     <div class="app-mobile-meta">
                         <span>{{ $record->createdBy?->name ?? '—' }}</span>
-                        <span class="app-status-pill @switch($record->status) @case('answered') tone-emerald @case('closed') tone-slate @default tone-blue @endswitch">{{ __("web_app.states.{$record->status}") }}</span>
+                        <span class="app-status-pill @switch($record->status) @case('answered') tone-emerald @break @case('closed') tone-slate @break @default tone-blue @endswitch">{{ __("web_app.states.{$record->status}") }}</span>
                     </div>
                 </article>
             @empty

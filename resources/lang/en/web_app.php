@@ -449,6 +449,13 @@ return [
         'personal_code' => 'Personal code',
         'member_since' => 'Member since',
         'last_login' => 'Last login',
+        'security' => 'Security',
+        'change_password' => 'Change password',
+        'current_password' => 'Current password',
+        'new_password' => 'New password',
+        'new_password_confirmation' => 'Confirm new password',
+        'password_hint' => 'At least 8 characters',
+        'password_updated' => 'Password updated successfully.',
     ],
     'notifications' => [
         'title' => 'Notifications',
@@ -465,6 +472,8 @@ return [
     ],
     'pwa' => [
         'offline_banner' => 'You are offline. Saved data will be used when available.',
+        'retry_connection' => 'Retry connection',
+        'dont_show_again' => "Don't show again",
         'install_prompt' => 'Install app',
     ],
 ];

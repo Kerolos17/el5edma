@@ -1,7 +1,7 @@
 import "./bootstrap";
 
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 
 const ROOT_SERVICE_WORKER_URL = "/sw.js";
 
@@ -220,7 +220,12 @@ if (!isFirebaseConfigReady) {
 } else {
     try {
         const app = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
+        const supported = await isSupported();
+
+        if (!supported) {
+            console.warn("[app.js] Firebase Messaging is not supported in this browser. Push notifications disabled.");
+        } else {
+            const messaging = getMessaging(app);
 
         // Request Permission and Generate Token
         const requestPermissionAndGetToken = async () => {
@@ -375,6 +380,7 @@ if (!isFirebaseConfigReady) {
                 // Livewire dispatch failed
             }
         });
+        }
     } catch (error) {
         console.error("[app.js] Firebase initialization error:", error);
     }

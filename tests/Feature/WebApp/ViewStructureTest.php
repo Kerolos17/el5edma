@@ -56,9 +56,10 @@ class ViewStructureTest extends TestCase
     public function web_app_shell_exposes_language_and_dark_mode_controls(): void
     {
         $layout = file_get_contents(resource_path('views/web-app/layouts/app.blade.php'));
+        $header = file_get_contents(resource_path('views/components/web-app/header.blade.php'));
 
-        $this->assertStringContainsString('data-theme-toggle', $layout);
-        $this->assertStringContainsString('web-app-language-form', $layout);
+        $this->assertStringContainsString('data-theme-toggle', $header);
+        $this->assertStringContainsString('web-app-language-form', $header);
         $this->assertStringContainsString("app()->getLocale() === 'ar' ? 'rtl' : 'ltr'", $layout);
     }
 
