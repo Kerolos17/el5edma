@@ -215,6 +215,7 @@ const getRootServiceWorkerRegistration = async () => {
 };
 
 // التحقق من وجود الـ config قبل التهيئة
+(async () => {
 if (!isFirebaseConfigReady) {
     console.warn(
         "[app.js] Firebase config is missing or contains placeholder values. Push Notifications will not work.",
@@ -387,6 +388,7 @@ if (!isFirebaseConfigReady) {
         console.error("[app.js] Firebase initialization error:", error);
     }
 }
+})();
 
 // Subscribe to server broadcasts via Echo and forward to Livewire
 document.addEventListener("DOMContentLoaded", () => {
