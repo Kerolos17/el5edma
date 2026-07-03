@@ -1,60 +1,20 @@
 <div
-    x-data="{
-        open: false,
-        muted: localStorage.getItem('servant-notif-muted') === 'true',
-        toggleMute() {
-            this.muted = !this.muted;
-            localStorage.setItem('servant-notif-muted', this.muted);
-        },
-        playSound(mode = 'soft') {
-            if (this.muted) return;
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const patterns = {
-                    soft: [
-                        { at: 0, frequency: 720, duration: 0.12, gain: 0.14 },
-                        { at: 0.18, frequency: 660, duration: 0.16, gain: 0.12 },
-                    ],
-                    alert: [
-                        { at: 0, frequency: 990, duration: 0.16, gain: 0.26 },
-                        { at: 0.2, frequency: 880, duration: 0.18, gain: 0.22 },
-                        { at: 0.44, frequency: 990, duration: 0.22, gain: 0.24 },
-                    ],
-                };
-                for (const note of (patterns[mode] ?? patterns.soft)) {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(note.frequency, ctx.currentTime + note.at);
-                    gain.gain.setValueAtTime(0.0001, ctx.currentTime + note.at);
-                    gain.gain.exponentialRampToValueAtTime(note.gain, ctx.currentTime + note.at + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + note.at + note.duration);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + note.at);
-                    osc.stop(ctx.currentTime + note.at + note.duration + 0.02);
-                }
-                setTimeout(() => ctx.close().catch(() => {}), 2000);
-            } catch (e) {}
-        }
-    }"
-    @new-notification-sound.window="playSound($event.detail || 'soft')"
     class="app-notification-root"
     data-user-id="{{ Auth::id() }}"
     wire:poll.60000ms.visible="loadNotifications">
 
     <button
-        @click="toggleMute()"
         type="button"
-        :title="muted ? '{{ __('notifications.sound_unmute') }}' : '{{ __('notifications.sound_mute') }}'"
-        class="app-notification-mute">
-        <i x-show="!muted" class="ph ph-speaker-high" aria-hidden="true"></i>
-        <i x-show="muted" class="ph ph-speaker-slash" style="display:none;" aria-hidden="true"></i>
+        data-notif-mute
+        class="app-notification-mute"
+        title="{{ __('notifications.sound_unmute') }}">
+        <i class="ph ph-speaker-high" aria-hidden="true" data-notif-sound-on></i>
+        <i class="ph ph-speaker-slash" style="display:none;" aria-hidden="true" data-notif-sound-off></i>
     </button>
 
     <button
-        @click="open = !open"
         type="button"
+        data-notif-toggle
         class="app-notification-bell"
         title="{{ __('notifications.title') }}">
         @if ($unreadCount > 0)
@@ -65,19 +25,9 @@
         @endif
     </button>
 
-    <div x-show="open" @click="open = false" class="app-notification-backdrop" style="display:none;" aria-hidden="true"></div>
+    <div data-notif-backdrop class="app-notification-backdrop" aria-hidden="true"></div>
 
-    <div
-        x-show="open"
-        x-cloak
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 translate-y-1"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 translate-y-1"
-        class="app-notification-panel"
-        style="display:none;">
+    <div data-notif-panel class="app-notification-panel">
 
         <div class="app-notification-header">
             <div>

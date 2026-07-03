@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Livewire\WebApp\Concerns;
 
 use App\Enums\UserRole;
-use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 trait ManagesResourceListing
@@ -24,28 +22,6 @@ trait ManagesResourceListing
         $servantOptions = $this->scheduledVisitServantOptionsQuery()
             ->orderBy('name')
             ->get(['id', 'name', 'service_group_id']);
-
-        if ($this->section === 'reports') {
-            return view('livewire.web-app.placeholder-page', [
-                'meta'                             => $meta,
-                'filters'                          => [],
-                'stats'                            => $this->reportStats($user),
-                'records'                          => collect(),
-                'reportCards'                      => $this->reportCards($user),
-                'beneficiaryOptions'               => $beneficiaryOptions,
-                'servantOptions'                   => $servantOptions,
-                'userRoleOptions'                  => $this->userRoleOptionsForActor($user),
-                'userServiceGroupOptions'          => $this->userServiceGroupOptionsForActor($user),
-                'serviceGroupLeaderOptions'        => $this->serviceGroupLeaderOptions($user),
-                'serviceGroupServiceLeaderOptions' => $this->serviceGroupServiceLeaderOptions($user),
-                'beneficiaryServiceGroupOptions'   => $this->beneficiaryServiceGroupOptions($user),
-                'beneficiaryServantOptions'        => $this->beneficiaryServantOptions($user),
-                'beneficiaryRecordStatusOptions'   => $this->beneficiaryRecordStatusOptions(),
-                'medicalFileTypeOptions'           => $this->medicalFileTypeOptions(),
-                'visitTypeOptions'                 => $this->visitTypeOptions(),
-                'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
-            ]);
-        }
 
         $baseQuery = $this->queryForSection($user);
         $records   = $this->applySort(
@@ -363,69 +339,6 @@ trait ManagesResourceListing
             ],
             default => [],
         };
-    }
-
-    private function reportStats(User $user): array
-    {
-        return [
-            ['label' => __('web_app.stats.available_reports'), 'value' => $this->reportCards($user)->count(), 'tone' => 'blue'],
-            ['label' => __('web_app.stats.scoped_groups'), 'value' => $user->can('viewAny', ServiceGroup::class) ? WebAppScope::serviceGroups($user)->count() : 0, 'tone' => 'emerald'],
-            ['label' => __('web_app.stats.scoped_beneficiaries'), 'value' => WebAppScope::beneficiaries($user)->count(), 'tone' => 'amber'],
-        ];
-    }
-
-    private function reportCards(User $user): Collection
-    {
-        $cards = collect([
-            [
-                'title'       => __('web_app.reports.beneficiaries.title'),
-                'description' => __('web_app.reports.beneficiaries.description'),
-                'route'       => route('reports.beneficiaries.pdf'),
-                'icon'        => 'ph-users-three',
-            ],
-        ]);
-
-        if (! in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader], true)) {
-            return $cards;
-        }
-
-        $cards = $cards->merge([
-            [
-                'title'       => __('web_app.reports.visits.title'),
-                'description' => __('web_app.reports.visits.description'),
-                'route'       => route('reports.visits.pdf'),
-                'icon'        => 'ph-clipboard-text',
-            ],
-            [
-                'title'       => __('web_app.reports.unvisited.title'),
-                'description' => __('web_app.reports.unvisited.description'),
-                'route'       => route('reports.unvisited.pdf'),
-                'icon'        => 'ph-warning-circle',
-            ],
-        ]);
-
-        if (! $user->can('viewAny', ServiceGroup::class)) {
-            return $cards;
-        }
-
-        return $cards->merge(
-            WebAppScope::serviceGroups($user)
-                ->get()
-                ->flatMap(fn (ServiceGroup $group) => [
-                    [
-                        'title'       => __('web_app.reports.service_group.title', ['name' => $group->name]),
-                        'description' => __('web_app.reports.service_group.description'),
-                        'route'       => route('reports.service-group.pdf', $group),
-                        'icon'        => 'ph-tree-structure',
-                    ],
-                    [
-                        'title'       => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
-                        'description' => __('web_app.reports.service_group_beneficiaries.description'),
-                        'route'       => route('reports.service-group.beneficiaries.pdf', $group),
-                        'icon'        => 'ph-users-three',
-                    ],
-                ]),
-        );
     }
 
     private function beneficiaryOptionsQuery(): Builder

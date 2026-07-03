@@ -42,9 +42,15 @@ return [
         'cancel' => 'إلغاء',
         'mark_answered' => 'مستجاب',
         'save' => 'حفظ',
+        'saving' => 'جاري الحفظ...',
+        'back' => 'رجوع',
+        'next' => 'التالي',
+        'clear_selection' => 'إلغاء الاختيار',
         'view' => 'عرض',
         'logout' => 'تسجيل خروج',
         'close' => 'إغلاق',
+        'delete' => 'حذف',
+        'approve' => 'تفعيل',
         'reopen' => 'إعادة فتح',
         'enable' => 'تفعيل',
         'disable' => 'تعطيل',
@@ -64,6 +70,14 @@ return [
         'audit_logs' => 'سجل التعديلات',
         'profile' => 'الملف الشخصي',
     ],
+
+    'nav_groups' => [
+        'overview' => 'اللمحة العامة',
+        'work' => 'الخدمة',
+        'people' => 'المخدومون',
+        'records' => 'السجلات',
+        'system' => 'النظام',
+    ],
     'roles' => [
         'super_admin' => 'مدير النظام',
         'service_leader' => 'أمين الخدمة',
@@ -79,6 +93,7 @@ return [
         'system_readiness' => 'جاهزية النظام',
         'side_metrics' => 'مؤشرات جانبية',
         'critical_cases' => 'حالات حرجة',
+        'critical' => 'حرج',
         'birthdays' => 'أعياد ميلاد اليوم',
         'unvisited' => 'بدون زيارات (30 يوم)',
         'never_visited' => 'بدون زيارة',
@@ -308,6 +323,7 @@ return [
             'beneficiary_name' => 'اسم المخدوم',
             'duration' => 'مثال: 45',
             'medical_file_title' => 'مثال: تقرير متابعة',
+            'search_beneficiary' => 'ابحث بالاسم أو الكود...',
             'optional' => 'اختياري',
             'password_min' => '8 أحرف على الأقل',
             'password_unchanged' => 'اتركها فارغة بدون تغيير',
@@ -330,6 +346,17 @@ return [
         ],
         'medical_file' => [
             'save' => 'حفظ الملف',
+            'max_size' => 'الملفات المسموحة: PDF, JPG, PNG, WEBP, DOC, DOCX. الحد الأقصى :size.',
+        ],
+        'wizard' => [
+            'steps' => 'خطوات المعالج',
+            'step_beneficiary' => 'اختيار المخدوم',
+            'step_type' => 'نوع الزيارة',
+            'step_details' => 'تفاصيل الزيارة',
+            'step_summary' => 'ملخص وتأكيد',
+            'navigation' => 'تنقل المعالج',
+            'confirm_save' => 'تأكيد وحفظ الزيارة',
+            'offline_queued' => 'سيتم رفع الزيارة عند اتصالك بالإنترنت',
         ],
         'prayer' => [
             'save' => 'حفظ الطلب',
@@ -346,6 +373,7 @@ return [
             'edit_title' => 'تعديل مجموعة',
             'active' => 'المجموعة نشطة',
             'save' => 'حفظ المجموعة',
+            'leader_assigned_after_creation' => 'يُعين أمين المجموعة بعد الإنشاء.',
         ],
         'user' => [
             'manage' => 'إدارة مستخدم',
@@ -355,6 +383,7 @@ return [
             'new_password' => 'كلمة مرور جديدة',
             'active' => 'الحساب مفعل',
             'save' => 'حفظ المستخدم',
+            'cannot_edit_own_role' => 'لا يمكنك تعديل دور حسابك.',
         ],
         'visit' => [
             'edit_title' => 'تعديل زيارة',
@@ -373,8 +402,16 @@ return [
             'description' => 'ملخص PDF للزيارات المسجلة.',
         ],
         'unvisited' => [
-            'title' => 'تقرير غير المزورين',
-            'description' => 'إبراز المخدومين الذين يحتاجون متابعة أو زيارة.',
+            'title' => 'غير المزارين',
+            'description' => 'تقرير المخدومين الذين لم تتم زيارتهم',
+        ],
+        'beneficiaries_excel' => [
+            'title' => 'تصدير البيانات (Excel)',
+            'description' => 'تصدير بيانات المخدومين إلى ملف إكسل',
+        ],
+        'visits_excel' => [
+            'title' => 'تصدير الزيارات (Excel)',
+            'description' => 'تصدير بيانات الزيارات إلى ملف إكسل',
         ],
         'service_group' => [
             'title' => 'تقرير :name',
@@ -395,9 +432,13 @@ return [
         'scheduled_visit_updated' => 'تم تحديث الزيارة المجدولة بنجاح.',
         'scheduled_visit_cancelled' => 'تم إلغاء الزيارة المجدولة.',
         'prayer_created' => 'تم حفظ طلب الصلاة.',
+        'prayer_updated' => 'تم تحديث طلب الصلاة.',
         'prayer_answered' => 'تم تعليم طلب الصلاة كمستجاب.',
         'prayer_closed' => 'تم إغلاق طلب الصلاة.',
         'prayer_reopened' => 'تم إعادة فتح طلب الصلاة.',
+        'beneficiary_deleted' => 'تم حذف المخدوم بنجاح.',
+        'visit_deleted' => 'تم حذف الزيارة بنجاح.',
+        'user_deleted' => 'تم حذف المستخدم بنجاح.',
         'medical_file_uploaded' => 'تم رفع الملف الطبي بنجاح.',
         'user_created' => 'تم إنشاء المستخدم بنجاح.',
         'user_updated' => 'تم تحديث المستخدم بنجاح.',
@@ -471,9 +512,7 @@ return [
         ],
     ],
     'pwa' => [
-        'offline_banner' => 'أنت تعمل بدون اتصال. سيتم استخدام البيانات المحفوظة عندما تكون متاحة.',
         'retry_connection' => 'إعادة محاولة الاتصال',
-        'dont_show_again' => 'لا تظهر مرة أخرى',
         'install_prompt' => 'تثبيت التطبيق',
     ],
 ];

@@ -3,7 +3,6 @@
     $isBeneficiary = request()->routeIs('servant.beneficiaries');
     $isVisits      = request()->routeIs('servant.visits');
     $isProfile     = request()->routeIs('servant.profile');
-
     $isScheduledVisits = request()->routeIs('servant.scheduled-visits');
 
     $nav = [
@@ -11,11 +10,13 @@
         ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => 'المخدومون',     'active' => $isBeneficiary],
         ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => 'الزيارات',      'active' => $isVisits],
         ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => 'مجدولة',        'active' => $isScheduledVisits],
+        ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => 'طلبات الصلاة',  'active' => request()->routeIs('servant.prayer-requests')],
+        ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => 'الملفات الطبية','active' => request()->routeIs('servant.medical-files')],
         ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => 'حسابي',         'active' => $isProfile],
     ];
 @endphp
 
-<aside class="hidden lg:flex flex-col fixed top-0 right-0 h-full w-64 z-50 gradient-deep">
+<aside class="hidden lg:flex flex-col fixed top-0 end-0 h-full w-64 z-50 gradient-deep">
     {{-- Logo --}}
     <div class="px-6 py-7 border-b border-white/10">
         <div class="flex items-center gap-3">
@@ -36,7 +37,7 @@
                 <i class="{{ $item['active'] ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-xl flex-shrink-0"></i>
                 <span class="font-semibold text-sm">{{ $item['label'] }}</span>
                 @if($item['active'])
-                    <span class="mr-auto w-1.5 h-1.5 rounded-full bg-gold-300"></span>
+                    <span class="ms-auto w-1.5 h-1.5 rounded-full bg-gold-300"></span>
                 @endif
             </a>
         @endforeach

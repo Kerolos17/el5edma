@@ -73,6 +73,12 @@ class ReportsPage extends PlaceholderPage
                 'route' => route('reports.beneficiaries.pdf'),
                 'icon' => 'ph-users-three',
             ],
+            [
+                'title' => __('web_app.reports.beneficiaries_excel.title'),
+                'description' => __('web_app.reports.beneficiaries_excel.description'),
+                'route' => route('reports.beneficiaries.excel'),
+                'icon' => 'ph-download-simple',
+            ],
         ]);
 
         if (! in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader], true)) {
@@ -85,6 +91,12 @@ class ReportsPage extends PlaceholderPage
                 'description' => __('web_app.reports.visits.description'),
                 'route' => route('reports.visits.pdf'),
                 'icon' => 'ph-clipboard-text',
+            ],
+            [
+                'title' => __('web_app.reports.visits_excel.title'),
+                'description' => __('web_app.reports.visits_excel.description'),
+                'route' => route('reports.visits.excel'),
+                'icon' => 'ph-download-simple',
             ],
             [
                 'title' => __('web_app.reports.unvisited.title'),

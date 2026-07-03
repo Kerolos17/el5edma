@@ -11,6 +11,8 @@ trait ManagesPrayerRequests
 {
     public bool $showPrayerForm = false;
 
+    public ?int $editingPrayerId = null;
+
     public ?int $prayerBeneficiaryId = null;
 
     public string $prayerTitle = '';
@@ -30,6 +32,19 @@ trait ManagesPrayerRequests
         $this->showPrayerForm = true;
     }
 
+    public function editPrayer(int $id): void
+    {
+        $record = WebAppScope::prayerRequests(auth()->user())->whereKey($id)->firstOrFail();
+        abort_unless(auth()->user()->can('update', $record), 403);
+
+        $this->resetPrayerForm();
+        $this->editingPrayerId = $record->id;
+        $this->prayerBeneficiaryId = $record->beneficiary_id;
+        $this->prayerTitle = $record->title;
+        $this->prayerBody = $record->body ?? '';
+        $this->showPrayerForm = true;
+    }
+
     public function closePrayerForm(): void
     {
         $this->showPrayerForm = false;
@@ -38,27 +53,45 @@ trait ManagesPrayerRequests
 
     public function savePrayer(): void
     {
-        abort_unless(auth()->user()->can('create', PrayerRequest::class), 403);
+        $actor = auth()->user();
+        $record = $this->editingPrayerId
+            ? WebAppScope::prayerRequests($actor)->whereKey($this->editingPrayerId)->firstOrFail()
+            : null;
 
-        $data = $this->validate([
-            'prayerBeneficiaryId' => ['required', 'integer'],
+        abort_unless($record ? $actor->can('update', $record) : $actor->can('create', PrayerRequest::class), 403);
+
+        $rules = [
             'prayerTitle' => ['required', 'string', 'max:255'],
             'prayerBody' => ['nullable', 'string', 'max:2000'],
-        ]);
+        ];
 
-        $beneficiary = $this->beneficiaryOptionsQuery()->whereKey($data['prayerBeneficiaryId'])->firstOrFail();
+        if (! $record) {
+            $rules['prayerBeneficiaryId'] = ['required', 'integer'];
+        }
 
-        PrayerRequest::create([
-            'beneficiary_id' => $beneficiary->id,
-            'title' => $data['prayerTitle'],
-            'body' => $data['prayerBody'] ?: null,
-            'status' => 'open',
-            'created_by' => auth()->id(),
-        ]);
+        $data = $this->validate($rules);
+
+        if ($record) {
+            $record->update([
+                'title' => $data['prayerTitle'],
+                'body' => $data['prayerBody'] ?: null,
+            ]);
+            $message = __('web_app.toasts.prayer_updated');
+        } else {
+            $beneficiary = $this->beneficiaryOptionsQuery()->whereKey($data['prayerBeneficiaryId'])->firstOrFail();
+            PrayerRequest::create([
+                'beneficiary_id' => $beneficiary->id,
+                'title' => $data['prayerTitle'],
+                'body' => $data['prayerBody'] ?: null,
+                'status' => 'open',
+                'created_by' => $actor->id,
+            ]);
+            $message = __('web_app.toasts.prayer_created');
+        }
 
         $this->showPrayerForm = false;
         $this->resetPrayerForm();
-        $this->dispatch('toast', message: __('web_app.toasts.prayer_created'), type: 'success');
+        $this->dispatch('toast', message: $message, type: 'success');
     }
 
     public function markPrayerAnswered(int $prayerRequestId): void
@@ -114,6 +147,7 @@ trait ManagesPrayerRequests
     private function resetPrayerForm(): void
     {
         $this->reset([
+            'editingPrayerId',
             'prayerBeneficiaryId',
             'prayerTitle',
             'prayerBody',

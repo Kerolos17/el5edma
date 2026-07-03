@@ -48,6 +48,10 @@ Route::middleware(['web', 'auth'])->prefix('reports')->name('reports.')->group(f
         ->name('service-group.pdf');
     Route::get('/service-group/{serviceGroup}/beneficiaries', [ReportController::class, 'serviceGroupBeneficiariesPdf'])
         ->name('service-group.beneficiaries.pdf');
+    Route::get('/beneficiaries-excel', [ReportController::class, 'beneficiariesExcel'])
+        ->name('beneficiaries.excel');
+    Route::get('/visits-excel', [ReportController::class, 'visitsExcel'])
+        ->name('visits.excel');
 });
 
 Route::middleware(['web', 'auth'])->group(function () {

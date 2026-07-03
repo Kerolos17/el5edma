@@ -1,0 +1,162 @@
+:root {
+  /* ── Palette: DESIGN.md "Warm Home Palette" ── */
+
+  /* Primary surface accents */
+  --clr-calm-blue: #2563eb;
+  --clr-calm-blue-dark: #1d4ed8;
+  --clr-deep-teal: #006D77;
+  --clr-teal-soft: #4D9BA3;
+  --clr-teal-light: #C7E5E8;
+  --clr-warm-gold: #F4A261;
+  --clr-gold-soft: #F7BB86;
+  --clr-gold-light: #FDEBD0;
+
+  /* Neutrals — warm */
+  --clr-warm-cloud: #f6f8fb;
+  --clr-warm-cream: #FFF8F0;
+  --clr-soft-ivory: #FFFBF7;
+  --clr-pure-white: #ffffff;
+  --clr-soft-frost: #f8fafc;
+  --clr-silver-mist: #dbe3ee;
+  --clr-stone-grey: #64748b;
+  --clr-deep-ink: #0f172a;
+  --clr-deep-navy: #2C3E50;
+  --clr-soft-gray: #F5F3F0;
+
+  /* Semantics */
+  --clr-success: #06A77D;
+  --clr-warning: #F77F00;
+  --clr-error: #E63946;
+  --clr-info: #457B9D;
+
+  /* ── Typography ── */
+  --ff-display: 'Amiri', serif;
+  --ff-body: 'Cairo', sans-serif;
+  --ff-accent: 'Tajawal', sans-serif;
+  --ff-mono: 'JetBrains Mono', monospace;
+
+  /* Type scale (minor third 1.2, implicit from existing codebase use) */
+  --text-xs: 0.75rem;    /* ~12px */
+  --text-sm: 0.84rem;    /* ~13px — labels, meta */
+  --text-base: 0.92rem;  /* ~15px — body text */
+  --text-md: 1.1rem;     /* ~18px — small headings */
+  --text-lg: 1.35rem;    /* ~22px — section/panel headings */
+  --text-xl: 1.8rem;     /* ~29px — hero/empty-state */
+  --text-2xl: 2.8rem;    /* ~45px — empty-state icon */
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  --radius-card-servant: 24px;
+
+  /* ── Spacing ── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ── Elevation / Shadows ── */
+  --shadow-card-rest: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 20px 50px rgba(15, 23, 42, 0.09);
+  --shadow-dropdown: 0 12px 36px rgba(15, 23, 42, 0.12);
+  --shadow-modal: 0 24px 70px rgba(15, 23, 42, 0.18);
+  --shadow-servant-card: 0 2px 8px rgba(0,61,66,0.06), 0 8px 24px rgba(0,61,66,0.08);
+  --shadow-servant-card-hover: 0 8px 16px rgba(0,61,66,0.10), 0 16px 48px rgba(0,61,66,0.15);
+
+  /* ── Component Tokens ── */
+  --btn-min-height: 3rem;
+  --btn-radius: 12px;
+  --btn-primary-bg: var(--clr-calm-blue);
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: var(--clr-calm-blue-dark);
+  --btn-secondary-bg: var(--clr-soft-frost);
+  --btn-secondary-text: #1e293b;
+  --btn-secondary-border: var(--clr-silver-mist);
+
+  --nav-item-height: 2.75rem;
+  --nav-item-radius: 12px;
+  --nav-item-text: #475569;
+  --nav-item-hover-bg: #eff6ff;
+  --nav-item-active-bg: #eff6ff;
+  --nav-item-active-text: var(--clr-calm-blue-dark);
+
+  --input-height: 3rem;
+  --input-radius: 0.9rem;
+  --input-bg: var(--clr-soft-frost);
+  --input-border: var(--clr-silver-mist);
+  --input-focus-border: var(--clr-calm-blue);
+
+  --badge-min-height: 1.75rem;
+  --stat-card-radius: 1rem;
+  --stat-card-padding: 1rem;
+}
+
+/* ── Dark Theme Overrides ── */
+[data-theme="dark"] {
+  /* ponytail: expanded dark overrides for web-app + servant wizard */
+  --clr-warm-cloud: #0f172a;
+  --clr-soft-frost: #1e293b;
+  --clr-soft-ivory: #1e293b;
+  --clr-silver-mist: #334155;
+  --clr-pure-white: #1e293b;
+  --clr-deep-ink: #f1f5f9;
+  --clr-stone-grey: #94a3b8;
+  --clr-soft-gray: #1e293b;
+  --btn-secondary-bg: #1e293b;
+  --btn-secondary-text: #e2e8f0;
+  --btn-secondary-border: #334155;
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --nav-item-text: #94a3b8;
+  --nav-item-active-bg: #1e3a5f;
+  --nav-item-active-text: #93c5fd;
+
+  /* wizard / servant semantic dark values */
+  --wizard-surface: #1e293b;
+  --wizard-text: #f1f5f9;
+  --wizard-text-muted: #94a3b8;
+  --wizard-border: #334155;
+  --wizard-surface-inactive: #0f172a;
+  --wizard-teal-primary: #4D9BA3;
+  --wizard-teal-soft: #5FB3BB;
+  --wizard-teal-dark: #003942;
+  --wizard-gold: #F4A261;
+  --wizard-success: #06A77D;
+  --wizard-warning: #F77F00;
+  --wizard-error: #E63946;
+  --wizard-type-home: #4D9BA3;
+  --wizard-type-phone: #5FB3BB;
+  --wizard-type-church: #F4A261;
+}
+
+/* ── Light Theme Defaults for Wizard Tokens ── */
+:root {
+  --wizard-surface: var(--clr-soft-ivory);
+  --wizard-text: var(--clr-deep-ink);
+  --wizard-text-muted: var(--clr-stone-grey);
+  --wizard-border: #E8E4DF;
+  --wizard-surface-inactive: #F5F3F0;
+  --wizard-teal-primary: #006D77;
+  --wizard-teal-soft: #4D9BA3;
+  --wizard-teal-dark: #003942;
+  --wizard-gold: #F4A261;
+  --wizard-success: #06A77D;
+  --wizard-warning: #F77F00;
+  --wizard-error: #E63946;
+  --wizard-type-home: #006D77;
+  --wizard-type-phone: #4D9BA3;
+  --wizard-type-church: #F4A261;
+}

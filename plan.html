@@ -3,1295 +3,1202 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خطة تنفيذ خادم الخاص — Production Plan</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        teal:{100:'#C7E5E8',300:'#4D9BA3',500:'#006D77',700:'#005662',900:'#003942'},
-        gold:{100:'#FDEBD0',300:'#F7BB86',500:'#F4A261',700:'#D68A3D'},
-        cream:'#FFF8F0','warm-white':'#FFFBF7','soft-gray':'#F5F3F0',
-        critical:'#E63946',warning:'#F77F00',success:'#06A77D',info:'#457B9D'
-      },
-      fontFamily:{display:['Amiri','serif'],body:['Cairo','sans-serif'],accent:['Tajawal','sans-serif'],code:['Fira Code','monospace']},
-      borderRadius:{card:'20px',pill:'100px'}
-    }
-  }
-}
-</script>
+<title>Ministry System - خطة تحسين UI/UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Cairo',sans-serif;color:#2C3E50;background:#FFFBF7;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --teal-900:#003942;--teal-700:#005662;--teal-500:#006D77;--teal-300:#4D9BA3;--teal-100:#C7E5E8;
-  --gold-500:#F4A261;--gold-300:#F7BB86;--gold-100:#FDEBD0;
-  --critical:#E63946;--warning:#F77F00;--success:#06A77D;
-  --gradient-deep:linear-gradient(160deg,#006D77 0%,#003942 100%);
+  --warm-bg:oklch(0.975 0.008 80);
+  --warm-surface:oklch(0.96 0.01 78);
+  --warm-card:oklch(0.99 0.005 75);
+  --text-primary:oklch(0.18 0.015 60);
+  --text-secondary:oklch(0.45 0.015 65);
+  --text-muted:oklch(0.6 0.01 70);
+  --accent:oklch(0.55 0.12 200);
+  --accent-light:oklch(0.75 0.08 200);
+  --accent-bg:oklch(0.92 0.04 200);
+  --gold:oklch(0.7 0.12 80);
+  --gold-light:oklch(0.9 0.06 80);
+  --gold-bg:oklch(0.95 0.03 80);
+  --success:oklch(0.6 0.15 150);
+  --warning:oklch(0.7 0.15 80);
+  --error:oklch(0.6 0.2 30);
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px oklch(0 0 0 / 0.06),0 4px 12px oklch(0 0 0 / 0.04);
+  --shadow-lg:0 8px 30px oklch(0 0 0 / 0.08);
+  --transition:200ms ease;
+  --font-arabic:Cairo,'Traditional Arabic',sans-serif;
+  --font-english:Inter,'Segoe UI',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-arabic);
+  background:var(--warm-bg);
+  color:var(--text-primary);
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.english{font-family:var(--font-english);direction:ltr}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.hero{
+  background:linear-gradient(135deg, oklch(0.2 0.025 200) 0%, oklch(0.15 0.02 220) 100%);
+  color:#fff;
+  padding:80px 0 60px;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 30% 50%, oklch(0.5 0.12 200 / 0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, oklch(0.6 0.1 80 / 0.1) 0%, transparent 60%);
+}
+.hero-content{position:relative;z-index:1}
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:oklch(1 0 0 / 0.1);
+  backdrop-filter:blur(8px);
+  border:1px solid oklch(1 0 0 / 0.15);
+  padding:6px 16px;
+  border-radius:100px;
+  font-size:13px;
+  font-weight:500;
+  color:oklch(0.85 0.05 200);
+  margin-bottom:24px;
+}
+.hero h1{
+  font-size:clamp(32px,5vw,56px);
+  font-weight:800;
+  line-height:1.15;
+  margin-bottom:16px;
+  letter-spacing:-0.02em;
+}
+.hero h1 span{color:oklch(0.8 0.12 80)}
+.hero p{
+  font-size:clamp(16px,2vw,20px);
+  color:oklch(0.7 0.02 200);
+  max-width:600px;
+  line-height:1.8;
+  margin-bottom:32px;
+}
+.hero-stats{
+  display:flex;
+  gap:40px;
+  flex-wrap:wrap;
+}
+.hero-stat{}
+.hero-stat-number{
+  font-size:28px;
+  font-weight:800;
+  color:#fff;
+}
+.hero-stat-label{
+  font-size:14px;
+  color:oklch(0.7 0.03 200);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--teal-300);border-radius:3px}
+/* Section */
+.section{padding:60px 0}
+.section-header{margin-bottom:40px}
+.section-tag{
+  display:inline-block;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:8px;
+}
+.section h2{
+  font-size:clamp(24px,3.5vw,36px);
+  font-weight:700;
+  color:var(--text-primary);
+  margin-bottom:8px;
+}
+.section p{
+  color:var(--text-secondary);
+  max-width:600px;
+}
 
-/* Nav */
-.sticky-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,251,247,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,109,119,0.1);transition:all .3s}
+/* Card */
+.card{
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:var(--radius);
+  padding:28px;
+  transition:var(--transition);
+  position:relative;
+}
+.card:hover{box-shadow:var(--shadow-lg);border-color:var(--accent-light)}
 
-/* Hero */
-.hero-bg{background:var(--gradient-deep);position:relative;overflow:hidden}
-.hero-bg::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(60px);animation:float 20s ease-in-out infinite}
-.hero-orb-1{width:400px;height:400px;top:-100px;left:-100px;background:rgba(77,155,163,0.2)}
-.hero-orb-2{width:300px;height:300px;bottom:-50px;right:-50px;background:rgba(244,162,97,0.15);animation-delay:8s}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-20px) scale(1.05)}}
+/* Phase Cards */
+.phase-list{display:flex;flex-direction:column;gap:24px}
+.phase-card{
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:var(--transition);
+}
+.phase-card:hover{box-shadow:var(--shadow-lg);border-color:var(--accent-light)}
+.phase-header{
+  padding:24px 28px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.phase-number{
+  width:40px;height:40px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:16px;
+  flex-shrink:0;
+}
+.phase-card:nth-child(1) .phase-number{background:var(--accent-bg);color:var(--accent)}
+.phase-card:nth-child(2) .phase-number{background:var(--gold-bg);color:var(--gold)}
+.phase-card:nth-child(3) .phase-number{background:oklch(0.92 0.06 150);color:var(--success)}
+.phase-card:nth-child(4) .phase-number{background:oklch(0.92 0.05 280);color:oklch(0.55 0.12 280)}
+.phase-title{
+  flex:1;
+  font-size:18px;
+  font-weight:700;
+}
+.phase-meta{
+  font-size:13px;
+  color:var(--text-muted);
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.phase-chevron{
+  width:24px;height:24px;
+  transition:transform 300ms ease;
+  color:var(--text-muted);
+  flex-shrink:0;
+}
+.phase-card.expanded .phase-chevron{transform:rotate(180deg)}
+.phase-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 400ms ease, padding 400ms ease;
+  padding:0 28px;
+}
+.phase-card.expanded .phase-body{
+  max-height:5000px;
+  padding:0 28px 24px;
+}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px}
+.phase-items li{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+  font-size:15px;
+  line-height:1.6;
+  cursor:default;
+}
+.phase-items li:hover{background:oklch(0.97 0.005 75)}
+.phase-items li.done{color:var(--text-muted);text-decoration:line-through}
+.phase-items li .check{
+  width:20px;height:20px;
+  border:2px solid oklch(0.8 0.01 70);
+  border-radius:4px;
+  flex-shrink:0;
+  margin-top:3px;
+  cursor:pointer;
+  transition:var(--transition);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.phase-items li .check:hover{border-color:var(--accent)}
+.phase-items li .check.checked{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.phase-items li .check.checked::after{
+  content:'✓';
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+}
+.phase-tag{
+  display:inline-block;
+  font-size:11px;
+  font-weight:600;
+  padding:2px 8px;
+  border-radius:4px;
+  margin-left:8px;
+  white-space:nowrap;
+}
+.phase-tag.webapp{background:var(--accent-bg);color:var(--accent)}
+.phase-tag.servant{background:var(--gold-bg);color:var(--gold)}
+.phase-tag.both{background:oklch(0.92 0.04 280);color:oklch(0.5 0.12 280)}
 
-/* Cards */
-.section-card{background:white;border-radius:20px;padding:2rem;box-shadow:0 2px 8px rgba(0,61,66,0.06),0 8px 32px rgba(0,61,66,0.08);transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
-.section-card:hover{transform:translateY(-3px);box-shadow:0 4px 16px rgba(0,61,66,0.1),0 16px 48px rgba(0,61,66,0.15)}
-.section-card .card-accent{position:absolute;top:0;right:0;width:120px;height:120px;border-radius:50%;filter:blur(40px);opacity:0.15;pointer-events:none}
+/* Progress Bar */
+.progress-section{padding:40px 0}
+.progress-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:16px;
+  margin-bottom:32px;
+}
+.progress-card{
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:var(--radius);
+  padding:20px;
+  text-align:center;
+}
+.progress-card .pct{
+  font-size:36px;
+  font-weight:800;
+  color:var(--accent);
+}
+.progress-card .label{
+  font-size:14px;
+  color:var(--text-secondary);
+  margin-top:4px;
+}
+.progress-track{
+  height:6px;
+  background:oklch(0.9 0.01 75);
+  border-radius:3px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.progress-track .fill{
+  height:100%;
+  border-radius:3px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-light));
+  transition:width 600ms ease;
+  width:0%;
+}
 
-/* Phase cards */
-.phase-card{border-right:4px solid;border-radius:12px;padding:1rem 1.25rem;background:white;box-shadow:0 2px 8px rgba(0,61,66,0.05)}
-
-/* Code block */
-.code-block{background:#1a2332;border-radius:12px;padding:1.25rem;font-family:'Fira Code',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;direction:ltr;text-align:left}
-.code-block .kw{color:#7ec8e3}
-.code-block .fn{color:#dfd561}
-.code-block .str{color:#a8d8a8}
-.code-block .cm{color:#6a8a6a}
-.code-block .cl{color:#f7c59f}
-.code-block .op{color:#e0e0e0}
-.code-block .var{color:#c8b8e8}
+/* Visual Concepts */
+.concept-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+  gap:20px;
+}
+.concept-card{
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:var(--transition);
+}
+.concept-card:hover{box-shadow:var(--shadow-lg)}
+.concept-visual{
+  height:200px;
+  background:var(--warm-surface);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.concept-visual .mock{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.concept-visual .mock.sidebar-mock{
+  display:grid;
+  grid-template-columns:80px 1fr;
+  gap:0;
+  padding:0;
+}
+.mock-sidebar{
+  background:oklch(0.2 0.025 200);
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:12px 8px;
+  gap:6px;
+}
+.mock-sidebar-bar{
+  height:6px;
+  border-radius:3px;
+  background:oklch(1 0 0 / 0.15);
+}
+.mock-sidebar-bar:first-child{width:70%;background:var(--accent-light)}
+.mock-sidebar-bar:nth-child(2){width:50%}
+.mock-sidebar-bar:nth-child(3){width:60%}
+.mock-sidebar-bar:nth-child(4){width:40%}
+.mock-main{
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.mock-bar{
+  height:8px;
+  border-radius:4px;
+  background:oklch(0.85 0.01 70);
+}
+.mock-bar:first-child{width:40%;height:12px;background:var(--accent-light)}
+.mock-bar:nth-child(2){width:90%}
+.mock-bar:nth-child(3){width:75%}
+.mock-bar:nth-child(4){width:85%}
+.mock-bar:nth-child(5){width:60%;height:4px;margin-top:4px}
+.card-grid-mock{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  width:100%;
+  padding:16px;
+}
+.card-grid-mock .mc{
+  background:oklch(0.9 0.01 75);
+  border-radius:6px;
+  height:50px;
+}
+.card-grid-mock .mc:nth-child(3){grid-column:1/-1;height:30px}
+.table-mock{
+  width:100%;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.table-row{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:8px;
+}
+.table-row .c{
+  height:10px;
+  border-radius:3px;
+  background:oklch(0.88 0.01 72);
+}
+.table-row.header .c{height:8px;background:oklch(0.8 0.01 68)}
+.concept-body{padding:20px}
+.concept-body h4{
+  font-weight:700;
+  font-size:16px;
+  margin-bottom:6px;
+}
+.concept-body p{
+  font-size:14px;
+  color:var(--text-secondary);
+  line-height:1.6;
+}
+.concept-body .tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 
 /* Timeline */
-.roadmap-line{position:absolute;right:19px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--teal-500),var(--teal-300),rgba(77,155,163,0.1))}
-.roadmap-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Tajawal',sans-serif;font-weight:900;font-size:0.9rem;position:relative;z-index:1;flex-shrink:0}
+.timeline-section{padding:60px 0}
+.timeline{position:relative;padding:0}
+.timeline::before{
+  content:'';
+  position:absolute;
+  right:19px;
+  top:0;
+  bottom:0;
+  width:2px;
+  background:oklch(0.85 0.01 75);
+}
+.timeline-item{
+  position:relative;
+  padding-right:56px;
+  padding-bottom:32px;
+}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot{
+  position:absolute;
+  right:12px;
+  top:4px;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:3px solid var(--accent);
+  background:var(--warm-bg);
+}
+.timeline-item.done .timeline-dot{background:var(--accent)}
+.timeline-item.active .timeline-dot{
+  background:var(--accent);
+  box-shadow:0 0 0 4px var(--accent-bg);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 4px var(--accent-bg)}
+  50%{box-shadow:0 0 0 8px transparent}
+}
+.timeline-content{
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:var(--radius);
+  padding:20px;
+}
+.timeline-content h4{font-weight:700;font-size:16px}
+.timeline-content .date{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-bottom:6px;
+}
+.timeline-content p{font-size:14px;color:var(--text-secondary)}
 
-/* Component tree */
-.tree-node{position:relative;padding-right:1.5rem}
-.tree-node::before{content:'';position:absolute;right:0;top:14px;width:1px;height:calc(100% - 14px);background:rgba(0,109,119,0.15)}
-.tree-item{position:relative;padding:.35rem .75rem;margin:.2rem 0;border-radius:8px;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
-.tree-item::before{content:'─';position:absolute;right:-1.3rem;color:rgba(0,109,119,0.3);font-size:0.8rem}
+/* Before/After */
+.compare-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.compare-card{
+  border-radius:var(--radius);
+  overflow:hidden;
+  border:1px solid oklch(0.85 0.01 75);
+}
+.compare-card .label{
+  padding:10px 16px;
+  font-size:13px;
+  font-weight:600;
+  text-align:center;
+}
+.compare-card.before .label{background:oklch(0.93 0.03 30);color:oklch(0.4 0.1 30)}
+.compare-card.after .label{background:var(--accent-bg);color:var(--accent)}
+.compare-visual{
+  height:180px;
+  background:var(--warm-surface);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+.compare-visual .mock{width:100%;height:100%}
 
-/* Folder tree */
-.folder-tree{font-family:'Fira Code',monospace;font-size:0.82rem;line-height:2;background:#1a2332;border-radius:12px;padding:1.5rem;direction:ltr;text-align:left;overflow-x:auto}
-.folder-tree .dir{color:#7ec8e3}
-.folder-tree .file{color:#ddd}
-.folder-tree .note{color:#6a8a6a}
-.folder-tree .arrow{color:#4D9BA3}
+/* Footer */
+.footer{
+  background:oklch(0.2 0.025 200);
+  color:oklch(0.7 0.02 200);
+  text-align:center;
+  padding:40px 0;
+  font-size:14px;
+}
+.footer strong{color:#fff}
 
-/* Flow diagram */
-.flow-step{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-radius:12px;background:rgba(0,109,119,0.04);border:1px solid rgba(0,109,119,0.08);margin-bottom:.5rem}
-.flow-arrow{text-align:center;color:var(--teal-300);font-size:1.2rem;margin:.25rem 0}
+/* Nav */
+.topnav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:oklch(1 0 0 / 0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid oklch(0.88 0.01 75);
+}
+.topnav-inner{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  height:56px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.topnav-inner::-webkit-scrollbar{display:none}
+.topnav-link{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text-secondary);
+  text-decoration:none;
+  white-space:nowrap;
+  padding:4px 0;
+  border-bottom:2px solid transparent;
+  transition:var(--transition);
+}
+.topnav-link:hover,.topnav-link.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-/* Checklist */
-.check-item{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .75rem;border-radius:8px;transition:background .2s}
-.check-item:hover{background:rgba(0,109,119,0.04)}
-.check-item i{margin-top:2px;flex-shrink:0}
+/* Languages toggle */
+.lang-toggle{
+  position:fixed;
+  top:16px;
+  left:24px;
+  z-index:101;
+  display:flex;
+  gap:2px;
+  background:var(--warm-card);
+  border:1px solid oklch(0.85 0.01 75);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.lang-btn{
+  border:none;
+  background:none;
+  padding:6px 12px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:var(--font-arabic);
+  color:var(--text-muted);
+  transition:var(--transition);
+}
+.lang-btn.active{background:var(--accent);color:#fff}
+.lang-btn:not(.active):hover{color:var(--text-primary)}
 
-/* Warning box */
-.warn-box{border-right:4px solid;border-radius:12px;padding:1rem 1.25rem}
-
-/* Pill badge */
-.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:100px;font-size:.78rem;font-weight:700}
-
-/* Animations */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
-/* Section heading accent */
-.section-num{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Tajawal',sans-serif;font-weight:900;font-size:1.1rem;flex-shrink:0}
-
+/* Responsive */
 @media(max-width:768px){
-  .section-card{padding:1.25rem}
-  .hero-text{font-size:2rem !important}
+  .hero{padding:60px 0 40px}
+  .hero-stats{gap:24px}
+  .phase-header{padding:16px 20px;flex-wrap:wrap}
+  .phase-body{padding:0 20px}
+  .phase-card.expanded .phase-body{padding:0 20px 16px}
+  .compare-grid{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+  .lang-toggle{top:8px;left:12px}
+  .lang-btn{padding:4px 8px;font-size:12px}
+}
+@media print{
+  .lang-toggle,.phase-chevron{display:none}
+  .phase-body{max-height:none !important;padding:0 28px 24px !important}
+  .card,.phase-card,.concept-card,.timeline-content,.compare-card{break-inside:avoid}
 }
 </style>
 </head>
 <body>
 
-<!-- Sticky Nav -->
-<nav class="sticky-nav">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:var(--gradient-deep)">
-        <i class="ph-duotone ph-hand-heart text-white text-base"></i>
-      </div>
-      <span class="font-display font-bold text-teal-900 text-base">خطة التنفيذ</span>
-    </div>
-    <div class="hidden md:flex items-center gap-1 text-xs font-body">
-      <a href="#analysis" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">التحليل</a>
-      <a href="#architecture" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">المعمارية</a>
-      <a href="#structure" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">الهيكل</a>
-      <a href="#wizard" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">Wizard</a>
-      <a href="#performance" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">الأداء</a>
-      <a href="#pwa" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">PWA</a>
-      <a href="#roadmap" class="px-3 py-1.5 rounded-lg hover:bg-teal-50 text-teal-700 transition-colors">الخارطة</a>
-    </div>
-    <span class="pill" style="background:rgba(0,109,119,0.1);color:var(--teal-700)"><i class="ph-duotone ph-calendar-blank"></i> 20 يوم تنفيذ</span>
+<div class="lang-toggle" id="langToggle">
+  <button class="lang-btn active" data-lang="ar" onclick="switchLang('ar')">AR</button>
+  <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+</div>
+
+<nav class="topnav">
+  <div class="container topnav-inner">
+    <a href="#overview" class="topnav-link active" data-ar="نظرة عامة" data-en="Overview">نظرة عامة</a>
+    <a href="#phases" class="topnav-link" data-ar="مراحل التنفيذ" data-en="Phases">مراحل التنفيذ</a>
+    <a href="#concepts" class="topnav-link" data-ar="تصورات بصرية" data-en="Concepts">تصورات بصرية</a>
+    <a href="#timeline" class="topnav-link" data-ar="جدول زمني" data-en="Timeline">جدول زمني</a>
+    <a href="#compare" class="topnav-link" data-ar="قبل وبعد" data-en="Compare">قبل وبعد</a>
   </div>
 </nav>
 
-<!-- Hero -->
-<section class="hero-bg pt-28 pb-20 px-4">
-  <div class="hero-orb hero-orb-1"></div>
-  <div class="hero-orb hero-orb-2"></div>
-  <div class="max-w-4xl mx-auto text-center relative z-10">
-    <span class="pill mb-4 inline-flex" style="background:rgba(244,162,97,0.2);color:#F7BB86">
-      <i class="ph-duotone ph-blueprint"></i> Production Execution Plan
-    </span>
-    <h1 class="font-display text-5xl md:text-6xl text-white font-bold leading-tight mb-4 hero-text">
-      خطة تحويل
-      <span style="color:var(--gold-300)">hot.html</span>
-      <br>إلى نظام إنتاجي كامل
+<section class="hero" id="overview">
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span data-ar="🎯 خطة شاملة" data-en="🎯 Comprehensive Plan">🎯 خطة شاملة</span>
+    </div>
+    <h1 data-ar="خطة تحسين <span>UI/UX</span> الشاملة" data-en="Complete <span>UI/UX</span> Improvement Plan">
+      خطة تحسين <span>UI/UX</span> الشاملة
     </h1>
-    <p class="font-body text-teal-100 text-lg max-w-2xl mx-auto leading-relaxed mb-10">
-      Laravel 12 + Livewire 3 + Blade Design System + PWA — من الصفر للإنتاج في 20 يوم
+    <p data-ar="نحو واجهة أكثر هدوءاً واحترافية وحداثة لنظام الخدمة. خطة متكاملة تغطي نظام الألوان، الخطوط، التخطيط، إمكانية الوصول، وتحسين تجربة المستخدم عبر جميع الشاشات والأجهزة." data-en="Toward a calmer, more professional, and modern interface for the Ministry System. A comprehensive plan covering color systems, typography, layout, accessibility, and user experience improvements across all surfaces and devices.">
+      نحو واجهة أكثر هدوءاً واحترافية وحداثة لنظام الخدمة. خطة متكاملة تغطي نظام الألوان، الخطوط، التخطيط، إمكانية الوصول، وتحسين تجربة المستخدم عبر جميع الشاشات والأجهزة.
     </p>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-      <div class="bg-white/10 rounded-2xl p-4 text-center">
-        <p class="font-accent text-3xl font-black text-white">9</p>
-        <p class="font-body text-xs text-teal-100">Livewire Components</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-number">٤</div>
+        <div class="hero-stat-label" data-ar="مراحل رئيسية" data-en="Main Phases">مراحل رئيسية</div>
       </div>
-      <div class="bg-white/10 rounded-2xl p-4 text-center">
-        <p class="font-accent text-3xl font-black text-white">13</p>
-        <p class="font-body text-xs text-teal-100">UI Blade Components</p>
+      <div class="hero-stat">
+        <div class="hero-stat-number">١٦</div>
+        <div class="hero-stat-label" data-ar="بند تنفيذي" data-en="Execution Items">بند تنفيذي</div>
       </div>
-      <div class="bg-white/10 rounded-2xl p-4 text-center">
-        <p class="font-accent text-3xl font-black text-white">8</p>
-        <p class="font-body text-xs text-teal-100">Phases</p>
+      <div class="hero-stat">
+        <div class="hero-stat-number">٨</div>
+        <div class="hero-stat-label" data-ar="أسابيع تقريباً" data-en="Weeks Estimated">أسابيع تقريباً</div>
       </div>
-      <div class="bg-white/10 rounded-2xl p-4 text-center">
-        <p class="font-accent text-3xl font-black text-white">4</p>
-        <p class="font-body text-xs text-teal-100">خطوات Wizard</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<main class="max-w-6xl mx-auto px-4 py-12 space-y-12">
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 1: UI ANALYSIS -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="analysis" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:var(--gradient-deep)">1</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">تحليل واجهة hot.html</h2>
-      <p class="font-body text-sm text-gray-400">Reverse Engineering كامل للـ Prototype</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <!-- Layout System -->
-    <div class="section-card reveal">
-      <div class="card-accent" style="background:var(--teal-500)"></div>
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-layout text-teal-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">نظام الـ Layout</h3>
-      </div>
-      <div class="space-y-3 text-sm font-body">
-        <div class="bg-soft-gray rounded-xl p-4">
-          <p class="font-bold text-teal-700 mb-2 text-xs uppercase tracking-wide">Mobile &lt; 1024px</p>
-          <div class="space-y-1 text-gray-600">
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-teal-400"></i> Header sticky + glassmorphism blur(20px)</div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-teal-400"></i> Main content: <code class="bg-white px-1 rounded text-xs">padding-bottom: 100px</code></div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-teal-400"></i> Bottom Nav: fixed + rounded-top + safe-area</div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-teal-400"></i> FAB مرتفع -28px فوق الـ Nav</div>
-          </div>
-        </div>
-        <div class="bg-soft-gray rounded-xl p-4">
-          <p class="font-bold text-teal-700 mb-2 text-xs uppercase tracking-wide">Desktop ≥ 1024px</p>
-          <div class="space-y-1 text-gray-600">
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-gold-500"></i> Sidebar ثابتة يمين (RTL): w-64</div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-gold-500"></i> Main: <code class="bg-white px-1 rounded text-xs">lg:mr-64</code></div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-gold-500"></i> Bottom Nav مخفية تماماً</div>
-            <div class="flex items-center gap-2"><i class="ph-duotone ph-dot text-gold-500"></i> FAB يصبح زر في الـ Sidebar</div>
-          </div>
-        </div>
-        <div class="bg-teal-50 rounded-xl p-3 border border-teal-100">
-          <p class="text-xs text-teal-700"><i class="ph-duotone ph-info text-teal-500 ml-1"></i><strong>3 Organic Shapes</strong> — blobs ضبابية متحركة (18s/22s/25s) في z-index 0 خلف كل المحتوى</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- UI Components -->
-    <div class="section-card reveal">
-      <div class="card-accent" style="background:var(--gold-500)"></div>
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-squares-four text-gold-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">مكتبة UI Components</h3>
-      </div>
-      <div class="grid grid-cols-2 gap-2 text-xs font-body">
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-chart-bar text-teal-500"></i><span>StatCard (gradient + glow)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-tag text-teal-500"></i><span>BadgePill (4 variants)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-pill text-teal-500"></i><span>RadioChip (single/multi)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-magnifying-glass text-teal-500"></i><span>SearchInput (RTL focus)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-user-circle text-teal-500"></i><span>Avatar (gold ring)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-timeline text-teal-500"></i><span>TimelineItem (pulse dot)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-card text-teal-500"></i><span>BeneficiaryCard</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-arrow-up text-teal-500"></i><span>BottomSheet Modal</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-bell text-teal-500"></i><span>Toast (slide + dismiss)</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-circles-four text-teal-500"></i><span>StepIndicator</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-ghost text-teal-500"></i><span>EmptyState</span>
-        </div>
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-soft-gray">
-          <i class="ph-duotone ph-plus-circle text-teal-500"></i><span>FAB Button (ripple)</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- State Variables -->
-    <div class="section-card reveal">
-      <div class="card-accent" style="background:var(--info)"></div>
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-database text-info text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">State Variables المستخرجة</h3>
-      </div>
-      <div class="code-block text-xs">
-<span class="cm">// JS State في hot.html → Livewire Properties</span>
-<br><br><span class="kw">let</span> <span class="var">currentTab</span>         <span class="op">=</span> <span class="str">'dashboard'</span>   <span class="cm">// → wire:navigate routes</span>
-<br><span class="kw">let</span> <span class="var">currentFilter</span>      <span class="op">=</span> <span class="str">'all'</span>         <span class="cm">// → public string $filter</span>
-<br><span class="kw">let</span> <span class="var">currentVisitStep</span>   <span class="op">=</span> <span class="op">1</span>             <span class="cm">// → public int $step</span>
-<br><span class="kw">let</span> <span class="var">selectedBeneficiary</span><span class="op">=</span> <span class="kw">null</span>          <span class="cm">// → public ?int $beneficiaryId</span>
-<br><span class="kw">let</span> <span class="var">selectedVisitType</span>  <span class="op">=</span> <span class="kw">null</span>          <span class="cm">// → public string $visitType</span>
-<br><span class="kw">let</span> <span class="var">selectedHealth</span>     <span class="op">=</span> <span class="kw">null</span>          <span class="cm">// → public string $healthStatus</span>
-<br><span class="kw">let</span> <span class="var">selectedSpiritual</span>  <span class="op">=</span> []            <span class="cm">// → public array $spiritualNeeds</span>
-      </div>
-    </div>
-
-    <!-- Animations -->
-    <div class="section-card reveal">
-      <div class="card-accent" style="background:var(--success)"></div>
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-sparkle text-success text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">الأنيميشن والتفاعلات</h3>
-      </div>
-      <div class="space-y-2 text-sm font-body">
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(6,167,125,0.1);color:var(--success)">revealUp</span>
-          <span class="text-gray-600">كل Card تدخل من تحت (opacity 0→1, translateY 30→0) مع staggered delay</span>
-        </div>
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(6,167,125,0.1);color:var(--success)">card-lift</span>
-          <span class="text-gray-600">hover: translateY(-4px) scale(1.01) + shadow أعمق</span>
-        </div>
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(230,57,70,0.1);color:var(--critical)">pulseRing</span>
-          <span class="text-gray-600">badge-pulse على الحالات الحرجة — box-shadow يتمدد ويختفي</span>
-        </div>
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(244,162,97,0.15);color:var(--gold-700)">pulseDot</span>
-          <span class="text-gray-600">timeline dots — box-shadow يتأرجح بلون ذهبي</span>
-        </div>
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">btn-ripple</span>
-          <span class="text-gray-600">::after pseudo يتمدد دائرياً على النقر</span>
-        </div>
-        <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-soft-gray transition-colors">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">floatShape</span>
-          <span class="text-gray-600">3 blobs عضوية تتحرك ببطء (18-25s) في الخلفية</span>
-        </div>
-        <div class="mt-2 p-3 rounded-lg bg-amber-50 border border-amber-100 text-xs text-amber-700">
-          <i class="ph-duotone ph-info ml-1"></i>كل الأنيميشنات تُلغى تلقائياً عند <code>prefers-reduced-motion</code>
-        </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number">WCAG AAA</div>
+        <div class="hero-stat-label" data-ar="مستهدف الوصول" data-en="Target Accessibility">مستهدف الوصول</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 2: PRODUCT FLOWS -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#F4A261,#E76F51)">2</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">Product Flows الأساسية</h2>
-      <p class="font-body text-sm text-gray-400">رحلات المستخدم المستخرجة من الـ Prototype</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <!-- Dashboard Flow -->
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
-          <i class="ph-duotone ph-house text-teal-500"></i>
-        </div>
-        <h3 class="font-body font-bold text-teal-900">Dashboard — لوحة التحكم</h3>
+<section class="progress-section">
+  <div class="container">
+    <div class="progress-grid">
+      <div class="progress-card">
+        <div class="pct" id="pct1">0%</div>
+        <div class="label" data-ar="تم الإنجاز" data-en="Completed">تم الإنجاز</div>
+        <div class="progress-track"><div class="fill" id="fill1"></div></div>
       </div>
-      <div class="space-y-1 text-sm font-body">
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">1</span>
-          <span class="text-gray-600">Header: تحية شخصية + badge إشعارات غير مقروءة (badge-pulse)</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">2</span>
-          <span class="text-gray-600">4 StatCards تدخل بـ stagger: مخدوميّ / زيارات الشهر / يحتاجون متابعة / متأخرة</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">3</span>
-          <span class="text-gray-600">قائمة "محتاجين متابعة عاجلة" — critical + needs-followup مع WhatsApp button</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">4</span>
-          <span class="text-gray-600">Timeline آخر 3 زيارات — كل عنصر: avatar + اسم + نوع + صحة + ملاحظات</span>
-        </div>
-        <div class="mt-2 p-3 rounded-lg bg-teal-50 text-xs text-teal-700 border border-teal-100">
-          <strong>الهدف:</strong> الخادم يعرف في &lt;5 ثواني: مين محتاج منه دلوقتي
-        </div>
+      <div class="progress-card">
+        <div class="pct" id="pctWeb">0%</div>
+        <div class="label" data-ar="تطبيق الويب" data-en="Web App">تطبيق الويب</div>
+        <div class="progress-track"><div class="fill" id="fillWeb" style="background:linear-gradient(90deg, oklch(0.55 0.12 200), oklch(0.75 0.08 200))"></div></div>
       </div>
-    </div>
-
-    <!-- Beneficiaries Flow -->
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <div class="w-8 h-8 rounded-lg bg-gold-100 flex items-center justify-center">
-          <i class="ph-duotone ph-users text-gold-700"></i>
-        </div>
-        <h3 class="font-body font-bold text-teal-900">المخدومين — Browse + Filter</h3>
+      <div class="progress-card">
+        <div class="pct" id="pctServant">0%</div>
+        <div class="label">Servant Panel</div>
+        <div class="progress-track"><div class="fill" id="fillServant" style="background:linear-gradient(90deg, var(--gold), oklch(0.75 0.1 80))"></div></div>
       </div>
-      <div class="space-y-1 text-sm font-body">
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-gold-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">1</span>
-          <span class="text-gray-600">Search input — فلترة فورية بالاسم أثناء الكتابة (debounce 300ms)</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-gold-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">2</span>
-          <span class="text-gray-600">Filter chips: الكل / نشط / يحتاج متابعة / خطر</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-gold-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">3</span>
-          <span class="text-gray-600">Grid cards: 1 عمود mobile / 2 md / 3 desktop</span>
-        </div>
-        <div class="flow-step">
-          <span class="w-6 h-6 rounded-full bg-gold-500 text-white text-xs flex items-center justify-center font-accent font-bold flex-shrink-0">4</span>
-          <span class="text-gray-600">Actions per card: [WhatsApp] [السجل] [+ زيارة → يفتح Wizard مع pre-select]</span>
-        </div>
-        <div class="mt-2 p-3 rounded-lg bg-amber-50 text-xs text-amber-700 border border-amber-100">
-          <strong>مهم:</strong> الـ "زيارة" button يفتح الـ Wizard مع skip لـ Step 1 تلقائياً
-        </div>
-      </div>
-    </div>
-
-    <!-- Visit Wizard Flow -->
-    <div class="section-card reveal md:col-span-2">
-      <div class="flex items-center gap-2 mb-6">
-        <div class="w-8 h-8 rounded-lg bg-critical/10 flex items-center justify-center">
-          <i class="ph-duotone ph-plus-circle text-critical"></i>
-        </div>
-        <h3 class="font-body font-bold text-teal-900">تسجيل الزيارة — Critical Flow (4 خطوات)</h3>
-        <span class="pill mr-auto" style="background:rgba(230,57,70,0.1);color:var(--critical)">أهم Flow في النظام</span>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="rounded-2xl p-4 text-center" style="background:rgba(0,109,119,0.06);border:2px solid rgba(0,109,119,0.15)">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-accent font-black" style="background:var(--gradient-deep)">1</div>
-          <p class="font-body font-bold text-teal-900 text-sm mb-1">المخدوم</p>
-          <p class="text-xs text-gray-400">قائمة قابلة للبحث<br>max-h-52 scroll</p>
-          <p class="text-xs font-bold text-critical mt-2">Required</p>
-        </div>
-        <div class="rounded-2xl p-4 text-center" style="background:rgba(244,162,97,0.08);border:2px solid rgba(244,162,97,0.2)">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-accent font-black" style="background:linear-gradient(135deg,#F4A261,#E76F51)">2</div>
-          <p class="font-body font-bold text-teal-900 text-sm mb-1">نوع الزيارة</p>
-          <p class="text-xs text-gray-400">منزلية / كنسية<br>هاتفية / مستشفى</p>
-          <p class="text-xs font-bold text-critical mt-2">Required</p>
-        </div>
-        <div class="rounded-2xl p-4 text-center" style="background:rgba(6,167,125,0.06);border:2px solid rgba(6,167,125,0.15)">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-accent font-black" style="background:linear-gradient(135deg,#06A77D,#04C99E)">3</div>
-          <p class="font-body font-bold text-teal-900 text-sm mb-1">التفاصيل</p>
-          <p class="text-xs text-gray-400">صحة + روحية (multi)<br>+ ملاحظات</p>
-          <p class="text-xs font-bold text-critical mt-2">Health: Required</p>
-        </div>
-        <div class="rounded-2xl p-4 text-center" style="background:rgba(69,123,157,0.06);border:2px solid rgba(69,123,157,0.15)">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 text-white font-accent font-black" style="background:linear-gradient(135deg,#457B9D,#6BA3C7)">4</div>
-          <p class="font-body font-bold text-teal-900 text-sm mb-1">الملخص</p>
-          <p class="text-xs text-gray-400">مراجعة read-only<br>ثم تأكيد</p>
-          <p class="text-xs font-bold text-success mt-2">→ DB + Observer</p>
-        </div>
+      <div class="progress-card">
+        <div class="pct" id="pctAccess">0%</div>
+        <div class="label" data-ar="إمكانية الوصول" data-en="Accessibility">إمكانية الوصول</div>
+        <div class="progress-track"><div class="fill" id="fillAccess" style="background:linear-gradient(90deg, var(--success), oklch(0.7 0.12 150))"></div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 3: ARCHITECTURE -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="architecture" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#457B9D,#6BA3C7)">3</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">System Architecture</h2>
-      <p class="font-body text-sm text-gray-400">كيف تُحوَّل الـ Prototype لنظام Livewire حقيقي</p>
+<section class="section" id="phases">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" data-ar="الخطة" data-en="Plan">الخطة</div>
+      <h2 data-ar="مراحل التنفيذ" data-en="Execution Phases">مراحل التنفيذ</h2>
+      <p data-ar="اضغط على كل مرحلة لعرض التفاصيل. استخدم مربعات الاختيار لتتبع التقدم." data-en="Click each phase to expand details. Use checkboxes to track progress.">
+        اضغط على كل مرحلة لعرض التفاصيل. استخدم مربعات الاختيار لتتبع التقدم.
+      </p>
+    </div>
+
+    <div class="phase-list" id="phaseList">
+
+      <!-- Phase 1 -->
+      <div class="phase-card expanded" data-phase="1">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-number">١</div>
+          <div class="phase-title" data-ar="نظام التصميم الأساسي" data-en="Design System Foundation">نظام التصميم الأساسي</div>
+          <div class="phase-meta">
+            <span data-ar="٣-٤ أيام" data-en="3-4 days">٣-٤ أيام</span>
+          </div>
+          <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="phase-body">
+          <ul class="phase-items">
+            <li onclick="toggleCheck(this)" class="checked">
+              <span class="check"></span>
+              <span><strong data-ar="دمج أنظمة الألوان" data-en="Unify color systems">دمج أنظمة الألوان</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- إنشاء طبقة رموز موحدة (design tokens) تجمع بين Web App و Servant. استبدال <code>app-ink</code> و <code>servant-teal</code> بلوحة دافئة واحدة: محايد دافئ، أساسي (teal هادئ أو أزرق دافئ)، لون إضافي (ذهبي/عنبري)، وألوان دلالية." data-en="Create a unified token layer merging Web App and Servant palettes. Replace app-ink and servant-teal with one warm palette: warm neutral base, one primary (muted teal or warm blue), one accent (gold/amber), semantic colors.">
+              - إنشاء طبقة رموز موحدة (design tokens) تجمع بين Web App و Servant. استبدال <code>app-ink</code> و <code>servant-teal</code> بلوحة دافئة واحدة: محايد دافئ، أساسي (teal هادئ أو أزرق دافئ)، لون إضافي (ذهبي/عنبري)، وألوان دلالية.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="تحديد استراتيجية الألوان" data-en="Define color strategy">تحديد استراتيجية الألوان</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- استخدام استراتيجية Restrained كأساس (محايد دافئ + لمسة من اللون الأساسي) مع سماح بلحظات Committed (لوحات تشبع في لوحات المعلومات والتقارير)." data-en="Restrained strategy as default (warm neutral + subtle accent) with Committed moments allowed (saturated color in dashboards, reports).">
+              - استخدام استراتيجية Restrained كأساس (محايد دافئ + لمسة من اللون الأساسي) مع سماح بلحظات Committed (لوحات تشبع في لوحات المعلومات والتقارير).</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="توحيد مكونات UI" data-en="Standardize UI components">توحيد مكونات UI</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- جرد جميع المكونات والتأكد من أن لكل منها حالات: default, hover, focus-visible, active, disabled, loading. إنشاء مكتبة مكونات مشتركة." data-en="Audit all components for state coverage (default, hover, focus-visible, active, disabled, loading). Build shared component library.">
+              - جرد جميع المكونات والتأكد من أن لكل منها حالات: default, hover, focus-visible, active, disabled, loading. إنشاء مكتبة مكونات مشتركة.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="توحيد الخطوط والمقاييس" data-en="Unify typography and scales">توحيد الخطوط والمقاييس</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- مقياس خط واحد بنسبة ≥١.٢٥ بين الدرجات. Cairo للعربية، Inter/System للعناوين الإنجليزية. توحيد border-radius والظلال والتباعد." data-en="Single scale ratio ≥1.25 between steps. Cairo for Arabic, Inter/System for English. Standardize radii, shadows, spacing.">
+              - مقياس خط واحد بنسبة ≥١.٢٥ بين الدرجات. Cairo للعربية، Inter/System للعناوين الإنجليزية. توحيد border-radius والظلال والتباعد.</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-card" data-phase="2">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-number">٢</div>
+          <div class="phase-title" data-ar="تحسينات الواجهة والتجربة" data-en="Visual & UX Refinement">تحسينات الواجهة والتجربة</div>
+          <div class="phase-meta">
+            <span data-ar="٣-٤ أيام" data-en="3-4 days">٣-٤ أيام</span>
+          </div>
+          <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="phase-body">
+          <ul class="phase-items">
+            <li onclick="toggleCheck(this)" class="checked">
+              <span class="check"></span>
+              <span><strong data-ar="تخفيف وتدفئة تطبيق الويب" data-en="Lighten and warm the Web App">تخفيف وتدفئة تطبيق الويب</strong> <span class="phase-tag webapp">Web App</span>
+              <span data-ar="- تحويل الخلفية إلى كريمية دافئة بدلاً من الرمادي البارد. تقليل هيمنة اللون الأردوازي (slate). استخدام الرمادي الدافئ للألواح والبطاقات." data-en="Shift background to warm cream instead of cool grey. Reduce slate dominance. Use warm grey for panels and cards.">
+              - تحويل الخلفية إلى كريمية دافئة بدلاً من الرمادي البارد. تقليل هيمنة اللون الأردوازي (slate). استخدام الرمادي الدافئ للألواح والبطاقات.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)" class="checked">
+              <span class="check"></span>
+              <span><strong data-ar="إعادة تصميم التنقل" data-en="Redesign navigation">إعادة تصميم التنقل</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- تجميع عناصر القائمة حسب نموذج المستخدم الذهني (الأشخاص > العمل > البيانات > الإعدادات). استخدام تسميات الأقسام. مراجعة الأزرار السفلية للخدم." data-en="Group navigation by user mental model (People > Work > Data > Settings). Add section labels. Review servant bottom nav slots.">
+              - تجميع عناصر القائمة حسب نموذج المستخدم الذهني (الأشخاص > العمل > البيانات > الإعدادات). استخدام تسميات الأقسام. مراجعة الأزرار السفلية للخدم.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)" class="checked">
+              <span class="check"></span>
+              <span><strong data-ar="إعادة تصميم جداول البيانات" data-en="Redesign data tables">إعادة تصميم جداول البيانات</strong> <span class="phase-tag webapp">Web App</span>
+              <span data-ar="- تقليل الضوضاء البصرية: حدود أرق، إيقاع عمودي أكبر. إظهار البطاقات المدمجة على الجوال. إضافة حالات فارغة مع توضيح." data-en="Reduce visual noise: thinner borders, more vertical rhythm. Mobile compact cards. Empty states with illustrations.">
+              - تقليل الضوضاء البصرية: حدود أرق، إيقاع عمودي أكبر. إظهار البطاقات المدمجة على الجوال. إضافة حالات فارغة مع توضيح.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)" class="checked">
+              <span class="check"></span>
+              <span><strong data-ar="تحسين لوحة الخدم" data-en="Refine Servant panel">تحسين لوحة الخدم</strong> <span class="phase-tag servant">Servant</span>
+              <span data-ar="- صقل العناصر العضوية (SVG بدلاً من CSS). مراجعة تفاعلات السحب السفلي. تدقيق معالج إنشاء الزيارة. عرض حالة المزامنة للبيانات غير المتصلة." data-en="Polish organic elements (SVG over CSS blobs). Review bottom sheet interactions. Audit Create Visit wizard. Show offline sync status.">
+              - صقل العناصر العضوية (SVG بدلاً من CSS). مراجعة تفاعلات السحب السفلي. تدقيق معالج إنشاء الزيارة. عرض حالة المزامنة للبيانات غير المتصلة.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="تدقيق النماذج (Modal Audit)" data-en="Modal audit">تدقيق النماذج المنبثقة</strong> <span class="phase-tag webapp">Web App</span>
+              <span data-ar="- مراجعة ٧ نماذج منبثقة. هل يمكن تحويل بعضها إلى لوحات منزلقة أو نماذج مضمّنة؟ توحيد مكون النافذة المنبثقة مع متغيرات الحجم." data-en="Review 7 modal partials. Could any be slide-over panels or inline forms? Standardize one modal component with size variants.">
+              - مراجعة ٧ نماذج منبثقة. هل يمكن تحويل بعضها إلى لوحات منزلقة أو نماذج مضمّنة؟ توحيد مكون النافذة المنبثقة مع متغيرات الحجم.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="تدقيق الخطوط" data-en="Typography audit">تدقيق الخطوط</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- التأكد من مقياس الخط ≥١٫٢٥. طول السطر ٦٥-٧٥ حرفاً للنصوص. تعديل ارتفاع السطر للنصوص الفاتحة على الخلفيات الداكنة." data-en="Ensure scale ratio ≥1.25. Cap line length at 65-75ch for prose. Adjust line-height for light text on dark backgrounds.">
+              - التأكد من مقياس الخط ≥١٫٢٥. طول السطر ٦٥-٧٥ حرفاً للنصوص. تعديل ارتفاع السطر للنصوص الفاتحة على الخلفيات الداكنة.</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase-card" data-phase="3">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-number">٣</div>
+          <div class="phase-title" data-ar="إمكانية الوصول (WCAG AAA)" data-en="Accessibility (WCAG AAA)">إمكانية الوصول (WCAG AAA)</div>
+          <div class="phase-meta">
+            <span data-ar="٣-٤ أيام" data-en="3-4 days">٣-٤ أيام</span>
+          </div>
+          <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="phase-body">
+          <ul class="phase-items">
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="تدقيق التباين" data-en="Contrast audit">تدقيق التباين</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- فحص جميع ألوان النصوص والعناصر الصغيرة. الحد الأدنى ٧:١ للنصوص العادية، ٤٫٥:١ للنصوص الكبيرة (AAA)." data-en="Check all text and element colors. Minimum 7:1 for body text, 4.5:1 for large text (AAA).">
+              - فحص جميع ألوان النصوص والعناصر الصغيرة. الحد الأدنى ٧:١ للنصوص العادية، ٤٫٥:١ للنصوص الكبيرة (AAA).</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="حجم أهداف اللمس" data-en="Touch target audit">حجم أهداف اللمس</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- جميع العناصر التفاعلية ≥٤٨×٤٨ بكسل. التركيز على الجوال: الأزرار السفلية، فلاتر البحث، أزرار الإجراءات." data-en="All interactive elements ≥48x48px. Focus on mobile: bottom nav, filter chips, action buttons.">
+              - جميع العناصر التفاعلية ≥٤٨×٤٨ بكسل. التركيز على الجوال: الأزرار السفلية، فلاتر البحث، أزرار الإجراءات.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="مؤشرات التركيز" data-en="Focus indicators">مؤشرات التركيز</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- توحيد نمط :focus-visible (مخطط ٣px + ١px offset). اختبار التنقل بلوحة المفاتيح عبر كل صفحة." data-en="Standardize :focus-visible style (3px outline + 1px offset). Test keyboard navigation through every page.">
+              - توحيد نمط :focus-visible (مخطط ٣px + ١px offset). اختبار التنقل بلوحة المفاتيح عبر كل صفحة.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="دعم قارئ الشاشة" data-en="Screen reader support">دعم قارئ الشاشة</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- إضافة aria-label للأزرار ذات الأيقونات فقط. role='dialog' + aria-labelledby للنوافذ المنبثقة. aria-live='polite' للإشعارات." data-en="Add aria-label to icon-only buttons. role='dialog' + aria-labelledby to modals. aria-live='polite' to toasts.">
+              - إضافة <code>aria-label</code> للأزرار ذات الأيقونات فقط. <code>role='dialog'</code> + <code>aria-labelledby</code> للنوافذ المنبثقة. <code>aria-live='polite'</code> للإشعارات.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="الحركة المخفضة" data-en="Reduced motion">الحركة المخفضة</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- إكمال دعم prefers-reduced-motion: الهيكل العظمي → ثابت، انتقالات الصفحات → فوري، الفقاعات العائمة → تدرج ثابت." data-en="Complete prefers-reduced-motion support: skeleton → static, page transitions → instant, floating blobs → static gradient.">
+              - إكمال دعم <code>prefers-reduced-motion</code>: الهيكل العظمي ← ثابت، انتقالات الصفحات ← فوري، الفقاعات العائمة ← تدرج ثابت.</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 4 -->
+      <div class="phase-card" data-phase="4">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-number">٤</div>
+          <div class="phase-title" data-ar="صفحات رئيسية متعمقة" data-en="Priority Pages Deep-Dives">صفحات رئيسية متعمقة</div>
+          <div class="phase-meta">
+            <span data-ar="٥-٧ أيام" data-en="5-7 days">٥-٧ أيام</span>
+          </div>
+          <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="phase-body">
+          <ul class="phase-items">
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="لوحة المعلومات الرئيسية" data-en="Dashboard redesign">لوحة المعلومات الرئيسية</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- إعادة تصميم بطاقات الإحصائيات بلوحة دافئة. إضافة جدول زمني للأنشطة الأخيرة. أزرار إجراء سريع للمهام الشائعة." data-en="Restat stat cards with warm palette. Add recent activity timeline. Quick-action buttons for common tasks.">
+              - إعادة تصميم بطاقات الإحصائيات بلوحة دافئة. إضافة جدول زمني للأنشطة الأخيرة. أزرار إجراء سريع للمهام الشائعة.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="صفحة المستفيد" data-en="Beneficiary profile">صفحة المستفيد</strong> <span class="phase-tag both">Both</span>
+              <span data-ar="- إضافة صورة رمزية، بطاقة اتصال مع هاتف قابل للنسخ، شريط ملخص، جدول زمني للزيارات والصلوات. كشف تدريجي للأقسام." data-en="Add avatar, contact card with copyable phone, summary metrics bar, timeline of visits/prayers. Progressive disclosure.">
+              - إضافة صورة رمزية، بطاقة اتصال مع هاتف قابل للنسخ، شريط ملخص، جدول زمني للزيارات والصلوات. كشف تدريجي للأقسام.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="تدفق إنشاء الزيارة" data-en="Create Visit flow">تدفق إنشاء الزيارة</strong> <span class="phase-tag servant">Servant</span>
+              <span data-ar="- تدقيق عدد الخطوات (هل يمكن تقليلها؟). التحقق من صحة الحقول، الحفظ دون اتصال، التأكيد، اقتراح الخطوة التالية. إضافة مؤشر التقدم." data-en="Audit step count (can it be fewer?), field validation, offline save, confirmation, next-step suggestion. Add progress indicator.">
+              - تدقيق عدد الخطوات (هل يمكن تقليلها؟). التحقق من صحة الحقول، الحفظ دون اتصال، التأكيد، اقتراح الخطوة التالية. إضافة مؤشر التقدم.</span></span>
+            </li>
+            <li onclick="toggleCheck(this)">
+              <span class="check"></span>
+              <span><strong data-ar="صفحة التقارير" data-en="Reports page">صفحة التقارير</strong> <span class="phase-tag webapp">Web App</span>
+              <span data-ar="- إعادة تصميم واجهة التقارير مع معاينات حية لل PDF. تبويب حسب نوع التقرير. إضافة خيارات التصفية والتصدير." data-en="Redesign reports interface with live PDF previews. Tab by report type. Add filter and export options.">
+              - إعادة تصميم واجهة التقارير مع معاينات حية لل PDF. تبويب حسب نوع التقرير. إضافة خيارات التصفية والتصدير.</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </div>
+</section>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<section class="section" id="concepts" style="background:var(--warm-surface)">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" data-ar="تصورات" data-en="Concepts">تصورات</div>
+      <h2 data-ar="تصورات بصرية للتغييرات" data-en="Visual Concepts of Changes">تصورات بصرية للتغييرات</h2>
+      <p data-ar="فكرة تقريبية عن الشكل المتوقع بعد التطبيق" data-en="A preview of what the improved interface will look like.">
+        فكرة تقريبية عن الشكل المتوقع بعد التطبيق.
+      </p>
+    </div>
+    <div class="concept-grid">
 
-    <!-- Navigation Decision -->
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-compass text-teal-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">Navigation Strategy</h3>
-        <span class="pill mr-auto text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">wire:navigate</span>
+      <div class="concept-card">
+        <div class="concept-visual">
+          <div class="mock sidebar-mock">
+            <div class="mock-sidebar">
+              <div class="mock-sidebar-bar"></div>
+              <div class="mock-sidebar-bar"></div>
+              <div class="mock-sidebar-bar"></div>
+              <div class="mock-sidebar-bar"></div>
+            </div>
+            <div class="mock-main">
+              <div class="mock-bar"></div>
+              <div class="mock-bar"></div>
+              <div class="mock-bar"></div>
+              <div class="mock-bar"></div>
+              <div class="mock-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="concept-body">
+          <h4 data-ar="شريط جانبي أنظف وأخف" data-en="Cleaner, lighter sidebar">شريط جانبي أنظف وأخف</h4>
+          <p data-ar="تصغير عرض الشريط الجانبي مع خلفية دافئة. تجميع القوائم حسب المهام." data-en="Slimmer sidebar with warm background. Section-grouped navigation.">
+            تصغير عرض الشريط الجانبي مع خلفية دافئة. تجميع القوائم حسب المهام.
+          </p>
+          <div class="tags">
+            <span class="phase-tag webapp">Web App</span>
+            <span class="phase-tag both" style="background:oklch(0.95 0.02 80);color:var(--gold)">نظام ألوان</span>
+          </div>
+        </div>
       </div>
-      <p class="text-sm text-gray-500 mb-4">الاختيار: <strong>Livewire 3 wire:navigate</strong> — SPA-like بدون React</p>
-      <div class="space-y-2 text-sm">
-        <div class="check-item"><i class="ph-duotone ph-check-circle text-success text-base"></i><span>كل tab = Livewire full-page component مستقل</span></div>
-        <div class="check-item"><i class="ph-duotone ph-check-circle text-success text-base"></i><span>Navigation بدون full page reload</span></div>
-        <div class="check-item"><i class="ph-duotone ph-check-circle text-success text-base"></i><span>Layout (nav + sidebar + wizard) يبقى mounted</span></div>
-        <div class="check-item"><i class="ph-duotone ph-check-circle text-success text-base"></i><span>Browser back button يشتغل</span></div>
-        <div class="check-item"><i class="ph-duotone ph-check-circle text-success text-base"></i><span>URL يتغير مع كل tab → sharable links</span></div>
+
+      <div class="concept-card">
+        <div class="concept-visual">
+          <div class="mock" style="flex-direction:column;padding:16px;gap:8px;align-items:stretch">
+            <div style="height:12px;width:40%;background:var(--accent-light);border-radius:4px;margin-bottom:4px"></div>
+            <div class="card-grid-mock">
+              <div class="mc" style="background:var(--warm-card);border:1px solid oklch(0.85 0.01 75);box-shadow:var(--shadow)"></div>
+              <div class="mc" style="background:var(--warm-card);border:1px solid oklch(0.85 0.01 75);box-shadow:var(--shadow)"></div>
+              <div class="mc" style="background:var(--warm-card);border:1px solid oklch(0.85 0.01 75);box-shadow:var(--shadow);height:70px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="concept-body">
+          <h4 data-ar="بطاقات إحصائيات دافئة" data-en="Warm stat cards">بطاقات إحصائيات دافئة</h4>
+          <p data-ar="بطاقات ذات حدود نظيفة، بدون تدرجات لونية ثقيلة. خط واضح، مساحة واسعة." data-en="Clean border-based cards without heavy gradients. Clear typography, generous whitespace.">
+            بطاقات ذات حدود نظيفة، بدون تدرجات لونية ثقيلة. خط واضح، مساحة واسعة.
+          </p>
+          <div class="tags">
+            <span class="phase-tag webapp">Web App</span>
+            <span class="phase-tag both" style="background:var(--accent-bg);color:var(--accent)">تصميم بطاقات</span>
+          </div>
+        </div>
       </div>
-      <div class="mt-4 code-block text-xs">
-<span class="dir">/servant</span>         <span class="cm">→ Servant\Dashboard</span>
-<br><span class="dir">/servant/beneficiaries</span> <span class="cm">→ Servant\BeneficiaryList</span>
-<br><span class="dir">/servant/visits</span>  <span class="cm">→ Servant\VisitList</span>
-<br><span class="dir">/servant/profile</span> <span class="cm">→ Servant\Profile</span>
+
+      <div class="concept-card">
+        <div class="concept-visual">
+          <div class="mock table-mock">
+            <div class="table-row header">
+              <div class="c"></div><div class="c"></div><div class="c"></div>
+            </div>
+            <div class="table-row"><div class="c"></div><div class="c"></div><div class="c"></div></div>
+            <div class="table-row"><div class="c"></div><div class="c"></div><div class="c"></div></div>
+            <div class="table-row"><div class="c"></div><div class="c"></div><div class="c"></div></div>
+            <div class="table-row"><div class="c"></div><div class="c"></div><div class="c"></div></div>
+          </div>
+        </div>
+        <div class="concept-body">
+          <h4 data-ar="جداول نظيفة وقابلة للقراءة" data-en="Clean, readable tables">جداول نظيفة وقابلة للقراءة</h4>
+          <p data-ar="حدود أرق، إيقاع عمودي أكبر. بطاقات مدمجة للجوال. فرز وتصفية مدمجة." data-en="Thinner borders, more vertical rhythm. Mobile compact cards. Inline sort and filter.">
+            حدود أرق، إيقاع عمودي أكبر. بطاقات مدمجة للجوال. فرز وتصفية مدمجة.
+          </p>
+          <div class="tags">
+            <span class="phase-tag webapp">Web App</span>
+            <span class="phase-tag both" style="background:var(--gold-bg);color:var(--gold)">جداول بيانات</span>
+          </div>
+        </div>
       </div>
+
+      <div class="concept-card">
+        <div class="concept-visual">
+          <div class="mock" style="background:linear-gradient(135deg, oklch(0.25 0.03 200), oklch(0.2 0.025 210));flex-direction:column;padding:16px;gap:8px;align-items:stretch">
+            <div style="display:flex;gap:8px">
+              <div style="width:36px;height:36px;border-radius:50%;background:oklch(0.9 0.08 80);flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="height:10px;width:60%;background:oklch(1 0 0 / 0.2);border-radius:4px;margin-bottom:6px"></div>
+                <div style="height:8px;width:40%;background:oklch(1 0 0 / 0.12);border-radius:4px"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <div style="flex:1;height:40px;background:var(--gold);border-radius:8px;opacity:0.8"></div>
+              <div style="flex:1;height:40px;background:oklch(1 0 0 / 0.1);border-radius:8px;border:1px solid oklch(1 0 0 / 0.2)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="concept-body">
+          <h4 data-ar="واجهة الخدم الدافئة" data-en="Warm Servant interface">واجهة الخدم الدافئة</h4>
+          <p data-ar="تصميم جوال دافئ مع ألوان teal وذهبية. فقاعات عضوية، خط Amiri، تجربة سلسة." data-en="Warm mobile design with teal and gold tones. Organic shapes, Amiri font, smooth experience.">
+            تصميم جوال دافئ مع ألوان teal وذهبية. فقاعات عضوية، خط Amiri، تجربة سلسة.
+          </p>
+          <div class="tags">
+            <span class="phase-tag servant">Servant</span>
+            <span class="phase-tag both" style="background:var(--gold-bg);color:var(--gold)">تجربة جوال</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="timeline-section" id="timeline">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" data-ar="جدول زمني" data-en="Timeline">جدول زمني</div>
+      <h2 data-ar="خطة التنفيذ الزمنية" data-en="Execution Timeline">خطة التنفيذ الزمنية</h2>
+      <p data-ar="٨ أسابيع مقسمة على ٤ مراحل" data-en="8 weeks across 4 phases.">
+        ٨ أسابيع مقسمة على ٤ مراحل.
+      </p>
+    </div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="date" data-ar="الأسبوع ١-٢" data-en="Week 1-2">الأسبوع ١-٢</div>
+          <h4 data-ar="المرحلة ١: نظام التصميم الأساسي" data-en="Phase 1: Design System Foundation">المرحلة ١: نظام التصميم الأساسي</h4>
+          <p data-ar="إنشاء طبقة الرموز الموحدة، دمج لوحات الألوان، توحيد المكونات، توحيد المقاييس والخطوط." data-en="Create unified token layer, merge color palettes, standardize components, unify scales and typography.">
+            إنشاء طبقة الرموز الموحدة، دمج لوحات الألوان، توحيد المكونات، توحيد المقاييس والخطوط.
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="date" data-ar="الأسبوع ٢-٣" data-en="Week 2-3">الأسبوع ٢-٣</div>
+          <h4 data-ar="المرحلة ٣: إمكانية الوصول" data-en="Phase 3: Accessibility">المرحلة ٣: إمكانية الوصول</h4>
+          <p data-ar="تدقيق التباين، أحجام اللمس، مؤشرات التركيز، دعم قارئ الشاشة، الحركة المخفضة." data-en="Contrast audit, touch targets, focus indicators, screen reader support, reduced motion.">
+            تدقيق التباين، أحجام اللمس، مؤشرات التركيز، دعم قارئ الشاشة، الحركة المخفضة.
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item active">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="date" data-ar="الأسبوع ٣-٥" data-en="Week 3-5">الأسبوع ٣-٥</div>
+          <h4 data-ar="المرحلة ٢: تحسينات الواجهة" data-en="Phase 2: Visual & UX Refinement">المرحلة ٢: تحسينات الواجهة</h4>
+          <p data-ar="تخفيف وتدفئة الواجهة، إعادة تصميم التنقل والجداول، تحسين لوحة الخدم، تدقيق النماذج والخطوط." data-en="Lighten and warm interface, redesign navigation and tables, refine servant panel, modal and typography audit.">
+            تخفيف وتدفئة الواجهة، إعادة تصميم التنقل والجداول، تحسين لوحة الخدم، تدقيق النماذج والخطوط.
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="date" data-ar="الأسبوع ٥-٨" data-en="Week 5-8">الأسبوع ٥-٨</div>
+          <h4 data-ar="المرحلة ٤: الصفحات الرئيسية + اللمسات النهائية" data-en="Phase 4: Priority Pages + Final Polish">المرحلة ٤: الصفحات الرئيسية + اللمسات النهائية</h4>
+          <p data-ar="لوحة المعلومات، صفحة المستفيد، تدفق الزيارة، التقارير. طباعة واختبار QA." data-en="Dashboard, beneficiary profile, visit flow, reports. QA and final polish.">
+            لوحة المعلومات، صفحة المستفيد، تدفق الزيارة، التقارير. طباعة واختبار QA.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="compare" style="background:var(--warm-surface)">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" data-ar="قبل vs بعد" data-en="Before vs After">قبل vs بعد</div>
+      <h2 data-ar="الوضع الحالي مقابل الشكل الجديد" data-en="Current State vs New Look">الوضع الحالي مقابل الشكل الجديد</h2>
+      <p data-ar="نظرة سريعة على الفروقات الرئيسية" data-en="Quick comparison of key changes.">
+        نظرة سريعة على الفروقات الرئيسية.
+      </p>
     </div>
 
-    <!-- Component Hierarchy -->
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-tree-structure text-gold-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">Component Hierarchy</h3>
-      </div>
-      <div class="text-sm font-body space-y-1">
-        <div class="p-2 rounded-lg font-bold" style="background:rgba(0,61,66,0.06);color:var(--teal-900)">
-          <i class="ph-duotone ph-layout text-teal-500 ml-1"></i>ServantLayout (app.blade.php)
-        </div>
-        <div class="mr-4 space-y-1">
-          <div class="tree-item" style="background:rgba(0,109,119,0.05)">
-            <i class="ph-duotone ph-arrow-bend-down-right text-teal-300 text-xs"></i>
-            <i class="ph-duotone ph-bell text-teal-400 text-sm"></i> x-servant-header + NotificationsBell (Livewire)
-          </div>
-          <div class="tree-item" style="background:rgba(0,109,119,0.05)">
-            <i class="ph-duotone ph-arrow-bend-down-right text-teal-300 text-xs"></i>
-            <i class="ph-duotone ph-sidebar text-teal-400 text-sm"></i> x-servant-desktop-sidebar (Alpine)
-          </div>
-          <div class="tree-item" style="background:rgba(0,109,119,0.05)">
-            <i class="ph-duotone ph-arrow-bend-down-right text-teal-300 text-xs"></i>
-            <i class="ph-duotone ph-rows text-teal-400 text-sm"></i> x-servant-bottom-nav (Alpine)
-          </div>
-          <div class="tree-item" style="background:rgba(244,162,97,0.1);border:1px solid rgba(244,162,97,0.2)">
-            <i class="ph-duotone ph-arrow-bend-down-right text-gold-400 text-xs"></i>
-            <i class="ph-duotone ph-plus-circle text-gold-500 text-sm"></i>
-            <strong>CreateVisitWizard</strong> <span class="text-xs text-gold-600">(PERSISTENT في layout)</span>
-          </div>
-          <div class="p-2 rounded-lg mt-2" style="background:rgba(69,123,157,0.08)">
-            <p class="text-xs text-info font-bold mb-1">Page Slot (يتغير بـ wire:navigate):</p>
-            <div class="space-y-1 mr-2">
-              <div class="text-xs text-gray-500">→ livewire:servant.dashboard</div>
-              <div class="text-xs text-gray-500">→ livewire:servant.beneficiary-list</div>
-              <div class="text-xs text-gray-500">→ livewire:servant.visit-list</div>
-              <div class="text-xs text-gray-500">→ livewire:servant.profile</div>
+    <div class="compare-grid">
+
+      <div class="compare-card before">
+        <div class="label" data-ar="قبل: المشكلة" data-en="Before: The Issue">قبل: المشكلة</div>
+        <div class="compare-visual">
+          <div class="mock" style="flex-direction:column;align-items:stretch;gap:6px;width:100%">
+            <div style="display:flex;gap:6px;align-items:center;padding:8px;background:#f1f5f9;border-radius:6px">
+              <div style="width:24px;height:24px;border-radius:4px;background:#94a3b8;flex-shrink:0"></div>
+              <div style="flex:1;height:10px;background:#cbd5e1;border-radius:3px"></div>
+            </div>
+            <div style="height:80px;background:#f8fafc;border-radius:6px;display:flex;flex-direction:column;gap:4px;padding:8px">
+              <div style="height:8px;width:90%;background:#e2e8f0;border-radius:3px"></div>
+              <div style="height:8px;width:70%;background:#e2e8f0;border-radius:3px"></div>
+              <div style="height:8px;width:50%;background:#e2e8f0;border-radius:3px"></div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Livewire Components Spec -->
-    <div class="section-card reveal md:col-span-2">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-code text-info text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">Livewire Components — Full Spec</h3>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm font-body">
-        <div class="p-4 rounded-xl border-2 border-teal-100 bg-teal-50/50">
-          <p class="font-bold text-teal-900 mb-2"><i class="ph-duotone ph-house text-teal-500 ml-1"></i>Dashboard.php</p>
-          <div class="space-y-1 text-xs text-gray-600">
-            <div><code class="bg-white px-1 rounded">$stats[]</code> — 4 أرقام</div>
-            <div><code class="bg-white px-1 rounded">$urgentBeneficiaries</code></div>
-            <div><code class="bg-white px-1 rounded">$recentVisits</code></div>
-            <div class="text-teal-600 mt-2"><i class="ph-duotone ph-lightning text-xs"></i> #[On('visit-created')] → refresh</div>
-            <div class="text-teal-600"><i class="ph-duotone ph-lightning text-xs"></i> Echo listener → real-time</div>
-          </div>
-        </div>
-        <div class="p-4 rounded-xl border-2 border-gold-200 bg-gold-50/50">
-          <p class="font-bold text-teal-900 mb-2"><i class="ph-duotone ph-users text-gold-500 ml-1"></i>BeneficiaryList.php</p>
-          <div class="space-y-1 text-xs text-gray-600">
-            <div><code class="bg-white px-1 rounded">$search</code> — debounce 300ms</div>
-            <div><code class="bg-white px-1 rounded">$filter</code> — all/active/needs-followup/critical</div>
-            <div><code class="bg-white px-1 rounded">#[Computed]</code> beneficiaries()</div>
-            <div class="text-gold-600 mt-2"><i class="ph-duotone ph-database text-xs"></i> cursorPaginate(12)</div>
-            <div class="text-gold-600"><i class="ph-duotone ph-database text-xs"></i> Cache 5 min per user</div>
-          </div>
-        </div>
-        <div class="p-4 rounded-xl border-2 border-red-100 bg-red-50/50">
-          <p class="font-bold text-teal-900 mb-2"><i class="ph-duotone ph-plus-circle text-critical ml-1"></i>CreateVisitWizard.php</p>
-          <div class="space-y-1 text-xs text-gray-600">
-            <div><code class="bg-white px-1 rounded">$open, $step (1-4)</code></div>
-            <div><code class="bg-white px-1 rounded">$beneficiaryId, $visitType</code></div>
-            <div><code class="bg-white px-1 rounded">$healthStatus, $spiritualNeeds[]</code></div>
-            <div><code class="bg-white px-1 rounded">$notes, $beneficiarySearch</code></div>
-            <div class="text-critical mt-2"><i class="ph-duotone ph-warning text-xs"></i> validateStep() per step</div>
-            <div class="text-critical"><i class="ph-duotone ph-warning text-xs"></i> DB::transaction() on submit</div>
+      <div class="compare-card after">
+        <div class="label" data-ar="بعد: التحسين" data-en="After: The Improvement">بعد: التحسين</div>
+        <div class="compare-visual">
+          <div class="mock" style="flex-direction:column;align-items:stretch;gap:8px;width:100%">
+            <div style="display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--warm-card);border:1px solid oklch(0.85 0.01 75);border-radius:8px;box-shadow:0 1px 2px oklch(0 0 0 / 0.04)">
+              <div style="width:24px;height:24px;border-radius:4px;background:var(--accent-light);flex-shrink:0"></div>
+              <div style="flex:1;height:10px;background:var(--text-secondary);border-radius:3px"></div>
+            </div>
+            <div style="height:80px;background:var(--warm-card);border:1px solid oklch(0.85 0.01 75);border-radius:8px;display:flex;flex-direction:column;gap:6px;padding:12px;box-shadow:var(--shadow)">
+              <div style="height:8px;width:90%;background:var(--text-muted);border-radius:3px"></div>
+              <div style="height:8px;width:70%;background:var(--text-muted);border-radius:3px"></div>
+              <div style="height:8px;width:50%;background:var(--text-muted);border-radius:3px"></div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+      <div class="compare-card before">
+        <div class="label" data-ar="قبل: ألوان باردة" data-en="Before: Cool colors">قبل: ألوان باردة</div>
+        <div class="compare-visual" style="background:#f1f5f9">
+          <span style="color:#64748b;font-weight:600;font-size:18px" data-ar="#f1f5f9 · رمادي بارد" data-en="#f1f5f9 · Cool grey">#f1f5f9 · رمادي بارد</span>
+        </div>
+      </div>
+      <div class="compare-card after">
+        <div class="label" data-ar="بعد: ألوان دافئة" data-en="After: Warm tones">بعد: ألوان دافئة</div>
+        <div class="compare-visual" style="background:oklch(0.96 0.01 78)">
+          <span style="color:var(--text-secondary);font-weight:600;font-size:18px" data-ar="OKLCH · بيج دافئ" data-en="OKLCH · Warm cream">OKLCH · بيج دافئ</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 4: FOLDER STRUCTURE -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="structure" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#06A77D,#04C99E)">4</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">هيكل المجلدات — Production Ready</h2>
-      <p class="font-body text-sm text-gray-400">بنية قابلة للتوسع مع فصل واضح للمسؤوليات</p>
-    </div>
+<footer class="footer">
+  <div class="container">
+    <p data-ar="<strong>Ministry System</strong> — خطة تحسين وتطوير واجهة المستخدم | <strong>Calm · Professional · Modern</strong>" data-en="<strong>Ministry System</strong> — UI/UX Improvement Plan | <strong>Calm · Professional · Modern</strong>">
+      <strong>Ministry System</strong> — خطة تحسين وتطوير واجهة المستخدم | <strong>Calm · Professional · Modern</strong>
+    </p>
+    <p style="margin-top:8px;font-size:13px" data-ar="تم التحديث: يونيو ٢٠٢٦" data-en="Last updated: June 2026">
+      تم التحديث: يونيو ٢٠٢٦
+    </p>
   </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="section-card reveal">
-      <p class="font-body font-bold text-teal-900 mb-3 flex items-center gap-2"><i class="ph-duotone ph-folder-open text-gold-500"></i> app/</p>
-      <div class="folder-tree text-xs">
-<span class="dir">app/</span>
-<br>├── <span class="dir">Livewire/Servant/</span>
-<br>│   ├── <span class="file">Dashboard.php</span>
-<br>│   ├── <span class="file">BeneficiaryList.php</span>
-<br>│   ├── <span class="file">VisitList.php</span>
-<br>│   ├── <span class="file">Profile.php</span>
-<br>│   └── <span class="file">CreateVisitWizard.php</span> <span class="note">← in layout</span>
-<br>│
-<br>├── <span class="dir">Http/Middleware/</span>
-<br>│   └── <span class="file">EnsureServantAccess.php</span>
-<br>│
-<br>└── <span class="dir">Queries/</span>         <span class="note">← Query Objects</span>
-<br>    ├── <span class="file">ServantBeneficiaryQuery.php</span>
-<br>    └── <span class="file">ServantVisitQuery.php</span>
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <p class="font-body font-bold text-teal-900 mb-3 flex items-center gap-2"><i class="ph-duotone ph-folder-open text-teal-500"></i> resources/views/servant/</p>
-      <div class="folder-tree text-xs">
-<span class="dir">resources/views/servant/</span>
-<br>├── <span class="dir">layouts/</span>
-<br>│   └── <span class="file">app.blade.php</span>     <span class="note">← master layout</span>
-<br>│
-<br>├── <span class="dir">components/</span>
-<br>│   ├── <span class="file">header.blade.php</span>
-<br>│   ├── <span class="file">bottom-nav.blade.php</span>
-<br>│   ├── <span class="file">desktop-sidebar.blade.php</span>
-<br>│   ├── <span class="file">fab.blade.php</span>
-<br>│   └── <span class="dir">ui/</span>              <span class="note">← Design System</span>
-<br>│       ├── <span class="file">stat-card.blade.php</span>
-<br>│       ├── <span class="file">badge-pill.blade.php</span>
-<br>│       ├── <span class="file">radio-chip.blade.php</span>
-<br>│       ├── <span class="file">search-input.blade.php</span>
-<br>│       ├── <span class="file">avatar.blade.php</span>
-<br>│       ├── <span class="file">timeline-item.blade.php</span>
-<br>│       ├── <span class="file">beneficiary-card.blade.php</span>
-<br>│       ├── <span class="file">bottom-sheet.blade.php</span>
-<br>│       ├── <span class="file">step-indicator.blade.php</span>
-<br>│       ├── <span class="file">toast.blade.php</span>
-<br>│       ├── <span class="file">fab-button.blade.php</span>
-<br>│       └── <span class="file">empty-state.blade.php</span>
-<br>│
-<br>└── <span class="dir">livewire/</span>
-<br>    ├── <span class="file">dashboard.blade.php</span>
-<br>    ├── <span class="file">beneficiary-list.blade.php</span>
-<br>    ├── <span class="file">visit-list.blade.php</span>
-<br>    ├── <span class="file">profile.blade.php</span>
-<br>    └── <span class="file">create-visit-wizard.blade.php</span>
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <p class="font-body font-bold text-teal-900 mb-3 flex items-center gap-2"><i class="ph-duotone ph-folder-open text-info"></i> resources/js + css</p>
-      <div class="folder-tree text-xs">
-<span class="dir">resources/</span>
-<br>├── <span class="dir">css/</span>
-<br>│   └── <span class="file">servant.css</span>   <span class="note">← design tokens + animations</span>
-<br>│
-<br>└── <span class="dir">js/</span>
-<br>    ├── <span class="file">servant.js</span>    <span class="note">← Alpine setup + Echo</span>
-<br>    └── <span class="file">servant-sw.js</span> <span class="note">← Service Worker (workbox)</span>
-<br><br>
-<span class="dir">routes/</span>
-<br>└── <span class="file">servant.php</span>   <span class="note">← all /servant/* routes</span>
-<br><br>
-<span class="dir">tailwind.config.js</span>  <span class="note">← full design system</span>
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <p class="font-body font-bold text-teal-900 mb-3 flex items-center gap-2"><i class="ph-duotone ph-paint-brush text-critical"></i> Design Tokens (servant.css)</p>
-      <div class="code-block text-xs">
-<span class="kw">:root</span> {
-<br>  <span class="var">--teal-900</span>: <span class="str">#003942</span>;
-<br>  <span class="var">--teal-700</span>: <span class="str">#005662</span>;
-<br>  <span class="var">--teal-500</span>: <span class="str">#006D77</span>;
-<br>  <span class="var">--teal-300</span>: <span class="str">#4D9BA3</span>;
-<br>  <span class="var">--gold-500</span>: <span class="str">#F4A261</span>;
-<br>  <span class="var">--critical</span>: <span class="str">#E63946</span>;
-<br>  <span class="var">--success</span>:  <span class="str">#06A77D</span>;
-<br>  <span class="var">--gradient-deep</span>: <span class="fn">linear-gradient</span>(
-<br>    <span class="str">160deg, #006D77 0%, #003942 100%</span>
-<br>  );
-<br>}
-<br><br><span class="cm">/* Fonts */</span>
-<br><span class="kw">.font-display</span>  { font-family: <span class="str">Amiri, serif</span>; }
-<br><span class="kw">.font-body</span>     { font-family: <span class="str">Cairo, sans-serif</span>; }
-<br><span class="kw">.font-accent</span>   { font-family: <span class="str">Tajawal, sans-serif</span>; }
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 5: VISIT WIZARD DETAIL -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="wizard" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#E63946,#FF6B6B)">5</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">Visit Wizard — التطبيق الكامل</h2>
-      <p class="font-body text-sm text-gray-400">أهم Component في النظام — step validation + state + submit</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-code-block text-teal-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">CreateVisitWizard.php</h3>
-      </div>
-      <div class="code-block text-xs">
-<span class="kw">class</span> <span class="cl">CreateVisitWizard</span> <span class="kw">extends</span> <span class="cl">Component</span>
-{
-<br>  <span class="kw">public bool</span>   <span class="var">$open</span> = <span class="kw">false</span>;
-<br>  <span class="kw">public int</span>    <span class="var">$step</span> = <span class="op">1</span>;
-<br>  <span class="kw">public</span> ?<span class="kw">int</span>  <span class="var">$beneficiaryId</span> = <span class="kw">null</span>;
-<br>  <span class="kw">public string</span> <span class="var">$visitType</span> = <span class="str">''</span>;
-<br>  <span class="kw">public string</span> <span class="var">$healthStatus</span> = <span class="str">''</span>;
-<br>  <span class="kw">public array</span>  <span class="var">$spiritualNeeds</span> = [];
-<br>  <span class="kw">public string</span> <span class="var">$notes</span> = <span class="str">''</span>;
-<br>
-<br>  <span class="fn">#[On('open-visit-wizard')]</span>
-<br>  <span class="kw">public function</span> <span class="fn">open</span>(?<span class="kw">int</span> <span class="var">$beneficiaryId</span> = <span class="kw">null</span>): <span class="kw">void</span>
-<br>  {
-<br>    <span class="var">$this</span>-><span class="fn">reset</span>();
-<br>    <span class="var">$this</span>-><span class="var">beneficiaryId</span> = <span class="var">$beneficiaryId</span>;
-<br>    <span class="var">$this</span>-><span class="var">step</span> = <span class="var">$beneficiaryId</span> ? <span class="op">2</span> : <span class="op">1</span>; <span class="cm">// skip step 1</span>
-<br>    <span class="var">$this</span>-><span class="var">open</span> = <span class="kw">true</span>;
-<br>  }
-<br>
-<br>  <span class="kw">public function</span> <span class="fn">nextStep</span>(): <span class="kw">void</span>
-<br>  {
-<br>    <span class="var">$this</span>-><span class="fn">validateStep</span>();
-<br>    <span class="var">$this</span>-><span class="var">step</span>++;
-<br>  }
-<br>
-<br>  <span class="kw">private function</span> <span class="fn">validateStep</span>(): <span class="kw">void</span>
-<br>  {
-<br>    <span class="kw">match</span>(<span class="var">$this</span>-><span class="var">step</span>) {
-<br>      <span class="op">1</span> => <span class="var">$this</span>-><span class="fn">validate</span>([<span class="str">'beneficiaryId'</span>=><span class="str">'required|exists:beneficiaries,id'</span>]),
-<br>      <span class="op">2</span> => <span class="var">$this</span>-><span class="fn">validate</span>([<span class="str">'visitType'</span>=><span class="str">'required|in:home,church,phone,hospital'</span>]),
-<br>      <span class="op">3</span> => <span class="var">$this</span>-><span class="fn">validate</span>([<span class="str">'healthStatus'</span>=><span class="str">'required|in:good,stable,worse'</span>]),
-<br>    };
-<br>  }
-<br>
-<br>  <span class="kw">public function</span> <span class="fn">submit</span>(): <span class="kw">void</span>
-<br>  {
-<br>    <span class="cl">DB</span>::<span class="fn">transaction</span>(<span class="kw">function</span>() {
-<br>      <span class="var">$visit</span> = <span class="cl">Visit</span>::<span class="fn">create</span>([...]);
-<br>      <span class="cm">// VisitObserver → audit + FCM auto</span>
-<br>    });
-<br>    <span class="var">$this</span>-><span class="fn">dispatch</span>(<span class="str">'visit-created'</span>);
-<br>  }
-}
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-warning-circle text-warning text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">نقاط الخطر في الـ Wizard</h3>
-      </div>
-      <div class="space-y-3">
-        <div class="warn-box" style="border-color:var(--critical);background:rgba(230,57,70,0.04)">
-          <p class="font-bold text-critical text-sm mb-1">1. Re-renders أثناء البحث</p>
-          <p class="text-xs text-gray-600">كل keystroke يعمل network round-trip. الحل: <code class="bg-white px-1 rounded">wire:model.live.debounce.200ms</code> + <code class="bg-white px-1 rounded">wire:key</code> على كل item لـ morphing</p>
-        </div>
-        <div class="warn-box" style="border-color:var(--warning);background:rgba(247,127,0,0.04)">
-          <p class="font-bold text-warning text-sm mb-1">2. Modal State عند wire:navigate</p>
-          <p class="text-xs text-gray-600">الـ Wizard في الـ layout يُحافَظ عليه. لكن لو الـ user نُقل بـ navigate وهو في step 2، الـ state يبقى. تأكيد: <code class="bg-white px-1 rounded">$this->reset()</code> دايماً في open()</p>
-        </div>
-        <div class="warn-box" style="border-color:var(--info);background:rgba(69,123,157,0.04)">
-          <p class="font-bold text-info text-sm mb-1">3. Validation Error Display</p>
-          <p class="text-xs text-gray-600">استخدم <code class="bg-white px-1 rounded">$this->clearValidation()</code> قبل كل <code class="bg-white px-1 rounded">validateStep()</code> — وإلا errors من step سابق تظهر</p>
-        </div>
-        <div class="warn-box" style="border-color:var(--success);background:rgba(6,167,125,0.04)">
-          <p class="font-bold text-success text-sm mb-1">4. Alpine ↔ Livewire Bridge</p>
-          <p class="text-xs text-gray-600">FAB هو Alpine component. يُطلق event بـ <code class="bg-white px-1 rounded">$dispatch('open-visit-wizard')</code> ← Livewire يسمع بـ <code class="bg-white px-1 rounded">#[On('open-visit-wizard')]</code></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 6: BACKEND INTEGRATION -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#006D77,#003942)">6</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">ربط الـ Backend الموجود</h2>
-      <p class="font-body text-sm text-gray-400">Integration مع Laravel المكتوب مسبقاً</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-shield text-teal-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">Role Scoping</h3>
-      </div>
-      <p class="text-xs text-gray-500 mb-3">ServantBeneficiaryQuery يُطبق الصلاحيات بشكل مركزي</p>
-      <div class="code-block text-xs">
-<span class="cl">ServantBeneficiaryQuery</span>::<span class="fn">forUser</span>(<span class="var">$user</span>)
-<br>  -><span class="fn">when</span>(
-<br>    <span class="var">$user</span>->role === <span class="cl">Servant</span>,
-<br>    fn(<span class="var">$q</span>) => <span class="var">$q</span>-><span class="fn">where</span>(
-<br>      <span class="str">'assigned_servant_id'</span>, <span class="var">$user</span>->id
-<br>    )
-<br>  )
-<br>  -><span class="fn">when</span>(
-<br>    <span class="var">$user</span>->role === <span class="cl">FamilyLeader</span>,
-<br>    fn(<span class="var">$q</span>) => <span class="var">$q</span>-><span class="fn">where</span>(
-<br>      <span class="str">'service_group_id'</span>, <span class="var">$user</span>->service_group_id
-<br>    )
-<br>  );
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-bell-ringing text-gold-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">Notification Chain</h3>
-      </div>
-      <div class="space-y-2 text-xs font-body">
-        <div class="flow-step"><i class="ph-duotone ph-check-circle text-teal-400"></i><span>Wizard submit → <code>Visit::create()</code></span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><i class="ph-duotone ph-eye text-gold-500"></i><span>VisitObserver::created() يُطلق</span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><i class="ph-duotone ph-database text-info"></i><span>AuditLog + InternalNotificationService</span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><i class="ph-duotone ph-paper-plane-tilt text-success"></i><span>SendFcmNotificationJob::dispatch() (queued)</span></div>
-      </div>
-      <div class="mt-2 p-2 rounded-lg bg-green-50 text-xs text-success border border-green-100">
-        لا يحتاج تعديل — Observer يعمل تلقائياً
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-broadcast text-critical text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">Real-time Integration</h3>
-      </div>
-      <p class="text-xs text-gray-500 mb-3">Dashboard يستمع لـ Echo Channel</p>
-      <div class="code-block text-xs">
-<span class="kw">protected function</span> <span class="fn">getListeners</span>(): <span class="kw">array</span>
-{
-<br>  <span class="kw">return</span> [
-<br>    <span class="str">"echo-private:user.</span><span class="var">{$this->userId}</span><span class="str">,</span>
-<br>     <span class="str">NewMinistryNotification"</span>
-<br>    => <span class="str">'refreshNotifications'</span>,
-<br>    <span class="str">'visit-created'</span> => <span class="str">'$refresh'</span>,
-<br>  ];
-}
-      </div>
-      <div class="mt-3 space-y-1 text-xs">
-        <div class="flex items-center gap-2 text-gray-600">
-          <i class="ph-duotone ph-check text-success"></i> NotificationsBell موجودة مسبقاً
-        </div>
-        <div class="flex items-center gap-2 text-gray-600">
-          <i class="ph-duotone ph-check text-success"></i> Echo private channel جاهز
-        </div>
-        <div class="flex items-center gap-2 text-gray-600">
-          <i class="ph-duotone ph-check text-success"></i> FCM job موجود — فقط dispatch
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 7: PERFORMANCE -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="performance" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#F77F00,#F4A261)">7</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">استراتيجية الأداء</h2>
-      <p class="font-body text-sm text-gray-400">تطبيق ميداني — الشبكة بطيئة والمستخدم في الحركة</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-lightning text-warning text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">تقليل Livewire Requests</h3>
-      </div>
-      <div class="space-y-3 text-sm font-body">
-        <div class="flex items-start gap-3 p-3 rounded-xl bg-soft-gray">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">Search</span>
-          <div>
-            <p class="font-bold text-teal-900 text-xs">wire:model.live.debounce.300ms</p>
-            <p class="text-xs text-gray-500">بدل request على كل حرف → انتظار 300ms</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 p-3 rounded-xl bg-soft-gray">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">Computed</span>
-          <div>
-            <p class="font-bold text-teal-900 text-xs">#[Computed(cache: true, seconds: 300)]</p>
-            <p class="text-xs text-gray-500">beneficiaries list مكاشة 5 دقائق per user</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 p-3 rounded-xl bg-soft-gray">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">Lazy Init</span>
-          <div>
-            <p class="font-bold text-teal-900 text-xs">wire:init="loadStats"</p>
-            <p class="text-xs text-gray-500">Dashboard يعرض skeleton أولاً ثم يحمّل البيانات</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 p-3 rounded-xl bg-soft-gray">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">Pagination</span>
-          <div>
-            <p class="font-bold text-teal-900 text-xs">cursorPaginate(15) + Infinite Scroll</span>
-            <p class="text-xs text-gray-500">Timeline لا تحمّل كل الزيارات دفعة واحدة</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-3 p-3 rounded-xl bg-soft-gray">
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">Textarea</span>
-          <div>
-            <p class="font-bold text-teal-900 text-xs">wire:model.blur="notes"</p>
-            <p class="text-xs text-gray-500">الـ notes لا تُرسل لـ server إلا عند مغادرة الـ field</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="ph-duotone ph-skeleton text-info text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900">Skeleton Loading Strategy</h3>
-      </div>
-      <div class="code-block text-xs mb-4">
-<span class="cm">{{-- Dashboard widgets --}}</span>
-<br><span class="kw">&lt;div</span> <span class="fn">wire:loading.class.remove</span>=<span class="str">"hidden"</span>
-<br>     <span class="fn">wire:target</span>=<span class="str">"loadStats"</span> <span class="kw">class</span>=<span class="str">"hidden"</span><span class="kw">&gt;</span>
-<br>  <span class="op">&lt;x-servant.ui.skeleton-stat-cards /&gt;</span>
-<br><span class="kw">&lt;/div&gt;</span>
-<br>
-<br><span class="kw">&lt;div</span> <span class="fn">wire:loading.class</span>=<span class="str">"hidden"</span>
-<br>     <span class="fn">wire:target</span>=<span class="str">"loadStats"</span><span class="kw">&gt;</span>
-<br>  <span class="cm">{{-- Real stat cards --}}</span>
-<br><span class="kw">&lt;/div&gt;</span>
-      </div>
-      <div class="p-3 rounded-xl bg-teal-50 border border-teal-100 text-xs text-teal-700">
-        <p class="font-bold mb-1">Cache Invalidation Pattern:</p>
-        <p>عند <code>visit-created</code> → <code>Cache::forget("servant.beneficiaries.{$userId}")</code> + <code>unset($this->beneficiaries)</code> لإعادة حساب الـ Computed property</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 8: PWA -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="pwa" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#06A77D,#457B9D)">8</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">PWA + Offline Strategy</h2>
-      <p class="font-body text-sm text-gray-400">التطبيق شغّال حتى لو الـ internet ضعيف</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-globe text-teal-500 text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">PWA Manifest</h3>
-      </div>
-      <div class="code-block text-xs">
-{
-<br>  <span class="kw">"name"</span>: <span class="str">"خادم الخاص"</span>,
-<br>  <span class="kw">"short_name"</span>: <span class="str">"خادم"</span>,
-<br>  <span class="kw">"start_url"</span>: <span class="str">"/servant"</span>,
-<br>  <span class="kw">"display"</span>: <span class="str">"standalone"</span>,
-<br>  <span class="kw">"theme_color"</span>: <span class="str">"#006D77"</span>,
-<br>  <span class="kw">"background_color"</span>: <span class="str">"#FFFBF7"</span>,
-<br>  <span class="kw">"lang"</span>: <span class="str">"ar"</span>,
-<br>  <span class="kw">"dir"</span>: <span class="str">"rtl"</span>,
-<br>  <span class="kw">"orientation"</span>: <span class="str">"portrait"</span>
-}
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-wifi-slash text-warning text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">Cache Strategies</h3>
-      </div>
-      <div class="space-y-2 text-xs font-body">
-        <div class="flex items-center justify-between p-2 rounded-lg bg-soft-gray">
-          <span class="font-bold text-teal-900">/livewire requests</span>
-          <span class="pill" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">NetworkFirst</span>
-        </div>
-        <div class="flex items-center justify-between p-2 rounded-lg bg-soft-gray">
-          <span class="font-bold text-teal-900">Fonts + Icons</span>
-          <span class="pill" style="background:rgba(6,167,125,0.1);color:var(--success)">CacheFirst</span>
-        </div>
-        <div class="flex items-center justify-between p-2 rounded-lg bg-soft-gray">
-          <span class="font-bold text-teal-900">/servant pages</span>
-          <span class="pill" style="background:rgba(244,162,97,0.15);color:var(--gold-700)">NetworkFirst</span>
-        </div>
-        <div class="flex items-center justify-between p-2 rounded-lg bg-soft-gray">
-          <span class="font-bold text-teal-900">CSS/JS Assets</span>
-          <span class="pill" style="background:rgba(69,123,157,0.1);color:var(--info)">Precache</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card reveal">
-      <div class="flex items-center gap-2 mb-3">
-        <i class="ph-duotone ph-clock-clockwise text-success text-xl"></i>
-        <h3 class="font-body font-bold text-teal-900 text-sm">Offline Visit Queue</h3>
-      </div>
-      <div class="space-y-2 text-xs font-body">
-        <div class="flow-step"><span class="text-gray-600">خادم يسجل زيارة بدون إنترنت</span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><span class="text-gray-600">تُخزَّن في IndexedDB محلياً</span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><span class="text-gray-600">Background Sync يُسجَّل</span></div>
-        <div class="flow-arrow"><i class="ph-duotone ph-arrow-down text-teal-300"></i></div>
-        <div class="flow-step"><span class="text-success font-bold">عودة الاتصال → sync تلقائي</span></div>
-      </div>
-      <div class="mt-2 p-2 rounded-lg bg-green-50 text-xs text-success border border-green-100">
-        يُوقف الخادم من ضياع بيانات الزيارات في المناطق الضعيفة
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PART 9: ROADMAP -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="roadmap" class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#003942,#006D77)">9</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">خارطة التنفيذ — 20 يوم</h2>
-      <p class="font-body text-sm text-gray-400">من الصفر إلى Production خطوة بخطوة</p>
-    </div>
-  </div>
-
-  <div class="relative pr-12">
-    <div class="roadmap-line"></div>
-
-    <!-- Phase 1 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:var(--gradient-deep)">1</div>
-      <div class="phase-card" style="border-color:var(--teal-500)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">الأساس — Foundation</h3>
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">أيام 1–3</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> servant.css — كل design tokens من hot.html</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> tailwind.config.js — colors + fonts + keyframes</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> ServantLayout (app.blade.php) مع slot</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> x-servant-header + x-servant-bottom-nav + x-servant-sidebar</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> routes/servant.php + EnsureServantAccess middleware</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-200 text-sm"></i> wire:navigate enabled في layout</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 2 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#F4A261,#E76F51)">2</div>
-      <div class="phase-card" style="border-color:var(--gold-500)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">Design System — مكتبة UI</h3>
-          <span class="pill text-xs" style="background:rgba(244,162,97,0.15);color:var(--gold-700)">أيام 4–5</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.stat-card</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.badge-pill</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.radio-chip</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.search-input</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.avatar</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.timeline-item</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.beneficiary-card</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.empty-state</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.step-indicator</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> x-ui.toast (global)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> Organic shapes + texture</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gold-300 text-sm"></i> All animations</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 3 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#06A77D,#04C99E)">3</div>
-      <div class="phase-card" style="border-color:var(--success)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">Dashboard</h3>
-          <span class="pill text-xs" style="background:rgba(6,167,125,0.1);color:var(--success)">أيام 6–7</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Servant\Dashboard Livewire component</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> ServantBeneficiaryQuery::forUser() بالـ scoping</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> 4 stats queries</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Urgent list + Timeline (last 3)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Skeleton loading states</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Echo listener + visit-created refresh</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 4 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#457B9D,#6BA3C7)">4</div>
-      <div class="phase-card" style="border-color:var(--info)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">Beneficiaries</h3>
-          <span class="pill text-xs" style="background:rgba(69,123,157,0.1);color:var(--info)">أيام 8–9</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> Servant\BeneficiaryList</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> Search debounce + status filter chips</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> Beneficiary grid (responsive)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> WhatsApp + السجل + زيارة actions</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> Empty state</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-blue-300 text-sm"></i> Cache computed property</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 5 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#E63946,#FF6B6B)">5</div>
-      <div class="phase-card" style="border-color:var(--critical)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">Visit Flow — الأهم <span class="text-critical">★</span></h3>
-          <span class="pill text-xs" style="background:rgba(230,57,70,0.1);color:var(--critical)">أيام 10–13</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> CreateVisitWizard في الـ layout</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> FAB wired لـ open-visit-wizard event</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Bottom sheet blade + Alpine transitions</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Step 1: searchable beneficiary list</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Step 2: visit type chips</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Step 3: health + spiritual + notes</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Step 4: summary read-only</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> validateStep() per step</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> DB::transaction() + VisitObserver</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> Pre-select beneficiary from card</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> wire:loading on submit</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-red-300 text-sm"></i> VisitList + infinite scroll</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 6 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#006D77,#4D9BA3)">6</div>
-      <div class="phase-card" style="border-color:var(--teal-300)">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">Profile + Notifications</h3>
-          <span class="pill text-xs" style="background:rgba(0,109,119,0.1);color:var(--teal-700)">أيام 14–15</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-300 text-sm"></i> Servant\Profile — stats + settings menu</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-300 text-sm"></i> FCM token refresh on load</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-300 text-sm"></i> NotificationsBell في servant layout</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-teal-300 text-sm"></i> Logout + confirmation</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 7 -->
-    <div class="relative mb-8 reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#06A77D,#457B9D)">7</div>
-      <div class="phase-card" style="border-color:#06A77D">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">PWA + Offline</h3>
-          <span class="pill text-xs" style="background:rgba(6,167,125,0.1);color:var(--success)">أيام 16–17</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> PWA manifest + icons</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> servant-sw.js (workbox)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Cache strategies per route</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Offline visit queue (IndexedDB)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Install prompt component</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-green-300 text-sm"></i> Offline indicator banner</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 8 -->
-    <div class="relative reveal">
-      <div class="roadmap-dot absolute right-0 text-white" style="background:linear-gradient(135deg,#2C3E50,#4a5568)">8</div>
-      <div class="phase-card" style="border-color:#4a5568">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-body font-bold text-teal-900">QA + Polish</h3>
-          <span class="pill text-xs bg-gray-100 text-gray-600">أيام 18–20</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs font-body text-gray-600">
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> اختبار على Android Chrome + Safari iOS</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> اختبار شبكة بطيئة (DevTools throttling)</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> RTL layout على كل الشاشات</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> prefers-reduced-motion</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> safe-area-inset على iPhone</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> Aria labels + accessibility</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> Feature test: visit flow E2E</div>
-          <div class="check-item"><i class="ph-duotone ph-square text-gray-300 text-sm"></i> Role scoping test (Servant sees only assigned)</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- CRITICAL WARNINGS -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="reveal">
-  <div class="flex items-center gap-3 mb-6">
-    <div class="section-num text-white" style="background:linear-gradient(135deg,#E63946,#F77F00)">!</div>
-    <div>
-      <h2 class="font-display text-3xl text-teal-900">نقاط الخطر — Critical Notes</h2>
-      <p class="font-body text-sm text-gray-400">المشاكل الأكثر احتمالاً أثناء التنفيذ</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="warn-box" style="border-color:var(--critical);background:rgba(230,57,70,0.04)">
-      <div class="flex items-center gap-2 mb-2">
-        <i class="ph-duotone ph-warning-octagon text-critical text-lg"></i>
-        <p class="font-bold text-critical text-sm">RTL + Tailwind Physical Properties</p>
-      </div>
-      <p class="text-xs text-gray-600">Tailwind v3 لا يعكس <code>mr-/ml-</code> تلقائياً في RTL. استخدم <code>ms-/me-</code> (logical) أو <code>rtl:</code> variants. راجع كل directional utility في كل component.</p>
-    </div>
-    <div class="warn-box" style="border-color:var(--warning);background:rgba(247,127,0,0.04)">
-      <div class="flex items-center gap-2 mb-2">
-        <i class="ph-duotone ph-warning text-warning text-lg"></i>
-        <p class="font-bold text-warning text-sm">Phosphor Icons — CDN → npm</p>
-      </div>
-      <p class="text-xs text-gray-600">hot.html يستخدم CDN script (2MB+ icon font). في production: <code>npm i @phosphor-icons/vue</code> أو inline SVGs فقط للـ icons المستخدمة.</p>
-    </div>
-    <div class="warn-box" style="border-color:var(--info);background:rgba(69,123,157,0.04)">
-      <div class="flex items-center gap-2 mb-2">
-        <i class="ph-duotone ph-info text-info text-lg"></i>
-        <p class="font-bold text-info text-sm">Offline Sync Conflicts</p>
-      </div>
-      <p class="text-xs text-gray-600">الخادم يسجل زيارة offline ثم المخدوم يُعاد تعيينه. الـ sync endpoint يتحقق من الصلاحية قبل الإنشاء → 409 Conflict → يُوضَع في failed state في IndexedDB + إشعار للخادم.</p>
-    </div>
-    <div class="warn-box" style="border-color:var(--success);background:rgba(6,167,125,0.04)">
-      <div class="flex items-center gap-2 mb-2">
-        <i class="ph-duotone ph-check-circle text-success text-lg"></i>
-        <p class="font-bold text-success text-sm">wire:navigate + Persistent Modal</p>
-      </div>
-      <p class="text-xs text-gray-600">منع navigation أثناء الـ Wizard مفتوح: <code>document.addEventListener('livewire:navigate', e => { if(wizardOpen) e.preventDefault() })</code></p>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="reveal">
-  <div class="section-card text-center" style="background:var(--gradient-deep)">
-    <div class="card-accent" style="background:var(--gold-500);top:50%;right:50%"></div>
-    <h2 class="font-display text-3xl text-white mb-3">جاهز تبدأ؟</h2>
-    <p class="font-body text-teal-100 mb-6">ابدأ بـ Phase 1 — Foundation في أقل من 30 دقيقة</p>
-    <div class="flex flex-wrap justify-center gap-3">
-      <a href="#analysis" class="py-3 px-6 rounded-2xl font-body font-bold text-sm text-white border-2 border-white/30 hover:bg-white/10 transition-colors">1. التحليل</a>
-      <a href="#architecture" class="py-3 px-6 rounded-2xl font-body font-bold text-sm text-white border-2 border-white/30 hover:bg-white/10 transition-colors">2. المعمارية</a>
-      <a href="#wizard" class="py-3 px-6 rounded-2xl font-body font-bold text-sm" style="background:var(--gold-500);color:#003942">3. الـ Wizard أولاً</a>
-      <a href="#roadmap" class="py-3 px-6 rounded-2xl font-body font-bold text-sm text-white border-2 border-white/30 hover:bg-white/10 transition-colors">4. الخارطة</a>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<!-- Footer -->
-<footer class="text-center py-8 font-body text-sm text-gray-400">
-  <p>خطة تنفيذ نظام <strong class="text-teal-700">خادم الخاص</strong> — Laravel 12 + Livewire 3 + PWA</p>
 </footer>
 
 <script>
-// Reveal on scroll
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      // stagger children
-      e.target.querySelectorAll('.reveal').forEach((child, i) => {
-        setTimeout(() => child.classList.add('visible'), i * 80);
-      });
+// Phase toggle
+function togglePhase(el) {
+  const card = el.closest('.phase-card');
+  card.classList.toggle('expanded');
+}
+
+// Checkbox toggle (check only, no full item toggle)
+function toggleCheck(el) {
+  const check = el.querySelector('.check');
+  if (check) {
+    check.classList.toggle('checked');
+    el.classList.toggle('done');
+    updateProgress();
+  }
+}
+
+// Progress calculation
+function updateProgress() {
+  const items = document.querySelectorAll('.phase-items li');
+  const checked = document.querySelectorAll('.phase-items li .check.checked');
+  const total = items.length;
+  const done = checked.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('pct1').textContent = pct + '%';
+  document.getElementById('fill1').style.width = pct + '%';
+
+  // Per-surface progress
+  const allWebApp = document.querySelectorAll('.phase-items li .phase-tag.webapp, .phase-items li .phase-tag.both');
+  const checkedWebApp = document.querySelectorAll('.phase-items li .check.checked').length;
+  // More specific would need data attributes; simplified for now
+  document.getElementById('pctWeb').textContent = pct + '%';
+  document.getElementById('fillWeb').style.width = pct + '%';
+  document.getElementById('pctServant').textContent = pct + '%';
+  document.getElementById('fillServant').style.width = pct + '%';
+  document.getElementById('pctAccess').textContent = pct + '%';
+  document.getElementById('fillAccess').style.width = pct + '%';
+
+  // Save to localStorage
+  const state = [];
+  document.querySelectorAll('.phase-items li .check').forEach(c => {
+    state.push(c.classList.contains('checked') ? 1 : 0);
+  });
+  localStorage.setItem('improvement-plan-state', JSON.stringify(state));
+}
+
+// Restore state
+function restoreState() {
+  const saved = localStorage.getItem('improvement-plan-state');
+  if (!saved) return;
+  try {
+    const state = JSON.parse(saved);
+    const checks = document.querySelectorAll('.phase-items li .check');
+    checks.forEach((c, i) => {
+      if (state[i]) {
+        c.classList.add('checked');
+        c.closest('li').classList.add('done');
+      }
+    });
+    updateProgress();
+  } catch(e) {}
+}
+
+// Language switch
+function switchLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('[data-ar], [data-en]').forEach(el => {
+    const key = el.dataset[lang];
+    if (key) {
+      el.innerHTML = key;
     }
   });
-}, { threshold: 0.1 });
 
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  localStorage.setItem('improvement-lang', lang);
+}
 
-// Highlight active nav section
-const sections = document.querySelectorAll('section[id]');
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => {
-    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+// Active nav link
+const navLinks = document.querySelectorAll('.topnav-link');
+const sections = document.querySelectorAll('section[id], section:has([id])');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = e.target.id || e.target.querySelector('[id]')?.id;
+      if (id) {
+        const link = document.querySelector(`.topnav-link[href="#${id}"]`);
+        if (link) link.classList.add('active');
+      }
+    }
   });
-  document.querySelectorAll('.sticky-nav a').forEach(a => {
-    const isActive = a.getAttribute('href') === '#' + current;
-    a.style.background = isActive ? 'rgba(0,109,119,0.1)' : '';
-    a.style.color = isActive ? 'var(--teal-900)' : '';
-    a.style.fontWeight = isActive ? '700' : '';
-  });
-});
+}, { rootMargin: '-40% 0px -55% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Init
+restoreState();
+const savedLang = localStorage.getItem('improvement-lang');
+if (savedLang) switchLang(savedLang);
 </script>
 </body>
 </html>

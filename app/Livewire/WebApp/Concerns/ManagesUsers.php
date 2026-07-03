@@ -165,6 +165,25 @@ trait ManagesUsers
         );
     }
 
+    public function deleteUser(int $id): void
+    {
+        $actor = auth()->user();
+        $record = WebAppScope::users($actor)->whereKey($id)->firstOrFail();
+        abort_unless($actor->can('delete', $record) && $actor->id !== $record->id, 403);
+        $record->delete();
+        $this->dispatch('toast', message: __('web_app.toasts.user_deleted'), type: 'success');
+    }
+
+    public function approveUser(int $id): void
+    {
+        $actor = auth()->user();
+        abort_unless($actor->can('update', new User), 403);
+
+        $record = WebAppScope::users($actor)->whereKey($id)->firstOrFail();
+        $record->update(['is_active' => true]);
+        $this->dispatch('toast', message: __('web_app.toasts.user_enabled'), type: 'success');
+    }
+
     private function resetUserForm(): void
     {
         $this->reset([

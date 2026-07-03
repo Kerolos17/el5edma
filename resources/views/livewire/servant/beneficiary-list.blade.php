@@ -8,13 +8,13 @@
 
     {{-- Search --}}
     <div class="relative reveal-card" style="animation-delay: 0.06s">
-        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 text-lg pointer-events-none"></i>
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;"></i>
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
             placeholder="ابحث بالاسم أو الكود أو الهاتف..."
             class="search-input"
-            style="padding-right: 44px;"
+            style="padding-inline-end: 44px;"
             aria-label="بحث عن مخدوم">
     </div>
 

@@ -8,7 +8,7 @@ $nextLocale = app()->getLocale() === 'ar' ? 'en' : 'ar';
 $nextLocaleLabel = strtoupper($nextLocale);
 @endphp
 
-<header class="app-topbar" data-user-id="{{ $appUser->id }}" x-data="{ profileOpen: false }" @click.outside="profileOpen = false">
+<header class="app-topbar" data-user-id="{{ $appUser->id }}">
     <div class="app-topbar-start">
         <button type="button" @click="drawer = true" class="app-hamburger lg:hidden" aria-label="{{ __('web_app.shell.main_navigation') }}">
             <i class="ph ph-list" aria-hidden="true"></i>
@@ -48,9 +48,7 @@ $nextLocaleLabel = strtoupper($nextLocale);
             <button
                 type="button"
                 class="app-icon-button app-profile-trigger"
-                @click="profileOpen = !profileOpen"
-                :aria-expanded="profileOpen"
-                aria-haspopup="menu"
+                data-profile-toggle
                 title="{{ __('web_app.navigation.profile') }}">
                 <span class="app-profile-avatar">
                     @if ($appUser->profile_photo_url)
@@ -61,18 +59,9 @@ $nextLocaleLabel = strtoupper($nextLocale);
                 </span>
             </button>
 
-            <div
-                x-show="profileOpen"
-                x-cloak
-                x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 translate-y-1"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-1"
-                class="app-dropdown-menu app-profile-dropdown"
-                style="display: none;"
-                role="menu">
+            <div class="app-profile-backdrop" data-profile-backdrop aria-hidden="true"></div>
+
+            <div class="app-dropdown-menu app-profile-dropdown" data-profile-menu role="menu">
                 <div class="prof-dropdown-head">
                     <p>{{ $appUser->name }}</p>
                     <span>{{ $roleLabel }}</span>

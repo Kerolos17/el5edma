@@ -154,6 +154,19 @@ trait ManagesBeneficiaries
         $this->resetBeneficiaryForm();
     }
 
+    public function deleteBeneficiary(int $id): void
+    {
+        $record = WebAppScope::beneficiaries(auth()->user())->whereKey($id)->firstOrFail();
+        abort_unless(auth()->user()->can('delete', $record), 403);
+
+        if ($record->photo) {
+            Storage::disk('public')->delete($record->photo);
+        }
+
+        $record->delete();
+        $this->dispatch('toast', message: __('web_app.toasts.beneficiary_deleted'), type: 'success');
+    }
+
     public function saveBeneficiary(): void
     {
         $actor = auth()->user();

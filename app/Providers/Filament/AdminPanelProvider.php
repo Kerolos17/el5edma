@@ -6,6 +6,7 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\RedirectNonAdmin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -106,6 +107,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                RedirectNonAdmin::class,
             ]);
 
     }

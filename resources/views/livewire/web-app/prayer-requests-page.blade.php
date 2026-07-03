@@ -61,6 +61,10 @@
                             <td>
                                 <div class="app-inline-actions">
                                     @can('update', $record)
+                                        <button type="button" wire:click="editPrayer({{ $record->id }})" class="app-link-inline">
+                                            <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.edit') }}
+                                        </button>
                                         <button type="button" wire:click="closePrayerRequest({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.close_prayer') }}" class="app-link-inline">
                                             <i class="ph ph-check-circle" aria-hidden="true"></i>
                                             {{ __('web_app.actions.close') }}

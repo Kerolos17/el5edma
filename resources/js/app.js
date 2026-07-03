@@ -5,8 +5,10 @@ import { getMessaging, getToken, onMessage, isSupported } from "firebase/messagi
 
 const ROOT_SERVICE_WORKER_URL = "/sw.js";
 
+const MUTE_STORAGE_KEY = "ministry-notif-muted";
+
 const isNotificationSoundMuted = () =>
-    localStorage.getItem("notification-sound-muted") === "true";
+    localStorage.getItem(MUTE_STORAGE_KEY) === "true";
 
 const parseBooleanish = (value, fallback = false) => {
     if (typeof value === "boolean") {

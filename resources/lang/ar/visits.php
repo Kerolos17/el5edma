@@ -41,6 +41,14 @@ return [
     'visit_type'           => 'نوع الزيارة',
     'follow_up_required'   => 'يتطلب متابعة',
     'notes'                => 'ملاحظات',
+    'status'               => 'الحالة',
+    'duration'             => 'المدة',
+    'minutes'              => 'دقيقة',
+    'minute_suffix'        => 'د',
+    'other'                => 'أخرى',
+    'critical_case_help'   => 'يحتاج تدخل عاجل',
+    'needs_family_leader_help'  => 'إحالة لأمين الأسرة',
+    'needs_service_leader_help' => 'إحالة لرئيس الخدمة',
 
     // Scheduled
     'scheduled_date' => 'تاريخ الزيارة',

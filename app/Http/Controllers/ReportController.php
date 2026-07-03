@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Exports\BeneficiariesExport;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\Visit;
@@ -10,6 +11,7 @@ use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -92,5 +94,21 @@ class ReportController extends Controller
         Gate::authorize('view', $serviceGroup);
 
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);
+    }
+
+    public function beneficiariesExcel()
+    {
+        $this->authorizeBeneficiaryReportsAccess();
+        Gate::authorize('viewAny', Beneficiary::class);
+
+        return Excel::download(new BeneficiariesExport(Auth::user()), 'beneficiaries.xlsx');
+    }
+
+    public function visitsExcel(Request $request)
+    {
+        $this->authorizeManagementReportsAccess();
+        Gate::authorize('viewAny', Visit::class);
+
+        return Excel::download(new \App\Exports\VisitsExport(Auth::user()), 'visits.xlsx');
     }
 }

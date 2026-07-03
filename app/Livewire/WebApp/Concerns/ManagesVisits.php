@@ -149,6 +149,14 @@ trait ManagesVisits
         $this->dispatch('toast', message: __('web_app.toasts.visit_follow_up_closed'), type: 'success');
     }
 
+    public function deleteVisit(int $id): void
+    {
+        $visit = WebAppScope::visits(auth()->user())->whereKey($id)->firstOrFail();
+        abort_unless(auth()->user()->can('delete', $visit), 403);
+        $visit->delete();
+        $this->dispatch('toast', message: __('web_app.toasts.visit_deleted'), type: 'success');
+    }
+
     private function resetVisitForm(): void
     {
         $this->reset([

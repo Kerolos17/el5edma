@@ -42,9 +42,15 @@ return [
         'cancel' => 'Cancel',
         'mark_answered' => 'Answered',
         'save' => 'Save',
+        'saving' => 'Saving...',
+        'back' => 'Back',
+        'next' => 'Next',
+        'clear_selection' => 'Clear selection',
         'view' => 'View',
         'logout' => 'Logout',
         'close' => 'Close',
+        'delete' => 'Delete',
+        'approve' => 'Approve',
         'reopen' => 'Reopen',
         'enable' => 'Enable',
         'disable' => 'Disable',
@@ -64,6 +70,14 @@ return [
         'audit_logs' => 'Audit Logs',
         'profile' => 'Profile',
     ],
+
+    'nav_groups' => [
+        'overview' => 'Overview',
+        'work' => 'Ministry',
+        'people' => 'People',
+        'records' => 'Records',
+        'system' => 'System',
+    ],
     'roles' => [
         'super_admin' => 'System admin',
         'service_leader' => 'Service leader',
@@ -79,6 +93,7 @@ return [
         'system_readiness' => 'System readiness',
         'side_metrics' => 'Side metrics',
         'critical_cases' => 'Critical Cases',
+        'critical' => 'Critical',
         'birthdays' => 'Today\'s Birthdays',
         'unvisited' => 'Unvisited (30 days)',
         'never_visited' => 'Never visited',
@@ -308,6 +323,7 @@ return [
             'beneficiary_name' => 'Beneficiary name',
             'duration' => 'Example: 45',
             'medical_file_title' => 'Example: Follow-up report',
+            'search_beneficiary' => 'Search by name or code...',
             'optional' => 'Optional',
             'password_min' => 'At least 8 characters',
             'password_unchanged' => 'Leave blank to keep unchanged',
@@ -330,6 +346,17 @@ return [
         ],
         'medical_file' => [
             'save' => 'Save file',
+            'max_size' => 'Allowed files: PDF, JPG, PNG, WEBP, DOC, DOCX. Max :size.',
+        ],
+        'wizard' => [
+            'steps' => 'Wizard steps',
+            'step_beneficiary' => 'Select beneficiary',
+            'step_type' => 'Visit type',
+            'step_details' => 'Visit details',
+            'step_summary' => 'Summary and confirm',
+            'navigation' => 'Wizard navigation',
+            'confirm_save' => 'Confirm and save visit',
+            'offline_queued' => 'Visit will be uploaded when you are online',
         ],
         'prayer' => [
             'save' => 'Save request',
@@ -346,6 +373,7 @@ return [
             'edit_title' => 'Edit group',
             'active' => 'Group is active',
             'save' => 'Save group',
+            'leader_assigned_after_creation' => 'Group leader is assigned after creation.',
         ],
         'user' => [
             'manage' => 'Manage user',
@@ -355,6 +383,7 @@ return [
             'new_password' => 'New password',
             'active' => 'Account is active',
             'save' => 'Save user',
+            'cannot_edit_own_role' => 'You cannot edit your own role.',
         ],
         'visit' => [
             'edit_title' => 'Edit visit',
@@ -373,8 +402,16 @@ return [
             'description' => 'A PDF summary of recorded visits.',
         ],
         'unvisited' => [
-            'title' => 'Unvisited report',
-            'description' => 'Highlights beneficiaries who need follow-up or a visit.',
+            'title' => 'Unvisited',
+            'description' => 'List of beneficiaries who have not been visited recently',
+        ],
+        'beneficiaries_excel' => [
+            'title' => 'Export Beneficiaries (Excel)',
+            'description' => 'Export beneficiaries data to an Excel file',
+        ],
+        'visits_excel' => [
+            'title' => 'Export Visits (Excel)',
+            'description' => 'Export visits data to an Excel file',
         ],
         'service_group' => [
             'title' => ':name report',
@@ -395,9 +432,13 @@ return [
         'scheduled_visit_updated' => 'Scheduled visit updated successfully.',
         'scheduled_visit_cancelled' => 'Scheduled visit cancelled.',
         'prayer_created' => 'Prayer request saved.',
+        'prayer_updated' => 'Prayer request updated.',
         'prayer_answered' => 'Prayer request marked as answered.',
         'prayer_closed' => 'Prayer request closed.',
         'prayer_reopened' => 'Prayer request reopened.',
+        'beneficiary_deleted' => 'Beneficiary deleted successfully.',
+        'visit_deleted' => 'Visit deleted successfully.',
+        'user_deleted' => 'User deleted successfully.',
         'medical_file_uploaded' => 'Medical file uploaded successfully.',
         'user_created' => 'User created successfully.',
         'user_updated' => 'User updated successfully.',
@@ -471,9 +512,7 @@ return [
         ],
     ],
     'pwa' => [
-        'offline_banner' => 'You are offline. Saved data will be used when available.',
         'retry_connection' => 'Retry connection',
-        'dont_show_again' => "Don't show again",
         'install_prompt' => 'Install app',
     ],
 ];

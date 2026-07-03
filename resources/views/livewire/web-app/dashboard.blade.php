@@ -71,7 +71,7 @@
                         <div class="app-empty-state">
                             <i class="ph ph-clipboard-text" aria-hidden="true"></i>
                             <p>{{ __('web_app.dashboard.empty_visits') }}</p>
-                            <a href="{{ route('app.visits') }}" wire:navigate class="app-primary-button" style="margin-top:0.75rem">
+                            <a href="{{ route('app.visits') }}" wire:navigate class="app-primary-button">
                                 <i class="ph ph-plus-circle" aria-hidden="true"></i>
                                 {{ __('web_app.actions.record_visit') }}
                             </a>
@@ -240,14 +240,14 @@
                     @foreach ($visitsChart as $month => $count)
                         @php
                             $pct = ($count / $max) * 100;
-                            $barColor = $count >= $max * 0.75 ? '#ef4444' : ($count >= $max * 0.5 ? '#f59e0b' : '#3b82f6');
+                            $barLevel = $count >= $max * 0.75 ? 'high' : ($count >= $max * 0.5 ? 'mid' : 'low');
                             $monthLabel = \Carbon\Carbon::createFromFormat('Y-m', $month)->isoFormat('MMM');
                         @endphp
                         <div class="app-chart-bar-group">
                             <span class="app-chart-label">{{ $monthLabel }}</span>
                             <div class="app-chart-track">
-                                <div class="app-chart-fill"
-                                     style="width: {{ max(4, $pct) }}%; background: {{ $barColor }}; animation-delay: {{ $loop->index * 0.06 }}s">
+                                <div class="app-chart-fill {{ $barLevel }}"
+                                     style="width: {{ max(4, $pct) }}%; animation-delay: {{ $loop->index * 0.06 }}s">
                                 </div>
                             </div>
                             <span class="app-chart-value">{{ $count }}</span>

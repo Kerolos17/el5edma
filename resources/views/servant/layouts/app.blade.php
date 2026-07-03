@@ -37,9 +37,6 @@
         <x-servant.bottom-nav />
     </main>
 
-    {{-- Offline Banner --}}
-    <x-servant.offline-banner />
-
     {{-- PWA Install Prompt --}}
     <x-servant.install-prompt />
 

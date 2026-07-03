@@ -167,7 +167,7 @@
                 <div class="space-y-2">
                     @foreach($recentVisits as $visit)
                         <div class="s-card rounded-2xl px-4 py-3 flex items-start gap-3"
-                             style="{{ $visit->is_critical ? 'border-right: 3px solid #E63946;' : '' }}"
+                             style="{{ $visit->is_critical ? 'border-inline-end: 3px solid var(--wizard-error);' : '' }}"
                              role="article">
                             {{-- Date --}}
                             <div class="text-center flex-shrink-0 w-12" aria-hidden="true">

@@ -1,19 +1,19 @@
 @php
     $visitTypes = [
-        'home_visit'     => ['label' => 'زيارة منزلية',   'icon' => 'ph-house-simple',   'color' => '#006D77'],
-        'phone_call'     => ['label' => 'مكالمة هاتفية',  'icon' => 'ph-phone',           'color' => '#4D9BA3'],
-        'church_meeting' => ['label' => 'اجتماع كنيسة',   'icon' => 'ph-church',          'color' => '#F4A261'],
+        'home_visit'     => ['label' => __('visits.home_visit'),     'icon' => 'ph-house-simple',   'var' => 'var(--wizard-type-home)'],
+        'phone_call'     => ['label' => __('visits.phone_call'),    'icon' => 'ph-phone',          'var' => 'var(--wizard-type-phone)'],
+        'church_meeting' => ['label' => __('visits.church_meeting'),   'icon' => 'ph-church',         'var' => 'var(--wizard-type-church)'],
     ];
     $statuses = [
-        'great'        => ['label' => 'ممتاز',          'color' => '#06A77D', 'bg' => 'rgba(6,167,125,0.12)'],
-        'good'         => ['label' => 'جيد',            'color' => '#4D9BA3', 'bg' => 'rgba(77,155,163,0.12)'],
-        'needs_follow' => ['label' => 'يحتاج متابعة',   'color' => '#F77F00', 'bg' => 'rgba(247,127,0,0.12)'],
-        'critical'     => ['label' => 'حرج',            'color' => '#E63946', 'bg' => 'rgba(230,57,70,0.12)'],
+        'great'        => ['label' => __('visits.great'),        'class' => 'is-success'],
+        'good'         => ['label' => __('visits.good'),         'class' => 'is-info'],
+        'needs_follow' => ['label' => __('visits.needs_follow'), 'class' => 'is-warning'],
+        'critical'     => ['label' => __('visits.critical'),     'class' => 'is-error'],
     ];
 @endphp
 
-{{-- Single Livewire root — Alpine entangles $open for CSS-transition-safe animation --}}
-<div x-data="{ open: $wire.entangle('open') }">
+{{-- Single Livewire root --}}
+<div x-data="{ open: $wire.entangle('open') }" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
 
     {{-- Overlay --}}
     <div x-show="open"
@@ -25,31 +25,27 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          wire:click="close"
-         class="fixed inset-0 z-[150]"
-         style="background: rgba(0,61,66,0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);">
+         class="fixed inset-0 z-[150] wizard-overlay">
     </div>
 
-    {{-- Bottom Sheet — Alpine drives transform so CSS transition fires on every open/close --}}
-    <div class="fixed bottom-0 left-0 right-0 z-[160]"
+    {{-- Bottom Sheet --}}
+    <div class="fixed bottom-0 inset-x-0 z-[160] wizard-sheet-outer"
          :style="{ transform: open ? 'translateY(0)' : 'translateY(100%)' }"
-         style="transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)">
+         style="transform: translateY(100%);">
 
-        <div class="rounded-t-[28px] overflow-hidden"
-             style="background: #FFFBF7; max-height: 92vh; overflow-y: auto;">
+        <div class="rounded-t-[28px] overflow-hidden wizard-sheet-inner">
 
             {{-- Drag Handle --}}
             <div class="flex justify-center pt-3 pb-1">
-                <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+                <div class="w-10 h-1 rounded-full wizard-drag-handle"></div>
             </div>
 
             {{-- Step Indicator --}}
-            <div class="px-5 pt-2 pb-4">
-                <div class="flex items-center gap-1 mb-3">
+            <div class="px-5 pt-2 pb-4" aria-live="polite">
+                <div class="flex items-center gap-1 mb-3" role="group" aria-label="{{ __('web_app.wizard.steps') }}">
                     @for($i = 1; $i <= 4; $i++)
-                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300"
-                             style="{{ $step >= $i
-                                ? 'background: linear-gradient(135deg, #006D77, #003942); color: white;'
-                                : 'background: #F5F3F0; color: #9CA3AF;' }}">
+                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300 wizard-step-dot {{ $step >= $i ? 'is-active' : '' }}"
+                             aria-current="{{ $step === $i ? 'step' : 'false' }}">
                             {{ $i }}
                         </div>
                         @if($i < 4)
@@ -59,12 +55,13 @@
                 </div>
 
                 {{-- Step Title --}}
-                <h3 class="font-bold text-teal-900 text-lg" style="font-family: var(--font-display);">
-                    @if($step === 1) اختيار المخدوم
-                    @elseif($step === 2) نوع الزيارة
-                    @elseif($step === 3) تفاصيل الزيارة
-                    @else ملخص وتأكيد
-                    @endif
+                <h3 class="font-bold text-lg wizard-step-title">
+                    {{ match($step) {
+                        1 => __('web_app.wizard.step_beneficiary'),
+                        2 => __('web_app.wizard.step_type'),
+                        3 => __('web_app.wizard.step_details'),
+                        default => __('web_app.wizard.step_summary'),
+                    } }}
                 </h3>
             </div>
 
@@ -74,63 +71,61 @@
 
                     @if($selectedBeneficiary)
                         {{-- Selected beneficiary card --}}
-                        <div class="s-card rounded-2xl px-4 py-3 flex items-center gap-3">
+                        <div class="wizard-card rounded-2xl px-4 py-3 flex items-center gap-3">
                             <div class="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0">
                                 @if($selectedBeneficiary->photo_url)
                                     <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center font-bold text-teal-700"
-                                         style="background: linear-gradient(135deg, #C7E5E8, #4D9BA3);">
+                                    <div class="w-full h-full flex items-center justify-center font-bold wizard-avatar-fallback">
                                         {{ mb_substr($selectedBeneficiary->full_name, 0, 1) }}
                                     </div>
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-teal-900 text-sm truncate">{{ $selectedBeneficiary->full_name }}</p>
-                                <p class="text-xs text-gray-400">{{ $selectedBeneficiary->code }}</p>
+                                <p class="font-bold text-sm truncate wizard-text-strong">{{ $selectedBeneficiary->full_name }}</p>
+                                <p class="text-xs wizard-text-muted">{{ $selectedBeneficiary->code }}</p>
                             </div>
                             <button wire:click="clearBeneficiary"
-                                    class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                                    aria-label="إلغاء اختيار المخدوم">
-                                <i class="ph ph-x text-gray-500 text-sm" aria-hidden="true"></i>
+                                    class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-colors wizard-icon-button"
+                                    aria-label="{{ __('web_app.actions.clear_selection') }}">
+                                <i class="ph ph-x text-sm wizard-text-muted" aria-hidden="true"></i>
                             </button>
                         </div>
                     @else
                         {{-- Search --}}
                         <div class="relative">
-                            <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 text-lg pointer-events-none"></i>
+                            <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-lg pointer-events-none wizard-search-icon" aria-hidden="true"></i>
                             <input wire:model.live.debounce.250ms="beneficiarySearch"
                                    type="search"
-                                   placeholder="ابحث بالاسم أو الكود..."
-                                   class="search-input"
-                                   style="padding-right: 44px;">
+                                   placeholder="{{ __('web_app.forms.placeholders.search_beneficiary') }}"
+                                   class="search-input wizard-search-input"
+                                   aria-label="{{ __('web_app.forms.placeholders.search_beneficiary') }}">
                         </div>
 
                         {{-- Beneficiary List --}}
                         <div class="space-y-2 max-h-64 overflow-y-auto">
                             @forelse($beneficiaries as $b)
                                 <button wire:click="selectBeneficiary({{ $b->id }})"
-                                        class="w-full text-right s-card rounded-2xl px-4 py-3 flex items-center gap-3 hover:shadow-md transition-all duration-200 active:scale-[0.98]">
+                                        class="w-full text-start wizard-card rounded-2xl px-4 py-3 flex items-center gap-3 hover:shadow-md transition-all duration-200 active:scale-[0.98]">
                                     <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
                                         @if($b->photo_url)
                                             <img src="{{ $b->photo_url }}" class="w-full h-full object-cover" alt="">
                                         @else
-                                            <div class="w-full h-full flex items-center justify-center font-bold text-teal-700 text-sm"
-                                                 style="background: linear-gradient(135deg, #C7E5E8, #4D9BA3);">
+                                            <div class="w-full h-full flex items-center justify-center font-bold text-sm wizard-avatar-fallback">
                                                 {{ mb_substr($b->full_name, 0, 1) }}
                                             </div>
                                         @endif
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-semibold text-teal-900 text-sm truncate">{{ $b->full_name }}</p>
-                                        <p class="text-xs text-gray-400">{{ $b->code }}</p>
+                                        <p class="font-semibold text-sm truncate wizard-text-strong">{{ $b->full_name }}</p>
+                                        <p class="text-xs wizard-text-muted">{{ $b->code }}</p>
                                     </div>
                                 </button>
                             @empty
                                 <div class="text-center py-8">
-                                    <i class="ph ph-users text-4xl text-gray-300 block mb-2"></i>
-                                    <p class="text-sm text-gray-400">
-                                        {{ $beneficiarySearch ? 'لا توجد نتائج' : 'ابحث عن مخدوم' }}
+                                    <i class="ph ph-users text-4xl block mb-2 wizard-text-muted" aria-hidden="true"></i>
+                                    <p class="text-sm wizard-text-muted">
+                                        {{ $beneficiarySearch ? __('visits.no_records') : __('web_app.forms.placeholders.search_beneficiary') }}
                                     </p>
                                 </div>
                             @endforelse
@@ -138,8 +133,8 @@
                     @endif
 
                     @error('selectedBeneficiaryId')
-                        <p class="text-red-500 text-sm flex items-center gap-1">
-                            <i class="ph ph-warning-circle"></i> {{ $message }}
+                        <p class="text-sm flex items-center gap-1 wizard-error-text">
+                            <i class="ph ph-warning-circle" aria-hidden="true"></i> {{ $message }}
                         </p>
                     @enderror
                 </div>
@@ -150,28 +145,25 @@
                 <div class="px-5 pb-6 space-y-3">
                     @foreach($visitTypes as $key => $type)
                         <button wire:click="$set('visitType', '{{ $key }}')"
-                                class="w-full text-right rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-200 border-2
-                                       {{ $visitType === $key ? 'border-teal-500 bg-teal-50' : 'border-gray-100 bg-white hover:border-teal-200' }}">
-                            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                                 style="background: {{ $visitType === $key ? $type['color'] : '#F5F3F0' }}">
-                                <i class="ph-bold {{ $type['icon'] }} text-xl"
-                                   style="color: {{ $visitType === $key ? 'white' : '#9CA3AF' }}"></i>
+                                class="w-full text-start rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-200 border-2 wizard-type-card {{ $visitType === $key ? 'is-selected' : '' }}">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 wizard-type-icon {{ $visitType === $key ? 'is-selected' : '' }}"
+                                 style="--type-color: {{ $type['var'] }}">
+                                <i class="ph-bold {{ $type['icon'] }} text-xl"></i>
                             </div>
-                            <span class="font-bold text-base {{ $visitType === $key ? 'text-teal-900' : 'text-gray-600' }}">
+                            <span class="font-bold text-base wizard-type-label {{ $visitType === $key ? 'is-selected' : '' }}">
                                 {{ $type['label'] }}
                             </span>
                             @if($visitType === $key)
-                                <span class="mr-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                                      style="background: #006D77">
-                                    <i class="ph-bold ph-check text-white text-xs"></i>
+                                <span class="ms-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 wizard-check-mark">
+                                    <i class="ph-bold ph-check text-white text-xs" aria-hidden="true"></i>
                                 </span>
                             @endif
                         </button>
                     @endforeach
 
                     @error('visitType')
-                        <p class="text-red-500 text-sm flex items-center gap-1">
-                            <i class="ph ph-warning-circle"></i> {{ $message }}
+                        <p class="text-sm flex items-center gap-1 wizard-error-text">
+                            <i class="ph ph-warning-circle" aria-hidden="true"></i> {{ $message }}
                         </p>
                     @enderror
                 </div>
@@ -182,84 +174,81 @@
                 <div class="px-5 pb-6 space-y-5">
 
                     {{-- Beneficiary Status --}}
-                    <div>
-                        <p class="text-sm font-bold text-teal-900 mb-3">الحالة العامة للمخدوم</p>
+                    <fieldset>
+                        <legend class="text-sm font-bold mb-3 wizard-text-strong">{{ __('visits.beneficiary_status') }}</legend>
                         <div class="grid grid-cols-2 gap-2">
                             @foreach($statuses as $key => $status)
                                 <button wire:click="$set('beneficiaryStatus', '{{ $key }}')"
-                                        class="py-3 rounded-2xl text-center font-bold text-sm transition-all duration-200 border-2"
-                                        style="{{ $beneficiaryStatus === $key
-                                            ? "border-color: {$status['color']}; background: {$status['bg']}; color: {$status['color']};"
-                                            : 'border-color: #E8E4DF; background: white; color: #6B7280;' }}">
+                                        type="button"
+                                        class="py-3 rounded-2xl text-center font-bold text-sm transition-all duration-200 border-2 wizard-status-chip {{ $beneficiaryStatus === $key ? 'is-selected ' . $status['class'] : '' }}">
                                     {{ $status['label'] }}
                                 </button>
                             @endforeach
                         </div>
                         @error('beneficiaryStatus')
-                            <p class="text-red-500 text-sm mt-1 flex items-center gap-1">
-                                <i class="ph ph-warning-circle"></i> {{ $message }}
+                            <p class="text-sm mt-1 flex items-center gap-1 wizard-error-text">
+                                <i class="ph ph-warning-circle" aria-hidden="true"></i> {{ $message }}
                             </p>
                         @enderror
-                    </div>
+                    </fieldset>
 
                     {{-- Duration --}}
                     <div>
-                        <label class="text-sm font-bold text-teal-900 mb-2 block">مدة الزيارة (دقيقة)</label>
+                        <label class="text-sm font-bold mb-2 block wizard-text-strong">{{ __('visits.duration_minutes') }}</label>
                         <div class="flex gap-2 flex-wrap">
                             @foreach([15, 30, 45, 60, 90] as $min)
                                 <button wire:click="$set('durationMinutes', {{ $min }})"
-                                        class="px-4 min-h-[44px] rounded-xl text-sm font-bold transition-all duration-200 border-2
-                                               {{ $durationMinutes == $min ? 'border-teal-500 bg-teal-50 text-teal-700' : 'border-gray-100 bg-white text-gray-500 hover:border-teal-200' }}">
-                                    {{ $min }}د
+                                        type="button"
+                                        class="px-4 min-h-[44px] rounded-xl text-sm font-bold transition-all duration-200 border-2 wizard-duration-chip {{ $durationMinutes == $min ? 'is-selected' : '' }}">
+                                    {{ $min }}{{ __('visits.minute_suffix') }}
                                 </button>
                             @endforeach
-                            <input wire:model.lazy="durationMinutes"
-                                   type="number" min="1" max="480" placeholder="أخرى..."
-                                   class="w-20 min-h-[44px] px-3 rounded-xl border-2 border-gray-100 text-sm text-center font-bold text-gray-600 outline-none focus:border-teal-400 transition-colors">
+                            <input wire:model.live.debounce.150ms="durationMinutes"
+                                   type="number" min="1" max="480" placeholder="{{ __('visits.other') }}"
+                                   class="w-20 min-h-[44px] px-3 rounded-xl border-2 text-sm text-center font-bold outline-none focus:border-teal-400 transition-colors wizard-duration-input"
+                                   aria-label="{{ __('visits.duration_minutes') }}">
                         </div>
                     </div>
 
                     {{-- Notes --}}
                     <div>
-                        <label class="text-sm font-bold text-teal-900 mb-2 block">ملاحظات وتقرير الزيارة</label>
+                        <label class="text-sm font-bold mb-2 block wizard-text-strong">{{ __('visits.feedback') }}</label>
                         <textarea wire:model.lazy="feedback"
                                   class="form-textarea"
                                   rows="4"
-                                  placeholder="اكتب ملاحظاتك عن الزيارة، الحالة الروحية، الاحتياجات..."></textarea>
+                                  placeholder="{{ __('visits.feedback') }}"></textarea>
                     </div>
 
                     {{-- Critical + Escalation Flags --}}
-                    <div class="space-y-2">
-                        <label class="flex items-center gap-3 s-card rounded-2xl px-4 py-3 cursor-pointer"
-                               style="{{ $isCritical ? 'border: 2px solid #E63946; background: rgba(230,57,70,0.04)' : '' }}">
+                    <fieldset class="space-y-2">
+                        <legend class="sr-only">{{ __('visits.follow_up_flags') }}</legend>
+                        <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $isCritical ? 'is-critical' : '' }}">
                             <input wire:model="isCritical" type="checkbox"
                                    class="w-5 h-5 rounded accent-red-500 cursor-pointer flex-shrink-0">
                             <div>
-                                <p class="font-bold text-sm {{ $isCritical ? 'text-red-600' : 'text-gray-700' }}">حالة حرجة</p>
-                                <p class="text-xs text-gray-400">يحتاج تدخل عاجل</p>
+                                <p class="font-bold text-sm {{ $isCritical ? 'wizard-error-text' : 'wizard-text-strong' }}">{{ __('visits.is_critical') }}</p>
+                                <p class="text-xs wizard-text-muted">{{ __('visits.critical_case_help') }}</p>
                             </div>
                         </label>
 
-                        <label class="flex items-center gap-3 s-card rounded-2xl px-4 py-3 cursor-pointer"
-                               style="{{ $needsFamilyLeader ? 'border: 2px solid #F4A261; background: rgba(244,162,97,0.04)' : '' }}">
+                        <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsFamilyLeader ? 'is-family-leader' : '' }}">
                             <input wire:model="needsFamilyLeader" type="checkbox"
                                    class="w-5 h-5 rounded accent-orange-400 cursor-pointer flex-shrink-0">
                             <div>
-                                <p class="font-bold text-sm {{ $needsFamilyLeader ? 'text-orange-600' : 'text-gray-700' }}">يحتاج أمين الأسرة</p>
-                                <p class="text-xs text-gray-400">إحالة لأمين الأسرة</p>
+                                <p class="font-bold text-sm {{ $needsFamilyLeader ? 'text-orange-600' : 'wizard-text-strong' }}">{{ __('visits.needs_family_leader') }}</p>
+                                <p class="text-xs wizard-text-muted">{{ __('visits.needs_family_leader_help') }}</p>
                             </div>
                         </label>
 
-                        <label class="flex items-center gap-3 s-card rounded-2xl px-4 py-3 cursor-pointer"
-                               style="{{ $needsServiceLeader ? 'border: 2px solid #4D9BA3; background: rgba(77,155,163,0.04)' : '' }}">
+                        <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsServiceLeader ? 'is-service-leader' : '' }}">
                             <input wire:model="needsServiceLeader" type="checkbox"
                                    class="w-5 h-5 rounded accent-teal-500 cursor-pointer flex-shrink-0">
                             <div>
-                                <p class="font-bold text-sm {{ $needsServiceLeader ? 'text-teal-700' : 'text-gray-700' }}">يحتاج رئيس الخدمة</p>
-                                <p class="text-xs text-gray-400">إحالة لرئيس الخدمة</p>
+                                <p class="font-bold text-sm {{ $needsServiceLeader ? 'text-teal-700' : 'wizard-text-strong' }}">{{ __('visits.needs_service_leader') }}</p>
+                                <p class="text-xs wizard-text-muted">{{ __('visits.needs_service_leader_help') }}</p>
                             </div>
                         </label>
-                    </div>
+                    </fieldset>
                 </div>
             @endif
 
@@ -269,59 +258,56 @@
 
                     {{-- Beneficiary --}}
                     @if($selectedBeneficiary)
-                        <div class="s-card rounded-2xl px-4 py-3 flex items-center gap-3">
+                        <div class="wizard-card rounded-2xl px-4 py-3 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
                                 @if($selectedBeneficiary->photo_url)
                                     <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center font-bold text-teal-700"
-                                         style="background: linear-gradient(135deg, #C7E5E8, #4D9BA3);">
+                                    <div class="w-full h-full flex items-center justify-center font-bold wizard-avatar-fallback">
                                         {{ mb_substr($selectedBeneficiary->full_name, 0, 1) }}
                                     </div>
                                 @endif
                             </div>
                             <div>
-                                <p class="text-xs text-gray-400">المخدوم</p>
-                                <p class="font-bold text-teal-900 text-sm">{{ $selectedBeneficiary->full_name }}</p>
+                                <p class="text-xs wizard-text-muted">{{ __('visits.beneficiary') }}</p>
+                                <p class="font-bold text-sm wizard-text-strong">{{ $selectedBeneficiary->full_name }}</p>
                             </div>
                         </div>
                     @endif
 
                     {{-- Summary Grid --}}
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="s-card rounded-2xl p-3 text-center">
-                            <i class="ph-bold {{ $visitTypes[$visitType]['icon'] ?? 'ph-calendar' }} text-xl mb-1 block"
-                               style="color: #006D77"></i>
-                            <p class="text-xs text-gray-400">نوع الزيارة</p>
-                            <p class="font-bold text-sm text-teal-900">{{ $visitTypes[$visitType]['label'] ?? '' }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="wizard-card rounded-2xl p-3 text-center">
+                            <i class="ph-bold {{ $visitTypes[$visitType]['icon'] ?? 'ph-calendar' }} text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                            <p class="text-xs wizard-text-muted">{{ __('visits.visit_type') }}</p>
+                            <p class="font-bold text-sm wizard-text-strong">{{ $visitTypes[$visitType]['label'] ?? '' }}</p>
                         </div>
 
-                        <div class="s-card rounded-2xl p-3 text-center">
-                            <div class="w-5 h-5 rounded-full mx-auto mb-1"
-                                 style="background: {{ $statuses[$beneficiaryStatus]['color'] ?? '#ccc' }}"></div>
-                            <p class="text-xs text-gray-400">الحالة</p>
-                            <p class="font-bold text-sm text-teal-900">{{ $statuses[$beneficiaryStatus]['label'] ?? '' }}</p>
+                        <div class="wizard-card rounded-2xl p-3 text-center">
+                            <div class="w-5 h-5 rounded-full mx-auto mb-1 wizard-status-dot {{ $statuses[$beneficiaryStatus]['class'] ?? '' }}"></div>
+                            <p class="text-xs wizard-text-muted">{{ __('visits.status') }}</p>
+                            <p class="font-bold text-sm wizard-text-strong">{{ $statuses[$beneficiaryStatus]['label'] ?? '' }}</p>
                         </div>
 
                         @if($durationMinutes)
-                            <div class="s-card rounded-2xl p-3 text-center">
-                                <i class="ph ph-clock text-xl mb-1 block text-teal-500"></i>
-                                <p class="text-xs text-gray-400">المدة</p>
-                                <p class="font-bold text-sm text-teal-900">{{ $durationMinutes }} دقيقة</p>
+                            <div class="wizard-card rounded-2xl p-3 text-center">
+                                <i class="ph ph-clock text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                                <p class="text-xs wizard-text-muted">{{ __('visits.duration') }}</p>
+                                <p class="font-bold text-sm wizard-text-strong">{{ $durationMinutes }} {{ __('visits.minutes') }}</p>
                             </div>
                         @endif
 
-                        <div class="s-card rounded-2xl p-3 text-center">
-                            <i class="ph ph-calendar-check text-xl mb-1 block text-teal-500"></i>
-                            <p class="text-xs text-gray-400">التاريخ</p>
-                            <p class="font-bold text-sm text-teal-900">{{ now()->locale('ar')->isoFormat('D MMM') }}</p>
+                        <div class="wizard-card rounded-2xl p-3 text-center">
+                            <i class="ph ph-calendar-check text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                            <p class="text-xs wizard-text-muted">{{ __('visits.date') }}</p>
+                            <p class="font-bold text-sm wizard-text-strong">{{ now()->locale(app()->getLocale())->isoFormat('D MMM') }}</p>
                         </div>
                     </div>
 
                     @if($feedback)
-                        <div class="s-card rounded-2xl px-4 py-3">
-                            <p class="text-xs text-gray-400 mb-1">الملاحظات</p>
-                            <p class="text-sm text-gray-700 leading-relaxed">{{ $feedback }}</p>
+                        <div class="wizard-card rounded-2xl px-4 py-3">
+                            <p class="text-xs wizard-text-muted mb-1">{{ __('visits.notes') }}</p>
+                            <p class="text-sm wizard-text-body leading-relaxed">{{ $feedback }}</p>
                         </div>
                     @endif
 
@@ -329,17 +315,17 @@
                         <div class="flex flex-wrap gap-2">
                             @if($isCritical)
                                 <span class="badge-pill badge-critical text-xs">
-                                    <i class="ph-fill ph-warning"></i> حالة حرجة
+                                    <i class="ph-fill ph-warning" aria-hidden="true"></i> {{ __('visits.is_critical') }}
                                 </span>
                             @endif
                             @if($needsFamilyLeader)
                                 <span class="badge-pill badge-warning text-xs">
-                                    <i class="ph ph-user-gear"></i> يحتاج أمين الأسرة
+                                    <i class="ph ph-user-gear" aria-hidden="true"></i> {{ __('visits.needs_family_leader') }}
                                 </span>
                             @endif
                             @if($needsServiceLeader)
                                 <span class="badge-pill badge-info text-xs">
-                                    <i class="ph ph-user-crown"></i> يحتاج رئيس الخدمة
+                                    <i class="ph ph-user-crown" aria-hidden="true"></i> {{ __('visits.needs_service_leader') }}
                                 </span>
                             @endif
                         </div>
@@ -348,34 +334,33 @@
             @endif
 
             {{-- Navigation Buttons --}}
-            <div class="px-5 pb-8 flex gap-3"
-                 style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
+            <div class="px-5 pb-8 flex gap-3 wizard-nav-actions" role="group" aria-label="{{ __('web_app.wizard.navigation') }}">
 
                 @if($step > 1)
                     <button wire:click="prevStep"
-                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-teal-300 transition-all duration-200">
-                        رجوع
+                            type="button"
+                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
+                        {{ __('web_app.actions.back') }}
                     </button>
                 @else
                     <button wire:click="close"
-                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-teal-300 transition-all duration-200">
-                        إلغاء
+                            type="button"
+                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
+                        {{ __('web_app.actions.cancel') }}
                     </button>
                 @endif
 
                 @if($step < 4)
                     <button wire:click="nextStep"
-                            class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200"
-                            style="background: linear-gradient(135deg, #006D77 0%, #003942 100%);">
-                        التالي
+                            type="button"
+                            class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 wizard-btn-primary">
+                        {{ __('web_app.actions.next') }}
                     </button>
                 @else
-                    {{-- زر الحفظ: عند الأوفلاين يُخزّن في IndexedDB، وعند الأونلاين يُرسل عبر Livewire --}}
                     <button
                         x-data
                         @click.prevent="
                             if (!navigator.onLine) {
-                                const { offlineQueue } = await import('/resources/js/servant.js').catch(() => window.offlineQueue ?? null) ?? {};
                                 const queue = window.__servantOfflineQueue;
                                 if (queue) {
                                     await queue.enqueue({
@@ -390,17 +375,17 @@
                                         queuedAt:           Date.now(),
                                     });
                                     $wire.close();
-                                    $dispatch('toast', { message: 'سيتم رفع الزيارة عند اتصالك بالإنترنت', type: 'warning' });
+                                    $dispatch('toast', { message: '{{ __('web_app.wizard.offline_queued') }}', type: 'warning' });
                                 }
                             } else {
                                 $wire.submit();
                             }
                         "
                         wire:loading.attr="disabled"
-                        class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60"
-                        style="background: linear-gradient(135deg, #06A77D 0%, #048C68 100%);">
-                        <span wire:loading.remove wire:target="submit">تأكيد وحفظ الزيارة</span>
-                        <span wire:loading wire:target="submit">جاري الحفظ...</span>
+                        type="button"
+                        class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60 wizard-btn-save">
+                        <span wire:loading.remove wire:target="submit">{{ __('web_app.wizard.confirm_save') }}</span>
+                        <span wire:loading wire:target="submit">{{ __('web_app.actions.saving') }}</span>
                     </button>
                 @endif
             </div>

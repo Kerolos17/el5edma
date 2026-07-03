@@ -130,6 +130,12 @@
                                             {{ __('web_app.actions.medical_file') }}
                                         </button>
                                     @endcan
+                                    @can('delete', $record)
+                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="هل أنت متأكد من حذف هذا المخدوم؟" class="app-link-inline app-link-danger">
+                                            <i class="ph ph-trash" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.delete') }}
+                                        </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -192,10 +198,16 @@
                             <button type="button" wire:click="openMedicalFileForm({{ $record->id }})" class="app-link-inline">
                                 <i class="ph ph-upload-simple" aria-hidden="true"></i>
                                 {{ __('web_app.actions.medical_file') }}
-                            </button>
-                        @endcan
-                    </div>
-                </article>
+                                        </button>
+                                    @endcan
+                                    @can('delete', $record)
+                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="هل أنت متأكد من حذف هذا المخدوم؟" class="app-link-inline app-link-danger">
+                                            <i class="ph ph-trash" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.delete') }}
+                                        </button>
+                                    @endcan
+                                </div>
+                            </article>
             @empty
                 <x-web-app.empty-state
                     icon="ph-users-three"

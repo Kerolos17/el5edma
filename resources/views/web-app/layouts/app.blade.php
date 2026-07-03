@@ -60,7 +60,12 @@
             </div>
 
             <nav class="app-nav">
+                @php $currentGroup = null; @endphp
                 @foreach ($navigationItems as $item)
+                    @if (($item['group'] ?? null) && $item['group'] !== $currentGroup)
+                        @php $currentGroup = $item['group']; @endphp
+                        <span class="app-nav-section">{{ __("web_app.nav_groups.$currentGroup") }}</span>
+                    @endif
                     <a href="{{ route($item['route']) }}" wire:navigate
                         class="app-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
                         <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>
@@ -81,8 +86,11 @@
     </div>
 
     <nav class="app-mobile-nav" aria-label="{{ __('web_app.shell.mobile_navigation') }}">
-        @php $mobileItems = array_slice($navigationItems, 0, 4); @endphp
-        @foreach ($mobileItems as $item)
+        @php
+            $bottomNavRoutes = ['app.dashboard', 'app.visits', 'app.beneficiaries', 'app.notifications'];
+            $bottomItems = collect($navigationItems)->filter(fn ($i) => in_array($i['route'], $bottomNavRoutes))->all();
+        @endphp
+        @foreach ($bottomItems as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
                 class="app-mobile-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
                 <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>
@@ -91,7 +99,13 @@
         @endforeach
     </nav>
 
-    <x-web-app.offline-banner />
+    @livewire('servant.create-visit-wizard')
+
+    <button x-data @click="$dispatch('open-wizard')"
+            class="app-fab lg:hidden" aria-label="زيارة جديدة">
+        <i class="ph-bold ph-plus" aria-hidden="true"></i>
+    </button>
+
     <x-web-app.install-prompt />
 
     @livewireScripts
@@ -124,7 +138,12 @@
         </div>
 
         <nav class="app-drawer-nav">
+            @php $currentGroup = null; @endphp
             @foreach ($navigationItems as $item)
+                @if (($item['group'] ?? null) && $item['group'] !== $currentGroup)
+                    @php $currentGroup = $item['group']; @endphp
+                    <span class="app-nav-section">{{ __("web_app.nav_groups.$currentGroup") }}</span>
+                @endif
                 <a href="{{ route($item['route']) }}" wire:navigate @click="drawer = false"
                    class="app-drawer-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
                     <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>

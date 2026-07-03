@@ -1,4 +1,6 @@
 import './app';
+import './notifications';
+import { offlineQueue } from './offline-queue';
 import '@phosphor-icons/web/regular';
 import '@phosphor-icons/web/bold';
 import '@phosphor-icons/web/fill';
@@ -38,18 +40,28 @@ function focusableEls(container) {
     ]).filter((el) => !el.closest('[hidden]'));
 }
 
+const NOTIF_MUTE_KEY = 'ministry-notif-muted';
+
 /**
  * Close the topmost visible modal by simulating a backdrop click.
- * Works for any `.app-modal-backdrop[wire\\:click]` present in the DOM.
  */
 function closeTopmostModal() {
-    const backdrop = document.querySelector('.app-modal-backdrop');
-    backdrop?.click();
+    const backdrops = document.querySelectorAll('.app-modal-backdrop');
+    const visible = Array.from(backdrops).filter((b) => b.offsetParent !== null);
+    visible[visible.length - 1]?.click();
 }
 
-// ESC key closes the open modal
+// ESC key closes open profile dropdown first, then modals
 document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
+
+    const openProfile = document.querySelector('[data-profile-menu].is-open');
+    if (openProfile) {
+        closeProfileMenu(openProfile);
+        event.preventDefault();
+        return;
+    }
+
     const panel = document.querySelector('.app-modal-panel');
     if (!panel) return;
     event.preventDefault();
@@ -69,9 +81,8 @@ const modalObserver = new MutationObserver(() => {
 });
 
 function observeModals() {
-    const shell = document.querySelector('.app-shell');
-    if (!shell) return;
-    modalObserver.observe(shell, { childList: true, subtree: true });
+    modalObserver.disconnect();
+    modalObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 // Tab-trap: keep focus inside the modal panel while it is open
@@ -125,13 +136,68 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// ── Livewire navigation lifecycle ─────────────────────────────
+// ── Profile dropdown toggle (vanilla JS) ───────────────────────
+
+function openProfileMenu(menu) {
+    menu.classList.add('is-open');
+}
+
+function closeProfileMenu(menu) {
+    menu.classList.remove('is-open');
+}
+
+function isProfileMenuOpen(menu) {
+    return menu.classList.contains('is-open');
+}
+
+// ── Topbar interaction handler ─────────────────────────────────
+
+document.addEventListener('click', (event) => {
+    // Profile trigger
+    const profileToggle = event.target.closest('[data-profile-toggle]');
+    if (profileToggle) {
+        const menu = profileToggle.parentElement.querySelector('[data-profile-menu]');
+        if (menu) {
+            if (isProfileMenuOpen(menu)) closeProfileMenu(menu);
+            else openProfileMenu(menu);
+        }
+        return;
+    }
+
+    // Profile backdrop (close)
+    const profileBackdrop = event.target.closest('[data-profile-backdrop]');
+    if (profileBackdrop) {
+        const menu = profileBackdrop.parentElement.querySelector('[data-profile-menu]');
+        if (menu) closeProfileMenu(menu);
+        return;
+    }
+
+    // Close profile dropdown if clicking outside topbar
+    if (!event.target.closest('.app-topbar')) {
+        document.querySelectorAll('[data-profile-menu]').forEach(closeProfileMenu);
+    }
+});
+
+// ── Re-apply after Livewire navigation ─────────────────────────
+
+function restoreTopbarInteractions() {
+    document.querySelectorAll('[data-profile-menu]')
+        .forEach(el => el.classList.remove('is-open'));
+}
 
 document.addEventListener('livewire:navigated', () => {
     restoreTheme();
     observeModals();
+    restoreTopbarInteractions();
 });
 
 // Init
-restoreTheme();
-observeModals();
+function initWebApp() {
+    restoreTheme();
+    observeModals();
+    offlineQueue.init().then(() => {
+        window.__servantOfflineQueue = offlineQueue;
+    });
+}
+
+initWebApp();

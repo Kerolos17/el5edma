@@ -4,22 +4,22 @@
     {{-- Hero Section --}}
     <div class="app-hero-panel">
         <div class="flex items-start gap-4 sm:gap-6 flex-wrap sm:flex-nowrap">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden ring-4 ring-white/30 flex-shrink-0 bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden ring-4 ring-white/30 flex-shrink-0 flex items-center justify-center" style="background: var(--clr-soft-frost)">
                 @if ($beneficiary->photo_url)
                     <img src="{{ $beneficiary->photo_url }}" alt="{{ $beneficiary->full_name }}" class="w-full h-full object-cover">
                 @else
-                    <span class="text-2xl sm:text-3xl font-bold text-gray-400 dark:text-gray-500">{{ mb_substr($beneficiary->full_name, 0, 1) }}</span>
+                    <span class="text-2xl sm:text-3xl font-bold app-text-muted">{{ mb_substr($beneficiary->full_name, 0, 1) }}</span>
                 @endif
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                     <h2 class="text-xl sm:text-2xl font-bold">{{ $beneficiary->full_name }}</h2>
                     <span class="app-muted-badge">{{ $beneficiary->code ?: __('web_app.fallback.no_code') }}</span>
-                    <span class="app-muted-badge @switch($beneficiary->status) @case('inactive') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @break @case('suspended') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @break @default bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 @endswitch">
+                    <span class="app-muted-badge app-badge-{{ $beneficiary->status ?? 'active' }}">
                         {{ $beneficiary->status ? __("beneficiaries.{$beneficiary->status}") : __('beneficiaries.active') }}
                     </span>
                 </div>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-sm app-text-muted">
                     {{ $beneficiary->serviceGroup?->name ?? __('web_app.fallback.unassigned_feminine') }}
                     @if ($beneficiary->assignedServant)
                         &middot; {{ $beneficiary->assignedServant->name }}
@@ -27,19 +27,19 @@
                 </p>
                 <div class="flex gap-2 mt-3 flex-wrap">
                     @if ($beneficiary->whatsapp_url)
-                        <a href="{{ $beneficiary->whatsapp_url }}" target="_blank" class="app-secondary-button !text-sm !py-1.5">
+                        <a href="{{ $beneficiary->whatsapp_url }}" target="_blank" class="app-secondary-button app-hero-button">
                             <i class="ph-fill ph-whatsapp-logo" aria-hidden="true"></i>
                             WhatsApp
                         </a>
                     @endif
                     @if ($beneficiary->phone)
-                        <a href="tel:{{ $beneficiary->phone }}" class="app-secondary-button !text-sm !py-1.5">
+                        <a href="tel:{{ $beneficiary->phone }}" class="app-secondary-button app-hero-button">
                             <i class="ph ph-phone" aria-hidden="true"></i>
                             {{ __('web_app.table.phone') }}
                         </a>
                     @endif
                     @if ($beneficiary->google_maps_url)
-                        <a href="{{ $beneficiary->google_maps_url }}" target="_blank" class="app-secondary-button !text-sm !py-1.5">
+                        <a href="{{ $beneficiary->google_maps_url }}" target="_blank" class="app-secondary-button app-hero-button">
                             <i class="ph ph-map-pin" aria-hidden="true"></i>
                             {{ __('web_app.table.address') }}
                         </a>
@@ -47,17 +47,17 @@
                 </div>
             </div>
             <div class="flex gap-2 flex-shrink-0 self-start">
-                <a href="{{ route('reports.beneficiary.pdf', $beneficiary) }}" target="_blank" class="app-secondary-button !text-sm !py-1.5">
+                <a href="{{ route('reports.beneficiary.pdf', $beneficiary) }}" target="_blank" class="app-secondary-button app-hero-button">
                     <i class="ph ph-file-pdf" aria-hidden="true"></i>
                     {{ __('web_app.actions.download_pdf') }}
                 </a>
                 @can('update', $beneficiary)
-                    <button type="button" wire:click="openBeneficiaryForm({{ $beneficiary->id }})" class="app-primary-button !text-sm !py-1.5">
+                    <button type="button" wire:click="openBeneficiaryForm({{ $beneficiary->id }})" class="app-primary-button app-hero-button">
                         <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                         {{ __('web_app.actions.edit') }}
                     </button>
                 @endcan
-                <a href="{{ route('app.beneficiaries') }}" wire:navigate class="app-secondary-button !text-sm">
+                <a href="{{ route('app.beneficiaries') }}" wire:navigate class="app-secondary-button app-hero-button">
                     <i class="ph ph-arrow-right" aria-hidden="true"></i>
                     {{ __('web_app.actions.beneficiaries') }}
                 </a>
@@ -92,7 +92,7 @@
             <div class="app-stat-icon"><i class="ph ph-heartbeat" aria-hidden="true"></i></div>
             <div>
                 <p>{{ __('web_app.table.health') }}</p>
-                <span class="app-status-pill mt-1 @switch($beneficiary->health_status) @case('critical') bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 @break @case('needs_follow_up') bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 @break @default bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 @endswitch">
+                <span class="app-status-pill mt-1 app-badge-health-{{ $beneficiary->health_status ?? 'good' }}">
                     {{ $beneficiary->health_status ? __("visits.{$beneficiary->health_status}") : __('visits.good') }}
                 </span>
             </div>
@@ -114,22 +114,22 @@
                 <div class="p-4 sm:p-6">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.phone') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.phone') }}</dt>
                             <dd class="mt-0.5 font-bold">{{ $beneficiary->phone ?: '—' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">WhatsApp</dt>
+                            <dt class="text-xs app-text-muted font-bold">WhatsApp</dt>
                             <dd class="mt-0.5 font-bold">{{ $beneficiary->whatsapp ?: '—' }}</dd>
                         </div>
                         <div class="sm:col-span-2">
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.address') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.address') }}</dt>
                             <dd class="mt-0.5 break-words">{{ $beneficiary->address_text ?: '—' }}</dd>
                             @if ($beneficiary->area || $beneficiary->governorate)
-                                <dd class="text-xs text-gray-500 mt-1">{{ collect([$beneficiary->area, $beneficiary->governorate])->filter()->join(', ') }}</dd>
+                                <dd class="text-xs app-text-muted mt-1">{{ collect([$beneficiary->area, $beneficiary->governorate])->filter()->join(', ') }}</dd>
                             @endif
                             @if ($beneficiary->google_maps_url)
                                 <dd class="mt-1.5">
-                                    <a href="{{ $beneficiary->google_maps_url }}" target="_blank" class="text-blue-600 dark:text-blue-400 text-xs font-bold hover:underline">
+                                    <a href="{{ $beneficiary->google_maps_url }}" target="_blank" class="app-link-inline">
                                         <i class="ph ph-map-pin" aria-hidden="true"></i> {{ __('web_app.table.view_location') }}
                                     </a>
                                 </dd>
@@ -164,29 +164,29 @@
                 <div class="p-4 sm:p-6">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.guardian') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.guardian') }}</dt>
                             <dd class="mt-0.5 font-bold">{{ $beneficiary->guardian_name ?: '—' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.guardian_phone') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.guardian_phone') }}</dt>
                             <dd class="mt-0.5 font-bold">{{ $beneficiary->guardian_phone ?: '—' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.guardian_relation') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.guardian_relation') }}</dt>
                             <dd class="mt-0.5">{{ $beneficiary->guardian_relation ?: '—' }}</dd>
                         </div>
                         <div></div>
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.father_status') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.father_status') }}</dt>
                             <dd class="mt-0.5">{{ $beneficiary->father_status ?: '—' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.mother_status') }}</dt>
+                            <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.mother_status') }}</dt>
                             <dd class="mt-0.5">{{ $beneficiary->mother_status ?: '—' }}</dd>
                         </div>
                         @if ($beneficiary->siblings_count !== null)
                             <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.siblings') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.siblings') }}</dt>
                                 <dd class="mt-0.5 font-bold">{{ $beneficiary->siblings_count }}{{ $beneficiary->siblings_note ? " ({$beneficiary->siblings_note})" : '' }}</dd>
                             </div>
                         @endif
@@ -207,31 +207,31 @@
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
                         @if ($beneficiary->disability_type)
                             <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.disability') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.disability') }}</dt>
                                 <dd class="mt-0.5 font-bold">{{ $beneficiary->disability_type }}{{ $beneficiary->disability_degree ? " ({$beneficiary->disability_degree})" : '' }}</dd>
                             </div>
                         @endif
                         @if ($beneficiary->doctor_name)
                             <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.doctor') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.doctor') }}</dt>
                                 <dd class="mt-0.5">{{ $beneficiary->doctor_name }}</dd>
                             </div>
                         @endif
                         @if ($beneficiary->hospital_name)
                             <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.hospital') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.hospital') }}</dt>
                                 <dd class="mt-0.5">{{ $beneficiary->hospital_name }}</dd>
                             </div>
                         @endif
                         @if ($beneficiary->last_medical_update)
                             <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.last_update') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.last_update') }}</dt>
                                 <dd class="mt-0.5">{{ $beneficiary->last_medical_update->format('Y-m-d') }}</dd>
                             </div>
                         @endif
                         @if ($beneficiary->medical_notes)
                             <div class="sm:col-span-2">
-                                <dt class="text-xs text-gray-500 dark:text-gray-400 font-bold">{{ __('web_app.table.medical_notes') }}</dt>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('web_app.table.medical_notes') }}</dt>
                                 <dd class="mt-0.5 whitespace-pre-wrap">{{ $beneficiary->medical_notes }}</dd>
                             </div>
                         @endif
@@ -252,14 +252,14 @@
                 <div class="p-4 sm:p-6">
                     <div class="space-y-3">
                         @foreach ($beneficiary->activeMedications as $medication)
-                            <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                            <div class="flex items-center justify-between py-2 border-b last:border-0" style="border-color: var(--clr-silver-mist)">
                                 <div>
                                     <p class="font-bold text-sm">{{ $medication->name }}</p>
                                     @if ($medication->dosage)
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $medication->dosage }}</p>
+                                        <p class="text-xs app-text-muted">{{ $medication->dosage }}</p>
                                     @endif
                                 </div>
-                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ $medication->created_at->format('Y-m-d') }}</span>
+                                <span class="text-xs app-text-muted">{{ $medication->created_at->format('Y-m-d') }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -280,15 +280,15 @@
                     </div>
                     <a href="{{ route('app.visits') }}" wire:navigate>{{ __('web_app.actions.view_all') }}</a>
                 </div>
-                <div class="p-4">
+                <div class="p-4 sm:p-6">
                     @forelse ($beneficiary->visits as $visit)
-                        <article class="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                            <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                                <i class="ph ph-clipboard-text text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+                        <article class="flex items-start gap-3 py-3 border-b last:border-0" style="border-color: var(--clr-silver-mist)">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--clr-soft-blue, #dbeafe)">
+                                <i class="ph ph-clipboard-text" style="color: var(--clr-calm-blue)" aria-hidden="true"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold">{{ $visit->createdBy?->name ?? __('web_app.dashboard.unknown_user') }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                <p class="text-xs app-text-muted">
                                     {{ $visit->visit_date?->format('Y-m-d') }}
                                     @if ($visit->type)
                                         &middot; {{ __("visits.{$visit->type}") }}
@@ -297,7 +297,7 @@
                             </div>
                         </article>
                     @empty
-                        <div class="app-empty-state !py-8">
+                        <div class="app-empty-state app-empty-state-compact">
                             <i class="ph ph-clipboard-text" aria-hidden="true"></i>
                             <p>{{ __('web_app.dashboard.empty_visits') }}</p>
                         </div>
@@ -317,7 +317,7 @@
                 <div class="p-4 sm:p-6 text-sm">
                     <p class="font-bold">{{ $beneficiary->financial_status ? __("beneficiaries.{$beneficiary->financial_status}") : '—' }}</p>
                     @if ($beneficiary->financial_notes)
-                        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $beneficiary->financial_notes }}</p>
+                        <p class="mt-2 app-text-muted">{{ $beneficiary->financial_notes }}</p>
                     @endif
                 </div>
             </section>
@@ -333,16 +333,16 @@
                     </div>
                     <a href="{{ route('app.prayer-requests') }}" wire:navigate>{{ __('web_app.actions.view_all') }}</a>
                 </div>
-                <div class="p-4">
+                <div class="p-4 sm:p-6">
                     @foreach ($beneficiary->prayerRequests as $prayer)
-                        <article class="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                            <div class="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                                <i class="ph ph-hands-praying text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+                        <article class="flex items-start gap-3 py-3 border-b last:border-0" style="border-color: var(--clr-silver-mist)">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--clr-soft-amber, #fef3c7)">
+                                <i class="ph ph-hands-praying" style="color: var(--clr-warm-gold)" aria-hidden="true"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold">{{ $prayer->title }}</p>
                                 @if ($prayer->body)
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{{ $prayer->body }}</p>
+                                    <p class="text-xs app-text-muted mt-0.5 line-clamp-2">{{ $prayer->body }}</p>
                                 @endif
                             </div>
                         </article>

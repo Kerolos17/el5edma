@@ -87,6 +87,18 @@
                                             <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                                             {{ __('web_app.actions.edit') }}
                                         </button>
+                                        @if(!$record->is_active)
+                                            <button type="button" wire:click="approveUser({{ $record->id }})" class="app-link-inline">
+                                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                                {{ __('web_app.actions.approve') }}
+                                            </button>
+                                        @endif
+                                    @endcan
+                                    @can('delete', $record)
+                                        <button type="button" wire:click="deleteUser({{ $record->id }})" wire:confirm="هل أنت متأكد من حذف هذا المستخدم؟" class="app-link-inline app-link-danger">
+                                            <i class="ph ph-trash" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.delete') }}
+                                        </button>
                                     @endcan
                                 </div>
                             </td>
