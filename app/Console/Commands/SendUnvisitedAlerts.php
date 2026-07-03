@@ -48,7 +48,7 @@ class SendUnvisitedAlerts extends Command
                         'beneficiary_id' => (string) $beneficiary->id,
                         'last_visit'     => (string) ($lastVisit ?? ''),
                         'days_unvisited' => (string) ($days ?? ''),
-                        'url'            => route('app.beneficiaries'),
+                        'url'            => '/app/beneficiary/' . $beneficiary->id,
                     ]);
 
                     // إشعار أمين الأسرة

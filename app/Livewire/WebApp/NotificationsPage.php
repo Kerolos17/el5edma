@@ -33,6 +33,23 @@ class NotificationsPage extends Component
         $this->dispatch('toast', message: __('web_app.toasts.marked_read'), type: 'success');
     }
 
+    public function markReadAndRedirect(int $id): void
+    {
+        $notification = MinistryNotification::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $notification->update(['read_at' => now()]);
+
+        $url = $notification->data['url'] ?? null;
+
+        if ($url && is_string($url) && $url !== '') {
+            $this->redirect($url);
+        } else {
+            $this->dispatch('toast', message: __('web_app.toasts.marked_read'), type: 'success');
+        }
+    }
+
     public function markAllRead(): void
     {
         MinistryNotification::where('user_id', auth()->id())

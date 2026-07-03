@@ -185,6 +185,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .app-nav-item,
@@ -209,10 +210,18 @@
     font-size: 0.92rem;
     font-weight: 700;
     transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    min-width: 0;
   }
 
   .app-nav-item i {
     font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .app-nav-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .app-nav-item:hover,
@@ -1061,6 +1070,7 @@
     flex-direction: column;
     background: linear-gradient(180deg, #1e293b 0%, var(--clr-deep-ink) 100%);
     box-shadow: -8px 0 30px rgba(0, 0, 0, 0.25);
+    overflow-x: hidden;
     overflow-y: auto;
   }
 
@@ -1099,6 +1109,7 @@
     padding: 0.75rem;
     flex: 1;
     min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
   }
 
@@ -1114,10 +1125,18 @@
     font-weight: 700;
     text-decoration: none;
     transition: background 160ms ease, color 160ms ease;
+    min-width: 0;
   }
 
   .app-drawer-nav-item i {
     font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .app-drawer-nav-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .app-drawer-nav-item:hover {
@@ -2376,8 +2395,7 @@
 
   @media (max-width: 640px) {
     .app-modal-sheet {
-      padding: 0.75rem 0.75rem calc(5rem + env(safe-area-inset-bottom));
-      align-items: end;
+      padding: 0.75rem;
     }
 
     .app-modal-panel {

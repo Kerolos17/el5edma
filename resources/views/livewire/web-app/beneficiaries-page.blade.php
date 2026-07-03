@@ -75,12 +75,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- Skeleton rows shown while loading --}}
-                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
-                        <x-web-app.table-skeleton :cols="7" :rows="6" />
-                    </template>
-
-                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td class="!pr-0 !w-12">
@@ -146,7 +140,6 @@
                             </td>
                         </tr>
                     @endforelse
-                    </template>{{-- end wire:loading.remove --}}
                 </tbody>
             </table>
         </div>

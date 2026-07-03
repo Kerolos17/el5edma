@@ -76,14 +76,14 @@
                     <div class="app-notif-icon" style="background:{{ $typeConfig['bg'] }};color:{{ $typeConfig['color'] }}">
                         <i class="ph {{ $typeConfig['icon'] }}" aria-hidden="true"></i>
                     </div>
-                    <div class="app-notif-body">
+                    <button type="button" wire:click="markReadAndRedirect({{ $notification->id }})" class="app-notif-body" style="text-align:inherit;cursor:pointer">
                         <strong>{{ $notification->title }}</strong>
                         <p>{{ $notification->body }}</p>
                         <span class="app-notif-meta">
                             <time>{{ $notification->created_at->format('Y-m-d H:i') }}</time>
                             <span class="app-status-pill tone-slate" style="font-size:0.65rem;padding:0.1rem 0.4rem">{{ $notification->type }}</span>
                         </span>
-                    </div>
+                    </button>
                     @if ($isUnread)
                         <button type="button" wire:click="markRead({{ $notification->id }})" class="app-notif-action" title="{{ __('notifications.read') }}">
                             <i class="ph ph-check" aria-hidden="true"></i>

@@ -83,11 +83,6 @@
                 </tr>
             </thead>
             <tbody>
-                <template wire:loading wire:target="filterAction,filterModel,gotoPage,nextPage,previousPage">
-                    <x-web-app.table-skeleton :cols="6" :rows="6" />
-                </template>
-
-                <template wire:loading.remove wire:target="filterAction,filterModel,gotoPage,nextPage,previousPage">
                 @forelse ($records as $log)
                     <tr>
                         <td>
@@ -137,7 +132,6 @@
                         </td>
                     </tr>
                 @endforelse
-                </template>
             </tbody>
         </table>
     </div>

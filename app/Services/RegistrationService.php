@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
-use App\Filament\Resources\Users\UserResource;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
 use App\Models\MinistryNotification;
@@ -200,7 +199,7 @@ class RegistrationService
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => $now->toIso8601String(),
-                    'url'              => UserResource::getUrl('view', ['record' => $newServant->id]),
+                    'url'              => '/app/users',
                 ])),
                 'read_at'    => null,
                 'created_at' => $now,
@@ -261,7 +260,7 @@ class RegistrationService
                 'registered_at'    => now()->toIso8601String(),
                 'type'             => 'servant_registered',
                 'severity'         => 'medium',
-                'url'              => UserResource::getUrl('view', ['record' => $newServant->id]),
+                'url'              => '/app/users',
             ];
 
             SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);

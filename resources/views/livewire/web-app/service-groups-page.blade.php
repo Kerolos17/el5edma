@@ -42,11 +42,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
-                        <x-web-app.table-skeleton :cols="5" :rows="6" />
-                    </template>
-
-                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td><a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="app-link-inline"><strong>{{ $record->name }}</strong></a></td>
@@ -71,7 +66,6 @@
                             </td>
                         </tr>
                     @endforelse
-                    </template>
                 </tbody>
             </table>
         </div>

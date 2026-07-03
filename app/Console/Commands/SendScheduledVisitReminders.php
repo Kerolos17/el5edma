@@ -58,7 +58,7 @@ class SendScheduledVisitReminders extends Command
                     'beneficiary_id'     => (string) $visit->beneficiary_id,
                     'scheduled_date'     => (string) $visit->scheduled_date,
                     'scheduled_time'     => (string) $visit->scheduled_time,
-                    'url'                => route('app.beneficiaries'),
+                    'url'                => '/app/beneficiary/' . $visit->beneficiary_id,
                 ]);
 
                 App::setLocale($originalLocale);

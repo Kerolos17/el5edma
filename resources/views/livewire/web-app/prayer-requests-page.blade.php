@@ -41,11 +41,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template wire:loading wire:target="search,filter,gotoPage,nextPage,previousPage">
-                        <x-web-app.table-skeleton :cols="6" :rows="6" />
-                    </template>
-
-                    <template wire:loading.remove wire:target="search,filter,gotoPage,nextPage,previousPage">
                     @forelse ($records as $record)
                         <tr>
                             <td>
@@ -80,7 +75,6 @@
                             </td>
                         </tr>
                     @endforelse
-                    </template>
                 </tbody>
             </table>
         </div>
