@@ -357,6 +357,10 @@ return [
             'navigation' => 'تنقل المعالج',
             'confirm_save' => 'تأكيد وحفظ الزيارة',
             'offline_queued' => 'سيتم رفع الزيارة عند اتصالك بالإنترنت',
+            'validation_beneficiary' => 'يرجى اختيار مخدوم أولاً',
+            'validation_visit_type' => 'يرجى اختيار نوع الزيارة',
+            'validation_status' => 'يرجى تحديد الحالة الروحية والصحية',
+            'saved_success' => 'تم تسجيل الزيارة بنجاح!',
         ],
         'prayer' => [
             'save' => 'حفظ الطلب',

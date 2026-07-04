@@ -101,7 +101,7 @@
 
     @livewire('servant.create-visit-wizard')
 
-    <button x-data @click="$dispatch('open-wizard')"
+    <button onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"
             class="app-fab lg:hidden" aria-label="زيارة جديدة">
         <i class="ph-bold ph-plus" aria-hidden="true"></i>
     </button>

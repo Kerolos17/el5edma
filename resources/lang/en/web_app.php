@@ -357,6 +357,10 @@ return [
             'navigation' => 'Wizard navigation',
             'confirm_save' => 'Confirm and save visit',
             'offline_queued' => 'Visit will be uploaded when you are online',
+            'validation_beneficiary' => 'Please select a beneficiary first',
+            'validation_visit_type' => 'Please select a visit type',
+            'validation_status' => 'Please set the spiritual and health status',
+            'saved_success' => 'Visit recorded successfully!',
         ],
         'prayer' => [
             'save' => 'Save request',

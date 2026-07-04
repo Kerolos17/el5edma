@@ -127,7 +127,7 @@ class CreateVisitWizard extends Component
 
         $this->open = false;
         $this->dispatch('visit-saved');
-        $this->dispatch('toast', message: 'تم تسجيل الزيارة بنجاح!', type: 'success');
+        $this->dispatch('toast', message: __('web_app.wizard.saved_success'), type: 'success');
     }
 
     public function render()
@@ -172,6 +172,10 @@ class CreateVisitWizard extends Component
     {
         $user = auth()->user();
 
+        if ($user->role === \App\Enums\UserRole::SuperAdmin || $user->role === \App\Enums\UserRole::ServiceLeader) {
+            return Beneficiary::query();
+        }
+
         return Beneficiary::query()->where(
             fn ($q) => $q
                 ->where('assigned_servant_id', $user->id)
@@ -187,18 +191,18 @@ class CreateVisitWizard extends Component
         match ($this->step) {
             1 => $this->validate(
                 ['selectedBeneficiaryId' => 'required|integer'],
-                ['selectedBeneficiaryId.required' => 'يرجى اختيار مخدوم أولاً'],
+                ['selectedBeneficiaryId.required' => __('web_app.wizard.validation_beneficiary')],
             ),
             2 => $this->validate(
                 ['visitType' => 'required|in:home_visit,phone_call,church_meeting'],
-                ['visitType.required' => 'يرجى اختيار نوع الزيارة'],
+                ['visitType.required' => __('web_app.wizard.validation_visit_type')],
             ),
             3 => $this->validate(
                 [
                     'beneficiaryStatus' => 'required|in:great,good,needs_follow,critical',
                     'durationMinutes'   => 'nullable|integer|min:1|max:480',
                 ],
-                ['beneficiaryStatus.required' => 'يرجى تحديد الحالة الروحية والصحية'],
+                ['beneficiaryStatus.required' => __('web_app.wizard.validation_status')],
             ),
             default => null,
         };

@@ -45,7 +45,7 @@
 
     {{-- New Visit Button --}}
     <div class="px-4 pb-4">
-        <button onclick="Livewire.dispatch('open-wizard')"
+        <button onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"
                 class="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm btn-ripple transition-all duration-200"
                 style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);">
             <i class="ph-bold ph-calendar-plus text-lg"></i>

@@ -13,7 +13,10 @@
 @endphp
 
 {{-- Single Livewire root --}}
-<div x-data="{ open: $wire.entangle('open') }" role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
+<div x-data="{ open: $wire.entangle('open') }"
+     @open-wizard.window="open = true"
+     @open-wizard-for.window="open = true"
+     role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
 
     {{-- Overlay --}}
     <div x-show="open"
@@ -205,7 +208,7 @@
                             @endforeach
                             <input wire:model.live.debounce.150ms="durationMinutes"
                                    type="number" min="1" max="480" placeholder="{{ __('visits.other') }}"
-                                   class="w-20 min-h-[44px] px-3 rounded-xl border-2 text-sm text-center font-bold outline-none focus:border-teal-400 transition-colors wizard-duration-input"
+                                   class="w-20 min-h-[44px] px-3 rounded-xl border-2 text-sm text-center font-bold outline-none transition-colors wizard-duration-input"
                                    aria-label="{{ __('visits.duration_minutes') }}">
                         </div>
                     </div>
@@ -224,7 +227,7 @@
                         <legend class="sr-only">{{ __('visits.follow_up_flags') }}</legend>
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $isCritical ? 'is-critical' : '' }}">
                             <input wire:model="isCritical" type="checkbox"
-                                   class="w-5 h-5 rounded accent-red-500 cursor-pointer flex-shrink-0">
+                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-critical">
                             <div>
                                 <p class="font-bold text-sm {{ $isCritical ? 'wizard-error-text' : 'wizard-text-strong' }}">{{ __('visits.is_critical') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.critical_case_help') }}</p>
@@ -233,18 +236,18 @@
 
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsFamilyLeader ? 'is-family-leader' : '' }}">
                             <input wire:model="needsFamilyLeader" type="checkbox"
-                                   class="w-5 h-5 rounded accent-orange-400 cursor-pointer flex-shrink-0">
+                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-warning">
                             <div>
-                                <p class="font-bold text-sm {{ $needsFamilyLeader ? 'text-orange-600' : 'wizard-text-strong' }}">{{ __('visits.needs_family_leader') }}</p>
+                                <p class="font-bold text-sm {{ $needsFamilyLeader ? 'wizard-text-warning' : 'wizard-text-strong' }}">{{ __('visits.needs_family_leader') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.needs_family_leader_help') }}</p>
                             </div>
                         </label>
 
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsServiceLeader ? 'is-service-leader' : '' }}">
                             <input wire:model="needsServiceLeader" type="checkbox"
-                                   class="w-5 h-5 rounded accent-teal-500 cursor-pointer flex-shrink-0">
+                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-info">
                             <div>
-                                <p class="font-bold text-sm {{ $needsServiceLeader ? 'text-teal-700' : 'wizard-text-strong' }}">{{ __('visits.needs_service_leader') }}</p>
+                                <p class="font-bold text-sm {{ $needsServiceLeader ? 'wizard-text-primary-emph' : 'wizard-text-strong' }}">{{ __('visits.needs_service_leader') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.needs_service_leader_help') }}</p>
                             </div>
                         </label>
@@ -278,7 +281,7 @@
                     {{-- Summary Grid --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="wizard-card rounded-2xl p-3 text-center">
-                            <i class="ph-bold {{ $visitTypes[$visitType]['icon'] ?? 'ph-calendar' }} text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                             <i class="ph-bold {{ $visitTypes[$visitType]['icon'] ?? 'ph-calendar' }} text-xl mb-1 block wizard-primary-text" aria-hidden="true"></i>
                             <p class="text-xs wizard-text-muted">{{ __('visits.visit_type') }}</p>
                             <p class="font-bold text-sm wizard-text-strong">{{ $visitTypes[$visitType]['label'] ?? '' }}</p>
                         </div>
@@ -291,14 +294,14 @@
 
                         @if($durationMinutes)
                             <div class="wizard-card rounded-2xl p-3 text-center">
-                                <i class="ph ph-clock text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                                <i class="ph ph-clock text-xl mb-1 block wizard-primary-text" aria-hidden="true"></i>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.duration') }}</p>
                                 <p class="font-bold text-sm wizard-text-strong">{{ $durationMinutes }} {{ __('visits.minutes') }}</p>
                             </div>
                         @endif
 
                         <div class="wizard-card rounded-2xl p-3 text-center">
-                            <i class="ph ph-calendar-check text-xl mb-1 block wizard-teal-text" aria-hidden="true"></i>
+                            <i class="ph ph-calendar-check text-xl mb-1 block wizard-primary-text" aria-hidden="true"></i>
                             <p class="text-xs wizard-text-muted">{{ __('visits.date') }}</p>
                             <p class="font-bold text-sm wizard-text-strong">{{ now()->locale(app()->getLocale())->isoFormat('D MMM') }}</p>
                         </div>

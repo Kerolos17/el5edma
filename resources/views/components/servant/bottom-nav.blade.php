@@ -23,7 +23,7 @@
 
         <div class="relative flex flex-col items-center justify-center min-w-0 flex-1 h-full">
             <button
-                onclick="Livewire.dispatch('open-wizard')"
+                onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"
                 class="w-12 h-12 -mt-5 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/25 transition-all duration-200 active:scale-95"
                 style="background: linear-gradient(135deg, #0d9488, #0f766e);"
                 aria-label="تسجيل زيارة جديدة">
