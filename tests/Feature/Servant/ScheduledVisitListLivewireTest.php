@@ -16,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class ScheduledVisitListLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_can_see_their_scheduled_visits(): void
@@ -25,7 +25,7 @@ class ScheduledVisitListLivewireTest extends TestCase
         $servant = $this->createServant($group);
         $b       = Beneficiary::factory()->create(['service_group_id' => $group->id]);
 
-        $mine  = ScheduledVisit::factory()->create([
+        $mine = ScheduledVisit::factory()->create([
             'assigned_servant_id' => $servant->id,
             'beneficiary_id'      => $b->id,
             'status'              => 'pending',

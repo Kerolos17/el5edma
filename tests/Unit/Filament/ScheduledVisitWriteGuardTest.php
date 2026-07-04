@@ -37,11 +37,11 @@ class ScheduledVisitWriteGuardTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $page->mutate([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'       => $beneficiary->id,
             'assigned_servant_ids' => [$foreignServant->id],
-            'scheduled_date' => now()->addDay()->toDateString(),
-            'scheduled_time' => '10:00',
-            'status' => 'pending',
+            'scheduled_date'       => now()->addDay()->toDateString(),
+            'scheduled_time'       => '10:00',
+            'status'               => 'pending',
         ]);
     }
 
@@ -66,11 +66,11 @@ class ScheduledVisitWriteGuardTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $page->mutate([
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'       => $beneficiary->id,
             'assigned_servant_ids' => [$servant->id],
-            'scheduled_date' => now()->addDay()->toDateString(),
-            'scheduled_time' => '10:00',
-            'status' => 'pending',
+            'scheduled_date'       => now()->addDay()->toDateString(),
+            'scheduled_time'       => '10:00',
+            'status'               => 'pending',
         ]);
     }
 
@@ -107,7 +107,7 @@ class ScheduledVisitWriteGuardTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $page->mutate([
-            'beneficiary_id' => $foreignBeneficiary->id,
+            'beneficiary_id'       => $foreignBeneficiary->id,
             'assigned_servant_ids' => [$managedServant->id],
         ]);
     }

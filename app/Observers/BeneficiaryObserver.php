@@ -6,7 +6,6 @@ use App\Models\AuditLog;
 use App\Models\Beneficiary;
 use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 class BeneficiaryObserver
 {

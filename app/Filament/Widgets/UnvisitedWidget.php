@@ -7,6 +7,7 @@ use App\Models\Beneficiary;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 
 class UnvisitedWidget extends BaseWidget
@@ -15,7 +16,7 @@ class UnvisitedWidget extends BaseWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected function getTableHeading(): string | \Illuminate\Contracts\Support\Htmlable | null
+    protected function getTableHeading(): string|Htmlable|null
     {
         return __('dashboard.unvisited_title');
     }

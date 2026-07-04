@@ -16,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class VisitListLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_sees_only_visits_on_their_group_beneficiaries(): void
@@ -64,13 +64,13 @@ class VisitListLivewireTest extends TestCase
 
         // Component filters: ->where('is_critical', true) — no resolved check
         $critical = Visit::factory()->create([
-            'created_by'    => $servant->id,
+            'created_by'     => $servant->id,
             'beneficiary_id' => $b->id,
             'visit_date'     => now(),
             'is_critical'    => true,
         ]);
         $normal = Visit::factory()->create([
-            'created_by'    => $servant->id,
+            'created_by'     => $servant->id,
             'beneficiary_id' => $b->id,
             'visit_date'     => now(),
             'is_critical'    => false,

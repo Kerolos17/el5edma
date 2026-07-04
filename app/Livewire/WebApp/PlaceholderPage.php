@@ -23,16 +23,16 @@ use Livewire\WithPagination;
 #[Layout('web-app.layouts.app')]
 class PlaceholderPage extends Component
 {
-    use WithPagination;
-    use WithFileUploads;
-    use ManagesScheduledVisits;
-    use ManagesVisits;
-    use ManagesPrayerRequests;
+    use ManagesBeneficiaries;
     use ManagesMedicalFiles;
+    use ManagesPrayerRequests;
+    use ManagesResourceListing;
+    use ManagesScheduledVisits;
     use ManagesServiceGroups;
     use ManagesUsers;
-    use ManagesBeneficiaries;
-    use ManagesResourceListing;
+    use ManagesVisits;
+    use WithFileUploads;
+    use WithPagination;
 
     public string $section;
 
@@ -47,9 +47,9 @@ class PlaceholderPage extends Component
         $this->section = $section;
 
         match ($section) {
-            'users' => abort_unless(auth()->user()->can('viewAny', User::class), 403),
+            'users'          => abort_unless(auth()->user()->can('viewAny', User::class), 403),
             'service-groups' => abort_unless(auth()->user()->can('viewAny', ServiceGroup::class), 403),
-            default => null,
+            default          => null,
         };
     }
 

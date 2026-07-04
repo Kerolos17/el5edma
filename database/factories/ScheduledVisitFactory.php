@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Beneficiary;
+use App\Models\ScheduledVisit;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -10,7 +11,7 @@ class ScheduledVisitFactory extends Factory
 {
     public function configure(): static
     {
-        return $this->afterCreating(function (\App\Models\ScheduledVisit $scheduledVisit): void {
+        return $this->afterCreating(function (ScheduledVisit $scheduledVisit): void {
             if ($scheduledVisit->assigned_servant_id) {
                 $scheduledVisit->syncAssignedServants([$scheduledVisit->assigned_servant_id]);
             }

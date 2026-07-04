@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Broadcasting;
 
 use App\Models\ServiceGroup;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -13,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class ChannelAuthTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function user_can_authenticate_to_their_own_channel(): void
@@ -54,6 +53,6 @@ class ChannelAuthTest extends TestCase
             'channel_name' => "private-user.{$servant->id}",
             'socket_id'    => '123.456',
         ])
-        ->assertUnauthorized();
+            ->assertUnauthorized();
     }
 }

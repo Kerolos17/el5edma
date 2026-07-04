@@ -4,9 +4,10 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
+use App\Http\Middleware\RedirectNonAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
-use App\Http\Middleware\RedirectNonAdmin;
+use App\Http\Responses\LoginResponse;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -26,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
     {
         $this->app->bind(
             \Filament\Auth\Http\Responses\Contracts\LoginResponse::class,
-            \App\Http\Responses\LoginResponse::class,
+            LoginResponse::class,
         );
     }
 

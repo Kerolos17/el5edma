@@ -9,6 +9,7 @@ use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -19,38 +20,38 @@ class ReportsPage extends PlaceholderPage
         $this->section = 'reports';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
         return view('livewire.web-app.reports-page', [
-            'meta' => $this->meta(),
-            'filters' => [],
-            'stats' => $this->stats($user),
-            'records' => collect(),
-            'reportCards' => $this->reportCards($user),
-            'beneficiaryOptions' => collect(),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => [],
+            'stats'                            => $this->stats($user),
+            'records'                          => collect(),
+            'reportCards'                      => $this->reportCards($user),
+            'beneficiaryOptions'               => collect(),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => [],
-            'beneficiaryStatusOptions' => [],
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => [],
+            'beneficiaryStatusOptions'         => [],
         ]);
     }
 
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.reports.title'),
-            'description' => __('web_app.resources.reports.description'),
-            'icon' => 'ph-chart-line-up',
-            'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+            'title'           => __('web_app.resources.reports.title'),
+            'description'     => __('web_app.resources.reports.description'),
+            'icon'            => 'ph-chart-line-up',
+            'primaryAction'   => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
             'secondaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
         ];
     }
@@ -68,16 +69,16 @@ class ReportsPage extends PlaceholderPage
     {
         $cards = collect([
             [
-                'title' => __('web_app.reports.beneficiaries.title'),
+                'title'       => __('web_app.reports.beneficiaries.title'),
                 'description' => __('web_app.reports.beneficiaries.description'),
-                'route' => route('reports.beneficiaries.pdf'),
-                'icon' => 'ph-users-three',
+                'route'       => route('reports.beneficiaries.pdf'),
+                'icon'        => 'ph-users-three',
             ],
             [
-                'title' => __('web_app.reports.beneficiaries_excel.title'),
+                'title'       => __('web_app.reports.beneficiaries_excel.title'),
                 'description' => __('web_app.reports.beneficiaries_excel.description'),
-                'route' => route('reports.beneficiaries.excel'),
-                'icon' => 'ph-download-simple',
+                'route'       => route('reports.beneficiaries.excel'),
+                'icon'        => 'ph-download-simple',
             ],
         ]);
 
@@ -87,22 +88,22 @@ class ReportsPage extends PlaceholderPage
 
         $cards = $cards->merge([
             [
-                'title' => __('web_app.reports.visits.title'),
+                'title'       => __('web_app.reports.visits.title'),
                 'description' => __('web_app.reports.visits.description'),
-                'route' => route('reports.visits.pdf'),
-                'icon' => 'ph-clipboard-text',
+                'route'       => route('reports.visits.pdf'),
+                'icon'        => 'ph-clipboard-text',
             ],
             [
-                'title' => __('web_app.reports.visits_excel.title'),
+                'title'       => __('web_app.reports.visits_excel.title'),
                 'description' => __('web_app.reports.visits_excel.description'),
-                'route' => route('reports.visits.excel'),
-                'icon' => 'ph-download-simple',
+                'route'       => route('reports.visits.excel'),
+                'icon'        => 'ph-download-simple',
             ],
             [
-                'title' => __('web_app.reports.unvisited.title'),
+                'title'       => __('web_app.reports.unvisited.title'),
                 'description' => __('web_app.reports.unvisited.description'),
-                'route' => route('reports.unvisited.pdf'),
-                'icon' => 'ph-warning-circle',
+                'route'       => route('reports.unvisited.pdf'),
+                'icon'        => 'ph-warning-circle',
             ],
         ]);
 
@@ -115,18 +116,18 @@ class ReportsPage extends PlaceholderPage
                 ->get()
                 ->flatMap(fn (ServiceGroup $group) => [
                     [
-                        'title' => __('web_app.reports.service_group.title', ['name' => $group->name]),
+                        'title'       => __('web_app.reports.service_group.title', ['name' => $group->name]),
                         'description' => __('web_app.reports.service_group.description'),
-                        'route' => route('reports.service-group.pdf', $group),
-                        'icon' => 'ph-tree-structure',
+                        'route'       => route('reports.service-group.pdf', $group),
+                        'icon'        => 'ph-tree-structure',
                     ],
                     [
-                        'title' => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
+                        'title'       => __('web_app.reports.service_group_beneficiaries.title', ['name' => $group->name]),
                         'description' => __('web_app.reports.service_group_beneficiaries.description'),
-                        'route' => route('reports.service-group.beneficiaries.pdf', $group),
-                        'icon' => 'ph-users-three',
+                        'route'       => route('reports.service-group.beneficiaries.pdf', $group),
+                        'icon'        => 'ph-users-three',
                     ],
-                ])
+                ]),
         );
     }
 }

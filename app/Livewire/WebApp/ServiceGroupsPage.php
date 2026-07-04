@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -22,34 +23,34 @@ class ServiceGroupsPage extends PlaceholderPage
         $this->section = 'service-groups';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->serviceGroupsQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.service-groups-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => collect(),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => $this->serviceGroupLeaderOptions($user),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => collect(),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => $this->serviceGroupLeaderOptions($user),
             'serviceGroupServiceLeaderOptions' => $this->serviceGroupServiceLeaderOptions($user),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => [],
-            'beneficiaryStatusOptions' => [],
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => [],
+            'beneficiaryStatusOptions'         => [],
         ]);
     }
 
@@ -74,9 +75,9 @@ class ServiceGroupsPage extends PlaceholderPage
     private function applyFilter(Builder $query): Builder
     {
         return match ($this->filter) {
-            'active' => $query->where('is_active', true),
+            'active'   => $query->where('is_active', true),
             'inactive' => $query->where('is_active', false),
-            default => $query,
+            default    => $query,
         };
     }
 
@@ -88,10 +89,10 @@ class ServiceGroupsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.service-groups.title'),
-            'description' => __('web_app.resources.service-groups.description'),
-            'icon' => 'ph-tree-structure',
-            'primaryAction' => ['label' => __('web_app.actions.users'), 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
+            'title'           => __('web_app.resources.service-groups.title'),
+            'description'     => __('web_app.resources.service-groups.description'),
+            'icon'            => 'ph-tree-structure',
+            'primaryAction'   => ['label' => __('web_app.actions.users'), 'route' => route('app.users'), 'icon' => 'ph-identification-card'],
             'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }

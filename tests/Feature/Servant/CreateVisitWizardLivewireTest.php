@@ -7,6 +7,7 @@ namespace Tests\Feature\Servant;
 use App\Livewire\Servant\CreateVisitWizard;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
@@ -15,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class CreateVisitWizardLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function step1_requires_beneficiary_selection(): void
@@ -92,7 +93,7 @@ class CreateVisitWizardLivewireTest extends TestCase
         // so it can be set directly — simulating a forged Livewire payload.
         // submit() calls firstOrFail() scoped to ownedBeneficiaryQuery(),
         // which throws ModelNotFoundException (-> 404) for unowned beneficiaries.
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         Livewire::actingAs($servant)
             ->test(CreateVisitWizard::class)

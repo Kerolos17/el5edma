@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -18,34 +19,34 @@ class VisitsPage extends PlaceholderPage
         $this->section = 'visits';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->visitsQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.visits-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $this->beneficiaryOptions($user),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $this->beneficiaryOptions($user),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => $this->visitTypeOptions(),
-            'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => $this->visitTypeOptions(),
+            'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
         ]);
     }
 
@@ -71,10 +72,10 @@ class VisitsPage extends PlaceholderPage
     private function applyFilter(Builder $query): Builder
     {
         return match ($this->filter) {
-            'month' => $query->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year),
-            'critical' => $query->where('is_critical', true)->whereNull('critical_resolved_at'),
+            'month'     => $query->whereMonth('visit_date', now()->month)->whereYear('visit_date', now()->year),
+            'critical'  => $query->where('is_critical', true)->whereNull('critical_resolved_at'),
             'follow-up' => $query->where(fn (Builder $builder) => $builder->where('needs_family_leader', true)->orWhere('needs_service_leader', true)),
-            default => $query,
+            default     => $query,
         };
     }
 
@@ -86,10 +87,10 @@ class VisitsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.visits.title'),
-            'description' => __('web_app.resources.visits.description'),
-            'icon' => 'ph-clipboard-text',
-            'primaryAction' => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
+            'title'           => __('web_app.resources.visits.title'),
+            'description'     => __('web_app.resources.visits.description'),
+            'icon'            => 'ph-clipboard-text',
+            'primaryAction'   => ['label' => __('web_app.actions.beneficiaries'), 'route' => route('app.beneficiaries'), 'icon' => 'ph-users-three'],
             'secondaryAction' => ['label' => __('web_app.actions.scheduled_visits'), 'route' => route('app.scheduled-visits'), 'icon' => 'ph-calendar-check'],
         ];
     }
@@ -123,8 +124,8 @@ class VisitsPage extends PlaceholderPage
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => __('visits.home_visit'),
-            'phone_call' => __('visits.phone_call'),
+            'home_visit'     => __('visits.home_visit'),
+            'phone_call'     => __('visits.phone_call'),
             'church_meeting' => __('visits.church_meeting'),
         ];
     }
@@ -132,10 +133,10 @@ class VisitsPage extends PlaceholderPage
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => __('visits.great'),
-            'good' => __('visits.good'),
+            'great'        => __('visits.great'),
+            'good'         => __('visits.good'),
             'needs_follow' => __('visits.needs_follow'),
-            'critical' => __('visits.critical'),
+            'critical'     => __('visits.critical'),
         ];
     }
 }

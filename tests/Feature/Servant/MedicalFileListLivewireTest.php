@@ -16,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class MedicalFileListLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_sees_medical_files_for_their_beneficiaries(): void

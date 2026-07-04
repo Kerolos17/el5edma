@@ -28,7 +28,7 @@ class SecurityHeaders
 
         if (! $response->headers->has('Content-Security-Policy')) {
             $nonceAttr = "'nonce-{$nonce}'";
-            $csp = implode('; ', [
+            $csp       = implode('; ', [
                 "default-src 'self'",
                 "script-src {$nonceAttr} 'unsafe-inline' 'unsafe-eval' 'self' https:",
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

@@ -16,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class PrayerRequestListLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_sees_prayer_requests_for_their_beneficiaries(): void

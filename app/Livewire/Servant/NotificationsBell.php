@@ -7,6 +7,7 @@ namespace App\Livewire\Servant;
 use App\Models\MinistryNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class NotificationsBell extends Component
@@ -83,6 +84,7 @@ class NotificationsBell extends Component
 
         if ($url !== null) {
             $this->redirect($url, navigate: str_starts_with($url, '/app') || str_starts_with($url, '/servant'));
+
             return;
         }
 
@@ -109,7 +111,7 @@ class NotificationsBell extends Component
             return null;
         }
 
-        $path = $parts['path'] ?? '/';
+        $path  = $parts['path'] ?? '/';
         $query = isset($parts['query']) ? '?' . $parts['query'] : '';
 
         if (! str_starts_with($path, '/')) {
@@ -122,19 +124,19 @@ class NotificationsBell extends Component
     private function webAppPathForLegacyAdminPath(string $path): ?string
     {
         return match (true) {
-            str_starts_with($path, '/admin/visits') => '/app/visits',
-            str_starts_with($path, '/admin/beneficiaries') => '/app/beneficiaries',
-            str_starts_with($path, '/admin/scheduled-visits') => '/app/scheduled-visits',
-            str_starts_with($path, '/admin/prayer-requests') => '/app/prayer-requests',
-            str_starts_with($path, '/admin/medical-files') => '/app/medical-files',
-            str_starts_with($path, '/admin/users') => '/app/users',
-            str_starts_with($path, '/admin/service-groups') => '/app/service-groups',
+            str_starts_with($path, '/admin/visits')                 => '/app/visits',
+            str_starts_with($path, '/admin/beneficiaries')          => '/app/beneficiaries',
+            str_starts_with($path, '/admin/scheduled-visits')       => '/app/scheduled-visits',
+            str_starts_with($path, '/admin/prayer-requests')        => '/app/prayer-requests',
+            str_starts_with($path, '/admin/medical-files')          => '/app/medical-files',
+            str_starts_with($path, '/admin/users')                  => '/app/users',
+            str_starts_with($path, '/admin/service-groups')         => '/app/service-groups',
             str_starts_with($path, '/admin/ministry-notifications') => '/app/notifications',
-            default => null,
+            default                                                 => null,
         };
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.servant.notifications-bell');
     }

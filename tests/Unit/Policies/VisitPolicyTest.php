@@ -65,7 +65,7 @@ class VisitPolicyTest extends TestCase
 
     public function test_servant_can_create_and_update_own_group_visits_but_not_delete(): void
     {
-        $servant = $this->createServant($this->groupA);
+        $servant  = $this->createServant($this->groupA);
         $ownVisit = Visit::factory()->create([
             'beneficiary_id' => $this->visitA->beneficiary_id,
             'created_by'     => $servant->id,

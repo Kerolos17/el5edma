@@ -15,7 +15,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class NotificationsBellLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function notification_bell_shows_own_notifications(): void
@@ -56,13 +56,13 @@ class NotificationsBellLivewireTest extends TestCase
     #[Test]
     public function mark_read_redirects_to_safe_internal_notification_url(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         $notif = MinistryNotification::factory()->create([
             'user_id' => $servant->id,
             'read_at' => null,
-            'data' => ['url' => '/app/visits'],
+            'data'    => ['url' => '/app/visits'],
         ]);
 
         Livewire::actingAs($servant)
@@ -76,13 +76,13 @@ class NotificationsBellLivewireTest extends TestCase
     #[Test]
     public function mark_read_maps_same_host_filament_notification_url_to_web_app(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         $notif = MinistryNotification::factory()->create([
             'user_id' => $servant->id,
             'read_at' => null,
-            'data' => ['url' => url('/admin/beneficiaries/1')],
+            'data'    => ['url' => url('/admin/beneficiaries/1')],
         ]);
 
         Livewire::actingAs($servant)
@@ -96,13 +96,13 @@ class NotificationsBellLivewireTest extends TestCase
     #[Test]
     public function mark_read_maps_old_admin_visit_notification_url_to_web_app_visits(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         $notif = MinistryNotification::factory()->create([
             'user_id' => $servant->id,
             'read_at' => null,
-            'data' => ['url' => 'http://ministry-system.test/admin/visits/71'],
+            'data'    => ['url' => 'http://ministry-system.test/admin/visits/71'],
         ]);
 
         Livewire::actingAs($servant)
@@ -127,7 +127,7 @@ class NotificationsBellLivewireTest extends TestCase
 
         $this->assertEquals(
             0,
-            MinistryNotification::where('user_id', $servant->id)->whereNull('read_at')->count()
+            MinistryNotification::where('user_id', $servant->id)->whereNull('read_at')->count(),
         );
     }
 

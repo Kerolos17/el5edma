@@ -6,6 +6,7 @@ namespace App\Livewire\WebApp;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -35,10 +36,10 @@ class ProfilePage extends Component
 
     public function mount(): void
     {
-        $user = auth()->user();
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->phone = (string) ($user->phone ?? '');
+        $user         = auth()->user();
+        $this->name   = $user->name;
+        $this->email  = $user->email;
+        $this->phone  = (string) ($user->phone ?? '');
         $this->locale = $user->locale ?? 'ar';
     }
 
@@ -56,7 +57,7 @@ class ProfilePage extends Component
 
         $path = $this->newPhoto->store('users/photos', 'public');
         $user->update(['profile_photo' => $path]);
-        $this->newPhoto = null;
+        $this->newPhoto      = null;
         $this->showPhotoForm = false;
 
         $this->dispatch('toast', message: __('web_app.toasts.profile_updated'), type: 'success');
@@ -79,14 +80,14 @@ class ProfilePage extends Component
         $user = auth()->user();
 
         $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'name'   => ['required', 'string', 'max:255'],
+            'phone'  => ['nullable', 'string', 'max:20'],
             'locale' => ['required', 'in:ar,en'],
         ]);
 
         $user->update([
-            'name' => $this->name,
-            'phone' => $this->phone ?: null,
+            'name'   => $this->name,
+            'phone'  => $this->phone ?: null,
             'locale' => $this->locale,
         ]);
 
@@ -101,7 +102,7 @@ class ProfilePage extends Component
 
         $this->validate([
             'currentPassword' => ['required'],
-            'newPassword' => ['required', 'string', 'min:8', 'confirmed:newPasswordConfirmation'],
+            'newPassword'     => ['required', 'string', 'min:8', 'confirmed:newPasswordConfirmation'],
         ]);
 
         if (! Hash::check($this->currentPassword, $user->password)) {
@@ -117,7 +118,7 @@ class ProfilePage extends Component
         $this->dispatch('toast', message: __('web_app.profile.password_updated'), type: 'success');
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.web-app.profile-page', [
             'user' => auth()->user(),

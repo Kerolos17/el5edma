@@ -9,6 +9,7 @@ use App\Models\Beneficiary;
 use App\Models\Visit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class OfflineVisitSyncController extends Controller
@@ -16,15 +17,15 @@ class OfflineVisitSyncController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'beneficiary_id'       => 'required|integer|exists:beneficiaries,id',
-            'visitType'            => 'required|in:home_visit,phone_call,church_meeting',
-            'beneficiaryStatus'    => 'required|in:great,good,needs_follow,critical',
-            'durationMinutes'      => 'nullable|integer|min:1|max:480',
-            'feedback'             => 'nullable|string|max:2000',
-            'isCritical'           => 'boolean',
-            'needsFamilyLeader'    => 'boolean',
-            'needsServiceLeader'   => 'boolean',
-            'queuedAt'             => 'nullable|integer',
+            'beneficiary_id'     => 'required|integer|exists:beneficiaries,id',
+            'visitType'          => 'required|in:home_visit,phone_call,church_meeting',
+            'beneficiaryStatus'  => 'required|in:great,good,needs_follow,critical',
+            'durationMinutes'    => 'nullable|integer|min:1|max:480',
+            'feedback'           => 'nullable|string|max:2000',
+            'isCritical'         => 'boolean',
+            'needsFamilyLeader'  => 'boolean',
+            'needsServiceLeader' => 'boolean',
+            'queuedAt'           => 'nullable|integer',
         ]);
 
         $user = $request->user();
@@ -34,10 +35,10 @@ class OfflineVisitSyncController extends Controller
             ->where('id', $validated['beneficiary_id'])
             ->where(function ($q) use ($user) {
                 $q->where('assigned_servant_id', $user->id)
-                  ->when(
-                      $user->service_group_id,
-                      fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                  );
+                    ->when(
+                        $user->service_group_id,
+                        fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
+                    );
             })
             ->exists();
 
@@ -47,7 +48,7 @@ class OfflineVisitSyncController extends Controller
 
         // استخدم تاريخ التسجيل الأصلي إذا كان متاحاً
         $visitDate = $validated['queuedAt']
-            ? \Illuminate\Support\Carbon::createFromTimestampMs($validated['queuedAt'])
+            ? Carbon::createFromTimestampMs($validated['queuedAt'])
             : now();
 
         $visit = DB::transaction(function () use ($validated, $user, $visitDate) {

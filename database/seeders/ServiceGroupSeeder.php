@@ -85,30 +85,30 @@ class ServiceGroupSeeder extends Seeder
         $group1 = ServiceGroup::updateOrCreate(
             ['name' => 'أسرة النور'],
             [
-                'description'      => 'أسرة خدمة حي مصر الجديدة والمنطقة المحيطة بها',
-                'leader_id'        => $familyLeader1->id,
-                'service_leader_id'=> $serviceLeader->id,
-                'is_active'        => true,
+                'description'       => 'أسرة خدمة حي مصر الجديدة والمنطقة المحيطة بها',
+                'leader_id'         => $familyLeader1->id,
+                'service_leader_id' => $serviceLeader->id,
+                'is_active'         => true,
             ],
         );
 
         $group2 = ServiceGroup::updateOrCreate(
             ['name' => 'أسرة الرجاء'],
             [
-                'description'      => 'أسرة خدمة حي شبرا والقاهرة الشمالية',
-                'leader_id'        => $familyLeader2->id,
-                'service_leader_id'=> $serviceLeader->id,
-                'is_active'        => true,
+                'description'       => 'أسرة خدمة حي شبرا والقاهرة الشمالية',
+                'leader_id'         => $familyLeader2->id,
+                'service_leader_id' => $serviceLeader->id,
+                'is_active'         => true,
             ],
         );
 
         $group3 = ServiceGroup::updateOrCreate(
             ['name' => 'أسرة الفرح'],
             [
-                'description'      => 'أسرة خدمة حي الجيزة والمنطقة الغربية',
-                'leader_id'        => $familyLeader3->id,
-                'service_leader_id'=> $serviceLeader->id,
-                'is_active'        => true,
+                'description'       => 'أسرة خدمة حي الجيزة والمنطقة الغربية',
+                'leader_id'         => $familyLeader3->id,
+                'service_leader_id' => $serviceLeader->id,
+                'is_active'         => true,
             ],
         );
 

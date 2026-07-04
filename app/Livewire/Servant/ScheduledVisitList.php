@@ -51,15 +51,15 @@ class ScheduledVisitList extends Component
                 ->orderBy('scheduled_time')
                 ->limit(100)
                 ->get(),
-            'past'     => (clone $query)
+            'past' => (clone $query)
                 ->where(fn ($q) => $q
                     ->where('scheduled_date', '<', now()->toDateString())
-                    ->orWhere('status', 'completed')
+                    ->orWhere('status', 'completed'),
                 )
                 ->orderByDesc('scheduled_date')
                 ->limit(50)
                 ->get(),
-            default    => (clone $query)
+            default => (clone $query)
                 ->orderByDesc('scheduled_date')
                 ->limit(100)
                 ->get(),

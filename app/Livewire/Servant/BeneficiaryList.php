@@ -45,7 +45,7 @@ class BeneficiaryList extends Component
             $query->where(fn ($q) => $q
                 ->where('full_name', 'like', "%{$this->search}%")
                 ->orWhere('code', 'like', "%{$this->search}%")
-                ->orWhere('phone', 'like', "%{$this->search}%")
+                ->orWhere('phone', 'like', "%{$this->search}%"),
             );
         }
 

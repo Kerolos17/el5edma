@@ -204,10 +204,10 @@ class ResourceActionsTest extends TestCase
     #[Test]
     public function servant_cannot_update_visit_created_by_another_servant(): void
     {
-        $group       = ServiceGroup::factory()->create();
-        $servant     = $this->createServant($group);
+        $group        = ServiceGroup::factory()->create();
+        $servant      = $this->createServant($group);
         $otherServant = $this->createServant($group);
-        $beneficiary = Beneficiary::factory()->create([
+        $beneficiary  = Beneficiary::factory()->create([
             'service_group_id' => $group->id,
         ]);
         $visit = Visit::factory()->create([

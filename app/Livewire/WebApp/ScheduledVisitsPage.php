@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -19,34 +20,34 @@ class ScheduledVisitsPage extends PlaceholderPage
         $this->section = 'scheduled-visits';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->scheduledVisitsQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.scheduled-visits-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $this->beneficiaryOptions($user),
-            'servantOptions' => $this->servantOptions($user),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $this->beneficiaryOptions($user),
+            'servantOptions'                   => $this->servantOptions($user),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => $this->visitTypeOptions(),
-            'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => $this->visitTypeOptions(),
+            'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
         ]);
     }
 
@@ -73,10 +74,10 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function applyFilter(Builder $query): Builder
     {
         return match ($this->filter) {
-            'upcoming' => $query->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending'),
+            'upcoming'  => $query->where('scheduled_date', '>=', now()->toDateString())->where('status', 'pending'),
             'completed' => $query->where('status', 'completed'),
-            'past' => $query->where('scheduled_date', '<', now()->toDateString()),
-            default => $query,
+            'past'      => $query->where('scheduled_date', '<', now()->toDateString()),
+            default     => $query,
         };
     }
 
@@ -88,10 +89,10 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.scheduled-visits.title'),
-            'description' => __('web_app.resources.scheduled-visits.description'),
-            'icon' => 'ph-calendar-check',
-            'primaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
+            'title'           => __('web_app.resources.scheduled-visits.title'),
+            'description'     => __('web_app.resources.scheduled-visits.description'),
+            'icon'            => 'ph-calendar-check',
+            'primaryAction'   => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
             'secondaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
         ];
     }
@@ -146,8 +147,8 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => __('visits.home_visit'),
-            'phone_call' => __('visits.phone_call'),
+            'home_visit'     => __('visits.home_visit'),
+            'phone_call'     => __('visits.phone_call'),
             'church_meeting' => __('visits.church_meeting'),
         ];
     }
@@ -155,10 +156,10 @@ class ScheduledVisitsPage extends PlaceholderPage
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => __('visits.great'),
-            'good' => __('visits.good'),
+            'great'        => __('visits.great'),
+            'good'         => __('visits.good'),
             'needs_follow' => __('visits.needs_follow'),
-            'critical' => __('visits.critical'),
+            'critical'     => __('visits.critical'),
         ];
     }
 }

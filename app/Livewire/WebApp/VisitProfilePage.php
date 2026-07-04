@@ -8,7 +8,7 @@ use App\Livewire\WebApp\Concerns\ManagesVisits;
 use App\Models\Visit;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -17,8 +17,8 @@ use Livewire\WithFileUploads;
 #[Layout('web-app.layouts.app')]
 class VisitProfilePage extends Component
 {
-    use WithFileUploads;
     use ManagesVisits;
+    use WithFileUploads;
 
     #[Locked]
     public Visit $visit;
@@ -35,13 +35,13 @@ class VisitProfilePage extends Component
         ]);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.web-app.visit-profile-page', [
             'beneficiaryOptions' => $this->beneficiaryOptionsQuery()
                 ->orderBy('full_name')
                 ->get(['id', 'full_name', 'code']),
-            'visitTypeOptions' => $this->visitTypeOptions(),
+            'visitTypeOptions'         => $this->visitTypeOptions(),
             'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
         ]);
     }
@@ -54,8 +54,8 @@ class VisitProfilePage extends Component
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => __('visits.home_visit'),
-            'phone_call' => __('visits.phone_call'),
+            'home_visit'     => __('visits.home_visit'),
+            'phone_call'     => __('visits.phone_call'),
             'church_meeting' => __('visits.church_meeting'),
         ];
     }
@@ -63,10 +63,10 @@ class VisitProfilePage extends Component
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => __('visits.great'),
-            'good' => __('visits.good'),
+            'great'        => __('visits.great'),
+            'good'         => __('visits.good'),
             'needs_follow' => __('visits.needs_follow'),
-            'critical' => __('visits.critical'),
+            'critical'     => __('visits.critical'),
         ];
     }
 }

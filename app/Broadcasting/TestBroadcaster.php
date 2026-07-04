@@ -20,8 +20,8 @@ class TestBroadcaster extends Broadcaster
      *
      * Returns 401 for unauthenticated requests and 403 for unauthorized channel access.
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws UnauthorizedHttpException
+     * @throws AccessDeniedHttpException
      */
     public function auth($request): mixed
     {

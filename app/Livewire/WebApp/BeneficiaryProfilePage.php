@@ -9,8 +9,8 @@ use App\Livewire\WebApp\Concerns\ManagesBeneficiaries;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
-use App\Support\WebAppScope;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -19,10 +19,10 @@ use Livewire\WithFileUploads;
 #[Layout('web-app.layouts.app')]
 class BeneficiaryProfilePage extends Component
 {
-    use WithFileUploads;
     use ManagesBeneficiaries {
         saveBeneficiary as traitSaveBeneficiary;
     }
+    use WithFileUploads;
 
     #[Locked]
     public Beneficiary $beneficiary;
@@ -34,25 +34,25 @@ class BeneficiaryProfilePage extends Component
         $this->beneficiary = $beneficiary->load([
             'serviceGroup',
             'assignedServant',
-            'visits' => fn ($q) => $q->with('createdBy')->latest('visit_date')->limit(10),
+            'visits'         => fn ($q) => $q->with('createdBy')->latest('visit_date')->limit(10),
             'prayerRequests' => fn ($q) => $q->where('status', 'open')->latest()->limit(5),
             'activeMedications',
         ]);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
         return view('livewire.web-app.beneficiary-profile-page', [
             'beneficiaryRecordStatusOptions' => [
-                'active' => __('beneficiaries.active'),
+                'active'   => __('beneficiaries.active'),
                 'inactive' => __('beneficiaries.inactive'),
-                'moved' => __('beneficiaries.moved'),
+                'moved'    => __('beneficiaries.moved'),
                 'deceased' => __('beneficiaries.deceased'),
             ],
             'beneficiaryServiceGroupOptions' => $this->profileServiceGroupOptions($user),
-            'beneficiaryServantOptions' => $this->beneficiaryServantOptions($user),
+            'beneficiaryServantOptions'      => $this->beneficiaryServantOptions($user),
         ]);
     }
 

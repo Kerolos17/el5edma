@@ -6,6 +6,7 @@ namespace App\Livewire\WebApp;
 
 use App\Livewire\WebApp\Concerns\ManagesServiceGroups;
 use App\Models\ServiceGroup;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -14,10 +15,10 @@ use Livewire\WithFileUploads;
 #[Layout('web-app.layouts.app')]
 class ServiceGroupProfilePage extends Component
 {
-    use WithFileUploads;
     use ManagesServiceGroups {
         saveServiceGroup as traitSaveServiceGroup;
     }
+    use WithFileUploads;
 
     #[Locked]
     public ServiceGroup $serviceGroup;
@@ -34,12 +35,12 @@ class ServiceGroupProfilePage extends Component
         ]);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
         return view('livewire.web-app.service-group-profile-page', [
-            'serviceGroupLeaderOptions' => $this->serviceGroupLeaderOptions($user),
+            'serviceGroupLeaderOptions'        => $this->serviceGroupLeaderOptions($user),
             'serviceGroupServiceLeaderOptions' => $this->serviceGroupServiceLeaderOptions($user),
         ]);
     }

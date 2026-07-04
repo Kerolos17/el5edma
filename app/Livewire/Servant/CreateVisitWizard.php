@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Servant;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\Visit;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,19 +21,19 @@ class CreateVisitWizard extends Component
     public int $step = 1;
 
     // Step 1
-    public string $beneficiarySearch    = '';
-    public ?int   $selectedBeneficiaryId = null;
+    public string $beneficiarySearch   = '';
+    public ?int $selectedBeneficiaryId = null;
 
     // Step 2
     public string $visitType = '';
 
     // Step 3
-    public ?int  $durationMinutes    = null;
+    public ?int $durationMinutes     = null;
     public string $beneficiaryStatus = '';
     public string $feedback          = '';
-    public bool   $isCritical        = false;
-    public bool   $needsFamilyLeader  = false;
-    public bool   $needsServiceLeader = false;
+    public bool $isCritical          = false;
+    public bool $needsFamilyLeader   = false;
+    public bool $needsServiceLeader  = false;
 
     #[On('open-wizard')]
     public function openWizard(): void
@@ -49,7 +50,7 @@ class CreateVisitWizard extends Component
         // Pre-select only if the servant owns this beneficiary; otherwise open at step 1
         if ($this->ownedBeneficiaryQuery()->where('id', $beneficiaryId)->exists()) {
             $this->selectedBeneficiaryId = $beneficiaryId;
-            $this->step = 2;
+            $this->step                  = 2;
         }
 
         $this->open = true;
@@ -138,7 +139,7 @@ class CreateVisitWizard extends Component
             ? $this->ownedBeneficiaryQuery()
                 ->when($this->beneficiarySearch, fn ($q) => $q->where(
                     fn ($q2) => $q2->where('full_name', 'like', "%{$this->beneficiarySearch}%")
-                                   ->orWhere('code', 'like', "%{$this->beneficiarySearch}%")
+                        ->orWhere('code', 'like', "%{$this->beneficiarySearch}%"),
                 ))
                 ->orderBy('full_name')
                 ->limit(15)
@@ -172,7 +173,7 @@ class CreateVisitWizard extends Component
     {
         $user = auth()->user();
 
-        if ($user->role === \App\Enums\UserRole::SuperAdmin || $user->role === \App\Enums\UserRole::ServiceLeader) {
+        if ($user->role === UserRole::SuperAdmin || $user->role === UserRole::ServiceLeader) {
             return Beneficiary::query();
         }
 
@@ -182,7 +183,7 @@ class CreateVisitWizard extends Component
                 ->when(
                     $user->service_group_id,
                     fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                )
+                ),
         );
     }
 

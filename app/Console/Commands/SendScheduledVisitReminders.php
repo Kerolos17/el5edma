@@ -36,9 +36,7 @@ class SendScheduledVisitReminders extends Command
 
         foreach ($visits as $visit) {
             $servants = $visit->servants
-                ->whenEmpty(function ($collection) use ($visit) {
-                    return $visit->assignedServant ? $collection->push($visit->assignedServant) : $collection;
-                })
+                ->whenEmpty(fn ($collection) => $visit->assignedServant ? $collection->push($visit->assignedServant) : $collection)
                 ->unique('id')
                 ->values();
 

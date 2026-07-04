@@ -6,6 +6,7 @@ namespace App\Livewire\Servant;
 
 use App\Models\Beneficiary;
 use App\Models\MedicalFile;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -18,7 +19,7 @@ class MedicalFileList extends Component
     #[Url(except: 'all')]
     public string $filter = 'all';
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
@@ -28,7 +29,7 @@ class MedicalFileList extends Component
                 ->when(
                     $user->service_group_id,
                     fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                )
+                ),
             )
             ->pluck('id');
 

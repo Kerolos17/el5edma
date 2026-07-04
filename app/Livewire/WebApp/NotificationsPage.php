@@ -6,6 +6,7 @@ namespace App\Livewire\WebApp;
 
 use App\Models\MinistryNotification;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -59,7 +60,7 @@ class NotificationsPage extends Component
         $this->dispatch('toast', message: __('web_app.toasts.all_marked_read'), type: 'success');
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
@@ -87,8 +88,8 @@ class NotificationsPage extends Component
         $records = $query->latest('created_at')->paginate(15);
 
         return view('livewire.web-app.notifications-page', [
-            'stats' => $stats,
-            'records' => $records,
+            'stats'       => $stats,
+            'records'     => $records,
             'unreadCount' => MinistryNotification::where('user_id', $user->id)->whereNull('read_at')->count(),
         ]);
     }

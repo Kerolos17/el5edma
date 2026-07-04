@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -22,34 +23,34 @@ class UsersPage extends PlaceholderPage
         $this->section = 'users';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->usersQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.users-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => collect(),
-            'servantOptions' => collect(),
-            'userRoleOptions' => $this->userRoleOptions($user),
-            'userServiceGroupOptions' => $this->userServiceGroupOptions($user),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => collect(),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => $this->userRoleOptions($user),
+            'userServiceGroupOptions'          => $this->userServiceGroupOptions($user),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => [],
-            'visitTypeOptions' => [],
-            'beneficiaryStatusOptions' => [],
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => [],
+            'visitTypeOptions'                 => [],
+            'beneficiaryStatusOptions'         => [],
         ]);
     }
 
@@ -76,7 +77,7 @@ class UsersPage extends PlaceholderPage
     {
         return match ($this->filter) {
             'inactive' => $query->where('is_active', false),
-            'active' => $query->where('is_active', true),
+            'active'   => $query->where('is_active', true),
             'service_leader', 'family_leader', 'servant', 'super_admin' => $query->where('role', $this->filter),
             default => $query,
         };
@@ -90,10 +91,10 @@ class UsersPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.users.title'),
-            'description' => __('web_app.resources.users.description'),
-            'icon' => 'ph-identification-card',
-            'primaryAction' => ['label' => __('web_app.actions.service_groups'), 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
+            'title'           => __('web_app.resources.users.title'),
+            'description'     => __('web_app.resources.users.description'),
+            'icon'            => 'ph-identification-card',
+            'primaryAction'   => ['label' => __('web_app.actions.service_groups'), 'route' => route('app.service-groups'), 'icon' => 'ph-tree-structure'],
             'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }
@@ -128,7 +129,7 @@ class UsersPage extends PlaceholderPage
         if ($actor->role === UserRole::ServiceLeader) {
             return collect([
                 UserRole::FamilyLeader->value => UserRole::FamilyLeader->label(),
-                UserRole::Servant->value => UserRole::Servant->label(),
+                UserRole::Servant->value      => UserRole::Servant->label(),
             ]);
         }
 

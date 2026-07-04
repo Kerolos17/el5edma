@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Exports\BeneficiariesExport;
+use App\Exports\VisitsExport;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\Visit;
@@ -109,6 +110,6 @@ class ReportController extends Controller
         $this->authorizeManagementReportsAccess();
         Gate::authorize('viewAny', Visit::class);
 
-        return Excel::download(new \App\Exports\VisitsExport(Auth::user()), 'visits.xlsx');
+        return Excel::download(new VisitsExport(Auth::user()), 'visits.xlsx');
     }
 }

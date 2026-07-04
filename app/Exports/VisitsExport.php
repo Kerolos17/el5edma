@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Visit;
+use App\Models\User;
 use App\Support\WebAppScope;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class VisitsExport implements FromQuery, WithHeadings, WithMapping
 {
-    public function __construct(private \App\Models\User $user) {}
+    public function __construct(private User $user) {}
 
     public function query()
     {

@@ -73,7 +73,7 @@ class CreateScheduledVisit extends CreateRecord
         }
 
         $this->pendingAssignedServantIds = $servantIds;
-        $data['assigned_servant_id'] = $servantIds[0];
+        $data['assigned_servant_id']     = $servantIds[0];
         unset($data['assigned_servant_ids']);
 
         return $data;

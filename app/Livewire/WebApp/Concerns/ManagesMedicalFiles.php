@@ -46,9 +46,9 @@ trait ManagesMedicalFiles
 
         $data = $this->validate([
             'medicalFileBeneficiaryId' => ['required', 'integer'],
-            'medicalFileTitle' => ['required', 'string', 'max:255'],
-            'medicalFileType' => ['required', Rule::in(['report', 'image', 'document'])],
-            'medicalUploadedFile' => [
+            'medicalFileTitle'         => ['required', 'string', 'max:255'],
+            'medicalFileType'          => ['required', Rule::in(['report', 'image', 'document'])],
+            'medicalUploadedFile'      => [
                 'required',
                 'file',
                 'max:5120',
@@ -72,10 +72,10 @@ trait ManagesMedicalFiles
 
         MedicalFile::create([
             'beneficiary_id' => $beneficiary->id,
-            'file_path' => $path,
-            'file_type' => $data['medicalFileType'],
-            'title' => $data['medicalFileTitle'],
-            'uploaded_by' => auth()->id(),
+            'file_path'      => $path,
+            'file_type'      => $data['medicalFileType'],
+            'title'          => $data['medicalFileTitle'],
+            'uploaded_by'    => auth()->id(),
         ]);
 
         $this->showMedicalFileForm = false;

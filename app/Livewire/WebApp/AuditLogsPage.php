@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\WebApp;
 
 use App\Models\AuditLog;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Beneficiary;
+use App\Models\ScheduledVisit;
+use App\Models\ServiceGroup;
+use App\Models\User;
+use App\Models\Visit;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -34,7 +39,7 @@ class AuditLogsPage extends Component
         $this->viewingLogId = null;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $actor = auth()->user();
         abort_unless($actor->can('viewAny', AuditLog::class), 403);
@@ -47,11 +52,11 @@ class AuditLogsPage extends Component
 
         if ($this->filterModel !== 'all') {
             $modelMap = [
-                'beneficiary' => \App\Models\Beneficiary::class,
-                'visit' => \App\Models\Visit::class,
-                'user' => \App\Models\User::class,
-                'service_group' => \App\Models\ServiceGroup::class,
-                'scheduled_visit' => \App\Models\ScheduledVisit::class,
+                'beneficiary'     => Beneficiary::class,
+                'visit'           => Visit::class,
+                'user'            => User::class,
+                'service_group'   => ServiceGroup::class,
+                'scheduled_visit' => ScheduledVisit::class,
             ];
             $class = $modelMap[$this->filterModel] ?? null;
             if ($class) {
@@ -73,8 +78,8 @@ class AuditLogsPage extends Component
         $records = $query->latest('created_at')->paginate(20);
 
         return view('livewire.web-app.audit-logs-page', [
-            'stats' => $stats,
-            'records' => $records,
+            'stats'      => $stats,
+            'records'    => $records,
             'viewingLog' => $viewingLog,
         ]);
     }

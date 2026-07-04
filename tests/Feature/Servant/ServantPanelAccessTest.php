@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Servant;
 
-use App\Enums\UserRole;
 use App\Models\ServiceGroup;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -14,7 +12,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class ServantPanelAccessTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function unauthenticated_user_is_redirected_from_servant_dashboard(): void

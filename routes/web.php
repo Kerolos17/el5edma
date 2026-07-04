@@ -32,6 +32,7 @@ Route::middleware(['web', 'auth'])->post('/logout', function () {
     auth()->guard('web')->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+
     return redirect('/');
 })->name('logout');
 

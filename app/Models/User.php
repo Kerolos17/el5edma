@@ -230,6 +230,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === \App\Enums\UserRole::SuperAdmin && $this->is_active;
+        return $this->role === UserRole::SuperAdmin && $this->is_active;
     }
 }

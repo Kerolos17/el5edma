@@ -69,8 +69,8 @@ trait ManagesScheduledVisits
         $scheduledVisit->loadMissing('servants');
 
         $this->resetScheduledVisitForm();
-        $this->editingScheduledVisitId = $scheduledVisit->id;
-        $this->scheduledVisitBeneficiaryId = $scheduledVisit->beneficiary_id;
+        $this->editingScheduledVisitId          = $scheduledVisit->id;
+        $this->scheduledVisitBeneficiaryId      = $scheduledVisit->beneficiary_id;
         $this->scheduledVisitAssignedServantIds = $scheduledVisit->servants
             ->pluck('id')
             ->whenEmpty(fn (Collection $ids) => $scheduledVisit->assigned_servant_id ? $ids->push($scheduledVisit->assigned_servant_id) : $ids)
@@ -78,9 +78,9 @@ trait ManagesScheduledVisits
             ->unique()
             ->values()
             ->all();
-        $this->scheduledVisitDate = $scheduledVisit->scheduled_date?->toDateString() ?? now()->toDateString();
-        $this->scheduledVisitTime = substr((string) $scheduledVisit->scheduled_time, 0, 5);
-        $this->scheduledVisitNotes = (string) ($scheduledVisit->notes ?? '');
+        $this->scheduledVisitDate     = $scheduledVisit->scheduled_date?->toDateString() ?? now()->toDateString();
+        $this->scheduledVisitTime     = substr((string) $scheduledVisit->scheduled_time, 0, 5);
+        $this->scheduledVisitNotes    = (string) ($scheduledVisit->notes ?? '');
         $this->showScheduledVisitForm = true;
     }
 
@@ -99,15 +99,15 @@ trait ManagesScheduledVisits
         abort_unless(! $scheduledVisit || $scheduledVisit->status === 'pending', 403);
 
         $data = $this->validate([
-            'scheduledVisitBeneficiaryId' => ['required', 'integer'],
-            'scheduledVisitAssignedServantIds' => ['required', 'array', 'min:1'],
+            'scheduledVisitBeneficiaryId'        => ['required', 'integer'],
+            'scheduledVisitAssignedServantIds'   => ['required', 'array', 'min:1'],
             'scheduledVisitAssignedServantIds.*' => ['integer'],
-            'scheduledVisitDate' => ['required', 'date', 'after_or_equal:today'],
-            'scheduledVisitTime' => ['required', 'date_format:H:i'],
-            'scheduledVisitNotes' => ['nullable', 'string', 'max:1000'],
+            'scheduledVisitDate'                 => ['required', 'date', 'after_or_equal:today'],
+            'scheduledVisitTime'                 => ['required', 'date_format:H:i'],
+            'scheduledVisitNotes'                => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $beneficiary = $this->beneficiaryOptionsQuery()->whereKey($data['scheduledVisitBeneficiaryId'])->firstOrFail();
+        $beneficiary        = $this->beneficiaryOptionsQuery()->whereKey($data['scheduledVisitBeneficiaryId'])->firstOrFail();
         $assignedServantIds = $this->servantOptionsQuery()
             ->where('service_group_id', $beneficiary->service_group_id)
             ->whereIn('id', $data['scheduledVisitAssignedServantIds'])
@@ -122,12 +122,12 @@ trait ManagesScheduledVisits
         }
 
         $payload = [
-            'beneficiary_id' => $beneficiary->id,
+            'beneficiary_id'      => $beneficiary->id,
             'assigned_servant_id' => $assignedServantIds[0],
-            'scheduled_date' => $data['scheduledVisitDate'],
-            'scheduled_time' => $data['scheduledVisitTime'],
-            'notes' => $data['scheduledVisitNotes'] ?: null,
-            'status' => 'pending',
+            'scheduled_date'      => $data['scheduledVisitDate'],
+            'scheduled_time'      => $data['scheduledVisitTime'],
+            'notes'               => $data['scheduledVisitNotes'] ?: null,
+            'status'              => 'pending',
         ];
 
         if ($scheduledVisit) {
@@ -166,7 +166,7 @@ trait ManagesScheduledVisits
             auth()->user()->isServant()
             && $scheduledVisit->isAssignedTo(auth()->id())
             && $scheduledVisit->status === 'pending',
-            403
+            403,
         );
 
         $scheduledVisit->update(['status' => 'cancelled']);
@@ -231,7 +231,7 @@ trait ManagesScheduledVisits
 
             if ($scheduledVisit !== null) {
                 $scheduledVisit->update([
-                    'status' => 'completed',
+                    'status'             => 'completed',
                     'completed_visit_id' => $visit->id,
                 ]);
             }
@@ -249,7 +249,7 @@ trait ManagesScheduledVisits
             ->where('status', 'pending')
             ->whereDate('scheduled_date', today())
             ->update([
-                'status' => 'completed',
+                'status'             => 'completed',
                 'completed_visit_id' => $visit->id,
             ]);
     }

@@ -45,13 +45,13 @@ class VisitList extends Component
                     ->when(
                         $user->service_group_id,
                         fn (Builder $q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                    )
+                    ),
             ))
             ->latest('visit_date');
 
         match ($this->filter) {
-            'month'    => $query->whereMonth('visit_date', now()->month)
-                                ->whereYear('visit_date', now()->year),
+            'month' => $query->whereMonth('visit_date', now()->month)
+                ->whereYear('visit_date', now()->year),
             'critical' => $query->where('is_critical', true),
             default    => null,
         };

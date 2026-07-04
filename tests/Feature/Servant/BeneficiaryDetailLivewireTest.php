@@ -16,7 +16,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class BeneficiaryDetailLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_can_view_their_beneficiary_detail(): void
@@ -61,7 +61,7 @@ class BeneficiaryDetailLivewireTest extends TestCase
             'service_group_id'    => $group->id,
         ]);
 
-        $openPr   = PrayerRequest::factory()->create([
+        $openPr = PrayerRequest::factory()->create([
             'beneficiary_id' => $b->id,
             'status'         => 'open',
             'created_by'     => $servant->id,

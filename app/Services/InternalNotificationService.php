@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
+use App\Events\NewMinistryNotification;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use App\Support\NotificationMetadata;
-use App\Events\NewMinistryNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -80,13 +80,14 @@ class InternalNotificationService
 
             // مسح الكاش الخاص بعدد الإشعارات لهذا المستخدم لكي يظهر الإشعار في الحال (Livewire)
             Cache::forget('notifications_unread_' . $user->id);
+
             // Dispatch a broadcast event so the user's browser updates in real-time
             try {
                 event(new NewMinistryNotification($user->id, [
-                    'type' => $type,
-                    'title' => $title,
-                    'body' => $body,
-                    'data' => $payload,
+                    'type'       => $type,
+                    'title'      => $title,
+                    'body'       => $body,
+                    'data'       => $payload,
                     'created_at' => $now->toDateTimeString(),
                 ]));
             } catch (\Throwable $e) {
@@ -113,13 +114,14 @@ class InternalNotificationService
         ]);
 
         Cache::forget('notifications_unread_' . $user->id);
+
         // Dispatch a broadcast event so the user's browser updates in real-time
         try {
             event(new NewMinistryNotification($user->id, [
-                'type' => $type,
-                'title' => $title,
-                'body' => $body,
-                'data' => NotificationMetadata::enrich($type, $data),
+                'type'       => $type,
+                'title'      => $title,
+                'body'       => $body,
+                'data'       => NotificationMetadata::enrich($type, $data),
                 'created_at' => now()->toDateTimeString(),
             ]));
         } catch (\Throwable $e) {

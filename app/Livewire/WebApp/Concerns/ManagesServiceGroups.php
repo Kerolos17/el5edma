@@ -38,7 +38,7 @@ trait ManagesServiceGroups
             abort_unless($actor->can('create', ServiceGroup::class), 403);
 
             $this->serviceGroupServiceLeaderId = $actor->isServiceLeader() ? $actor->id : null;
-            $this->showServiceGroupForm = true;
+            $this->showServiceGroupForm        = true;
 
             return;
         }
@@ -47,13 +47,13 @@ trait ManagesServiceGroups
 
         abort_unless($actor->can('update', $record), 403);
 
-        $this->editingServiceGroupId = $record->id;
-        $this->serviceGroupName = $record->name;
-        $this->serviceGroupDescription = (string) ($record->description ?? '');
-        $this->serviceGroupLeaderId = $record->leader_id;
+        $this->editingServiceGroupId       = $record->id;
+        $this->serviceGroupName            = $record->name;
+        $this->serviceGroupDescription     = (string) ($record->description ?? '');
+        $this->serviceGroupLeaderId        = $record->leader_id;
         $this->serviceGroupServiceLeaderId = $record->service_leader_id;
-        $this->serviceGroupIsActive = (bool) $record->is_active;
-        $this->showServiceGroupForm = true;
+        $this->serviceGroupIsActive        = (bool) $record->is_active;
+        $this->showServiceGroupForm        = true;
     }
 
     public function closeServiceGroupForm(): void
@@ -64,7 +64,7 @@ trait ManagesServiceGroups
 
     public function saveServiceGroup(): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = $this->editingServiceGroupId
             ? WebAppScope::serviceGroups($actor)->whereKey($this->editingServiceGroupId)->firstOrFail()
             : null;
@@ -72,14 +72,14 @@ trait ManagesServiceGroups
         abort_unless($record ? $actor->can('update', $record) : $actor->can('create', ServiceGroup::class), 403);
 
         $data = $this->validate([
-            'serviceGroupName' => ['required', 'string', 'max:255'],
-            'serviceGroupDescription' => ['nullable', 'string', 'max:1000'],
-            'serviceGroupLeaderId' => ['nullable', 'integer'],
+            'serviceGroupName'            => ['required', 'string', 'max:255'],
+            'serviceGroupDescription'     => ['nullable', 'string', 'max:1000'],
+            'serviceGroupLeaderId'        => ['nullable', 'integer'],
             'serviceGroupServiceLeaderId' => ['nullable', 'integer'],
-            'serviceGroupIsActive' => ['boolean'],
+            'serviceGroupIsActive'        => ['boolean'],
         ]);
 
-        $leaderId = $data['serviceGroupLeaderId'] ? (int) $data['serviceGroupLeaderId'] : null;
+        $leaderId        = $data['serviceGroupLeaderId'] ? (int) $data['serviceGroupLeaderId'] : null;
         $serviceLeaderId = $actor->isServiceLeader()
             ? $actor->id
             : ($data['serviceGroupServiceLeaderId'] ? (int) $data['serviceGroupServiceLeaderId'] : null);
@@ -87,11 +87,11 @@ trait ManagesServiceGroups
         $this->ensureServiceGroupLeadersAllowed($actor, $record, $leaderId, $serviceLeaderId);
 
         $payload = [
-            'name' => $data['serviceGroupName'],
-            'description' => $data['serviceGroupDescription'] ?: null,
-            'leader_id' => $leaderId,
+            'name'              => $data['serviceGroupName'],
+            'description'       => $data['serviceGroupDescription'] ?: null,
+            'leader_id'         => $leaderId,
             'service_leader_id' => $serviceLeaderId,
-            'is_active' => (bool) $data['serviceGroupIsActive'],
+            'is_active'         => (bool) $data['serviceGroupIsActive'],
         ];
 
         if ($record) {
@@ -110,7 +110,7 @@ trait ManagesServiceGroups
 
     public function toggleServiceGroupActive(int $serviceGroupId): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = WebAppScope::serviceGroups($actor)->whereKey($serviceGroupId)->firstOrFail();
 
         abort_unless($actor->can('update', $record), 403);
@@ -120,7 +120,7 @@ trait ManagesServiceGroups
         $this->dispatch(
             'toast',
             message: $record->is_active ? __('web_app.toasts.service_group_enabled') : __('web_app.toasts.service_group_disabled'),
-            type: 'success'
+            type: 'success',
         );
     }
 

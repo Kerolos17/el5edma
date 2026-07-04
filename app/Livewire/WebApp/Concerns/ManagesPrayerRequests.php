@@ -38,11 +38,11 @@ trait ManagesPrayerRequests
         abort_unless(auth()->user()->can('update', $record), 403);
 
         $this->resetPrayerForm();
-        $this->editingPrayerId = $record->id;
+        $this->editingPrayerId     = $record->id;
         $this->prayerBeneficiaryId = $record->beneficiary_id;
-        $this->prayerTitle = $record->title;
-        $this->prayerBody = $record->body ?? '';
-        $this->showPrayerForm = true;
+        $this->prayerTitle         = $record->title;
+        $this->prayerBody          = $record->body ?? '';
+        $this->showPrayerForm      = true;
     }
 
     public function closePrayerForm(): void
@@ -53,7 +53,7 @@ trait ManagesPrayerRequests
 
     public function savePrayer(): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = $this->editingPrayerId
             ? WebAppScope::prayerRequests($actor)->whereKey($this->editingPrayerId)->firstOrFail()
             : null;
@@ -62,7 +62,7 @@ trait ManagesPrayerRequests
 
         $rules = [
             'prayerTitle' => ['required', 'string', 'max:255'],
-            'prayerBody' => ['nullable', 'string', 'max:2000'],
+            'prayerBody'  => ['nullable', 'string', 'max:2000'],
         ];
 
         if (! $record) {
@@ -74,17 +74,17 @@ trait ManagesPrayerRequests
         if ($record) {
             $record->update([
                 'title' => $data['prayerTitle'],
-                'body' => $data['prayerBody'] ?: null,
+                'body'  => $data['prayerBody'] ?: null,
             ]);
             $message = __('web_app.toasts.prayer_updated');
         } else {
             $beneficiary = $this->beneficiaryOptionsQuery()->whereKey($data['prayerBeneficiaryId'])->firstOrFail();
             PrayerRequest::create([
                 'beneficiary_id' => $beneficiary->id,
-                'title' => $data['prayerTitle'],
-                'body' => $data['prayerBody'] ?: null,
-                'status' => 'open',
-                'created_by' => $actor->id,
+                'title'          => $data['prayerTitle'],
+                'body'           => $data['prayerBody'] ?: null,
+                'status'         => 'open',
+                'created_by'     => $actor->id,
             ]);
             $message = __('web_app.toasts.prayer_created');
         }
@@ -104,7 +104,7 @@ trait ManagesPrayerRequests
 
         if ($prayerRequest->status !== 'answered') {
             $prayerRequest->update([
-                'status' => 'answered',
+                'status'      => 'answered',
                 'answered_at' => now(),
             ]);
         }
@@ -121,7 +121,7 @@ trait ManagesPrayerRequests
         abort_unless(auth()->user()->can('update', $prayerRequest), 403);
 
         $prayerRequest->update([
-            'status' => 'closed',
+            'status'      => 'closed',
             'answered_at' => null,
         ]);
 
@@ -137,7 +137,7 @@ trait ManagesPrayerRequests
         abort_unless(auth()->user()->can('update', $prayerRequest), 403);
 
         $prayerRequest->update([
-            'status' => 'open',
+            'status'      => 'open',
             'answered_at' => null,
         ]);
 

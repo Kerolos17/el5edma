@@ -20,8 +20,8 @@ use App\Models\ScheduledVisit;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Models\Visit;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -55,7 +55,7 @@ class AppShellTest extends TestCase
     public function inactive_user_is_logged_out_from_app(): void
     {
         $group = ServiceGroup::factory()->create();
-        $user = $this->createServant($group, ['is_active' => false]);
+        $user  = $this->createServant($group, ['is_active' => false]);
 
         $this->actingAs($user)
             ->get(route('app.dashboard'))
@@ -134,7 +134,7 @@ class AppShellTest extends TestCase
     public function root_app_url_redirects_to_dashboard(): void
     {
         $group = ServiceGroup::factory()->create();
-        $user = $this->createServant($group);
+        $user  = $this->createServant($group);
 
         $this->actingAs($user)
             ->get(route('app.home'))
@@ -144,27 +144,27 @@ class AppShellTest extends TestCase
     #[Test]
     public function servant_dashboard_is_scoped_to_their_service_group(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $servant    = $this->createServant($group);
 
         $inScope = Beneficiary::factory()->create([
-            'service_group_id' => $group->id,
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => null,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'service_group_id' => $otherGroup->id,
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
         Visit::factory()->create([
             'beneficiary_id' => $inScope->id,
-            'created_by' => $servant->id,
-            'visit_date' => now(),
+            'created_by'     => $servant->id,
+            'visit_date'     => now(),
         ]);
         Visit::factory()->create([
             'beneficiary_id' => $outOfScope->id,
-            'visit_date' => now(),
+            'visit_date'     => now(),
         ]);
 
         $this->actingAs($servant)
@@ -177,7 +177,7 @@ class AppShellTest extends TestCase
     #[Test]
     public function servant_cannot_open_users_or_service_groups_pages(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         $this->actingAs($servant)
@@ -192,21 +192,21 @@ class AppShellTest extends TestCase
     #[Test]
     public function family_leader_can_open_users_page_with_scoped_records(): void
     {
-        $group = ServiceGroup::factory()->create(['name' => 'Alpha Group']);
-        $otherGroup = ServiceGroup::factory()->create(['name' => 'Beta Group']);
+        $group        = ServiceGroup::factory()->create(['name' => 'Alpha Group']);
+        $otherGroup   = ServiceGroup::factory()->create(['name' => 'Beta Group']);
         $familyLeader = $this->createFamilyLeader($group);
 
         $inScopeUser = User::factory()->create([
-            'name' => 'Scoped User',
-            'role' => UserRole::Servant,
+            'name'             => 'Scoped User',
+            'role'             => UserRole::Servant,
             'service_group_id' => $group->id,
-            'is_active' => true,
+            'is_active'        => true,
         ]);
         $outOfScopeUser = User::factory()->create([
-            'name' => 'Hidden User',
-            'role' => UserRole::Servant,
+            'name'             => 'Hidden User',
+            'role'             => UserRole::Servant,
             'service_group_id' => $otherGroup->id,
-            'is_active' => true,
+            'is_active'        => true,
         ]);
 
         $this->actingAs($familyLeader)
@@ -221,8 +221,8 @@ class AppShellTest extends TestCase
     #[Test]
     public function family_leader_can_open_service_groups_page_with_scoped_records(): void
     {
-        $group = ServiceGroup::factory()->create(['name' => 'Family Group']);
-        $otherGroup = ServiceGroup::factory()->create(['name' => 'Other Group']);
+        $group        = ServiceGroup::factory()->create(['name' => 'Family Group']);
+        $otherGroup   = ServiceGroup::factory()->create(['name' => 'Other Group']);
         $familyLeader = $this->createFamilyLeader($group);
 
         $this->actingAs($familyLeader)
@@ -236,7 +236,7 @@ class AppShellTest extends TestCase
     #[Test]
     public function servant_can_open_core_resource_pages(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);
 
         foreach ([
@@ -256,17 +256,17 @@ class AppShellTest extends TestCase
     #[Test]
     public function beneficiaries_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
-        $inScope = Beneficiary::factory()->create([
-            'full_name' => 'Scoped Beneficiary',
-            'service_group_id' => $group->id,
+        $servant    = $this->createServant($group);
+        $inScope    = Beneficiary::factory()->create([
+            'full_name'           => 'Scoped Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'full_name' => 'Hidden Beneficiary',
-            'service_group_id' => $otherGroup->id,
+            'full_name'           => 'Hidden Beneficiary',
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
@@ -281,30 +281,30 @@ class AppShellTest extends TestCase
     #[Test]
     public function visits_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
-        $inScope = Beneficiary::factory()->create([
-            'full_name' => 'Visited Beneficiary',
-            'service_group_id' => $group->id,
+        $servant    = $this->createServant($group);
+        $inScope    = Beneficiary::factory()->create([
+            'full_name'           => 'Visited Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'full_name' => 'Hidden Visit Beneficiary',
-            'service_group_id' => $otherGroup->id,
+            'full_name'           => 'Hidden Visit Beneficiary',
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
         Visit::factory()->create([
             'beneficiary_id' => $inScope->id,
-            'created_by' => $servant->id,
-            'feedback' => 'Scoped visit feedback',
-            'visit_date' => now(),
+            'created_by'     => $servant->id,
+            'feedback'       => 'Scoped visit feedback',
+            'visit_date'     => now(),
         ]);
         Visit::factory()->create([
             'beneficiary_id' => $outOfScope->id,
-            'feedback' => 'Hidden visit feedback',
-            'visit_date' => now(),
+            'feedback'       => 'Hidden visit feedback',
+            'visit_date'     => now(),
         ]);
 
         $this->actingAs($servant)
@@ -318,30 +318,30 @@ class AppShellTest extends TestCase
     #[Test]
     public function scheduled_visits_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
-        $inScope = Beneficiary::factory()->create([
-            'full_name' => 'Scheduled Beneficiary',
-            'service_group_id' => $group->id,
+        $servant    = $this->createServant($group);
+        $inScope    = Beneficiary::factory()->create([
+            'full_name'           => 'Scheduled Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'full_name' => 'Hidden Scheduled Beneficiary',
-            'service_group_id' => $otherGroup->id,
+            'full_name'           => 'Hidden Scheduled Beneficiary',
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
         ScheduledVisit::factory()->create([
-            'beneficiary_id' => $inScope->id,
+            'beneficiary_id'      => $inScope->id,
             'assigned_servant_id' => $servant->id,
-            'scheduled_date' => now()->addDay()->toDateString(),
-            'status' => 'pending',
+            'scheduled_date'      => now()->addDay()->toDateString(),
+            'status'              => 'pending',
         ])->servants()->sync([$servant->id]);
         ScheduledVisit::factory()->create([
             'beneficiary_id' => $outOfScope->id,
             'scheduled_date' => now()->addDay()->toDateString(),
-            'status' => 'pending',
+            'status'         => 'pending',
         ]);
 
         $this->actingAs($servant)
@@ -355,29 +355,29 @@ class AppShellTest extends TestCase
     #[Test]
     public function prayer_requests_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
-        $inScope = Beneficiary::factory()->create([
-            'full_name' => 'Prayer Beneficiary',
-            'service_group_id' => $group->id,
+        $servant    = $this->createServant($group);
+        $inScope    = Beneficiary::factory()->create([
+            'full_name'           => 'Prayer Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'full_name' => 'Hidden Prayer Beneficiary',
-            'service_group_id' => $otherGroup->id,
+            'full_name'           => 'Hidden Prayer Beneficiary',
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
         PrayerRequest::factory()->create([
             'beneficiary_id' => $inScope->id,
-            'title' => 'Scoped Prayer Request',
-            'status' => 'open',
+            'title'          => 'Scoped Prayer Request',
+            'status'         => 'open',
         ]);
         PrayerRequest::factory()->create([
             'beneficiary_id' => $outOfScope->id,
-            'title' => 'Hidden Prayer Request',
-            'status' => 'open',
+            'title'          => 'Hidden Prayer Request',
+            'status'         => 'open',
         ]);
 
         $this->actingAs($servant)
@@ -391,29 +391,29 @@ class AppShellTest extends TestCase
     #[Test]
     public function medical_files_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
-        $group = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
         $otherGroup = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
-        $inScope = Beneficiary::factory()->create([
-            'full_name' => 'Medical Beneficiary',
-            'service_group_id' => $group->id,
+        $servant    = $this->createServant($group);
+        $inScope    = Beneficiary::factory()->create([
+            'full_name'           => 'Medical Beneficiary',
+            'service_group_id'    => $group->id,
             'assigned_servant_id' => $servant->id,
         ]);
         $outOfScope = Beneficiary::factory()->create([
-            'full_name' => 'Hidden Medical Beneficiary',
-            'service_group_id' => $otherGroup->id,
+            'full_name'           => 'Hidden Medical Beneficiary',
+            'service_group_id'    => $otherGroup->id,
             'assigned_servant_id' => null,
         ]);
 
         MedicalFile::factory()->create([
             'beneficiary_id' => $inScope->id,
-            'title' => 'Scoped Medical File',
-            'file_type' => 'report',
+            'title'          => 'Scoped Medical File',
+            'file_type'      => 'report',
         ]);
         MedicalFile::factory()->create([
             'beneficiary_id' => $outOfScope->id,
-            'title' => 'Hidden Medical File',
-            'file_type' => 'document',
+            'title'          => 'Hidden Medical File',
+            'file_type'      => 'document',
         ]);
 
         $this->actingAs($servant)
@@ -427,8 +427,8 @@ class AppShellTest extends TestCase
     #[Test]
     public function reports_page_only_shows_links_allowed_for_role(): void
     {
-        $group = ServiceGroup::factory()->create();
-        $servant = $this->createServant($group);
+        $group        = ServiceGroup::factory()->create();
+        $servant      = $this->createServant($group);
         $familyLeader = $this->createFamilyLeader($group);
 
         $this->actingAs($servant)
@@ -451,14 +451,14 @@ class AppShellTest extends TestCase
     public function app_resource_routes_use_dedicated_livewire_pages(): void
     {
         $expected = [
-            'app.beneficiaries' => BeneficiariesPage::class,
-            'app.visits' => VisitsPage::class,
+            'app.beneficiaries'    => BeneficiariesPage::class,
+            'app.visits'           => VisitsPage::class,
             'app.scheduled-visits' => ScheduledVisitsPage::class,
-            'app.prayer-requests' => PrayerRequestsPage::class,
-            'app.medical-files' => MedicalFilesPage::class,
-            'app.reports' => ReportsPage::class,
-            'app.users' => UsersPage::class,
-            'app.service-groups' => ServiceGroupsPage::class,
+            'app.prayer-requests'  => PrayerRequestsPage::class,
+            'app.medical-files'    => MedicalFilesPage::class,
+            'app.reports'          => ReportsPage::class,
+            'app.users'            => UsersPage::class,
+            'app.service-groups'   => ServiceGroupsPage::class,
         ];
 
         foreach ($expected as $routeName => $component) {

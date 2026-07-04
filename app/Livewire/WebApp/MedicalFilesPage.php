@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -18,34 +19,34 @@ class MedicalFilesPage extends PlaceholderPage
         $this->section = 'medical-files';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->medicalFilesQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.medical-files-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters($user),
-            'stats' => $this->stats(clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $this->beneficiaryOptions($user),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters($user),
+            'stats'                            => $this->stats(clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $this->beneficiaryOptions($user),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => collect(),
-            'beneficiaryServantOptions' => collect(),
-            'beneficiaryRecordStatusOptions' => [],
-            'medicalFileTypeOptions' => $this->medicalFileTypeOptions(),
-            'visitTypeOptions' => [],
-            'beneficiaryStatusOptions' => [],
+            'beneficiaryServiceGroupOptions'   => collect(),
+            'beneficiaryServantOptions'        => collect(),
+            'beneficiaryRecordStatusOptions'   => [],
+            'medicalFileTypeOptions'           => $this->medicalFileTypeOptions(),
+            'visitTypeOptions'                 => [],
+            'beneficiaryStatusOptions'         => [],
         ]);
     }
 
@@ -72,8 +73,8 @@ class MedicalFilesPage extends PlaceholderPage
     {
         return match ($this->filter) {
             'recent' => $query->where('created_at', '>=', now()->subDays(30)),
-            'all' => $query,
-            default => $query->where('file_type', $this->filter),
+            'all'    => $query,
+            default  => $query->where('file_type', $this->filter),
         };
     }
 
@@ -85,10 +86,10 @@ class MedicalFilesPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.medical-files.title'),
-            'description' => __('web_app.resources.medical-files.description'),
-            'icon' => 'ph-file-lock',
-            'primaryAction' => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
+            'title'           => __('web_app.resources.medical-files.title'),
+            'description'     => __('web_app.resources.medical-files.description'),
+            'icon'            => 'ph-file-lock',
+            'primaryAction'   => ['label' => __('web_app.actions.prayer_requests'), 'route' => route('app.prayer-requests'), 'icon' => 'ph-hands-praying'],
             'secondaryAction' => ['label' => __('web_app.actions.reports'), 'route' => route('app.reports'), 'icon' => 'ph-chart-line-up'],
         ];
     }
@@ -136,8 +137,8 @@ class MedicalFilesPage extends PlaceholderPage
     private function medicalFileTypeOptions(): array
     {
         return [
-            'report' => __('medical.report'),
-            'image' => __('medical.image'),
+            'report'   => __('medical.report'),
+            'image'    => __('medical.image'),
             'document' => __('medical.document'),
         ];
     }

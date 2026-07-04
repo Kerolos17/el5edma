@@ -13,20 +13,20 @@ use Tests\Traits\CreatesTestUsers;
 
 class OfflineVisitSyncControllerTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     private function validPayload(int $beneficiaryId): array
     {
         return [
-            'beneficiary_id'    => $beneficiaryId,
-            'visitType'         => 'home_visit',
-            'beneficiaryStatus' => 'good',
-            'durationMinutes'   => 45,
-            'feedback'          => 'الزيارة كانت جيدة',
-            'isCritical'        => false,
-            'needsFamilyLeader' => false,
-            'needsServiceLeader'=> false,
-            'queuedAt'          => now()->subMinutes(5)->getTimestampMs(),
+            'beneficiary_id'     => $beneficiaryId,
+            'visitType'          => 'home_visit',
+            'beneficiaryStatus'  => 'good',
+            'durationMinutes'    => 45,
+            'feedback'           => 'الزيارة كانت جيدة',
+            'isCritical'         => false,
+            'needsFamilyLeader'  => false,
+            'needsServiceLeader' => false,
+            'queuedAt'           => now()->subMinutes(5)->getTimestampMs(),
         ];
     }
 
@@ -67,9 +67,9 @@ class OfflineVisitSyncControllerTest extends TestCase
     #[Test]
     public function servant_cannot_sync_visit_for_unowned_beneficiary_and_gets_409(): void
     {
-        $group        = ServiceGroup::factory()->create();
-        $servant      = $this->createServant($group);
-        $otherGroup   = ServiceGroup::factory()->create();
+        $group      = ServiceGroup::factory()->create();
+        $servant    = $this->createServant($group);
+        $otherGroup = ServiceGroup::factory()->create();
 
         // Beneficiary belongs to a completely different group with no assignment to our servant
         $beneficiary = Beneficiary::factory()->create([

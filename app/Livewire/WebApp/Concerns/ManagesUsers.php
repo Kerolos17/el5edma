@@ -52,10 +52,10 @@ trait ManagesUsers
         if ($userId === null) {
             abort_unless($actor->can('create', User::class), 403);
 
-            $this->userRole = $this->userRoleOptionsForActor($actor)->keys()->first() ?? UserRole::Servant->value;
-            $firstServiceGroupId = $this->userServiceGroupOptionsForActor($actor)->keys()->first();
+            $this->userRole           = $this->userRoleOptionsForActor($actor)->keys()->first() ?? UserRole::Servant->value;
+            $firstServiceGroupId      = $this->userServiceGroupOptionsForActor($actor)->keys()->first();
             $this->userServiceGroupId = $firstServiceGroupId ? (int) $firstServiceGroupId : null;
-            $this->showUserForm = true;
+            $this->showUserForm       = true;
 
             return;
         }
@@ -64,15 +64,15 @@ trait ManagesUsers
 
         abort_unless($actor->can('update', $record), 403);
 
-        $this->editingUserId = $record->id;
-        $this->userName = $record->name;
-        $this->userEmail = $record->email;
-        $this->userPhone = (string) ($record->phone ?? '');
-        $this->userRole = $record->role->value;
+        $this->editingUserId      = $record->id;
+        $this->userName           = $record->name;
+        $this->userEmail          = $record->email;
+        $this->userPhone          = (string) ($record->phone ?? '');
+        $this->userRole           = $record->role->value;
         $this->userServiceGroupId = $record->service_group_id;
-        $this->userLocale = $record->locale ?: 'ar';
-        $this->userIsActive = (bool) $record->is_active;
-        $this->showUserForm = true;
+        $this->userLocale         = $record->locale ?: 'ar';
+        $this->userIsActive       = (bool) $record->is_active;
+        $this->showUserForm       = true;
     }
 
     public function closeUserForm(): void
@@ -83,7 +83,7 @@ trait ManagesUsers
 
     public function saveUser(): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = $this->editingUserId
             ? WebAppScope::users($actor)->whereKey($this->editingUserId)->firstOrFail()
             : null;
@@ -95,17 +95,17 @@ trait ManagesUsers
             : $this->userRoleOptionsForActor($actor)->keys()->all();
 
         $data = $this->validate([
-            'userName' => ['required', 'string', 'max:255'],
-            'userEmail' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($record?->id)],
-            'userPhone' => ['nullable', 'string', 'max:20'],
-            'userPassword' => [$record ? 'nullable' : 'required', 'string', 'min:8', 'max:255'],
-            'userRole' => ['required', Rule::in($roleOptions)],
+            'userName'           => ['required', 'string', 'max:255'],
+            'userEmail'          => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($record?->id)],
+            'userPhone'          => ['nullable', 'string', 'max:20'],
+            'userPassword'       => [$record ? 'nullable' : 'required', 'string', 'min:8', 'max:255'],
+            'userRole'           => ['required', Rule::in($roleOptions)],
             'userServiceGroupId' => ['nullable', 'integer'],
-            'userLocale' => ['required', Rule::in(['ar', 'en'])],
-            'userIsActive' => ['boolean'],
+            'userLocale'         => ['required', Rule::in(['ar', 'en'])],
+            'userIsActive'       => ['boolean'],
         ]);
 
-        $role = UserRole::from($data['userRole']);
+        $role           = UserRole::from($data['userRole']);
         $serviceGroupId = $data['userServiceGroupId'] ? (int) $data['userServiceGroupId'] : null;
 
         if (in_array($role, [UserRole::FamilyLeader, UserRole::Servant], true) && $serviceGroupId === null) {
@@ -117,18 +117,18 @@ trait ManagesUsers
         $this->ensureUserAssignmentAllowed($actor, $record, $role, $serviceGroupId);
 
         $payload = [
-            'name' => $data['userName'],
-            'email' => $data['userEmail'],
-            'phone' => $data['userPhone'] ?: null,
+            'name'   => $data['userName'],
+            'email'  => $data['userEmail'],
+            'phone'  => $data['userPhone'] ?: null,
             'locale' => $data['userLocale'],
         ];
 
         if ($record && $record->id === $actor->id) {
             $payload['is_active'] = true;
         } else {
-            $payload['role'] = $role;
+            $payload['role']             = $role;
             $payload['service_group_id'] = $role->isAdminLevel() ? null : $serviceGroupId;
-            $payload['is_active'] = (bool) $data['userIsActive'];
+            $payload['is_active']        = (bool) $data['userIsActive'];
         }
 
         if ($data['userPassword']) {
@@ -150,7 +150,7 @@ trait ManagesUsers
 
     public function toggleUserActive(int $userId): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = WebAppScope::users($actor)->whereKey($userId)->firstOrFail();
 
         abort_unless($actor->id !== $record->id && $actor->can('update', $record), 403);
@@ -161,13 +161,13 @@ trait ManagesUsers
         $this->dispatch(
             'toast',
             message: $record->is_active ? __('web_app.toasts.user_enabled') : __('web_app.toasts.user_disabled'),
-            type: 'success'
+            type: 'success',
         );
     }
 
     public function deleteUser(int $id): void
     {
-        $actor = auth()->user();
+        $actor  = auth()->user();
         $record = WebAppScope::users($actor)->whereKey($id)->firstOrFail();
         abort_unless($actor->can('delete', $record) && $actor->id !== $record->id, 403);
         $record->delete();
@@ -198,7 +198,7 @@ trait ManagesUsers
             'userIsActive',
         ]);
 
-        $this->userLocale = 'ar';
+        $this->userLocale   = 'ar';
         $this->userIsActive = true;
     }
 
@@ -211,7 +211,7 @@ trait ManagesUsers
         if ($actor->role === UserRole::ServiceLeader) {
             return collect([
                 UserRole::FamilyLeader->value => UserRole::FamilyLeader->label(),
-                UserRole::Servant->value => UserRole::Servant->label(),
+                UserRole::Servant->value      => UserRole::Servant->label(),
             ]);
         }
 

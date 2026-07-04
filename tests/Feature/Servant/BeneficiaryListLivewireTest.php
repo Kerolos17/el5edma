@@ -15,7 +15,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class BeneficiaryListLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function servant_only_sees_beneficiaries_from_their_group(): void

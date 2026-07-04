@@ -17,7 +17,7 @@ use Tests\Traits\CreatesTestUsers;
 
 class DashboardLivewireTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers;
+    use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
     public function dashboard_shows_correct_beneficiary_count(): void

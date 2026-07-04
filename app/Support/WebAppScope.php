@@ -21,10 +21,10 @@ class WebAppScope
         $query = Beneficiary::query();
 
         return match ($user->role) {
-            UserRole::SuperAdmin => $query,
+            UserRole::SuperAdmin    => $query,
             UserRole::ServiceLeader => $query->whereIn('service_group_id', $user->managedServiceGroupIds()),
-            UserRole::FamilyLeader => $query->where('service_group_id', $user->service_group_id),
-            UserRole::Servant => $query->where(function (Builder $builder) use ($user): void {
+            UserRole::FamilyLeader  => $query->where('service_group_id', $user->service_group_id),
+            UserRole::Servant       => $query->where(function (Builder $builder) use ($user): void {
                 $builder->where('assigned_servant_id', $user->id)
                     ->when(
                         $user->service_group_id,
@@ -47,14 +47,14 @@ class WebAppScope
             ->with(['beneficiary.serviceGroup', 'assignedServant', 'servants']);
 
         return match ($user->role) {
-            UserRole::SuperAdmin => $query,
+            UserRole::SuperAdmin    => $query,
             UserRole::ServiceLeader => $query->whereHas(
                 'beneficiary',
-                fn (Builder $builder) => $builder->whereIn('service_group_id', $user->managedServiceGroupIds())
+                fn (Builder $builder) => $builder->whereIn('service_group_id', $user->managedServiceGroupIds()),
             ),
             UserRole::FamilyLeader => $query->whereHas(
                 'beneficiary',
-                fn (Builder $builder) => $builder->where('service_group_id', $user->service_group_id)
+                fn (Builder $builder) => $builder->where('service_group_id', $user->service_group_id),
             ),
             UserRole::Servant => $query->assignedTo($user),
         };
@@ -79,10 +79,10 @@ class WebAppScope
         $query = User::query()->with('serviceGroup');
 
         return match ($user->role) {
-            UserRole::SuperAdmin => $query,
+            UserRole::SuperAdmin    => $query,
             UserRole::ServiceLeader => $query->whereIn('service_group_id', $user->managedServiceGroupIds()),
-            UserRole::FamilyLeader => $query->where('service_group_id', $user->service_group_id),
-            UserRole::Servant => $query->whereKey($user->id),
+            UserRole::FamilyLeader  => $query->where('service_group_id', $user->service_group_id),
+            UserRole::Servant       => $query->whereKey($user->id),
         };
     }
 
@@ -93,7 +93,7 @@ class WebAppScope
             ->withCount(['beneficiaries', 'servants']);
 
         return match ($user->role) {
-            UserRole::SuperAdmin => $query,
+            UserRole::SuperAdmin    => $query,
             UserRole::ServiceLeader => $query->whereIn('id', $user->managedServiceGroupIds()),
             UserRole::FamilyLeader, UserRole::Servant => $query->whereKey($user->service_group_id),
         };

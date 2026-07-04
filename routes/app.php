@@ -1,15 +1,15 @@
 <?php
 
-use App\Livewire\WebApp\Dashboard;
+use App\Livewire\WebApp\AuditLogsPage;
 use App\Livewire\WebApp\BeneficiariesPage;
+use App\Livewire\WebApp\BeneficiaryProfilePage;
+use App\Livewire\WebApp\Dashboard;
 use App\Livewire\WebApp\MedicalFilesPage;
+use App\Livewire\WebApp\NotificationsPage;
 use App\Livewire\WebApp\PrayerRequestsPage;
+use App\Livewire\WebApp\ProfilePage;
 use App\Livewire\WebApp\ReportsPage;
 use App\Livewire\WebApp\ScheduledVisitsPage;
-use App\Livewire\WebApp\AuditLogsPage;
-use App\Livewire\WebApp\BeneficiaryProfilePage;
-use App\Livewire\WebApp\NotificationsPage;
-use App\Livewire\WebApp\ProfilePage;
 use App\Livewire\WebApp\ServiceGroupProfilePage;
 use App\Livewire\WebApp\ServiceGroupsPage;
 use App\Livewire\WebApp\UsersPage;

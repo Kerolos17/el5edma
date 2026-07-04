@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\WebApp;
 
-use App\Models\Beneficiary;
 use App\Models\MedicalFile;
 use App\Models\PrayerRequest;
 use App\Models\ScheduledVisit;
@@ -15,13 +14,14 @@ use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('web-app.layouts.app')]
 class Dashboard extends Component
 {
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = auth()->user();
 
@@ -44,8 +44,8 @@ class Dashboard extends Component
                         ->whereMonth('visit_date', now()->month)
                         ->whereYear('visit_date', now()->year)
                         ->count(),
-                    'icon'  => 'ph-clipboard-text',
-                    'tone'  => 'emerald',
+                    'icon' => 'ph-clipboard-text',
+                    'tone' => 'emerald',
                 ],
                 [
                     'label' => __('web_app.dashboard.stats.scheduled_visits'),
@@ -54,8 +54,8 @@ class Dashboard extends Component
                         ->where('scheduled_date', '>=', now()->toDateString())
                         ->where('status', '!=', 'completed')
                         ->count(),
-                    'icon'  => 'ph-calendar-check',
-                    'tone'  => 'amber',
+                    'icon' => 'ph-calendar-check',
+                    'tone' => 'amber',
                 ],
                 [
                     'label' => __('web_app.dashboard.stats.critical_cases'),
@@ -87,14 +87,12 @@ class Dashboard extends Component
             ->limit(6)
             ->get();
 
-        $todayBirthdays = Cache::remember("dashboard:birthdays:{$user->id}", 3600, function () use ($user) {
-            return WebAppScope::beneficiaries($user)
-                ->with('serviceGroup')
-                ->whereMonth('birth_date', now()->month)
-                ->whereDay('birth_date', now()->day)
-                ->limit(10)
-                ->get();
-        });
+        $todayBirthdays = Cache::remember("dashboard:birthdays:{$user->id}", 3600, fn () => WebAppScope::beneficiaries($user)
+            ->with('serviceGroup')
+            ->whereMonth('birth_date', now()->month)
+            ->whereDay('birth_date', now()->day)
+            ->limit(10)
+            ->get());
 
         $unvisited = (clone $beneficiaryScope)
             ->with('serviceGroup')
@@ -124,15 +122,15 @@ class Dashboard extends Component
         });
 
         return view('livewire.web-app.dashboard', [
-            'title' => __('web_app.dashboard.title'),
-            'roleLabel' => WebAppScope::roleLabel($user->role),
-            'stats' => $stats,
+            'title'          => __('web_app.dashboard.title'),
+            'roleLabel'      => WebAppScope::roleLabel($user->role),
+            'stats'          => $stats,
             'secondaryStats' => $secondaryStats,
-            'recentVisits' => $recentVisits,
+            'recentVisits'   => $recentVisits,
             'todayBirthdays' => $todayBirthdays,
-            'unvisited' => $unvisited,
-            'criticalCases' => $criticalCases,
-            'visitsChart' => $visitsChart,
+            'unvisited'      => $unvisited,
+            'criticalCases'  => $criticalCases,
+            'visitsChart'    => $visitsChart,
         ]);
     }
 }

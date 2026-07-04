@@ -50,7 +50,7 @@ class PrayerRequestList extends Component
 
         abort_unless(
             $this->ownedBeneficiaryQuery()->where('id', $this->beneficiaryId)->exists(),
-            403
+            403,
         );
 
         PrayerRequest::create([
@@ -92,7 +92,7 @@ class PrayerRequestList extends Component
                 ->when(
                     $user->service_group_id,
                     fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                )
+                ),
         );
     }
 }

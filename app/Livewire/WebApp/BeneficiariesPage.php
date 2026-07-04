@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\WebApp;
 
 use App\Enums\UserRole;
-use App\Models\Beneficiary;
-use App\Models\MedicalFile;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 
 #[Layout('web-app.layouts.app')]
@@ -22,34 +21,34 @@ class BeneficiariesPage extends PlaceholderPage
         $this->section = 'beneficiaries';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $baseQuery = $this->beneficiariesQuery($user);
-        $records = $this->applySort(
+        $records   = $this->applySort(
             $this->applyFilter(
                 $this->applySearch(clone $baseQuery),
-            )
+            ),
         )->paginate(12);
 
         return view('livewire.web-app.beneficiaries-page', [
-            'meta' => $this->meta(),
-            'filters' => $this->filters(),
-            'stats' => $this->stats($user, clone $baseQuery),
-            'records' => $records,
-            'reportCards' => collect(),
-            'beneficiaryOptions' => $this->beneficiaryOptions($user),
-            'servantOptions' => collect(),
-            'userRoleOptions' => collect(),
-            'userServiceGroupOptions' => collect(),
-            'serviceGroupLeaderOptions' => collect(),
+            'meta'                             => $this->meta(),
+            'filters'                          => $this->filters(),
+            'stats'                            => $this->stats($user, clone $baseQuery),
+            'records'                          => $records,
+            'reportCards'                      => collect(),
+            'beneficiaryOptions'               => $this->beneficiaryOptions($user),
+            'servantOptions'                   => collect(),
+            'userRoleOptions'                  => collect(),
+            'userServiceGroupOptions'          => collect(),
+            'serviceGroupLeaderOptions'        => collect(),
             'serviceGroupServiceLeaderOptions' => collect(),
-            'beneficiaryServiceGroupOptions' => $this->beneficiaryServiceGroupOptions($user),
-            'beneficiaryServantOptions' => $this->beneficiaryServantOptions($user),
-            'beneficiaryRecordStatusOptions' => $this->beneficiaryRecordStatusOptions(),
-            'medicalFileTypeOptions' => $this->medicalFileTypeOptions(),
-            'visitTypeOptions' => $this->visitTypeOptions(),
-            'beneficiaryStatusOptions' => $this->beneficiaryStatusOptions(),
+            'beneficiaryServiceGroupOptions'   => $this->beneficiaryServiceGroupOptions($user),
+            'beneficiaryServantOptions'        => $this->beneficiaryServantOptions($user),
+            'beneficiaryRecordStatusOptions'   => $this->beneficiaryRecordStatusOptions(),
+            'medicalFileTypeOptions'           => $this->medicalFileTypeOptions(),
+            'visitTypeOptions'                 => $this->visitTypeOptions(),
+            'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
         ]);
     }
 
@@ -77,10 +76,10 @@ class BeneficiariesPage extends PlaceholderPage
     private function applyFilter(Builder $query): Builder
     {
         return match ($this->filter) {
-            'mine' => $query->where('assigned_servant_id', auth()->id()),
-            'recent' => $query->whereHas('visits', fn (Builder $builder) => $builder->where('visit_date', '>=', now()->subDays(30))),
+            'mine'        => $query->where('assigned_servant_id', auth()->id()),
+            'recent'      => $query->whereHas('visits', fn (Builder $builder) => $builder->where('visit_date', '>=', now()->subDays(30))),
             'needs-visit' => $query->whereDoesntHave('visits'),
-            default => $query,
+            default       => $query,
         };
     }
 
@@ -92,10 +91,10 @@ class BeneficiariesPage extends PlaceholderPage
     private function meta(): array
     {
         return [
-            'title' => __('web_app.resources.beneficiaries.title'),
-            'description' => __('web_app.resources.beneficiaries.description'),
-            'icon' => 'ph-users-three',
-            'primaryAction' => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
+            'title'           => __('web_app.resources.beneficiaries.title'),
+            'description'     => __('web_app.resources.beneficiaries.description'),
+            'icon'            => 'ph-users-three',
+            'primaryAction'   => ['label' => __('web_app.actions.dashboard'), 'route' => route('app.dashboard'), 'icon' => 'ph-squares-four'],
             'secondaryAction' => ['label' => __('web_app.actions.visits'), 'route' => route('app.visits'), 'icon' => 'ph-clipboard-text'],
         ];
     }
@@ -149,7 +148,7 @@ class BeneficiariesPage extends PlaceholderPage
             return collect();
         }
 
-        $serviceGroupId = (int) $this->beneficiaryServiceGroupId;
+        $serviceGroupId  = (int) $this->beneficiaryServiceGroupId;
         $allowedGroupIds = $this->beneficiaryServiceGroupOptions($actor)
             ->keys()
             ->map(fn ($id) => (int) $id)
@@ -170,9 +169,9 @@ class BeneficiariesPage extends PlaceholderPage
     private function beneficiaryRecordStatusOptions(): array
     {
         return [
-            'active' => __('beneficiaries.active'),
+            'active'   => __('beneficiaries.active'),
             'inactive' => __('beneficiaries.inactive'),
-            'moved' => __('beneficiaries.moved'),
+            'moved'    => __('beneficiaries.moved'),
             'deceased' => __('beneficiaries.deceased'),
         ];
     }
@@ -180,8 +179,8 @@ class BeneficiariesPage extends PlaceholderPage
     private function medicalFileTypeOptions(): array
     {
         return [
-            'report' => __('medical.report'),
-            'image' => __('medical.image'),
+            'report'   => __('medical.report'),
+            'image'    => __('medical.image'),
             'document' => __('medical.document'),
         ];
     }
@@ -189,8 +188,8 @@ class BeneficiariesPage extends PlaceholderPage
     private function visitTypeOptions(): array
     {
         return [
-            'home_visit' => __('visits.home_visit'),
-            'phone_call' => __('visits.phone_call'),
+            'home_visit'     => __('visits.home_visit'),
+            'phone_call'     => __('visits.phone_call'),
             'church_meeting' => __('visits.church_meeting'),
         ];
     }
@@ -198,10 +197,10 @@ class BeneficiariesPage extends PlaceholderPage
     private function beneficiaryStatusOptions(): array
     {
         return [
-            'great' => __('visits.great'),
-            'good' => __('visits.good'),
+            'great'        => __('visits.great'),
+            'good'         => __('visits.good'),
             'needs_follow' => __('visits.needs_follow'),
-            'critical' => __('visits.critical'),
+            'critical'     => __('visits.critical'),
         ];
     }
 }

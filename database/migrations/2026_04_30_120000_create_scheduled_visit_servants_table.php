@@ -23,7 +23,7 @@ return new class extends Migration
             ->get()
             ->map(fn (object $row) => [
                 'scheduled_visit_id' => $row->scheduled_visit_id,
-                'servant_id' => $row->servant_id,
+                'servant_id'         => $row->servant_id,
             ])
             ->all();
 

@@ -61,17 +61,17 @@ trait ManagesVisits
         abort_unless(auth()->user()->can('update', $visit), 403);
 
         $this->resetVisitForm();
-        $this->editingVisitId = $visit->id;
+        $this->editingVisitId     = $visit->id;
         $this->visitBeneficiaryId = $visit->beneficiary_id;
-        $this->visitType = (string) ($visit->type ?? '');
-        $this->visitDate = $visit->visit_date?->format('Y-m-d\TH:i') ?? now()->format('Y-m-d\TH:i');
-        $this->durationMinutes = $visit->duration_minutes;
-        $this->beneficiaryStatus = (string) ($visit->beneficiary_status ?? '');
-        $this->visitFeedback = (string) ($visit->feedback ?? '');
-        $this->isCritical = (bool) $visit->is_critical;
-        $this->needsFamilyLeader = (bool) $visit->needs_family_leader;
+        $this->visitType          = (string) ($visit->type ?? '');
+        $this->visitDate          = $visit->visit_date?->format('Y-m-d\TH:i') ?? now()->format('Y-m-d\TH:i');
+        $this->durationMinutes    = $visit->duration_minutes;
+        $this->beneficiaryStatus  = (string) ($visit->beneficiary_status ?? '');
+        $this->visitFeedback      = (string) ($visit->feedback ?? '');
+        $this->isCritical         = (bool) $visit->is_critical;
+        $this->needsFamilyLeader  = (bool) $visit->needs_family_leader;
         $this->needsServiceLeader = (bool) $visit->needs_service_leader;
-        $this->showVisitForm = true;
+        $this->showVisitForm      = true;
     }
 
     public function saveVisit(): void
@@ -84,27 +84,27 @@ trait ManagesVisits
 
         $data = $this->validate([
             'visitBeneficiaryId' => ['required', 'integer'],
-            'visitType' => ['required', 'in:home_visit,phone_call,church_meeting'],
-            'visitDate' => ['required', 'date'],
-            'beneficiaryStatus' => ['required', 'in:great,good,needs_follow,critical'],
-            'durationMinutes' => ['nullable', 'integer', 'min:1', 'max:480'],
-            'visitFeedback' => ['nullable', 'string', 'max:2000'],
-            'isCritical' => ['boolean'],
-            'needsFamilyLeader' => ['boolean'],
+            'visitType'          => ['required', 'in:home_visit,phone_call,church_meeting'],
+            'visitDate'          => ['required', 'date'],
+            'beneficiaryStatus'  => ['required', 'in:great,good,needs_follow,critical'],
+            'durationMinutes'    => ['nullable', 'integer', 'min:1', 'max:480'],
+            'visitFeedback'      => ['nullable', 'string', 'max:2000'],
+            'isCritical'         => ['boolean'],
+            'needsFamilyLeader'  => ['boolean'],
             'needsServiceLeader' => ['boolean'],
         ]);
 
         $beneficiary = $this->beneficiaryOptionsQuery()->whereKey($data['visitBeneficiaryId'])->firstOrFail();
 
         $payload = [
-            'beneficiary_id' => $beneficiary->id,
-            'type' => $data['visitType'],
-            'visit_date' => $data['visitDate'],
-            'duration_minutes' => $data['durationMinutes'] ?: null,
-            'beneficiary_status' => $data['beneficiaryStatus'],
-            'feedback' => $data['visitFeedback'] ?: null,
-            'is_critical' => (bool) $data['isCritical'],
-            'needs_family_leader' => (bool) $data['needsFamilyLeader'],
+            'beneficiary_id'       => $beneficiary->id,
+            'type'                 => $data['visitType'],
+            'visit_date'           => $data['visitDate'],
+            'duration_minutes'     => $data['durationMinutes'] ?: null,
+            'beneficiary_status'   => $data['beneficiaryStatus'],
+            'feedback'             => $data['visitFeedback'] ?: null,
+            'is_critical'          => (bool) $data['isCritical'],
+            'needs_family_leader'  => (bool) $data['needsFamilyLeader'],
             'needs_service_leader' => (bool) $data['needsServiceLeader'],
         ];
 
@@ -141,8 +141,8 @@ trait ManagesVisits
         $visit->update([
             'critical_resolved_at' => now(),
             'critical_resolved_by' => auth()->id(),
-            'is_critical' => false,
-            'needs_family_leader' => false,
+            'is_critical'          => false,
+            'needs_family_leader'  => false,
             'needs_service_leader' => false,
         ]);
 

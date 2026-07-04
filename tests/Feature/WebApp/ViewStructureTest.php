@@ -13,14 +13,14 @@ class ViewStructureTest extends TestCase
     public function resource_pages_use_dedicated_views(): void
     {
         $pages = [
-            'beneficiaries-page' => 'BeneficiariesPage',
-            'visits-page' => 'VisitsPage',
-            'users-page' => 'UsersPage',
-            'service-groups-page' => 'ServiceGroupsPage',
-            'medical-files-page' => 'MedicalFilesPage',
-            'prayer-requests-page' => 'PrayerRequestsPage',
+            'beneficiaries-page'    => 'BeneficiariesPage',
+            'visits-page'           => 'VisitsPage',
+            'users-page'            => 'UsersPage',
+            'service-groups-page'   => 'ServiceGroupsPage',
+            'medical-files-page'    => 'MedicalFilesPage',
+            'prayer-requests-page'  => 'PrayerRequestsPage',
             'scheduled-visits-page' => 'ScheduledVisitsPage',
-            'reports-page' => 'ReportsPage',
+            'reports-page'          => 'ReportsPage',
         ];
 
         foreach ($pages as $view => $component) {
@@ -47,7 +47,7 @@ class ViewStructureTest extends TestCase
 
         foreach ($pages as $view) {
             $viewPath = resource_path("views/livewire/web-app/{$view}.blade.php");
-            $source = file_get_contents($viewPath);
+            $source   = file_get_contents($viewPath);
             $this->assertStringContainsString("@include('livewire.web-app.partials.modals.index')", $source);
         }
     }
@@ -105,7 +105,7 @@ class ViewStructureTest extends TestCase
     public function placeholder_page_delegates_resource_listing_to_concern(): void
     {
         $component = file_get_contents(app_path('Livewire/WebApp/PlaceholderPage.php'));
-        $concern = app_path('Livewire/WebApp/Concerns/ManagesResourceListing.php');
+        $concern   = app_path('Livewire/WebApp/Concerns/ManagesResourceListing.php');
 
         $this->assertStringContainsString('use App\\Livewire\\WebApp\\Concerns\\ManagesResourceListing;', $component);
         $this->assertStringContainsString('use ManagesResourceListing;', $component);

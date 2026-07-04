@@ -36,7 +36,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(RegistrationLinkService::class);
         $this->app->singleton(RegistrationService::class);
 
-
         // ضمان معرفة Firebase بالـ Project ID دائماً
         $this->app->extend(Factory::class, function (Factory $factory) {
             $projectId = config('firebase.projects.app.project_id')

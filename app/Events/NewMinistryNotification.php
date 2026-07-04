@@ -2,10 +2,9 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -20,7 +19,7 @@ class NewMinistryNotification implements ShouldBroadcastNow
 
     public function __construct(int $userId, array $payload)
     {
-        $this->userId = $userId;
+        $this->userId  = $userId;
         $this->payload = $payload;
     }
 
