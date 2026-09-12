@@ -63,8 +63,10 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Check code style
-        run: ./vendor/bin/pint --test
+      - name: Apply refreshed Pint rules
+        run: |
+          ./vendor/bin/pint
+          ./vendor/bin/pint --test
 
       - name: Prepare test environment
         run: |
@@ -76,15 +78,15 @@ jobs:
       - name: Run full test suite
         run: composer test
 
-      - name: Commit verified lock refresh
+      - name: Commit verified dependency refresh
         run: |
-          if git diff --quiet -- composer.lock package-lock.json; then
-            echo 'Dependency lock files already current.'
+          if git diff --quiet -- composer.lock package-lock.json app; then
+            echo 'Dependency lock files and application formatting are already current.'
             exit 0
           fi
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add composer.lock package-lock.json
-          git commit -m 'chore: refresh secure dependency locks [skip ci]'
+          git add composer.lock package-lock.json app
+          git commit -m 'chore: refresh secure dependencies and formatting [skip ci]'
           git push origin HEAD:audit/phase-1-registration-notifications
