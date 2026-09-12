@@ -56,7 +56,7 @@ class NotificationsBellTest extends TestCase
         $notification = MinistryNotification::factory()->create([
             'user_id' => $this->user->id,
             'read_at' => null,
-            'data' => [],
+            'data'    => [],
         ]);
 
         Cache::put("notifications_unread_{$this->user->id}", 99, 60);
