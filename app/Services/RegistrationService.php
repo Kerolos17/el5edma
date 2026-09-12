@@ -150,7 +150,8 @@ class RegistrationService
 
         try {
             foreach ($leaders as $leader) {
-                app()->setLocale($leader->locale ?? 'ar');
+                $leaderLocale = $leader->locale ?? 'ar';
+                app()->setLocale($leaderLocale);
 
                 $notifications[] = [
                     'user_id' => $leader->id,
@@ -165,6 +166,7 @@ class RegistrationService
                         'servant_name'     => $newServant->name,
                         'service_group_id' => $serviceGroup->id,
                         'registered_at'    => $now->toIso8601String(),
+                        'locale'           => $leaderLocale,
                         'url'              => '/app/users',
                     ])),
                     'read_at'    => null,
@@ -191,6 +193,7 @@ class RegistrationService
             'data' => NotificationMetadata::enrich('welcome_servant', [
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
+                'locale'           => $newServant->locale ?? app()->getLocale(),
             ]),
         ]);
     }
@@ -210,7 +213,8 @@ class RegistrationService
                     continue;
                 }
 
-                app()->setLocale($leader->locale ?? 'ar');
+                $leaderLocale = $leader->locale ?? 'ar';
+                app()->setLocale($leaderLocale);
 
                 $title = __('notifications.servant_registered.title');
                 $body  = __('notifications.servant_registered.body', [
@@ -222,6 +226,7 @@ class RegistrationService
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => now()->toIso8601String(),
+                    'locale'           => $leaderLocale,
                     'url'              => '/app/users',
                 ]);
 
