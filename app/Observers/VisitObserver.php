@@ -56,32 +56,37 @@ class VisitObserver
         }
 
         $notifier = app(InternalNotificationService::class);
-        $title    = __('notifications.critical_case_title');
-        $body     = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-        $data     = NotificationMetadata::enrich('critical_case', [
+        $title = __('notifications.critical_case_title');
+        $body = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
+        $data = NotificationMetadata::enrich('critical_case', [
             'beneficiary_id' => $beneficiary->id,
-            'visit_id'       => $visit->id,
-            'url'            => '/app/visit/' . $visit->id,
+            'visit_id' => $visit->id,
+            'url' => '/app/visit/'.$visit->id,
         ]);
 
         $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);
 
-        // Send FCM push to related users
-        $userIds = collect();
+        $userIds = collect([
+            $beneficiary->assigned_servant_id,
+            $beneficiary->serviceGroup?->leader_id,
+        ])->filter()->unique()->values();
 
-        if ($beneficiary->assigned_servant_id) {
-            $userIds->push($beneficiary->assigned_servant_id);
+        if ($userIds->isEmpty()) {
+            return;
         }
-        if ($beneficiary->serviceGroup?->leader_id) {
-            $userIds->push($beneficiary->serviceGroup->leader_id);
-        }
 
-        $tokens = User::whereIn('id', $userIds->unique())
-            ->whereNotNull('fcm_token')
-            ->pluck('fcm_token')
-            ->toArray();
+        $tokens = User::query()
+            ->whereIn('id', $userIds)
+            ->where('is_active', true)
+            ->with('pushDevices:id,user_id,token')
+            ->get(['id', 'fcm_token'])
+            ->flatMap(fn (User $user) => $user->pushTokens())
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
 
-        if (! empty($tokens)) {
+        if ($tokens !== []) {
             SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
         }
     }
@@ -107,10 +112,10 @@ class VisitObserver
         }
 
         AuditLog::create([
-            'user_id'    => Auth::id(),
+            'user_id' => Auth::id(),
             'model_type' => get_class($model),
-            'model_id'   => $model->id,
-            'action'     => $action,
+            'model_id' => $model->id,
+            'action' => $action,
             'old_values' => $old,
             'new_values' => $new,
             'ip_address' => request()->ip(),
