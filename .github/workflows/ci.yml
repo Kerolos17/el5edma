@@ -44,10 +44,10 @@ jobs:
 
       - name: Trial security upgrades
         run: |
-          npm install --save-exact axios@1.20.0 firebase@12.19.0
-          npm install --save-dev --save-exact vite@7.3.2 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3
+          npm install --save-exact firebase@12.19.0
+          npm install --save-dev --save-exact axios@1.20.0 concurrently@9.2.4 esbuild@0.28.2 vite@7.3.6 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3
           echo '=== resolved security-sensitive packages ==='
-          npm ls axios firebase @firebase/firestore @firebase/storage qrcode pngjs minimist vite tailwindcss @tailwindcss/vite @tailwindcss/oxide || true
+          npm ls axios concurrently shell-quote esbuild firebase @firebase/firestore @firebase/storage qrcode pngjs minimist nanoid postcss vite tailwindcss @tailwindcss/vite @tailwindcss/oxide || true
           echo '=== npm audit: production dependencies only ==='
           npm audit --omit=dev --json
           echo '=== npm audit: all dependencies ==='
