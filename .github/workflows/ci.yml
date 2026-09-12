@@ -54,7 +54,7 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
-      - name: Run tests (diagnostic: first failure)
+      - name: Run tests diagnostic first failure
         run: |
           php artisan config:clear --ansi
           php artisan test --stop-on-failure
