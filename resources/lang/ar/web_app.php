@@ -406,7 +406,7 @@ return [
             'description' => 'ملخص PDF للزيارات المسجلة.',
         ],
         'unvisited' => [
-            'title'       => 'غير المزارين',
+            'title'       => 'تقرير غير المزورين',
             'description' => 'تقرير المخدومين الذين لم تتم زيارتهم',
         ],
         'beneficiaries_excel' => [
