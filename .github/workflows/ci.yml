@@ -42,14 +42,19 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Dependency diagnostics
+      - name: Trial security upgrades
         run: |
-          echo '=== npm audit: all dependencies ==='
-          npm audit --json || true
+          npm install --save-exact axios@1.20.0 firebase@12.19.0
+          npm install --save-dev --save-exact vite@7.3.2 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3
+          echo '=== resolved security-sensitive packages ==='
+          npm ls axios firebase @firebase/firestore @firebase/storage qrcode pngjs minimist vite tailwindcss @tailwindcss/vite @tailwindcss/oxide || true
           echo '=== npm audit: production dependencies only ==='
-          npm audit --omit=dev --json || true
-          echo '=== composer validate ==='
-          composer validate --strict || true
+          npm audit --omit=dev --json
+          echo '=== npm audit: all dependencies ==='
+          npm audit --json
+
+      - name: Composer diagnostics
+        run: composer validate --strict || true
 
       - name: Build frontend assets
         run: npm run build
