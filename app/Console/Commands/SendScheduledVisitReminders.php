@@ -25,7 +25,13 @@ class SendScheduledVisitReminders extends Command
             ->where('status', 'pending')
             ->whereDate('scheduled_date', $tomorrow)
             ->whereNull('reminder_sent_at')
-            ->with(['beneficiary:id,full_name', 'assignedServant:id,fcm_token,locale', 'servants:id,fcm_token,locale'])
+            ->with([
+                'beneficiary:id,full_name',
+                'assignedServant:id,fcm_token,locale',
+                'assignedServant.pushDevices:id,user_id,token',
+                'servants:id,fcm_token,locale',
+                'servants.pushDevices:id,user_id,token',
+            ])
             ->get();
 
         $rows     = [];
@@ -70,15 +76,14 @@ class SendScheduledVisitReminders extends Command
                     'created_at' => now()->toDateTimeString(),
                 ];
 
-                if ($servant->fcm_token) {
-                    $tokens[] = $servant->fcm_token;
-                }
+                $tokens = array_merge($tokens, $servant->pushTokens());
             }
 
             $visitIds[] = $visit->id;
         }
 
-        $count = count($rows);
+        $count  = count($rows);
+        $tokens = array_values(array_unique(array_filter($tokens)));
 
         if ($count > 0) {
             MinistryNotification::insert($rows);
@@ -88,6 +93,7 @@ class SendScheduledVisitReminders extends Command
                 $title = __('notifications.visit_reminder_title');
                 $body  = __('notifications.visit_reminder_body', ['name' => '']);
                 App::setLocale($originalLocale);
+
                 SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('visit_reminder', [
                     'url' => route('app.scheduled-visits'),
                 ]));
