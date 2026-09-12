@@ -26,35 +26,36 @@ class InternalNotificationService
     }
 
     /**
-     * إرسال إشعار للأشخاص المعنيين بمخدوم معين فقط
-     * (الخدام المسؤولين عنه + أمين أسرته + أمناء الخدمة + مديري النظام)
+     * إرسال إشعار للأشخاص المعنيين بمخدوم معين فقط:
+     * الخادم المعين + أمين الأسرة + أمين الخدمة المسؤول عن المجموعة + مديري النظام.
      */
     public function notifyRelatedUsers(Beneficiary $beneficiary, string $type, string $title, string $body, array $data = []): void
     {
-        $userIds = [];
+        $beneficiary->loadMissing('serviceGroup');
 
-        // 1. الخادم المعين
-        if ($beneficiary->assigned_servant_id) {
-            $userIds[] = $beneficiary->assigned_servant_id;
-        }
+        $directRecipientIds = collect([
+            $beneficiary->assigned_servant_id,
+            $beneficiary->serviceGroup?->leader_id,
+            $beneficiary->serviceGroup?->service_leader_id,
+        ])->filter()->unique()->values();
 
-        // 2. أمين الأسرة (نجلبه من ServiceGroup)
-        if ($beneficiary->serviceGroup && $beneficiary->serviceGroup->leader_id) {
-            $userIds[] = $beneficiary->serviceGroup->leader_id;
-        }
+        $users = User::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($directRecipientIds): void {
+                if ($directRecipientIds->isNotEmpty()) {
+                    $query->whereIn('id', $directRecipientIds)
+                        ->orWhere('role', UserRole::SuperAdmin->value);
 
-        // 3. المشرفين العامين وأمناء الخدمة
-        $superAdminsAndLeaders = User::whereIn('role', [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])->pluck('id')->toArray();
-        $userIds               = array_merge($userIds, $superAdminsAndLeaders);
+                    return;
+                }
 
-        // إزالة التكرارات (في حال كان الخادم هو نفسه أمين الأسرة مثلاً)
-        $userIds = array_unique($userIds);
+                $query->where('role', UserRole::SuperAdmin->value);
+            })
+            ->get();
 
-        if (empty($userIds)) {
+        if ($users->isEmpty()) {
             return;
         }
-
-        $users = User::whereIn('id', $userIds)->get();
 
         $this->notifyUsers($users, $type, $title, $body, $data);
     }
