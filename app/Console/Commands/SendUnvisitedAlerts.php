@@ -20,112 +20,98 @@ class SendUnvisitedAlerts extends Command
     public function handle(): void
     {
         $startTime = microtime(true);
-        $cutoff    = now()->subDays(14);
-        $count     = 0;
+        $cutoff = now()->subDays(14);
+        $count = 0;
+        $originalLocale = App::getLocale();
 
-        Beneficiary::query()
-            ->where('status', 'active')
-            ->withMax('visits', 'visit_date')
-            ->where(function ($q) use ($cutoff) {
-                $q->whereNull('visits_max_visit_date')
-                    ->orWhere('visits_max_visit_date', '<', $cutoff->toDateTimeString());
-            })
-            ->with([
-                'serviceGroup.leader:id,fcm_token,locale',
-                'assignedServant:id,fcm_token,locale',
-            ])
-            ->chunkById(100, function (Collection $chunk) use (&$count) {
-                $rows   = [];
-                $tokens = [];
+        try {
+            Beneficiary::query()
+                ->where('status', 'active')
+                ->withMax('visits', 'visit_date')
+                ->where(function ($q) use ($cutoff): void {
+                    $q->whereNull('visits_max_visit_date')
+                        ->orWhere('visits_max_visit_date', '<', $cutoff->toDateTimeString());
+                })
+                ->with([
+                    'serviceGroup.leader:id,fcm_token,locale',
+                    'serviceGroup.leader.pushDevices:id,user_id,token',
+                    'assignedServant:id,fcm_token,locale',
+                    'assignedServant.pushDevices:id,user_id,token',
+                ])
+                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale): void {
+                    $rows = [];
+                    $pushes = [];
 
-                foreach ($chunk as $beneficiary) {
-                    $lastVisit = $beneficiary->visits_max_visit_date;
-                    $days      = $lastVisit
-                        ? (int) now()->diffInDays($lastVisit)
-                        : null;
-
-                    $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
-                        'beneficiary_id' => (string) $beneficiary->id,
-                        'last_visit'     => (string) ($lastVisit ?? ''),
-                        'days_unvisited' => (string) ($days ?? ''),
-                        'url'            => '/app/beneficiary/' . $beneficiary->id,
-                    ]);
-
-                    // إشعار أمين الأسرة
-                    if ($leader = $beneficiary->serviceGroup?->leader) {
-                        $originalLocale = App::getLocale();
-                        App::setLocale($leader->locale ?? 'ar');
-
-                        $title = __('notifications.unvisited_alert_title');
-                        $body  = __('notifications.unvisited_alert_body', [
-                            'name' => $beneficiary->full_name,
-                            'days' => $days ?? '?',
+                    foreach ($chunk as $beneficiary) {
+                        $lastVisit = $beneficiary->visits_max_visit_date;
+                        $days = $lastVisit ? (int) now()->diffInDays($lastVisit) : null;
+                        $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
+                            'beneficiary_id' => (string) $beneficiary->id,
+                            'last_visit' => (string) ($lastVisit ?? ''),
+                            'days_unvisited' => (string) ($days ?? ''),
+                            'url' => '/app/beneficiary/'.$beneficiary->id,
                         ]);
 
-                        App::setLocale($originalLocale);
+                        $recipients = collect([
+                            $beneficiary->serviceGroup?->leader,
+                            $beneficiary->assignedServant,
+                        ])->filter()->unique('id')->values();
 
-                        $rows[] = [
-                            'user_id'    => $leader->id,
-                            'type'       => 'unvisited_alert',
-                            'title'      => $title,
-                            'body'       => $body,
-                            'data'       => json_encode($dataPayload),
-                            'created_at' => now()->toDateTimeString(),
-                        ];
+                        foreach ($recipients as $recipient) {
+                            App::setLocale($recipient->locale ?? 'ar');
 
-                        if ($leader->fcm_token) {
-                            $tokens[] = $leader->fcm_token;
+                            $title = __('notifications.unvisited_alert_title');
+                            $body = __('notifications.unvisited_alert_body', [
+                                'name' => $beneficiary->full_name,
+                                'days' => $days ?? '?',
+                            ]);
+
+                            $rows[] = [
+                                'user_id' => $recipient->id,
+                                'type' => 'unvisited_alert',
+                                'title' => $title,
+                                'body' => $body,
+                                'data' => json_encode($dataPayload),
+                                'created_at' => now()->toDateTimeString(),
+                            ];
+
+                            $tokens = $recipient->pushTokens();
+
+                            if ($tokens !== []) {
+                                $pushes[] = [
+                                    'tokens' => $tokens,
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $dataPayload,
+                                ];
+                            }
+
+                            $count++;
                         }
-
-                        $count++;
                     }
 
-                    // إشعار الخادم المسؤول
-                    if ($servant = $beneficiary->assignedServant) {
-                        $originalLocale = App::getLocale();
-                        App::setLocale($servant->locale ?? 'ar');
+                    App::setLocale($originalLocale);
 
-                        $title = __('notifications.unvisited_alert_title');
-                        $body  = __('notifications.unvisited_alert_body', [
-                            'name' => $beneficiary->full_name,
-                            'days' => $days ?? '?',
-                        ]);
-
-                        App::setLocale($originalLocale);
-
-                        $rows[] = [
-                            'user_id'    => $servant->id,
-                            'type'       => 'unvisited_alert',
-                            'title'      => $title,
-                            'body'       => $body,
-                            'data'       => json_encode($dataPayload),
-                            'created_at' => now()->toDateTimeString(),
-                        ];
-
-                        if ($servant->fcm_token) {
-                            $tokens[] = $servant->fcm_token;
-                        }
-
-                        $count++;
+                    if ($rows !== []) {
+                        MinistryNotification::insertOrIgnore($rows);
                     }
-                }
 
-                if (! empty($rows)) {
-                    MinistryNotification::insertOrIgnore($rows);
-                }
+                    foreach ($pushes as $push) {
+                        SendFcmNotificationJob::dispatch(
+                            $push['tokens'],
+                            $push['title'],
+                            $push['body'],
+                            $push['data'],
+                        );
+                    }
+                });
 
-                if (! empty($tokens)) {
-                    $title = __('notifications.unvisited_alert_title');
-                    $body  = __('notifications.unvisited_alert_body', ['name' => '', 'days' => '']);
-                    SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('unvisited_alert', [
-                        'url' => route('app.notifications'),
-                    ]));
-                }
-            });
+            $elapsed = round(microtime(true) - $startTime, 2);
 
-        $elapsed = round(microtime(true) - $startTime, 2);
-
-        Log::info("reminders:unvisited — تم إرسال {$count} تنبيه في {$elapsed} ثانية");
-        $this->info("✅ تم إرسال {$count} تنبيه مخدوم غير مزار.");
+            Log::info("reminders:unvisited — تم إرسال {$count} تنبيه في {$elapsed} ثانية");
+            $this->info("✅ تم إرسال {$count} تنبيه مخدوم غير مزار.");
+        } finally {
+            App::setLocale($originalLocale);
+        }
     }
 }
