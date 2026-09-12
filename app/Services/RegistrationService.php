@@ -98,8 +98,8 @@ class RegistrationService
                 return;
             }
 
-            $this->createNotificationRecords($newServant, $serviceGroup, $leaders);
-            $this->dispatchFcmNotifications($newServant, $serviceGroup, $leaders);
+            $pushes = $this->createNotificationRecords($newServant, $serviceGroup, $leaders);
+            $this->dispatchFcmNotifications($newServant, $pushes);
         } catch (\Throwable $e) {
             Log::warning('Failed to notify leaders for self-registration', [
                 'user_id'          => $newServant->id,
@@ -143,35 +143,57 @@ class RegistrationService
         User $newServant,
         ServiceGroup $serviceGroup,
         Collection $leaders,
-    ): void {
+    ): array {
         $now            = now();
         $previousLocale = app()->getLocale();
+        $notifications  = [];
+        $pushes         = [];
 
-        $notifications = $leaders->map(function (User $leader) use ($newServant, $serviceGroup, $now) {
-            app()->setLocale($leader->locale ?? 'ar');
+        try {
+            foreach ($leaders as $leader) {
+                app()->setLocale($leader->locale ?? 'ar');
 
-            return [
-                'user_id' => $leader->id,
-                'type'    => 'servant_registered',
-                'title'   => __('notifications.servant_registered.title'),
-                'body'    => __('notifications.servant_registered.body', [
+                $title = __('notifications.servant_registered.title');
+                $body  = __('notifications.servant_registered.body', [
                     'name'          => $newServant->name,
                     'service_group' => $serviceGroup->name,
-                ]),
-                'data' => json_encode(NotificationMetadata::enrich('servant_registered', [
+                ]);
+                $data = NotificationMetadata::enrich('servant_registered', [
                     'servant_id'       => $newServant->id,
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => $now->toIso8601String(),
                     'url'              => '/app/users',
-                ])),
-                'read_at'    => null,
-                'created_at' => $now,
-            ];
-        })->toArray();
+                ]);
 
-        app()->setLocale($previousLocale);
-        DB::table('ministry_notifications')->insert($notifications);
+                $notifications[] = [
+                    'user_id'    => $leader->id,
+                    'type'       => 'servant_registered',
+                    'title'      => $title,
+                    'body'       => $body,
+                    'data'       => json_encode($data),
+                    'read_at'    => null,
+                    'created_at' => $now,
+                ];
+
+                $tokens = $leader->pushTokens();
+
+                if ($tokens !== []) {
+                    $pushes[] = [
+                        'tokens' => $tokens,
+                        'title'  => $title,
+                        'body'   => $body,
+                        'data'   => $data,
+                    ];
+                }
+            }
+
+            DB::table('ministry_notifications')->insert($notifications);
+
+            return $pushes;
+        } finally {
+            app()->setLocale($previousLocale);
+        }
     }
 
     protected function createWelcomeNotification(User $newServant, ServiceGroup $serviceGroup): void
@@ -191,39 +213,17 @@ class RegistrationService
         ]);
     }
 
-    protected function dispatchFcmNotifications(
-        User $newServant,
-        ServiceGroup $serviceGroup,
-        Collection $leaders,
-    ): void {
+    protected function dispatchFcmNotifications(User $newServant, array $pushes): void
+    {
         try {
-            $tokens = $leaders
-                ->flatMap(fn (User $leader) => $leader->pushTokens())
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            if (empty($tokens)) {
-                return;
+            foreach ($pushes as $push) {
+                SendFcmNotificationJob::dispatch(
+                    $push['tokens'],
+                    $push['title'],
+                    $push['body'],
+                    $push['data'],
+                );
             }
-
-            $title = __('notifications.servant_registered.title');
-            $body  = __('notifications.servant_registered.body', [
-                'name'          => $newServant->name,
-                'service_group' => $serviceGroup->name,
-            ]);
-            $data = [
-                'servant_id'       => $newServant->id,
-                'servant_name'     => $newServant->name,
-                'service_group_id' => $serviceGroup->id,
-                'registered_at'    => now()->toIso8601String(),
-                'type'             => 'servant_registered',
-                'severity'         => 'medium',
-                'url'              => '/app/users',
-            ];
-
-            SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
         } catch (\Exception $e) {
             Log::warning('FCM notification dispatch failed for self-registration', [
                 'user_id' => $newServant->id,
