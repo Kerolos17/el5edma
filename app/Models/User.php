@@ -78,7 +78,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     public function pushTokens(): array
     {
-        $tokens = $this->pushDevices()
+        $devices = $this->relationLoaded('pushDevices')
+            ? $this->pushDevices
+            : $this->pushDevices()->get(['id', 'user_id', 'token']);
+
+        // Access through the model instances so the encrypted cast is applied.
+        $tokens = $devices
             ->pluck('token')
             ->filter()
             ->all();
