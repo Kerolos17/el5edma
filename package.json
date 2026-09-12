@@ -7,18 +7,18 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.2.1",
-        "axios": "^1.11.0",
-        "concurrently": "^9.0.1",
-        "esbuild": "^0.28.0",
+        "@tailwindcss/vite": "4.3.3",
+        "axios": "1.20.0",
+        "concurrently": "9.2.4",
+        "esbuild": "0.28.2",
         "laravel-vite-plugin": "^2.0.0",
-        "tailwindcss": "^4.2.1",
-        "vite": "^7.0.7"
+        "tailwindcss": "4.3.3",
+        "vite": "7.3.6"
     },
     "dependencies": {
         "@dietrichgebert/ponytail": "^4.8.3",
         "@phosphor-icons/web": "^2.1.2",
-        "firebase": "^12.11.0",
+        "firebase": "12.19.0",
         "laravel-echo": "^1.11.0",
         "pusher-js": "^8.0.0"
     }
