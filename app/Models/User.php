@@ -65,6 +65,31 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasMany(MinistryNotification::class);
     }
 
+    public function pushDevices()
+    {
+        return $this->hasMany(PushDevice::class);
+    }
+
+    /**
+     * Return all active push tokens for this user.
+     *
+     * The legacy users.fcm_token value is included during the transition so
+     * existing sessions keep receiving pushes until all devices re-register.
+     */
+    public function pushTokens(): array
+    {
+        $tokens = $this->pushDevices()
+            ->pluck('token')
+            ->filter()
+            ->all();
+
+        if ($this->fcm_token) {
+            $tokens[] = $this->fcm_token;
+        }
+
+        return array_values(array_unique($tokens));
+    }
+
     // ── Helpers ──
 
     /**
