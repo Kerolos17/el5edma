@@ -59,17 +59,36 @@ class UserModelTest extends TestCase
         $this->assertNotNull($user->personal_code);
     }
 
-    public function test_can_access_panel_active(): void
+    public function test_active_super_admin_can_access_filament_panel(): void
     {
-        $user  = User::factory()->create(['is_active' => true]);
+        $user = User::factory()->create([
+            'role'      => UserRole::SuperAdmin,
+            'is_active' => true,
+        ]);
         $panel = app(Panel::class);
+
         $this->assertTrue($user->canAccessPanel($panel));
     }
 
-    public function test_can_access_panel_inactive(): void
+    public function test_active_non_admin_cannot_access_filament_panel(): void
     {
-        $user  = User::factory()->create(['is_active' => false]);
+        $user = User::factory()->create([
+            'role'      => UserRole::Servant,
+            'is_active' => true,
+        ]);
         $panel = app(Panel::class);
+
+        $this->assertFalse($user->canAccessPanel($panel));
+    }
+
+    public function test_inactive_super_admin_cannot_access_filament_panel(): void
+    {
+        $user = User::factory()->create([
+            'role'      => UserRole::SuperAdmin,
+            'is_active' => false,
+        ]);
+        $panel = app(Panel::class);
+
         $this->assertFalse($user->canAccessPanel($panel));
     }
 
