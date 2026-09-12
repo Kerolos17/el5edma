@@ -1,0 +1,90 @@
+name: Dependency Refresh
+
+on:
+  push:
+    branches:
+      - audit/phase-1-registration-notifications
+    paths:
+      - '.github/workflows/dependency-refresh.yml'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/phase-1-registration-notifications
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Refresh Composer lock within declared constraints
+        run: composer update --with-all-dependencies --no-interaction --prefer-dist
+
+      - name: Validate Composer lock and security
+        run: |
+          composer validate --strict --no-check-publish
+          composer audit --locked --no-interaction
+
+      - name: Refresh npm lock within declared constraints
+        run: npm audit fix --package-lock-only
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Enforce npm security
+        run: |
+          npm audit --omit=dev --audit-level=high
+          npm audit --audit-level=high
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Check code style
+        run: ./vendor/bin/pint --test
+
+      - name: Prepare test environment
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Run full test suite
+        run: composer test
+
+      - name: Commit verified lock refresh
+        run: |
+          if git diff --quiet -- composer.lock package-lock.json; then
+            echo 'Dependency lock files already current.'
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add composer.lock package-lock.json
+          git commit -m 'chore: refresh secure dependency locks [skip ci]'
+          git push origin HEAD:audit/phase-1-registration-notifications
