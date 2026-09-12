@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +44,9 @@ jobs:
 
       - name: Copy .env
         run: cp .env.example .env
+
+      - name: Prepare SQLite database
+        run: touch database/database.sqlite
 
       - name: Generate app key
         run: php artisan key:generate
