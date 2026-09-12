@@ -76,7 +76,7 @@ class SendBirthdayReminders extends Command
                             $body             = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
-                                'url'            => '/app/beneficiary/'.$beneficiary->id,
+                                'url'            => '/app/beneficiary/' . $beneficiary->id,
                             ]);
 
                             $rows[] = [
