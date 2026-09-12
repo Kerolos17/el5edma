@@ -93,8 +93,8 @@ class WebAppScope
             ->withCount(['beneficiaries', 'servants']);
 
         return match ($user->role) {
-            UserRole::SuperAdmin    => $query,
-            UserRole::ServiceLeader => $query->whereIn('id', $user->managedServiceGroupIds()),
+            UserRole::SuperAdmin                      => $query,
+            UserRole::ServiceLeader                   => $query->whereIn('id', $user->managedServiceGroupIds()),
             UserRole::FamilyLeader, UserRole::Servant => $query->whereKey($user->service_group_id),
         };
     }

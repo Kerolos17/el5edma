@@ -144,9 +144,9 @@ class ScheduledVisitForm
                 ->filter()
                 ->map(fn ($id) => (int) $id)
                 ->all(),
-            UserRole::ServiceLeader => $actor->managedServiceGroupIds(),
+            UserRole::ServiceLeader                   => $actor->managedServiceGroupIds(),
             UserRole::FamilyLeader, UserRole::Servant => $actor->service_group_id ? [(int) $actor->service_group_id] : [],
-            default => [],
+            default                                   => [],
         };
     }
 

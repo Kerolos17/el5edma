@@ -75,10 +75,10 @@ class BeneficiariesTable
                     ->label(__('beneficiaries.financial_status'))
                     ->badge()
                     ->color(fn ($state): string => match ($state) {
-                        'good'     => 'success',
-                        'moderate' => 'warning',
+                        'good'              => 'success',
+                        'moderate'          => 'warning',
                         'poor', 'very_poor' => 'danger',
-                        default => 'gray',
+                        default             => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => $state
                             ? __("beneficiaries.{$state}") : '—',
