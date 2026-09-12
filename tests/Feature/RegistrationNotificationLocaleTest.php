@@ -62,7 +62,7 @@ class RegistrationNotificationLocaleTest extends TestCase
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['family-ar-token']
-                && $job->title === 'خادم جديد انضم للخدمة'
+                && $job->title                                     === 'خادم جديد انضم للخدمة'
                 && str_contains($job->body, $servant->name)
                 && ($job->data['url'] ?? null) === '/app/users',
         );
@@ -70,7 +70,7 @@ class RegistrationNotificationLocaleTest extends TestCase
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['service-en-token']
-                && $job->title === 'New Servant Registered'
+                && $job->title                                     === 'New Servant Registered'
                 && str_contains($job->body, $servant->name)
                 && ($job->data['url'] ?? null) === '/app/users',
         );
