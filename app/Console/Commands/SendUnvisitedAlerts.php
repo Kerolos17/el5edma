@@ -19,9 +19,9 @@ class SendUnvisitedAlerts extends Command
 
     public function handle(): void
     {
-        $startTime = microtime(true);
-        $cutoff = now()->subDays(14);
-        $count = 0;
+        $startTime      = microtime(true);
+        $cutoff         = now()->subDays(14);
+        $count          = 0;
         $originalLocale = App::getLocale();
 
         try {
@@ -39,17 +39,17 @@ class SendUnvisitedAlerts extends Command
                     'assignedServant.pushDevices:id,user_id,token',
                 ])
                 ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale): void {
-                    $rows = [];
+                    $rows   = [];
                     $pushes = [];
 
                     foreach ($chunk as $beneficiary) {
-                        $lastVisit = $beneficiary->visits_max_visit_date;
-                        $days = $lastVisit ? (int) now()->diffInDays($lastVisit) : null;
+                        $lastVisit   = $beneficiary->visits_max_visit_date;
+                        $days        = $lastVisit ? (int) now()->diffInDays($lastVisit) : null;
                         $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
                             'beneficiary_id' => (string) $beneficiary->id,
-                            'last_visit' => (string) ($lastVisit ?? ''),
+                            'last_visit'     => (string) ($lastVisit ?? ''),
                             'days_unvisited' => (string) ($days ?? ''),
-                            'url' => '/app/beneficiary/'.$beneficiary->id,
+                            'url'            => '/app/beneficiary/' . $beneficiary->id,
                         ]);
 
                         $recipients = collect([
@@ -61,17 +61,17 @@ class SendUnvisitedAlerts extends Command
                             App::setLocale($recipient->locale ?? 'ar');
 
                             $title = __('notifications.unvisited_alert_title');
-                            $body = __('notifications.unvisited_alert_body', [
+                            $body  = __('notifications.unvisited_alert_body', [
                                 'name' => $beneficiary->full_name,
                                 'days' => $days ?? '?',
                             ]);
 
                             $rows[] = [
-                                'user_id' => $recipient->id,
-                                'type' => 'unvisited_alert',
-                                'title' => $title,
-                                'body' => $body,
-                                'data' => json_encode($dataPayload),
+                                'user_id'    => $recipient->id,
+                                'type'       => 'unvisited_alert',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode($dataPayload),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -80,9 +80,9 @@ class SendUnvisitedAlerts extends Command
                             if ($tokens !== []) {
                                 $pushes[] = [
                                     'tokens' => $tokens,
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $dataPayload,
+                                    'title'  => $title,
+                                    'body'   => $body,
+                                    'data'   => $dataPayload,
                                 ];
                             }
 
