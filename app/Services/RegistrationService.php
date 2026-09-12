@@ -20,24 +20,12 @@ use Illuminate\Support\Facades\Log;
  */
 class RegistrationService
 {
-    /**
-     * معالجة طلب التسجيل وإنشاء الحساب
-     * Requirements: 4.1-4.7, 3.1-3.7
-     *
-     * @param  array  $data  بيانات التسجيل (name, email, phone, password)
-     * @param  ServiceGroup  $serviceGroup  مجموعة الخدمة المرتبطة بالرمز
-     * @param  string  $ipAddress  عنوان IP للطلب
-     *
-     * @throws \Exception
-     */
     public function register(array $data, ServiceGroup $serviceGroup, string $ipAddress): User
     {
         try {
             $user = DB::transaction(function () use ($data, $serviceGroup, $ipAddress) {
-                // إنشاء حساب المستخدم. نجاح إنشاء الحساب لا يجب أن يعتمد على نظام الإشعارات.
                 $user = User::createFromSelfRegistration($data, $serviceGroup);
 
-                // تسجيل العملية في audit log (non-blocking)
                 try {
                     $this->logRegistration($user, $serviceGroup, $data['token'] ?? '', $ipAddress);
                 } catch (\Exception $e) {
@@ -50,7 +38,6 @@ class RegistrationService
                 return $user;
             });
 
-            // كل إشعارات التسجيل side-effects وغير مسموح لها بإفشال إنشاء الحساب.
             try {
                 $this->createWelcomeNotification($user, $serviceGroup);
             } catch (\Throwable $e) {
@@ -70,7 +57,6 @@ class RegistrationService
             ]);
 
             return $user;
-
         } catch (UniqueConstraintViolationException $e) {
             Log::warning('Duplicate registration attempt', [
                 'email' => $data['email'] ?? 'unknown',
@@ -90,12 +76,6 @@ class RegistrationService
         }
     }
 
-    /**
-     * التحقق من عدم وجود تسجيل مكرر
-     * Requirements: 9.1, 9.2
-     *
-     * @return array ['email' => bool, 'phone' => bool]
-     */
     public function checkDuplicates(string $email, string $phone): array
     {
         return [
@@ -104,14 +84,9 @@ class RegistrationService
         ];
     }
 
-    /**
-     * إرسال إشعارات للقادة
-     * Requirements: 5.1-5.5
-     */
     public function notifyLeaders(User $newServant, ServiceGroup $serviceGroup): void
     {
         try {
-            // تحديد القادة المستهدفين
             $leaders = $this->getServiceGroupLeaders($serviceGroup);
 
             if ($leaders->isEmpty()) {
@@ -123,14 +98,9 @@ class RegistrationService
                 return;
             }
 
-            // إنشاء الإشعارات في قاعدة البيانات (bulk insert)
             $this->createNotificationRecords($newServant, $serviceGroup, $leaders);
-
-            // إرسال إشعارات FCM (non-blocking)
             $this->dispatchFcmNotifications($newServant, $serviceGroup, $leaders);
-
         } catch (\Throwable $e) {
-            // الإشعارات ليست جزءاً من نجاح التسجيل. نسجل الخطأ فقط للمراقبة والتشخيص.
             Log::warning('Failed to notify leaders for self-registration', [
                 'user_id'          => $newServant->id,
                 'service_group_id' => $serviceGroup->id,
@@ -139,10 +109,6 @@ class RegistrationService
         }
     }
 
-    /**
-     * تسجيل عملية التسجيل في audit log
-     * Requirements: 8.1-8.5
-     */
     public function logRegistration(
         User $user,
         ServiceGroup $serviceGroup,
@@ -153,10 +119,6 @@ class RegistrationService
         AuditLog::logSelfRegistration($user, $serviceGroup, $maskedToken, $ipAddress);
     }
 
-    /**
-     * الحصول على أمين الأسرة + أمين الخدمة المرتبطين بالأسرة + مديري النظام
-     * Requirements: 5.1, 5.2
-     */
     protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): Collection
     {
         $leaderIds = collect([
@@ -173,24 +135,19 @@ class RegistrationService
             $query->{$method}('role', UserRole::SuperAdmin->value);
         })
             ->where('is_active', true)
+            ->with('pushDevices')
             ->get();
     }
 
-    /**
-     * إنشاء سجلات الإشعارات في قاعدة البيانات
-     * Requirements: 5.1, 5.2, 5.3, 5.5
-     */
     protected function createNotificationRecords(
         User $newServant,
         ServiceGroup $serviceGroup,
         Collection $leaders,
     ): void {
-        $now = now();
-
+        $now            = now();
         $previousLocale = app()->getLocale();
 
         $notifications = $leaders->map(function (User $leader) use ($newServant, $serviceGroup, $now) {
-            // Build notification text in the recipient's preferred locale
             app()->setLocale($leader->locale ?? 'ar');
 
             return [
@@ -213,15 +170,10 @@ class RegistrationService
             ];
         })->toArray();
 
-        // Restore the original request locale
         app()->setLocale($previousLocale);
-
         DB::table('ministry_notifications')->insert($notifications);
     }
 
-    /**
-     * إنشاء إشعار ترحيبي للخادم الجديد
-     */
     protected function createWelcomeNotification(User $newServant, ServiceGroup $serviceGroup): void
     {
         MinistryNotification::create([
@@ -239,17 +191,18 @@ class RegistrationService
         ]);
     }
 
-    /**
-     * إرسال إشعارات FCM للقادة الذين لديهم tokens
-     * Requirements: 5.4
-     */
     protected function dispatchFcmNotifications(
         User $newServant,
         ServiceGroup $serviceGroup,
         Collection $leaders,
     ): void {
         try {
-            $tokens = $leaders->pluck('fcm_token')->filter()->values()->toArray();
+            $tokens = $leaders
+                ->flatMap(fn (User $leader) => $leader->pushTokens())
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
 
             if (empty($tokens)) {
                 return;
@@ -271,9 +224,7 @@ class RegistrationService
             ];
 
             SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
-
         } catch (\Exception $e) {
-            // لا نرمي الخطأ — الإشعارات داخل التطبيق كافية
             Log::warning('FCM notification dispatch failed for self-registration', [
                 'user_id' => $newServant->id,
                 'error'   => $e->getMessage(),
