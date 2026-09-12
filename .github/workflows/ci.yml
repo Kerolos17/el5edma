@@ -37,9 +37,6 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
-      - name: Install PHP dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
       - name: Install frontend dependencies
         run: npm ci
 
@@ -48,19 +45,19 @@ jobs:
           npm audit --omit=dev --audit-level=high
           npm audit --audit-level=high
 
-      - name: Refresh Composer lock metadata
+      - name: Resolve compatible PHP security updates
         run: |
-          composer update --lock --no-install --no-interaction
+          composer update --with-all-dependencies --no-interaction --prefer-dist
           composer validate --no-check-publish
           composer audit --locked
 
-      - name: Persist Composer lock refresh
+      - name: Persist verified Composer lock
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add composer.lock
           if ! git diff --cached --quiet; then
-            git commit -m "chore: refresh Composer lock metadata"
+            git commit -m "chore: update PHP dependencies for security"
             git push origin HEAD:audit/dependency-hardening
           fi
 
