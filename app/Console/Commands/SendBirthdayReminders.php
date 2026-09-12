@@ -64,7 +64,8 @@ class SendBirthdayReminders extends Command
                         ])->filter()->unique('id')->values();
 
                         foreach ($recipients as $recipient) {
-                            App::setLocale($recipient->locale ?? 'ar');
+                            $recipientLocale = $recipient->locale ?? 'ar';
+                            App::setLocale($recipientLocale);
 
                             $params = [
                                 'name' => $beneficiary->full_name,
@@ -76,6 +77,7 @@ class SendBirthdayReminders extends Command
                             $body             = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
+                                'locale'         => $recipientLocale,
                                 'url'            => '/app/beneficiary/' . $beneficiary->id,
                             ]);
 
