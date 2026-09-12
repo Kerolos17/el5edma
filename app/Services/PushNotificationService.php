@@ -139,6 +139,7 @@ class PushNotificationService
                     foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
                         if (str_contains($errorCode, $invalidCode)) {
                             $invalidTokens[] = $token;
+
                             break;
                         }
                     }
@@ -186,6 +187,7 @@ class PushNotificationService
                 foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
                     if (str_contains(strtoupper($errorCode), $invalidCode)) {
                         $result->invalidTokens[] = $token;
+
                         break;
                     }
                 }
