@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, audit/dependency-hardening]
   pull_request:
     branches: [main]
 
@@ -41,6 +41,15 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Dependency diagnostics
+        run: |
+          echo '=== npm audit: all dependencies ==='
+          npm audit --json || true
+          echo '=== npm audit: production dependencies only ==='
+          npm audit --omit=dev --json || true
+          echo '=== composer validate ==='
+          composer validate --strict || true
 
       - name: Build frontend assets
         run: npm run build
