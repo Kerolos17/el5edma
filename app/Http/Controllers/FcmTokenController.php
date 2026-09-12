@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\PushDevice;
+use App\Services\PushDeviceSessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FcmTokenController extends Controller
 {
+    public function __construct(private PushDeviceSessionService $deviceSessions) {}
+
     /**
      * Store or refresh one push device for the authenticated user.
      *
@@ -37,9 +40,7 @@ class FcmTokenController extends Controller
             ],
         );
 
-        // Remember which registered device belongs to this browser session so
-        // logout can revoke only this device instead of disabling every device.
-        $request->session()->put('push_device_token_hash', $tokenHash);
+        $this->deviceSessions->rememberCurrent($request, $tokenHash);
 
         // Transitional compatibility for older notification commands. This
         // column will be removed after every sender has migrated to pushDevices.
