@@ -21,7 +21,10 @@ class RetryCriticalNotifications extends Command
             ->where('type', 'critical_case')
             ->whereNull('read_at')
             ->where('created_at', '>=', now()->subHours(2))
-            ->with('user:id,fcm_token,is_active')
+            ->with([
+                'user:id,fcm_token,is_active',
+                'user.pushDevices:id,user_id,token',
+            ])
             ->chunkById(100, function ($notifications) use (&$retried): void {
                 foreach ($notifications as $notification) {
                     $data              = is_array($notification->data) ? $notification->data : [];
@@ -39,9 +42,10 @@ class RetryCriticalNotifications extends Command
                         continue;
                     }
 
-                    $user = $notification->user;
+                    $user   = $notification->user;
+                    $tokens = $user?->pushTokens() ?? [];
 
-                    if (! $user?->is_active || empty($user->fcm_token)) {
+                    if (! $user?->is_active || empty($tokens)) {
                         continue;
                     }
 
@@ -50,7 +54,7 @@ class RetryCriticalNotifications extends Command
                     $data['renotify']            = true;
                     $data['require_interaction'] = true;
 
-                    SendFcmNotificationJob::dispatch([$user->fcm_token], $notification->title, $notification->body, $data);
+                    SendFcmNotificationJob::dispatch($tokens, $notification->title, $notification->body, $data);
 
                     $notification->forceFill(['data' => $data])->save();
                     $retried++;
