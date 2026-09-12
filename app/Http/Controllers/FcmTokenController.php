@@ -22,9 +22,9 @@ class FcmTokenController extends Controller
             'device_label' => 'nullable|string|max:120',
         ]);
 
-        $token = $validated['fcm_token'];
+        $token     = $validated['fcm_token'];
         $tokenHash = hash('sha256', $token);
-        $user = $request->user();
+        $user      = $request->user();
 
         PushDevice::updateOrCreate(
             ['token_hash' => $tokenHash],
