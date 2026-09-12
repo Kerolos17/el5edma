@@ -154,22 +154,23 @@ class RegistrationService
     }
 
     /**
-     * الحصول على قادة مجموعة الخدمة + أمين الخدمة + مدير النظام
+     * الحصول على أمين الأسرة + أمين الخدمة المرتبطين بالأسرة + مديري النظام
      * Requirements: 5.1, 5.2
      */
     protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): Collection
     {
-        // جمع IDs القادة من الأسرة
         $leaderIds = collect([
-            $serviceGroup->leader_id,         // أمين الأسرة
-            $serviceGroup->service_leader_id, // أمين الخدمة (إن وجد)
-        ])->filter();
+            $serviceGroup->leader_id,
+            $serviceGroup->service_leader_id,
+        ])->filter()->unique()->values();
 
-        // جلب جميع المستخدمين: قادة الأسرة + أمناء الخدمة + مديري النظام
         return User::where(function ($query) use ($leaderIds) {
-            $query->whereIn('id', $leaderIds)   // قادة الأسرة المحددين
-                ->orWhere('role', UserRole::ServiceLeader->value) // جميع أمناء الخدمة
-                ->orWhere('role', UserRole::SuperAdmin->value);   // جميع مديري النظام
+            if ($leaderIds->isNotEmpty()) {
+                $query->whereIn('id', $leaderIds);
+            }
+
+            $method = $leaderIds->isNotEmpty() ? 'orWhere' : 'where';
+            $query->{$method}('role', UserRole::SuperAdmin->value);
         })
             ->where('is_active', true)
             ->get();
