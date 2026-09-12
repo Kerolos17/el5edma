@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Broadcasting\TestBroadcaster;
-use App\Livewire\NotificationsBell;
+use App\Livewire\Servant\NotificationsBell;
 use App\Models\Beneficiary;
 use App\Models\MedicalFile;
 use App\Models\PrayerRequest;
