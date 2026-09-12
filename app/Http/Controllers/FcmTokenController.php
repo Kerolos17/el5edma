@@ -31,11 +31,15 @@ class FcmTokenController extends Controller
             [
                 'user_id'      => $user->id,
                 'token'        => $token,
-                'platform'     => $validated['platform']     ?? 'web',
+                'platform'     => $validated['platform'] ?? 'web',
                 'device_label' => $validated['device_label'] ?? null,
                 'last_seen_at' => now(),
             ],
         );
+
+        // Remember which registered device belongs to this browser session so
+        // logout can revoke only this device instead of disabling every device.
+        $request->session()->put('push_device_token_hash', $tokenHash);
 
         // Transitional compatibility for older notification commands. This
         // column will be removed after every sender has migrated to pushDevices.
