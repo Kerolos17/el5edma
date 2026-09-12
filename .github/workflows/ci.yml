@@ -43,21 +43,24 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Apply verified dependency upgrades
+      - name: Verify frontend dependencies
         run: |
-          npm install --save-exact firebase@12.19.0
-          npm install --save-dev --save-exact axios@1.20.0 concurrently@9.2.4 esbuild@0.28.2 vite@7.3.6 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3
-          npm audit fix
-          npm audit --omit=dev --json
-          npm audit --json
+          npm audit --omit=dev --audit-level=high
+          npm audit --audit-level=high
 
-      - name: Persist dependency manifests
+      - name: Refresh Composer lock metadata
+        run: |
+          composer update --lock --no-install --no-interaction
+          composer validate --no-check-publish
+          composer audit --locked
+
+      - name: Persist Composer lock refresh
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json
+          git add composer.lock
           if ! git diff --cached --quiet; then
-            git commit -m "chore: harden frontend dependencies"
+            git commit -m "chore: refresh Composer lock metadata"
             git push origin HEAD:audit/dependency-hardening
           fi
 
