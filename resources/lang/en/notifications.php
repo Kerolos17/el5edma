@@ -30,6 +30,13 @@ return [
         'body'  => 'Welcome :name, you have been successfully registered in :service_group. Your request will be reviewed by the service leader.',
     ],
 
+    'push' => [
+        'enable'      => 'Enable push notifications',
+        'enabled'     => 'Push notifications enabled',
+        'denied'      => 'Notifications blocked in browser',
+        'unsupported' => 'Push notifications unavailable',
+    ],
+
     'sound_mute'   => 'Mute notification sound',
     'sound_unmute' => 'Unmute notification sound',
 ];
