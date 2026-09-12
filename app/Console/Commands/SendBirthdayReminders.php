@@ -23,9 +23,9 @@ class SendBirthdayReminders extends Command
 
     public function handle(): void
     {
-        $startTime = microtime(true);
-        $targetDate = now()->addDays(3);
-        $count = 0;
+        $startTime      = microtime(true);
+        $targetDate     = now()->addDays(3);
+        $count          = 0;
         $originalLocale = App::getLocale();
 
         try {
@@ -33,10 +33,10 @@ class SendBirthdayReminders extends Command
 
             if ($driver === 'sqlite') {
                 $monthExpr = "CAST(strftime('%m', birth_date) AS INTEGER)";
-                $dayExpr = "CAST(strftime('%d', birth_date) AS INTEGER)";
+                $dayExpr   = "CAST(strftime('%d', birth_date) AS INTEGER)";
             } else {
                 $monthExpr = 'MONTH(birth_date)';
-                $dayExpr = 'DAY(birth_date)';
+                $dayExpr   = 'DAY(birth_date)';
             }
 
             Beneficiary::query()
@@ -53,11 +53,11 @@ class SendBirthdayReminders extends Command
                     'serviceGroup.leader.pushDevices:id,user_id,token',
                 ])
                 ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale): void {
-                    $rows = [];
+                    $rows   = [];
                     $pushes = [];
 
                     foreach ($chunk as $beneficiary) {
-                        $age = $beneficiary->birth_date->age + 1;
+                        $age        = $beneficiary->birth_date->age + 1;
                         $recipients = collect([
                             $beneficiary->assignedServant,
                             $beneficiary->serviceGroup?->leader,
@@ -68,23 +68,23 @@ class SendBirthdayReminders extends Command
 
                             $params = [
                                 'name' => $beneficiary->full_name,
-                                'age' => $age,
+                                'age'  => $age,
                                 'days' => 3,
                             ];
 
-                            $title = __('notifications.birthday_title', $params);
-                            $body = __('notifications.birthday_body', $params);
+                            $title            = __('notifications.birthday_title', $params);
+                            $body             = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
-                                'url' => '/app/beneficiary/'.$beneficiary->id,
+                                'url'            => '/app/beneficiary/'.$beneficiary->id,
                             ]);
 
                             $rows[] = [
-                                'user_id' => $recipient->id,
-                                'type' => 'birthday',
-                                'title' => $title,
-                                'body' => $body,
-                                'data' => json_encode($notificationData),
+                                'user_id'    => $recipient->id,
+                                'type'       => 'birthday',
+                                'title'      => $title,
+                                'body'       => $body,
+                                'data'       => json_encode($notificationData),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -93,9 +93,9 @@ class SendBirthdayReminders extends Command
                             if ($tokens !== []) {
                                 $pushes[] = [
                                     'tokens' => $tokens,
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
+                                    'title'  => $title,
+                                    'body'   => $body,
+                                    'data'   => $notificationData,
                                 ];
                             }
 
