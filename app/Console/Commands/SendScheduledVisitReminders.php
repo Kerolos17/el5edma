@@ -54,7 +54,8 @@ class SendScheduledVisitReminders extends Command
                 $hasRecipients = false;
 
                 foreach ($servants as $servant) {
-                    App::setLocale($servant->locale ?? 'ar');
+                    $recipientLocale = $servant->locale ?? 'ar';
+                    App::setLocale($recipientLocale);
 
                     $title = __('notifications.visit_reminder_title');
                     $body  = __('notifications.visit_reminder_body', [
@@ -65,6 +66,7 @@ class SendScheduledVisitReminders extends Command
                         'beneficiary_id'     => (string) $visit->beneficiary_id,
                         'scheduled_date'     => (string) $visit->scheduled_date,
                         'scheduled_time'     => (string) $visit->scheduled_time,
+                        'locale'             => $recipientLocale,
                         'url'                => '/app/beneficiary/' . $visit->beneficiary_id,
                     ]);
 
