@@ -11,34 +11,36 @@ class MedicalFilePolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can view any medical files.
-     */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view medical files (scoped by service group)
-        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader, UserRole::Servant]);
+        return in_array($user->role, [
+            UserRole::SuperAdmin,
+            UserRole::ServiceLeader,
+            UserRole::FamilyLeader,
+            UserRole::Servant,
+        ], true);
     }
 
-    /**
-     * Determine whether the user can view the medical file.
-     */
     public function view(User $user, MedicalFile $medicalFile): bool
     {
-        // Super admin and service leader have full access
-        if ($user->role->isAdminLevel()) {
+        if ($user->role === UserRole::SuperAdmin) {
             return true;
         }
 
-        // Ensure beneficiary is loaded to avoid N+1 queries
         $medicalFile->loadMissing('beneficiary');
 
-        // Family leaders can view medical files for beneficiaries in their service group
+        if ($medicalFile->beneficiary === null) {
+            return false;
+        }
+
+        if ($user->role === UserRole::ServiceLeader) {
+            return $user->managesServiceGroup($medicalFile->beneficiary->service_group_id);
+        }
+
         if ($user->role === UserRole::FamilyLeader) {
             return $user->service_group_id === $medicalFile->beneficiary->service_group_id;
         }
 
-        // Servants can view medical files for their assigned beneficiaries and service group.
         if ($user->role === UserRole::Servant) {
             return $medicalFile->beneficiary->assigned_servant_id === $user->id
                 || (
@@ -50,50 +52,53 @@ class MedicalFilePolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can create medical files.
-     */
     public function create(User $user): bool
     {
-        // Only super_admin, service_leader, and family_leader can create medical files
-        // Servants cannot create medical files
-        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
+        return $user->role === UserRole::SuperAdmin
+            || ($user->role === UserRole::ServiceLeader && $user->managedServiceGroups()->isNotEmpty())
+            || $user->role === UserRole::FamilyLeader;
     }
 
-    /**
-     * Determine whether the user can update the medical file.
-     */
     public function update(User $user, MedicalFile $medicalFile): bool
     {
-        // Medical files are immutable - no one can edit them
         return false;
     }
 
-    /**
-     * Determine whether the user can delete the medical file.
-     */
     public function delete(User $user, MedicalFile $medicalFile): bool
     {
-        // Only super_admin, service_leader, and family_leader can delete medical files
-        // Servants cannot delete medical files
-        return in_array($user->role, [UserRole::SuperAdmin, UserRole::ServiceLeader, UserRole::FamilyLeader]);
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        $medicalFile->loadMissing('beneficiary');
+
+        if ($medicalFile->beneficiary === null) {
+            return false;
+        }
+
+        if ($user->role === UserRole::ServiceLeader) {
+            return $user->managesServiceGroup($medicalFile->beneficiary->service_group_id);
+        }
+
+        return $user->role === UserRole::FamilyLeader
+            && $user->service_group_id === $medicalFile->beneficiary->service_group_id;
     }
 
-    /**
-     * Determine whether the user can restore the medical file.
-     */
     public function restore(User $user, MedicalFile $medicalFile): bool
     {
-        // Only super_admin and service_leader can restore medical files
-        return $user->role->isAdminLevel();
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        $medicalFile->loadMissing('beneficiary');
+
+        return $user->role === UserRole::ServiceLeader
+            && $medicalFile->beneficiary !== null
+            && $user->managesServiceGroup($medicalFile->beneficiary->service_group_id);
     }
 
-    /**
-     * Determine whether the user can permanently delete the medical file.
-     */
     public function forceDelete(User $user, MedicalFile $medicalFile): bool
     {
-        // Only super_admin can permanently delete medical files
         return $user->role === UserRole::SuperAdmin;
     }
 }
