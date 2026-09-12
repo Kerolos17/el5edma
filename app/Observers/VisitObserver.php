@@ -56,12 +56,12 @@ class VisitObserver
         }
 
         $notifier = app(InternalNotificationService::class);
-        $title = __('notifications.critical_case_title');
-        $body = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-        $data = NotificationMetadata::enrich('critical_case', [
+        $title    = __('notifications.critical_case_title');
+        $body     = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
+        $data     = NotificationMetadata::enrich('critical_case', [
             'beneficiary_id' => $beneficiary->id,
-            'visit_id' => $visit->id,
-            'url' => '/app/visit/'.$visit->id,
+            'visit_id'       => $visit->id,
+            'url'            => '/app/visit/' . $visit->id,
         ]);
 
         $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);
@@ -112,10 +112,10 @@ class VisitObserver
         }
 
         AuditLog::create([
-            'user_id' => Auth::id(),
+            'user_id'    => Auth::id(),
             'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'action' => $action,
+            'model_id'   => $model->id,
+            'action'     => $action,
             'old_values' => $old,
             'new_values' => $new,
             'ip_address' => request()->ip(),
