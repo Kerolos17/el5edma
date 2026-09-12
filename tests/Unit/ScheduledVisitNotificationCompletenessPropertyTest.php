@@ -144,7 +144,7 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['arabic-device-token']
-                && $job->title === 'تذكير بزيارة 📅'
+                && $job->title                                     === 'تذكير بزيارة 📅'
                 && str_contains($job->body, $beneficiary->full_name)
                 && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
         );
@@ -152,7 +152,7 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['english-device-token']
-                && $job->title === 'Visit Reminder 📅'
+                && $job->title                                     === 'Visit Reminder 📅'
                 && str_contains($job->body, $beneficiary->full_name)
                 && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
         );
