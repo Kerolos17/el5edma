@@ -23,6 +23,12 @@ jobs:
           extensions: mbstring, pdo, pdo_sqlite, sqlite3
           coverage: none
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
@@ -30,17 +36,17 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
-      - name: Install dependencies
+      - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Check code style
         run: ./vendor/bin/pint --test
-
-      - name: Create fake Vite manifest for tests
-        run: |
-          mkdir -p public/build/assets
-          echo '{"resources/css/app.css":{"file":"assets/app.css","src":"resources/css/app.css","isEntry":true},"resources/css/filament/admin/theme.css":{"file":"assets/theme.css","src":"resources/css/filament/admin/theme.css","isEntry":true},"resources/js/app.js":{"file":"assets/app.js","src":"resources/js/app.js","isEntry":true}}' > public/build/manifest.json
-          touch public/build/assets/app.css public/build/assets/theme.css public/build/assets/app.js
 
       - name: Copy .env
         run: cp .env.example .env
