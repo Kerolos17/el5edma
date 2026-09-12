@@ -23,22 +23,20 @@ class SendBirthdayReminders extends Command
 
     public function handle(): void
     {
-        $startTime      = microtime(true);
-        $targetDate     = now()->addDays(3);
-        $count          = 0;
+        $startTime = microtime(true);
+        $targetDate = now()->addDays(3);
+        $count = 0;
         $originalLocale = App::getLocale();
 
         try {
-            // Requirement 1.1 — SQL filter بدل PHP filter
-            // Requirement 1.2 — chunkById بدفعات 100
             $driver = DB::getDriverName();
 
             if ($driver === 'sqlite') {
                 $monthExpr = "CAST(strftime('%m', birth_date) AS INTEGER)";
-                $dayExpr   = "CAST(strftime('%d', birth_date) AS INTEGER)";
+                $dayExpr = "CAST(strftime('%d', birth_date) AS INTEGER)";
             } else {
                 $monthExpr = 'MONTH(birth_date)';
-                $dayExpr   = 'DAY(birth_date)';
+                $dayExpr = 'DAY(birth_date)';
             }
 
             Beneficiary::query()
@@ -50,105 +48,79 @@ class SendBirthdayReminders extends Command
                 ])
                 ->with([
                     'assignedServant:id,fcm_token,locale',
+                    'assignedServant.pushDevices:id,user_id,token',
                     'serviceGroup.leader:id,fcm_token,locale',
+                    'serviceGroup.leader.pushDevices:id,user_id,token',
                 ])
-                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale) {
-                    $rows   = [];
-                    $tokens = [];
-
-                    // قيم افتراضية بالعربية للـ FCM multicast — تُستبدل بآخر قيمة من الدفعة
-                    App::setLocale('ar');
-                    $title = __('notifications.birthday_title', ['name' => '', 'age' => '', 'days' => 3]);
-                    $body  = __('notifications.birthday_body', ['name' => '', 'age' => '', 'days' => 3]);
-                    App::setLocale($originalLocale);
+                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale): void {
+                    $rows = [];
+                    $pushes = [];
 
                     foreach ($chunk as $beneficiary) {
                         $age = $beneficiary->birth_date->age + 1;
+                        $recipients = collect([
+                            $beneficiary->assignedServant,
+                            $beneficiary->serviceGroup?->leader,
+                        ])->filter()->unique('id')->values();
 
-                        // إشعار الخادم المعيّن
-                        if ($servant = $beneficiary->assignedServant) {
-                            $locale = $servant->locale ?? 'ar';
-                            App::setLocale($locale);
-
-                            $params = [
-                                'name' => $beneficiary->full_name,
-                                'age'  => $age,
-                                'days' => 3,
-                            ];
-
-                            $title            = __('notifications.birthday_title', $params);
-                            $body             = __('notifications.birthday_body', $params);
-                            $notificationData = NotificationMetadata::enrich('birthday', [
-                                'beneficiary_id' => $beneficiary->id,
-                                'url'            => '/app/beneficiary/' . $beneficiary->id,
-                            ]);
-
-                            $rows[] = [
-                                'user_id'    => $servant->id,
-                                'type'       => 'birthday',
-                                'title'      => $title,
-                                'body'       => $body,
-                                'data'       => json_encode($notificationData),
-                                'created_at' => now()->toDateTimeString(),
-                            ];
-
-                            if ($servant->fcm_token) {
-                                $tokens[] = $servant->fcm_token;
-                            }
-
-                            $count++;
-                        }
-
-                        // إشعار أمين الأسرة
-                        if ($leader = $beneficiary->serviceGroup?->leader) {
-                            $locale = $leader->locale ?? 'ar';
-                            App::setLocale($locale);
+                        foreach ($recipients as $recipient) {
+                            App::setLocale($recipient->locale ?? 'ar');
 
                             $params = [
                                 'name' => $beneficiary->full_name,
-                                'age'  => $age,
+                                'age' => $age,
                                 'days' => 3,
                             ];
 
-                            $title            = __('notifications.birthday_title', $params);
-                            $body             = __('notifications.birthday_body', $params);
+                            $title = __('notifications.birthday_title', $params);
+                            $body = __('notifications.birthday_body', $params);
                             $notificationData = NotificationMetadata::enrich('birthday', [
                                 'beneficiary_id' => $beneficiary->id,
-                                'url'            => '/app/beneficiary/' . $beneficiary->id,
+                                'url' => '/app/beneficiary/'.$beneficiary->id,
                             ]);
 
                             $rows[] = [
-                                'user_id'    => $leader->id,
-                                'type'       => 'birthday',
-                                'title'      => $title,
-                                'body'       => $body,
-                                'data'       => json_encode($notificationData),
+                                'user_id' => $recipient->id,
+                                'type' => 'birthday',
+                                'title' => $title,
+                                'body' => $body,
+                                'data' => json_encode($notificationData),
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
-                            if ($leader->fcm_token) {
-                                $tokens[] = $leader->fcm_token;
+                            $tokens = $recipient->pushTokens();
+
+                            if ($tokens !== []) {
+                                $pushes[] = [
+                                    'tokens' => $tokens,
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $notificationData,
+                                ];
                             }
 
                             $count++;
                         }
                     }
 
-                    // Requirement 1.3 — bulk insert بدل create() الفردي
-                    if (! empty($rows)) {
+                    App::setLocale($originalLocale);
+
+                    if ($rows !== []) {
                         MinistryNotification::insert($rows);
                     }
 
-                    if (! empty($tokens)) {
-                        SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('birthday', [
-                            'url' => route('app.notifications'),
-                        ]));
+                    foreach ($pushes as $push) {
+                        SendFcmNotificationJob::dispatch(
+                            $push['tokens'],
+                            $push['title'],
+                            $push['body'],
+                            $push['data'],
+                        );
                     }
                 });
 
             $elapsed = round(microtime(true) - $startTime, 2);
 
-            // Requirement 9.1 — تسجيل وقت التنفيذ والعدد
             Log::info('reminders:birthdays', [
                 'notifications_sent' => $count,
                 'execution_time_sec' => $elapsed,
