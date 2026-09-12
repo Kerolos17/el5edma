@@ -42,13 +42,15 @@ class NotificationsPage extends Component
 
         $notification->update(['read_at' => now()]);
 
-        $url = $notification->data['url'] ?? null;
+        $url = $this->safeInternalNotificationPath($notification->data['url'] ?? null);
 
-        if ($url && is_string($url) && $url !== '') {
-            $this->redirect($url);
-        } else {
-            $this->dispatch('toast', message: __('web_app.toasts.marked_read'), type: 'success');
+        if ($url !== null) {
+            $this->redirect($url, navigate: str_starts_with($url, '/app'));
+
+            return;
         }
+
+        $this->dispatch('toast', message: __('web_app.toasts.marked_read'), type: 'success');
     }
 
     public function markAllRead(): void
@@ -58,6 +60,51 @@ class NotificationsPage extends Component
             ->update(['read_at' => now()]);
 
         $this->dispatch('toast', message: __('web_app.toasts.all_marked_read'), type: 'success');
+    }
+
+    private function safeInternalNotificationPath(mixed $url): ?string
+    {
+        if (! is_string($url) || $url === '') {
+            return null;
+        }
+
+        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
+            return $this->webAppPathForLegacyAdminPath($url) ?? $url;
+        }
+
+        $parts = parse_url($url);
+
+        if (! is_array($parts) || ! isset($parts['host'])) {
+            return null;
+        }
+
+        if ($parts['host'] !== request()->getHost()) {
+            return null;
+        }
+
+        $path  = $parts['path'] ?? '/';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        if (! str_starts_with($path, '/')) {
+            return null;
+        }
+
+        return ($this->webAppPathForLegacyAdminPath($path) ?? $path) . $query;
+    }
+
+    private function webAppPathForLegacyAdminPath(string $path): ?string
+    {
+        return match (true) {
+            str_starts_with($path, '/admin/visits')                 => '/app/visits',
+            str_starts_with($path, '/admin/beneficiaries')          => '/app/beneficiaries',
+            str_starts_with($path, '/admin/scheduled-visits')       => '/app/scheduled-visits',
+            str_starts_with($path, '/admin/prayer-requests')        => '/app/prayer-requests',
+            str_starts_with($path, '/admin/medical-files')          => '/app/medical-files',
+            str_starts_with($path, '/admin/users')                  => '/app/users',
+            str_starts_with($path, '/admin/service-groups')         => '/app/service-groups',
+            str_starts_with($path, '/admin/ministry-notifications') => '/app/notifications',
+            default                                                 => null,
+        };
     }
 
     public function render(): View
