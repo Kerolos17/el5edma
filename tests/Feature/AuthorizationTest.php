@@ -123,8 +123,8 @@ class AuthorizationTest extends TestCase
         $superAdmin    = User::factory()->create(['role' => 'super_admin']);
         $serviceLeader = User::factory()->create(['role' => 'service_leader']);
         $group->update(['service_leader_id' => $serviceLeader->id]);
-        $familyLeader  = User::factory()->create(['role' => 'family_leader', 'service_group_id' => $group->id]);
-        $servant       = User::factory()->create(['role' => 'servant', 'service_group_id' => $group->id]);
+        $familyLeader = User::factory()->create(['role' => 'family_leader', 'service_group_id' => $group->id]);
+        $servant      = User::factory()->create(['role' => 'servant', 'service_group_id' => $group->id]);
 
         $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
         $visit       = Visit::factory()->create(['beneficiary_id' => $beneficiary->id]);
