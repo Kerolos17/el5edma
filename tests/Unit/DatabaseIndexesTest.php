@@ -41,14 +41,15 @@ class DatabaseIndexesTest extends TestCase
         );
     }
 
-    // Requirements: 7.3 — فهرس fcm_token على users
+    // Push device lookup uses the deterministic SHA-256 token hash rather than
+    // the legacy users.fcm_token TEXT column, which is not safely indexable on MySQL.
 
-    public function test_users_fcm_token_idx_exists_on_users(): void
+    public function test_push_device_token_hash_unique_index_exists(): void
     {
         $this->assertContains(
-            'users_fcm_token_idx',
-            $this->getIndexNames('users'),
-            'الفهرس users_fcm_token_idx غير موجود في جدول users',
+            'push_devices_token_hash_unique',
+            $this->getIndexNames('push_devices'),
+            'الفهرس الفريد push_devices_token_hash_unique غير موجود في جدول push_devices',
         );
     }
 }
