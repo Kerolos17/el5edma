@@ -27,6 +27,7 @@ class PushDevice extends Model
     protected function casts(): array
     {
         return [
+            'token'        => 'encrypted',
             'last_seen_at' => 'datetime',
         ];
     }
