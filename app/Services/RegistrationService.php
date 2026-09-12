@@ -34,7 +34,7 @@ class RegistrationService
     {
         try {
             $user = DB::transaction(function () use ($data, $serviceGroup, $ipAddress) {
-                // إنشاء حساب المستخدم
+                // إنشاء حساب المستخدم. نجاح إنشاء الحساب لا يجب أن يعتمد على نظام الإشعارات.
                 $user = User::createFromSelfRegistration($data, $serviceGroup);
 
                 // تسجيل العملية في audit log (non-blocking)
@@ -47,13 +47,20 @@ class RegistrationService
                     ]);
                 }
 
-                // إشعار ترحيبي للخادم الجديد
-                $this->createWelcomeNotification($user, $serviceGroup);
-
                 return $user;
             });
 
-            // إرسال إشعارات للقادة خارج الـ transaction — فشل الإشعار لا يلغي التسجيل
+            // كل إشعارات التسجيل side-effects وغير مسموح لها بإفشال إنشاء الحساب.
+            try {
+                $this->createWelcomeNotification($user, $serviceGroup);
+            } catch (\Throwable $e) {
+                Log::warning('Welcome notification failed after self-registration', [
+                    'user_id'          => $user->id,
+                    'service_group_id' => $serviceGroup->id,
+                    'error'            => $e->getMessage(),
+                ]);
+            }
+
             $this->notifyLeaders($user, $serviceGroup);
 
             Log::info('Self-registration completed', [
@@ -122,14 +129,13 @@ class RegistrationService
             // إرسال إشعارات FCM (non-blocking)
             $this->dispatchFcmNotifications($newServant, $serviceGroup, $leaders);
 
-        } catch (\Exception $e) {
-            Log::error('Failed to notify leaders for self-registration', [
+        } catch (\Throwable $e) {
+            // الإشعارات ليست جزءاً من نجاح التسجيل. نسجل الخطأ فقط للمراقبة والتشخيص.
+            Log::warning('Failed to notify leaders for self-registration', [
                 'user_id'          => $newServant->id,
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
             ]);
-
-            throw $e;
         }
     }
 
@@ -225,10 +231,10 @@ class RegistrationService
                 'name'          => $newServant->name,
                 'service_group' => $serviceGroup->name,
             ]),
-            'data' => json_encode(NotificationMetadata::enrich('welcome_servant', [
+            'data' => NotificationMetadata::enrich('welcome_servant', [
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
-            ])),
+            ]),
         ]);
     }
 
