@@ -103,7 +103,7 @@ class MedicationPolicy
             return $user->managesServiceGroup($medication->beneficiary->service_group_id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $medication->beneficiary->service_group_id;
     }
 }

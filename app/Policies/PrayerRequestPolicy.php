@@ -71,7 +71,7 @@ class PrayerRequestPolicy
             return $user->managesServiceGroup($prayerRequest->beneficiary->service_group_id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $prayerRequest->beneficiary->service_group_id;
     }
 

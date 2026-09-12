@@ -20,9 +20,9 @@ class ServiceLeaderSensitiveResourceScopeTest extends TestCase
 
     public function test_service_leader_cannot_access_sensitive_records_outside_managed_groups(): void
     {
-        $leader = $this->createServiceLeader();
+        $leader       = $this->createServiceLeader();
         $managedGroup = ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
-        $otherGroup = ServiceGroup::factory()->create();
+        $otherGroup   = ServiceGroup::factory()->create();
 
         $managedBeneficiary = Beneficiary::factory()->create([
             'service_group_id' => $managedGroup->id,
@@ -53,8 +53,8 @@ class ServiceLeaderSensitiveResourceScopeTest extends TestCase
         ]);
 
         $medicalPolicy = new MedicalFilePolicy;
-        $prayerPolicy = new PrayerRequestPolicy;
-        $medPolicy = new MedicationPolicy;
+        $prayerPolicy  = new PrayerRequestPolicy;
+        $medPolicy     = new MedicationPolicy;
 
         $this->assertTrue($medicalPolicy->view($leader, $managedMedicalFile));
         $this->assertTrue($medicalPolicy->delete($leader, $managedMedicalFile));

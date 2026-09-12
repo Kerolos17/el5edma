@@ -30,7 +30,7 @@ class ServiceGroupPolicy
             return $user->managesServiceGroup($serviceGroup->id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $serviceGroup->id;
     }
 
@@ -49,7 +49,7 @@ class ServiceGroupPolicy
             return $user->managesServiceGroup($serviceGroup->id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $serviceGroup->id;
     }
 
@@ -78,7 +78,7 @@ class ServiceGroupPolicy
             return $user->managesServiceGroup($serviceGroup->id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $serviceGroup->id;
     }
 }

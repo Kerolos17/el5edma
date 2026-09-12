@@ -24,7 +24,7 @@ class BeneficiaryPolicyTest extends TestCase
     public function test_super_admin_has_full_access(): void
     {
         $serviceGroup = ServiceGroup::factory()->create();
-        $superAdmin = User::factory()->create([
+        $superAdmin   = User::factory()->create([
             'role'             => 'super_admin',
             'service_group_id' => $serviceGroup->id,
         ]);
@@ -41,8 +41,8 @@ class BeneficiaryPolicyTest extends TestCase
 
     public function test_service_leader_is_scoped_to_managed_groups(): void
     {
-        $managedGroup = ServiceGroup::factory()->create();
-        $otherGroup = ServiceGroup::factory()->create();
+        $managedGroup  = ServiceGroup::factory()->create();
+        $otherGroup    = ServiceGroup::factory()->create();
         $serviceLeader = User::factory()->create([
             'role'      => 'service_leader',
             'is_active' => true,

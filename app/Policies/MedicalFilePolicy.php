@@ -80,7 +80,7 @@ class MedicalFilePolicy
             return $user->managesServiceGroup($medicalFile->beneficiary->service_group_id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $medicalFile->beneficiary->service_group_id;
     }
 

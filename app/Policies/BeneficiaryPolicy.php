@@ -63,7 +63,7 @@ class BeneficiaryPolicy
             return $user->managesServiceGroup($beneficiary->service_group_id);
         }
 
-        return $user->role === UserRole::FamilyLeader
+        return $user->role             === UserRole::FamilyLeader
             && $user->service_group_id === $beneficiary->service_group_id;
     }
 
