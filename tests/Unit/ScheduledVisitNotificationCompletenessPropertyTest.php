@@ -141,19 +141,21 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
 
         $this->artisan('reminders:scheduled-visits');
 
-        Queue::assertPushed(SendFcmNotificationJob::class, function (SendFcmNotificationJob $job) use ($beneficiary): bool {
-            return $job->tokens === ['arabic-device-token']
+        Queue::assertPushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->tokens === ['arabic-device-token']
                 && $job->title === 'تذكير بزيارة 📅'
                 && str_contains($job->body, $beneficiary->full_name)
-                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id;
-        });
+                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
+        );
 
-        Queue::assertPushed(SendFcmNotificationJob::class, function (SendFcmNotificationJob $job) use ($beneficiary): bool {
-            return $job->tokens === ['english-device-token']
+        Queue::assertPushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->tokens === ['english-device-token']
                 && $job->title === 'Visit Reminder 📅'
                 && str_contains($job->body, $beneficiary->full_name)
-                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id;
-        });
+                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
+        );
 
         Queue::assertPushed(SendFcmNotificationJob::class, 2);
         $this->assertSame('ar', App::getLocale());
