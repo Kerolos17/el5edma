@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Validates: Requirements 4.1
  *
- * For any N tokens, the number of Firebase sendMulticast calls = ceil(N / 500).
+ * For any N unique tokens, the number of Firebase sendMulticast calls = ceil(N / 500).
  */
 class PushNotificationServicePropertyTest extends TestCase
 {
@@ -27,7 +27,7 @@ class PushNotificationServicePropertyTest extends TestCase
     }
 
     /**
-     * Property 5: لأي N token (1 ≤ N ≤ 1500)، عدد استدعاءات sendMulticast = ceil(N / 500)
+     * Property 5: لأي N unique token (1 ≤ N ≤ 1500)، عدد استدعاءات sendMulticast = ceil(N / 500)
      *
      * Validates: Requirements 4.1
      *
@@ -50,11 +50,13 @@ class PushNotificationServicePropertyTest extends TestCase
                 ->andReturn($emptyReport);
 
             $service = new PushNotificationService($messagingMock);
-            $tokens  = array_fill(0, $n, 'token');
+            $tokens  = $this->uniqueTokens($n);
 
             $result = $service->sendMulticast($tokens, 'Title', 'Body');
 
-            $this->assertInstanceOf(MulticastResult::class, $result,
+            $this->assertInstanceOf(
+                MulticastResult::class,
+                $result,
                 "Iteration {$i}: N={$n} — sendMulticast should return a MulticastResult",
             );
 
@@ -63,11 +65,6 @@ class PushNotificationServicePropertyTest extends TestCase
         }
     }
 
-    /**
-     * Edge case: empty token list should result in zero Firebase calls
-     *
-     * Validates: Requirements 4.1
-     */
     public function test_multicast_with_empty_tokens_makes_no_firebase_calls(): void
     {
         $messagingMock = Mockery::mock(Messaging::class);
@@ -81,12 +78,7 @@ class PushNotificationServicePropertyTest extends TestCase
         $this->assertSame(0, $result->failureCount);
     }
 
-    /**
-     * Boundary: exactly 500 tokens → exactly 1 call
-     *
-     * Validates: Requirements 4.1
-     */
-    public function test_exactly_500_tokens_makes_exactly_one_firebase_call(): void
+    public function test_exactly_500_unique_tokens_makes_exactly_one_firebase_call(): void
     {
         $messagingMock = Mockery::mock(Messaging::class);
         $messagingMock
@@ -95,16 +87,11 @@ class PushNotificationServicePropertyTest extends TestCase
             ->andReturn(MulticastSendReport::withItems([]));
 
         $service = new PushNotificationService($messagingMock);
-        $service->sendMulticast(array_fill(0, 500, 'token'), 'T', 'B');
-        $this->addToAssertionCount(1); // Mockery times() expectation verified on tearDown
+        $service->sendMulticast($this->uniqueTokens(500), 'T', 'B');
+        $this->addToAssertionCount(1);
     }
 
-    /**
-     * Boundary: 501 tokens → exactly 2 calls
-     *
-     * Validates: Requirements 4.1
-     */
-    public function test_501_tokens_makes_exactly_two_firebase_calls(): void
+    public function test_501_unique_tokens_makes_exactly_two_firebase_calls(): void
     {
         $messagingMock = Mockery::mock(Messaging::class);
         $messagingMock
@@ -113,16 +100,11 @@ class PushNotificationServicePropertyTest extends TestCase
             ->andReturn(MulticastSendReport::withItems([]));
 
         $service = new PushNotificationService($messagingMock);
-        $service->sendMulticast(array_fill(0, 501, 'token'), 'T', 'B');
+        $service->sendMulticast($this->uniqueTokens(501), 'T', 'B');
         $this->addToAssertionCount(1);
     }
 
-    /**
-     * Boundary: 1000 tokens → exactly 2 calls
-     *
-     * Validates: Requirements 4.1
-     */
-    public function test_1000_tokens_makes_exactly_two_firebase_calls(): void
+    public function test_1000_unique_tokens_makes_exactly_two_firebase_calls(): void
     {
         $messagingMock = Mockery::mock(Messaging::class);
         $messagingMock
@@ -131,15 +113,23 @@ class PushNotificationServicePropertyTest extends TestCase
             ->andReturn(MulticastSendReport::withItems([]));
 
         $service = new PushNotificationService($messagingMock);
-        $service->sendMulticast(array_fill(0, 1000, 'token'), 'T', 'B');
+        $service->sendMulticast($this->uniqueTokens(1000), 'T', 'B');
         $this->addToAssertionCount(1);
     }
 
-    /**
-     * Boundary: 1 token → exactly 1 call
-     *
-     * Validates: Requirements 4.1
-     */
+    public function test_duplicate_tokens_are_deduplicated_before_batching(): void
+    {
+        $messagingMock = Mockery::mock(Messaging::class);
+        $messagingMock
+            ->shouldReceive('sendMulticast')
+            ->once()
+            ->andReturn(MulticastSendReport::withItems([]));
+
+        $service = new PushNotificationService($messagingMock);
+        $service->sendMulticast(array_fill(0, 1000, 'same-token'), 'T', 'B');
+        $this->addToAssertionCount(1);
+    }
+
     public function test_single_token_makes_exactly_one_firebase_call(): void
     {
         $messagingMock = Mockery::mock(Messaging::class);
@@ -151,5 +141,13 @@ class PushNotificationServicePropertyTest extends TestCase
         $service = new PushNotificationService($messagingMock);
         $service->sendMulticast(['single-token'], 'T', 'B');
         $this->addToAssertionCount(1);
+    }
+
+    private function uniqueTokens(int $count): array
+    {
+        return array_map(
+            static fn (int $index): string => "token-{$index}",
+            range(1, $count),
+        );
     }
 }
