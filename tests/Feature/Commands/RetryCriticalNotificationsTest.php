@@ -23,7 +23,7 @@ class RetryCriticalNotificationsTest extends TestCase
             'fcm_token' => 'critical-token',
         ]);
 
-        $notification = MinistryNotification::create([
+        $notification = MinistryNotification::forceCreate([
             'user_id' => $user->id,
             'type'    => 'critical_case',
             'title'   => 'Critical Alert',
@@ -37,9 +37,15 @@ class RetryCriticalNotificationsTest extends TestCase
         $this->artisan('notifications:retry-critical')
             ->assertSuccessful();
 
-        Queue::assertPushed(SendFcmNotificationJob::class, fn (SendFcmNotificationJob $job): bool => $job->tokens === [$user->fcm_token]
-                && $job->data['retry_count']                                                                      === 1
-                && $job->data['renotify']                                                                         === true);
+        Queue::assertPushed(SendFcmNotificationJob::class, 1);
+
+        /** @var SendFcmNotificationJob $job */
+        $job = Queue::pushed(SendFcmNotificationJob::class)->first();
+
+        $this->assertSame(['critical-token'], $job->tokens);
+        $this->assertSame(1, $job->data['retry_count']);
+        $this->assertTrue($job->data['renotify']);
+        $this->assertTrue($job->data['require_interaction']);
 
         $notification->refresh();
 
@@ -56,7 +62,7 @@ class RetryCriticalNotificationsTest extends TestCase
             'fcm_token' => 'critical-token',
         ]);
 
-        MinistryNotification::create([
+        MinistryNotification::forceCreate([
             'user_id' => $user->id,
             'type'    => 'critical_case',
             'title'   => 'Critical Alert',
