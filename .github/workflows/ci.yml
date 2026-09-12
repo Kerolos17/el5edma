@@ -57,8 +57,11 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Check code style
-        run: ./vendor/bin/pint --test
+      - name: Capture Pint formatting diff
+        run: |
+          ./vendor/bin/pint
+          git diff -- .
+          exit 1
 
       - name: Copy .env
         run: cp .env.example .env
