@@ -17,21 +17,21 @@ class FcmTokenController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'fcm_token' => 'required|string|max:2048',
-            'platform' => 'nullable|string|max:32',
+            'fcm_token'    => 'required|string|max:2048',
+            'platform'     => 'nullable|string|max:32',
             'device_label' => 'nullable|string|max:120',
         ]);
 
-        $token = $validated['fcm_token'];
+        $token     = $validated['fcm_token'];
         $tokenHash = hash('sha256', $token);
-        $user = $request->user();
+        $user      = $request->user();
 
         PushDevice::updateOrCreate(
             ['token_hash' => $tokenHash],
             [
-                'user_id' => $user->id,
-                'token' => $token,
-                'platform' => $validated['platform'] ?? 'web',
+                'user_id'      => $user->id,
+                'token'        => $token,
+                'platform'     => $validated['platform']     ?? 'web',
                 'device_label' => $validated['device_label'] ?? null,
                 'last_seen_at' => now(),
             ],
