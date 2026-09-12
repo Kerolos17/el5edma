@@ -1,0 +1,27 @@
+name: Pint Diff
+
+on:
+  push:
+    branches:
+      - audit/phase-1-registration-notifications
+    paths:
+      - '.github/workflows/pint-diff.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit/phase-1-registration-notifications
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Format the three pending files and print exact diff
+        run: |
+          ./vendor/bin/pint app/Http/Controllers/FcmTokenController.php tests/Feature/RegistrationNotificationLocaleTest.php tests/Unit/ScheduledVisitNotificationCompletenessPropertyTest.php
+          git diff -- app/Http/Controllers/FcmTokenController.php tests/Feature/RegistrationNotificationLocaleTest.php tests/Unit/ScheduledVisitNotificationCompletenessPropertyTest.php
