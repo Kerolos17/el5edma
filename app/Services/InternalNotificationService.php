@@ -65,6 +65,7 @@ class InternalNotificationService
     public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = []): void
     {
         $notifications = [];
+        $broadcasts    = [];
         $now           = now();
         $payload       = NotificationMetadata::enrich($type, $data);
 
@@ -78,25 +79,35 @@ class InternalNotificationService
                 'created_at' => $now,
             ];
 
-            // مسح الكاش الخاص بعدد الإشعارات لهذا المستخدم لكي يظهر الإشعار في الحال (Livewire)
-            Cache::forget('notifications_unread_' . $user->id);
-
-            // Dispatch a broadcast event so the user's browser updates in real-time
-            try {
-                event(new NewMinistryNotification($user->id, [
+            $broadcasts[] = [
+                'user_id' => $user->id,
+                'payload' => [
                     'type'       => $type,
                     'title'      => $title,
                     'body'       => $body,
                     'data'       => $payload,
                     'created_at' => $now->toDateTimeString(),
-                ]));
-            } catch (\Throwable $e) {
-                // fail silently if broadcasting isn't configured
-            }
+                ],
+            ];
         }
 
+        // Database is the source of truth. Persist first so realtime clients
+        // cannot refresh before the notification row actually exists.
         if (! empty($notifications)) {
             MinistryNotification::insert($notifications);
+        }
+
+        foreach ($broadcasts as $broadcast) {
+            Cache::forget('notifications_unread_' . $broadcast['user_id']);
+
+            try {
+                event(new NewMinistryNotification(
+                    $broadcast['user_id'],
+                    $broadcast['payload'],
+                ));
+            } catch (\Throwable $e) {
+                // Realtime delivery is best-effort; the database notification remains available.
+            }
         }
     }
 
