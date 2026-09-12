@@ -45,13 +45,23 @@ class VisitPolicyTest extends TestCase
         $this->assertTrue($this->policy->forceDelete($admin, $this->visitA));
     }
 
-    public function test_service_leader_full_access_except_force_delete(): void
+    public function test_service_leader_is_scoped_to_managed_groups(): void
     {
         $leader = $this->createServiceLeader();
+        $this->groupA->update(['service_leader_id' => $leader->id]);
+
+        $this->assertTrue($this->policy->viewAny($leader));
+        $this->assertTrue($this->policy->create($leader));
         $this->assertTrue($this->policy->view($leader, $this->visitA));
         $this->assertTrue($this->policy->update($leader, $this->visitA));
         $this->assertTrue($this->policy->delete($leader, $this->visitA));
+        $this->assertTrue($this->policy->restore($leader, $this->visitA));
         $this->assertFalse($this->policy->forceDelete($leader, $this->visitA));
+
+        $this->assertFalse($this->policy->view($leader, $this->visitB));
+        $this->assertFalse($this->policy->update($leader, $this->visitB));
+        $this->assertFalse($this->policy->delete($leader, $this->visitB));
+        $this->assertFalse($this->policy->restore($leader, $this->visitB));
     }
 
     public function test_family_leader_scoped_to_group(): void
