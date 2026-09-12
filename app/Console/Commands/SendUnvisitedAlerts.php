@@ -43,14 +43,8 @@ class SendUnvisitedAlerts extends Command
                     $pushes = [];
 
                     foreach ($chunk as $beneficiary) {
-                        $lastVisit   = $beneficiary->visits_max_visit_date;
-                        $days        = $lastVisit ? (int) now()->diffInDays($lastVisit) : null;
-                        $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
-                            'beneficiary_id' => (string) $beneficiary->id,
-                            'last_visit'     => (string) ($lastVisit ?? ''),
-                            'days_unvisited' => (string) ($days ?? ''),
-                            'url'            => '/app/beneficiary/' . $beneficiary->id,
-                        ]);
+                        $lastVisit = $beneficiary->visits_max_visit_date;
+                        $days      = $lastVisit ? (int) now()->diffInDays($lastVisit) : null;
 
                         $recipients = collect([
                             $beneficiary->serviceGroup?->leader,
@@ -58,12 +52,20 @@ class SendUnvisitedAlerts extends Command
                         ])->filter()->unique('id')->values();
 
                         foreach ($recipients as $recipient) {
-                            App::setLocale($recipient->locale ?? 'ar');
+                            $recipientLocale = $recipient->locale ?? 'ar';
+                            App::setLocale($recipientLocale);
 
                             $title = __('notifications.unvisited_alert_title');
                             $body  = __('notifications.unvisited_alert_body', [
                                 'name' => $beneficiary->full_name,
                                 'days' => $days ?? '?',
+                            ]);
+                            $dataPayload = NotificationMetadata::enrich('unvisited_alert', [
+                                'beneficiary_id' => (string) $beneficiary->id,
+                                'last_visit'     => (string) ($lastVisit ?? ''),
+                                'days_unvisited' => (string) ($days ?? ''),
+                                'locale'         => $recipientLocale,
+                                'url'            => '/app/beneficiary/' . $beneficiary->id,
                             ]);
 
                             $rows[] = [
