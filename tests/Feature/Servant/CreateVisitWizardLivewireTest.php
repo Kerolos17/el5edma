@@ -19,6 +19,21 @@ class CreateVisitWizardLivewireTest extends TestCase
     use CreatesTestUsers, RefreshDatabase;
 
     #[Test]
+    public function wizard_renders_translated_accessibility_labels(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        Livewire::actingAs($servant)
+            ->test(CreateVisitWizard::class)
+            ->set('open', true)
+            ->assertSee(__('web_app.forms.wizard.steps'))
+            ->assertSee(__('web_app.forms.wizard.step_beneficiary'))
+            ->assertSee(__('web_app.forms.wizard.navigation'))
+            ->assertDontSee('web_app.wizard');
+    }
+
+    #[Test]
     public function step1_requires_beneficiary_selection(): void
     {
         $group   = ServiceGroup::factory()->create();

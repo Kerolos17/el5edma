@@ -45,7 +45,7 @@
 
             {{-- Step Indicator --}}
             <div class="px-5 pt-2 pb-4" aria-live="polite">
-                <div class="flex items-center gap-1 mb-3" role="group" aria-label="{{ __('web_app.wizard.steps') }}">
+                <div class="flex items-center gap-1 mb-3" role="group" aria-label="{{ __('web_app.forms.wizard.steps') }}">
                     @for($i = 1; $i <= 4; $i++)
                         <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300 wizard-step-dot {{ $step >= $i ? 'is-active' : '' }}"
                              aria-current="{{ $step === $i ? 'step' : 'false' }}">
@@ -60,10 +60,10 @@
                 {{-- Step Title --}}
                 <h3 class="font-bold text-lg wizard-step-title">
                     {{ match($step) {
-                        1 => __('web_app.wizard.step_beneficiary'),
-                        2 => __('web_app.wizard.step_type'),
-                        3 => __('web_app.wizard.step_details'),
-                        default => __('web_app.wizard.step_summary'),
+                        1 => __('web_app.forms.wizard.step_beneficiary'),
+                        2 => __('web_app.forms.wizard.step_type'),
+                        3 => __('web_app.forms.wizard.step_details'),
+                        default => __('web_app.forms.wizard.step_summary'),
                     } }}
                 </h3>
             </div>
@@ -337,7 +337,7 @@
             @endif
 
             {{-- Navigation Buttons --}}
-            <div class="px-5 pb-8 flex gap-3 wizard-nav-actions" role="group" aria-label="{{ __('web_app.wizard.navigation') }}">
+            <div class="px-5 pb-8 flex gap-3 wizard-nav-actions" role="group" aria-label="{{ __('web_app.forms.wizard.navigation') }}">
 
                 @if($step > 1)
                     <button wire:click="prevStep"
@@ -378,7 +378,7 @@
                                         queuedAt:           Date.now(),
                                     });
                                     $wire.close();
-                                    $dispatch('toast', { message: '{{ __('web_app.wizard.offline_queued') }}', type: 'warning' });
+                                    $dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_queued') }}', type: 'warning' });
                                 }
                             } else {
                                 $wire.submit();
@@ -387,7 +387,7 @@
                         wire:loading.attr="disabled"
                         type="button"
                         class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60 wizard-btn-save">
-                        <span wire:loading.remove wire:target="submit">{{ __('web_app.wizard.confirm_save') }}</span>
+                        <span wire:loading.remove wire:target="submit">{{ __('web_app.forms.wizard.confirm_save') }}</span>
                         <span wire:loading wire:target="submit">{{ __('web_app.actions.saving') }}</span>
                     </button>
                 @endif
