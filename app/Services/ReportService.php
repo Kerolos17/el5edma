@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
-use App\Models\Visit;
+use App\Support\WebAppScope;
 use Illuminate\Http\Response;
 use Mpdf\Mpdf;
 
@@ -39,14 +38,9 @@ class ReportService
 
     public function beneficiariesPdf(User $user): Response
     {
-        $query = Beneficiary::with(['serviceGroup', 'assignedServant'])
+        $query = WebAppScope::beneficiaries($user)
+            ->with(['serviceGroup', 'assignedServant'])
             ->where('status', 'active');
-
-        if ($user->role === UserRole::FamilyLeader) {
-            $query->where('service_group_id', $user->service_group_id);
-        } elseif ($user->role === UserRole::Servant) {
-            $query->where('service_group_id', $user->service_group_id);
-        }
 
         $beneficiaries = $query->limit(500)->get();
         $isAr          = app()->getLocale() === 'ar';
@@ -64,14 +58,7 @@ class ReportService
 
     public function visitsPdf(User $user, ?string $dateFrom = null, ?string $dateTo = null): Response
     {
-        $query = Visit::with(['beneficiary.serviceGroup', 'createdBy'])->latest('visit_date');
-
-        if ($user->role === UserRole::FamilyLeader) {
-            $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
-            );
-        } elseif ($user->role === UserRole::Servant) {
-            $query->where('created_by', $user->id);
-        }
+        $query = WebAppScope::visits($user)->latest('visit_date');
 
         if ($dateFrom) {
             $query->whereDate('visit_date', '>=', $dateFrom);
@@ -99,7 +86,8 @@ class ReportService
     {
         $cutoff = now()->subDays(30);
 
-        $query = Beneficiary::with(['serviceGroup', 'assignedServant'])
+        $query = WebAppScope::beneficiaries($user)
+            ->with(['serviceGroup', 'assignedServant'])
             ->withMax('visits', 'visit_date')
             ->where('status', 'active')
             ->where(function ($q) use ($cutoff) {
@@ -107,13 +95,7 @@ class ReportService
                     ->orWhereDoesntHave('visits', function ($vq) use ($cutoff) {
                         $vq->where('visit_date', '>=', $cutoff);
                     });
-            })
-            ->when($user->role === UserRole::FamilyLeader,
-                fn ($q) => $q->where('service_group_id', $user->service_group_id),
-            )
-            ->when($user->role === UserRole::Servant,
-                fn ($q) => $q->where('assigned_servant_id', $user->id),
-            );
+            });
 
         $beneficiaries = $query->limit(500)->get();
         $isAr          = app()->getLocale() === 'ar';

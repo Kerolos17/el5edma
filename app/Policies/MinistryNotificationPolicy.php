@@ -43,8 +43,7 @@ class MinistryNotificationPolicy
      */
     public function update(User $user, MinistryNotification $notification): bool
     {
-        // Only super_admin and service_leader can update notifications
-        return $user->role->isAdminLevel();
+        return $notification->user_id === $user->id;
     }
 
     /**
@@ -52,8 +51,7 @@ class MinistryNotificationPolicy
      */
     public function delete(User $user, MinistryNotification $notification): bool
     {
-        // Users can delete their own notifications, or admins can delete any
-        return $notification->user_id === $user->id || $user->role->isAdminLevel();
+        return $notification->user_id === $user->id;
     }
 
     /**

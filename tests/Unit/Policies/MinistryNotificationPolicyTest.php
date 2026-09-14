@@ -61,13 +61,14 @@ class MinistryNotificationPolicyTest extends TestCase
         $this->assertFalse($this->policy->create($this->createServant($group)));
     }
 
-    public function test_admin_level_can_update(): void
+    public function test_only_the_owner_can_update(): void
     {
         $owner        = $this->createServant(ServiceGroup::factory()->create());
         $notification = MinistryNotification::factory()->create(['user_id' => $owner->id]);
 
-        $this->assertTrue($this->policy->update($this->createSuperAdmin(), $notification));
-        $this->assertTrue($this->policy->update($this->createServiceLeader(), $notification));
+        $this->assertTrue($this->policy->update($owner, $notification));
+        $this->assertFalse($this->policy->update($this->createSuperAdmin(), $notification));
+        $this->assertFalse($this->policy->update($this->createServiceLeader(), $notification));
     }
 
     public function test_user_can_delete_own_notification(): void
@@ -79,13 +80,13 @@ class MinistryNotificationPolicyTest extends TestCase
         $this->assertTrue($this->policy->delete($owner, $notification));
     }
 
-    public function test_admin_can_delete_any_notification(): void
+    public function test_admin_cannot_delete_another_users_notification(): void
     {
         $owner        = $this->createServant(ServiceGroup::factory()->create());
         $notification = MinistryNotification::factory()->create(['user_id' => $owner->id]);
 
-        $this->assertTrue($this->policy->delete($this->createSuperAdmin(), $notification));
-        $this->assertTrue($this->policy->delete($this->createServiceLeader(), $notification));
+        $this->assertFalse($this->policy->delete($this->createSuperAdmin(), $notification));
+        $this->assertFalse($this->policy->delete($this->createServiceLeader(), $notification));
     }
 
     public function test_non_owner_non_admin_cannot_delete(): void
