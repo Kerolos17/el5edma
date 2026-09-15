@@ -1,4 +1,4 @@
-const CACHE_NAME = "ministry-pwa-v5";
+const CACHE_NAME = "ministry-pwa-v6";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
@@ -31,6 +31,10 @@ const SKIP_PATHS = [
     "/logout",
     "/language",
     "/login-code",
+    // Vite build output is content-hashed + immutable via HTTP cache headers.
+    // Intercepting it breaks <link rel="preload"> (cross-world mismatch
+    // warnings) and adds zero offline value, so let the browser handle it.
+    "/build/",
 ];
 
 function parseBooleanish(value, fallback = false) {
@@ -288,38 +292,66 @@ self.addEventListener("fetch", (event) => {
     );
 
     if (isStaticAsset) {
-        // Stale-while-revalidate: serve cache instantly, update in background
+        // Stale-while-revalidate: serve cache instantly, update in background.
+        // NOTE: must always resolve to a Response object, never null/undefined.
         event.respondWith(
-            caches.open(CACHE_NAME).then(async (cache) => {
+            (async () => {
+                const cache = await caches.open(CACHE_NAME);
                 const cached = await cache.match(request);
-                const networkFetch = fetch(request)
-                    .then((res) => {
-                        if (res.ok) cache.put(request, res.clone());
-                        return res;
-                    })
-                    .catch(() => null);
-                return cached || networkFetch || new Response("", { status: 504, statusText: "Gateway Timeout" });
-            }),
+
+                try {
+                    const networkRes = await fetch(request);
+
+                    if (networkRes && networkRes.ok) {
+                        cache.put(request, networkRes.clone());
+                    }
+
+                    return (
+                        cached ||
+                        networkRes ||
+                        new Response("", {
+                            status: 504,
+                            statusText: "Gateway Timeout",
+                        })
+                    );
+                } catch {
+                    return (
+                        cached ||
+                        new Response("", {
+                            status: 504,
+                            statusText: "Gateway Timeout",
+                        })
+                    );
+                }
+            })(),
         );
     } else {
-        // Network-first for dynamic app pages
+        // Network-first for dynamic app pages.
+        // NOTE: must always resolve to a Response object, never null/undefined.
         event.respondWith(
-            fetch(request)
-                .then((res) => res)
-                .catch(() =>
-                    caches.match(request).then(
-                        (cached) =>
-                            cached ||
-                            caches.match(OFFLINE_URL).then(
-                                (offline) =>
-                                    offline ||
-                                    new Response("Offline", {
-                                        status: 503,
-                                        headers: { "Content-Type": "text/html; charset=utf-8" },
-                                    }),
-                            ),
-                    ),
-                ),
+            (async () => {
+                try {
+                    return await fetch(request);
+                } catch {
+                    const cached = await caches.match(request);
+
+                    if (cached) {
+                        return cached;
+                    }
+
+                    const offline = await caches.match(OFFLINE_URL);
+
+                    return (
+                        offline ||
+                        new Response("Offline", {
+                            status: 503,
+                            headers: {
+                                "Content-Type": "text/html; charset=utf-8",
+                            },
+                        })
+                    );
+                }
+            })(),
         );
     }
 });
