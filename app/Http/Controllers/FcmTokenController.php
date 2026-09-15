@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PushDevice;
+use App\Models\User;
 use App\Services\PushDeviceSessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,16 @@ class FcmTokenController extends Controller
                 'last_seen_at' => now(),
             ],
         );
+
+        // A browser token may be registered again after a different person
+        // signs in on the same device. The push_devices row is reassigned
+        // above, and the transitional legacy field must follow it as well;
+        // otherwise the prior account could keep receiving notifications on
+        // this device until the legacy column is removed.
+        User::query()
+            ->whereKeyNot($user->id)
+            ->where('fcm_token', $token)
+            ->update(['fcm_token' => null]);
 
         $this->deviceSessions->rememberCurrent($request, $tokenHash);
 

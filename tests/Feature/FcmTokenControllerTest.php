@@ -54,6 +54,32 @@ class FcmTokenControllerTest extends TestCase
         $this->assertSame(1, PushDevice::where('user_id', $user->id)->count());
     }
 
+    public function test_registering_a_device_for_another_user_removes_the_previous_legacy_token(): void
+    {
+        $token        = 'shared-browser-token';
+        $previousUser = User::factory()->create(['fcm_token' => $token]);
+        $currentUser  = User::factory()->create();
+
+        PushDevice::create([
+            'user_id'      => $previousUser->id,
+            'token'        => $token,
+            'token_hash'   => hash('sha256', $token),
+            'platform'     => 'web',
+            'last_seen_at' => now(),
+        ]);
+
+        $this->actingAs($currentUser)
+            ->postJson(route('fcm-token.store'), ['fcm_token' => $token])
+            ->assertOk();
+
+        $this->assertNull($previousUser->fresh()->fcm_token);
+        $this->assertSame([], $previousUser->fresh()->pushTokens());
+        $this->assertSame(
+            $currentUser->id,
+            PushDevice::where('token_hash', hash('sha256', $token))->value('user_id'),
+        );
+    }
+
     public function test_push_device_token_is_encrypted_at_rest(): void
     {
         $user  = User::factory()->create();

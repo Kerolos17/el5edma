@@ -2,12 +2,14 @@
 
 namespace App\Observers;
 
+use App\Enums\UserRole;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Models\Visit;
 use App\Services\InternalNotificationService;
 use App\Support\NotificationMetadata;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -55,39 +57,63 @@ class VisitObserver
             return;
         }
 
-        $notifier = app(InternalNotificationService::class);
-        $title    = __('notifications.critical_case_title');
-        $body     = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-        $data     = NotificationMetadata::enrich('critical_case', [
-            'beneficiary_id' => $beneficiary->id,
-            'visit_id'       => $visit->id,
-            'url'            => '/app/visit/' . $visit->id,
-        ]);
-
-        $notifier->notifyRelatedUsers($beneficiary, 'critical_case', $title, $body, $data);
-
-        $userIds = collect([
+        // Use the same recipient set as InternalNotificationService::notifyRelatedUsers
+        // (assigned servant + family leader + linked service leader + active SuperAdmins)
+        // so the push audience never drifts from the database audience.
+        $directRecipientIds = collect([
             $beneficiary->assigned_servant_id,
             $beneficiary->serviceGroup?->leader_id,
+            $beneficiary->serviceGroup?->service_leader_id,
         ])->filter()->unique()->values();
 
-        if ($userIds->isEmpty()) {
+        $recipients = User::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($directRecipientIds): void {
+                if ($directRecipientIds->isNotEmpty()) {
+                    $query->whereIn('id', $directRecipientIds)
+                        ->orWhere('role', UserRole::SuperAdmin->value);
+
+                    return;
+                }
+
+                $query->where('role', UserRole::SuperAdmin->value);
+            })
+            ->with('pushDevices:id,user_id,token')
+            ->get(['id', 'locale', 'fcm_token']);
+
+        if ($recipients->isEmpty()) {
             return;
         }
 
-        $tokens = User::query()
-            ->whereIn('id', $userIds)
-            ->where('is_active', true)
-            ->with('pushDevices:id,user_id,token')
-            ->get(['id', 'fcm_token'])
-            ->flatMap(fn (User $user) => $user->pushTokens())
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
+        $notifier       = app(InternalNotificationService::class);
+        $originalLocale = App::getLocale();
 
-        if ($tokens !== []) {
-            SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+        try {
+            foreach ($recipients as $recipient) {
+                $recipientLocale = $recipient->locale ?? 'ar';
+                App::setLocale($recipientLocale);
+
+                $title = __('notifications.critical_case_title');
+                $body  = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
+                $data  = NotificationMetadata::enrich('critical_case', [
+                    'beneficiary_id' => $beneficiary->id,
+                    'visit_id'       => $visit->id,
+                    'locale'         => $recipientLocale,
+                    'url'            => '/app/visit/' . $visit->id,
+                ]);
+
+                // Database row first (notifyUser persists before broadcast),
+                // then the per-recipient localized push.
+                $notifier->notifyUser($recipient, 'critical_case', $title, $body, $data);
+
+                $tokens = $recipient->pushTokens();
+
+                if ($tokens !== []) {
+                    SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+                }
+            }
+        } finally {
+            App::setLocale($originalLocale);
         }
     }
 

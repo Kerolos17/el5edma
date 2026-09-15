@@ -124,9 +124,25 @@ class PushNotificationService
             $message          = $this->buildMessage($notification, $stringData);
 
             if (count($tokens) === 1) {
-                $message = $message->withToken($tokens[0]);
+                try {
+                    $message = $message->withToken($tokens[0]);
 
-                $this->messaging->send($message);
+                    $this->messaging->send($message);
+                } catch (\Throwable $e) {
+                    // Single-token sends have no multicast failure report, so inspect
+                    // the exception and purge dead tokens the same way as batches.
+                    $errorCode = strtoupper($e->getMessage() ?? '');
+
+                    foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
+                        if (str_contains($errorCode, $invalidCode)) {
+                            $this->handleInvalidTokens([$tokens[0]]);
+
+                            break;
+                        }
+                    }
+
+                    throw $e;
+                }
             } else {
                 $report = $this->messaging->sendMulticast($message, $tokens);
 
@@ -154,7 +170,7 @@ class PushNotificationService
             ]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Firebase Push Error: ' . $e->getMessage());
 
             return false;
