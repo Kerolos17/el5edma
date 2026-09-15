@@ -76,7 +76,7 @@ class ReportController extends Controller
         $this->authorizeBeneficiaryReportsAccess();
         Gate::authorize('view', $beneficiary);
 
-        return $this->service->singleBeneficiaryPdf($beneficiary);
+        return $this->service->singleBeneficiaryPdf($beneficiary, Auth::user());
     }
 
     // ── تقرير الأسرة ──

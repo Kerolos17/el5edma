@@ -175,10 +175,12 @@ class RoleScopingPreservationTest extends TestCase
     }
 
     /**
-     * service_leader sees all visits with no scope restriction.
+     * service_leader sees only visits for beneficiaries in managed service groups.
      */
-    public function test_service_leader_visit_query_returns_all(): void
+    public function test_service_leader_visit_query_scoped_to_managed_groups(): void
     {
+        $this->groupA->update(['service_leader_id' => $this->serviceLeader->id]);
+
         Auth::login($this->serviceLeader);
 
         $visitIds = VisitResource::getEloquentQuery()
@@ -187,13 +189,14 @@ class RoleScopingPreservationTest extends TestCase
             ->values()
             ->toArray();
 
-        $expectedIds = collect([$this->visitA1->id, $this->visitA2->id, $this->visitB1->id])
+        $expectedIds = collect([$this->visitA1->id, $this->visitA2->id])
             ->sort()
             ->values()
             ->toArray();
 
-        $this->assertCount(3, $visitIds, 'service_leader should see all 3 visits');
+        $this->assertCount(2, $visitIds, 'service_leader should see exactly 2 visits (managed group_a only)');
         $this->assertEquals($expectedIds, $visitIds);
+        $this->assertNotContains($this->visitB1->id, $visitIds, 'service_leader must not see unmanaged group_b visits');
     }
 
     /**

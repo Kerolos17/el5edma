@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Never leave the app stuck in maintenance mode if a later step fails.
+trap 'echo "Deployment failed - bringing application online..."; php artisan up || true' ERR
+
 if ! command -v php >/dev/null 2>&1; then
     echo "PHP is not available."
     exit 1

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -111,8 +112,16 @@ class ReportService
     }
 
     // ── تقرير مخدوم واحد كامل ──
-    public function singleBeneficiaryPdf(Beneficiary $beneficiary): Response
+    public function singleBeneficiaryPdf(Beneficiary $beneficiary, ?User $viewer = null): Response
     {
+        // Servants may only view their own prayer requests (PrayerRequestPolicy),
+        // so the embedded PDF list must be filtered the same way.
+        $prayerConstraint = function ($q) use ($viewer): void {
+            if ($viewer?->role === UserRole::Servant) {
+                $q->where('created_by', $viewer->id);
+            }
+        };
+
         $beneficiary->load([
             'serviceGroup',
             'assignedServant',
@@ -121,7 +130,7 @@ class ReportService
             'visits'      => fn ($q) => $q->latest('visit_date')->limit(10),
             'visits.createdBy',
             'medicalFiles',
-            'prayerRequests',
+            'prayerRequests' => $prayerConstraint,
         ]);
 
         $isAr     = app()->getLocale() === 'ar';

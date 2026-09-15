@@ -61,6 +61,7 @@ class BeneficiaryResource extends Resource
 
         // Apply role-based scoping BEFORE eager loading
         $query = match ($user?->role) {
+            UserRole::ServiceLeader                   => $query->whereIn('service_group_id', $user->managedServiceGroupIds()),
             UserRole::FamilyLeader, UserRole::Servant => $query->where('service_group_id', $user->service_group_id),
             default                                   => $query,
         };
