@@ -1,4 +1,4 @@
-const CACHE_NAME = "ministry-pwa-v4";
+const CACHE_NAME = "ministry-pwa-v5";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
@@ -298,23 +298,28 @@ self.addEventListener("fetch", (event) => {
                         return res;
                     })
                     .catch(() => null);
-                return cached || networkFetch;
+                return cached || networkFetch || new Response("", { status: 504, statusText: "Gateway Timeout" });
             }),
         );
     } else {
         // Network-first for dynamic app pages
         event.respondWith(
-            fetch(request).catch(() =>
-                caches
-                    .match(request)
-                    .then(
+            fetch(request)
+                .then((res) => res)
+                .catch(() =>
+                    caches.match(request).then(
                         (cached) =>
                             cached ||
-                            (request.mode === "navigate"
-                                ? caches.match(OFFLINE_URL)
-                                : null),
+                            caches.match(OFFLINE_URL).then(
+                                (offline) =>
+                                    offline ||
+                                    new Response("Offline", {
+                                        status: 503,
+                                        headers: { "Content-Type": "text/html; charset=utf-8" },
+                                    }),
+                            ),
                     ),
-            ),
+                ),
         );
     }
 });
