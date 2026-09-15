@@ -101,7 +101,6 @@ class RegistrationController extends Controller
 
             Log::info('Self-registration successful', [
                 'user_id'          => $user->id,
-                'email'            => $user->email,
                 'service_group_id' => $serviceGroup->id,
             ]);
 
@@ -111,7 +110,6 @@ class RegistrationController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Self-registration failed', [
-                'email'            => $validated['email'],
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
             ]);
@@ -193,7 +191,6 @@ class RegistrationController extends Controller
 
             Log::info('Public self-registration successful', [
                 'user_id'          => $user->id,
-                'email'            => $user->email,
                 'service_group_id' => $serviceGroup->id,
             ]);
 
@@ -203,7 +200,6 @@ class RegistrationController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Public self-registration failed', [
-                'email'            => $validated['email'],
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
             ]);

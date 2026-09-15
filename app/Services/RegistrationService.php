@@ -53,23 +53,20 @@ class RegistrationService
             Log::info('Self-registration completed', [
                 'user_id'          => $user->id,
                 'service_group_id' => $serviceGroup->id,
-                'email'            => $user->email,
             ]);
 
             return $user;
         } catch (UniqueConstraintViolationException $e) {
             Log::warning('Duplicate registration attempt', [
-                'email' => $data['email'] ?? 'unknown',
-                'ip'    => $ipAddress,
+                'service_group_id' => $serviceGroup->id,
+                'ip'               => $ipAddress,
             ]);
 
             throw new \RuntimeException(__('registration.errors.duplicate'), 0, $e);
         } catch (\Exception $e) {
             Log::error('Self-registration failed', [
-                'email'            => $data['email'] ?? 'unknown',
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
-                'ip'               => $ipAddress,
             ]);
 
             throw $e;

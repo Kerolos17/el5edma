@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class UserObserver
 {
-    // لا نسجّل هذه الحقول أبداً
+    // لا نسجّل هذه الحقول أبداً — PII + credentials + tokens
     private array $excluded = [
         'password', 'personal_code', 'personal_code_hash', 'fcm_token',
         'remember_token', 'updated_at', 'last_login_at',
+        'name', 'email', 'phone', 'profile_photo',
     ];
 
     public function creating(User $user): void

@@ -48,9 +48,6 @@ class AuditLog extends Model
             'action'     => 'servant_self_registered',
             'old_values' => null,
             'new_values' => [
-                'name'               => $user->name,
-                'email'              => $user->email,
-                'phone'              => $user->phone,
                 'service_group_id'   => $serviceGroup->id,
                 'service_group_name' => $serviceGroup->name,
                 'registration_token' => substr($token, 0, 8) . '...', // partial token for security

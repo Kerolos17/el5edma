@@ -37,6 +37,8 @@ class BeneficiaryForm
                                     ->image()
                                     ->disk('public')
                                     ->directory('beneficiaries/photos')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'])
+                                    ->maxSize(5120)
                                     ->imageEditor()
                                     ->imageEditorAspectRatioOptions([
                                         '1:1',
