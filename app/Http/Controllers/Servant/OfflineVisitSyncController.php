@@ -51,7 +51,9 @@ class OfflineVisitSyncController extends Controller
             ? Carbon::createFromTimestampMs($validated['queuedAt'])
             : now();
 
-        $visit = DB::transaction(function () use ($validated, $user, $visitDate) {
+        $visit = null;
+
+        DB::transaction(function () use ($validated, $user, $visitDate, &$visit) {
             $visit = Visit::create([
                 'beneficiary_id'       => $validated['beneficiary_id'],
                 'type'                 => $validated['visitType'],
@@ -65,9 +67,9 @@ class OfflineVisitSyncController extends Controller
                 'created_by'           => $user->id,
             ]);
 
-            $visit->servants()->attach($user->id);
-
-            return $visit;
+            DB::afterCommit(function () use ($visit, $user) {
+                $visit->servants()->attach($user->id);
+            });
         });
 
         return response()->json(['id' => $visit->id], 201);
