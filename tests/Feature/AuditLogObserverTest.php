@@ -39,11 +39,11 @@ class AuditLogObserverTest extends TestCase
     #[Test]
     public function updating_a_beneficiary_logs_an_updated_audit_entry(): void
     {
-        $beneficiary = Beneficiary::factory()->create(['full_name' => 'Original Name']);
+        $beneficiary = Beneficiary::factory()->create(['status' => 'active']);
 
         AuditLog::query()->delete(); // clear creation log
 
-        $beneficiary->update(['full_name' => 'Updated Name']);
+        $beneficiary->update(['status' => 'inactive']);
 
         $log = AuditLog::where([
             'model_type' => Beneficiary::class,
@@ -52,8 +52,9 @@ class AuditLogObserverTest extends TestCase
         ])->first();
 
         $this->assertNotNull($log);
-        $this->assertArrayHasKey('full_name', $log->new_values);
-        $this->assertEquals('Updated Name', $log->new_values['full_name']);
+        $this->assertArrayHasKey('status', $log->new_values);
+        $this->assertEquals('inactive', $log->new_values['status']);
+        $this->assertArrayNotHasKey('full_name', $log->new_values, 'PII must not be logged');
     }
 
     #[Test]
@@ -89,13 +90,13 @@ class AuditLogObserverTest extends TestCase
     public function audit_log_only_records_dirty_fields_on_update(): void
     {
         $beneficiary = Beneficiary::factory()->create([
-            'full_name' => 'Test Name',
-            'area'      => 'Test Area',
+            'status' => 'active',
+            'area'   => 'Test Area',
         ]);
 
         AuditLog::query()->delete();
 
-        $beneficiary->update(['full_name' => 'New Name']);
+        $beneficiary->update(['status' => 'inactive']);
 
         $log = AuditLog::where([
             'model_type' => Beneficiary::class,
@@ -104,8 +105,8 @@ class AuditLogObserverTest extends TestCase
         ])->first();
 
         $this->assertNotNull($log);
-        $this->assertArrayHasKey('full_name', $log->new_values);
-        $this->assertArrayNotHasKey('area', $log->new_values);
+        $this->assertArrayHasKey('status', $log->new_values);
+        $this->assertArrayNotHasKey('area', $log->new_values, 'PII must not be logged');
     }
 
     #[Test]

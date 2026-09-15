@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 class PrayerRequestObserver
 {
-    private array $excluded = ['updated_at'];
+    // لا نسجّل body — محتوى kişisel داخلي
+    private array $excluded = ['updated_at', 'body'];
 
     public function created(PrayerRequest $prayer): void
     {

@@ -75,8 +75,8 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals(User::class, $auditLog->model_type);
         $this->assertEquals($user->id, $auditLog->model_id);
         $this->assertEquals('192.168.1.1', $auditLog->ip_address);
-        $this->assertArrayHasKey('name', $auditLog->new_values);
-        $this->assertArrayHasKey('email', $auditLog->new_values);
+        $this->assertArrayNotHasKey('name', $auditLog->new_values, 'PII name must not be in audit');
+        $this->assertArrayNotHasKey('email', $auditLog->new_values, 'PII email must not be in audit');
         $this->assertArrayHasKey('service_group_id', $auditLog->new_values);
     }
 
@@ -404,8 +404,8 @@ class RegistrationServiceTest extends TestCase
 
         $this->assertNotNull($auditLog);
         $this->assertEquals('192.168.1.100', $auditLog->ip_address);
-        $this->assertEquals('Test User', $auditLog->new_values['name']);
-        $this->assertEquals('test@example.com', $auditLog->new_values['email']);
+        $this->assertArrayNotHasKey('name', $auditLog->new_values, 'PII name must not be in audit');
+        $this->assertArrayNotHasKey('email', $auditLog->new_values, 'PII email must not be in audit');
         $this->assertEquals('Test Group', $auditLog->new_values['service_group_name']);
         $this->assertEquals('token123...', $auditLog->new_values['registration_token']);
     }

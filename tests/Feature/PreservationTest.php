@@ -272,7 +272,7 @@ class PreservationTest extends TestCase
             'action'     => 'created',
         ]);
 
-        $beneficiary->update(['full_name' => 'Updated Audit Test Beneficiary']);
+        $beneficiary->update(['status' => 'inactive']);
 
         $this->assertDatabaseHas('audit_logs', [
             'model_type' => Beneficiary::class,
