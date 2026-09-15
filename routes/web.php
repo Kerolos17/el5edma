@@ -16,7 +16,7 @@ Route::get('/_pwa/ping', fn () => response()->noContent());
 
 Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')
-    ->middleware('auth');
+    ->middleware('auth', 'throttle:60,1');
 
 Route::post('/language/{locale}', [LocaleController::class, 'switch'])
     ->name('language.switch');

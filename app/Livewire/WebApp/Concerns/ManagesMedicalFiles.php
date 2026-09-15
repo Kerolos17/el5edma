@@ -53,6 +53,7 @@ trait ManagesMedicalFiles
                 'file',
                 'max:5120',
                 'mimes:pdf,jpg,jpeg,png,webp,doc,docx',
+                'mimetypes:application/pdf,image/jpeg,image/png,image/webp, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             ],
         ]);
 
