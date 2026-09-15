@@ -1,4 +1,5 @@
-const CACHE_NAME = "ministry-pwa-v6";
+const CACHE_NAME = "ministry-pwa-v7";
+const SW_VERSION = "v7";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
@@ -228,6 +229,7 @@ self.addEventListener("message", (event) => {
 
 // ---- Install ----------------------------------------------------------------
 self.addEventListener("install", (event) => {
+    console.log(`[sw ${SW_VERSION}] Installing`);
     event.waitUntil(
         caches
             .open(CACHE_NAME)
@@ -254,6 +256,7 @@ self.addEventListener("install", (event) => {
 
 // ---- Activate: clean old caches --------------------------------------------
 self.addEventListener("activate", (event) => {
+    console.log(`[sw ${SW_VERSION}] Activated`);
     event.waitUntil(
         caches
             .keys()
@@ -327,12 +330,25 @@ self.addEventListener("fetch", (event) => {
         );
     } else {
         // Network-first for dynamic app pages.
-        // NOTE: must always resolve to a Response object, never null/undefined.
+        // NOTE: must always resolve to a Response object, never null/undefined,
+        // and must never reject (cache lookups are guarded too).
         event.respondWith(
             (async () => {
+                const offlineResponse = () =>
+                    new Response("Offline", {
+                        status: 503,
+                        headers: {
+                            "Content-Type": "text/html; charset=utf-8",
+                        },
+                    });
+
                 try {
                     return await fetch(request);
                 } catch {
+                    // Network failed: fall back to cache, then offline page.
+                }
+
+                try {
                     const cached = await caches.match(request);
 
                     if (cached) {
@@ -341,15 +357,14 @@ self.addEventListener("fetch", (event) => {
 
                     const offline = await caches.match(OFFLINE_URL);
 
-                    return (
-                        offline ||
-                        new Response("Offline", {
-                            status: 503,
-                            headers: {
-                                "Content-Type": "text/html; charset=utf-8",
-                            },
-                        })
+                    return offline || offlineResponse();
+                } catch (cacheError) {
+                    console.warn(
+                        `[sw ${SW_VERSION}] Cache lookup failed:`,
+                        cacheError,
                     );
+
+                    return offlineResponse();
                 }
             })(),
         );
