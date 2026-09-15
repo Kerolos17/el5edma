@@ -1153,4 +1153,77 @@ class ResourceActionsTest extends TestCase
             'status' => 'inactive',
         ]);
     }
+
+    #[Test]
+    public function service_leader_can_create_visit_from_web_app(): void
+    {
+        $leader      = $this->createServiceLeader();
+        $group       = ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+
+        Livewire::actingAs($leader)
+            ->test(VisitsPage::class)
+            ->call('openVisitForm', $beneficiary->id)
+            ->set('visitType', 'home_visit')
+            ->set('beneficiaryStatus', 'good')
+            ->call('saveVisit')
+            ->assertDispatched('toast')
+            ->assertSet('showVisitForm', false);
+
+        $this->assertDatabaseHas('visits', [
+            'beneficiary_id' => $beneficiary->id,
+            'created_by'     => $leader->id,
+        ]);
+    }
+
+    #[Test]
+    public function service_leader_can_create_critical_visit_from_web_app(): void
+    {
+        $leader      = $this->createServiceLeader();
+        $group       = ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+
+        Livewire::actingAs($leader)
+            ->test(VisitsPage::class)
+            ->call('openVisitForm', $beneficiary->id)
+            ->set('visitType', 'home_visit')
+            ->set('beneficiaryStatus', 'critical')
+            ->set('isCritical', true)
+            ->call('saveVisit')
+            ->assertDispatched('toast')
+            ->assertSet('showVisitForm', false);
+
+        $this->assertDatabaseHas('visits', [
+            'beneficiary_id' => $beneficiary->id,
+            'is_critical'    => true,
+        ]);
+    }
+
+    #[Test]
+    public function super_admin_can_create_visit_from_web_app(): void
+    {
+        $admin       = $this->createSuperAdmin();
+        $group       = ServiceGroup::factory()->create();
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(VisitsPage::class)
+            ->call('openVisitForm', $beneficiary->id)
+            ->set('visitType', 'home_visit')
+            ->set('beneficiaryStatus', 'good')
+            ->call('saveVisit')
+            ->assertDispatched('toast')
+            ->assertSet('showVisitForm', false);
+
+        $this->assertDatabaseHas('visits', [
+            'beneficiary_id' => $beneficiary->id,
+            'created_by'     => $admin->id,
+        ]);
+    }
 }
