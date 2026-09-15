@@ -51,7 +51,7 @@ class MyProfile extends Page
     public function updatedNewPhoto(): void
     {
         $this->validate([
-            'newPhoto' => ['image', 'max:1024', 'mimes:jpeg,jpg,png,gif,webp'],
+            'newPhoto' => ['image', 'max:1024', 'mimes:jpeg,jpg,png,gif,webp', 'mimetypes:image/jpeg,image/png,image/gif,image/webp'],
         ]);
 
         $user = Auth::user();
