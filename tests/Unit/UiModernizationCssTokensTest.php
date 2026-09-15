@@ -14,16 +14,22 @@ use PHPUnit\Framework\TestCase;
 class UiModernizationCssTokensTest extends TestCase
 {
     private string $css;
-    private string $notificationsBellPath;
+
+    private string $webAppCss;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $root = dirname(__DIR__, 2);
+
         $this->css = file_get_contents(
-            dirname(__DIR__, 2) . '/resources/css/filament/admin/theme.css',
+            $root . '/resources/css/filament/admin/theme.css',
         );
-        $this->notificationsBellPath = dirname(__DIR__, 2)
-            . '/resources/views/livewire/notifications-bell.blade.php';
+
+        $this->webAppCss = file_get_contents(
+            $root . '/resources/css/web-app.css',
+        );
     }
 
     // ─── Property 1: CSS Token Completeness ──────────────────────────────────
@@ -198,14 +204,10 @@ class UiModernizationCssTokensTest extends TestCase
     /** @test */
     public function notifications_bell_dropdown_uses_logical_positioning_not_physical_right(): void
     {
-        $blade = file_get_contents($this->notificationsBellPath);
-
-        $hasLogicalProperty = str_contains($blade, 'inset-e-')
-        || str_contains($blade, 'inset-inline-end');
-
-        $this->assertTrue(
-            $hasLogicalProperty,
-            'notifications-bell.blade.php must use inset-e-* or inset-inline-end for RTL-safe dropdown positioning',
+        $this->assertMatchesRegularExpression(
+            '/\.app-notification-panel\s*\{[^}]*inset-inline\s*:/s',
+            $this->webAppCss,
+            'The active web-app notification panel styles must use logical inset-inline positioning for RTL safety',
         );
     }
 

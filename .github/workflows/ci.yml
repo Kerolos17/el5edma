@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
 
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +23,12 @@ jobs:
           extensions: mbstring, pdo, pdo_sqlite, sqlite3
           coverage: none
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
@@ -27,20 +36,35 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
-      - name: Install dependencies
+      - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Validate Composer dependency metadata
+        run: composer validate --strict --no-check-publish
+
+      - name: Audit Composer dependencies
+        run: composer audit --locked --no-interaction
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Audit production npm dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Audit full npm dependency tree
+        run: npm audit --audit-level=high
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Check code style
         run: ./vendor/bin/pint --test
 
-      - name: Create fake Vite manifest for tests
-        run: |
-          mkdir -p public/build/assets
-          echo '{"resources/css/app.css":{"file":"assets/app.css","src":"resources/css/app.css","isEntry":true},"resources/css/filament/admin/theme.css":{"file":"assets/theme.css","src":"resources/css/filament/admin/theme.css","isEntry":true},"resources/js/app.js":{"file":"assets/app.js","src":"resources/js/app.js","isEntry":true}}' > public/build/manifest.json
-          touch public/build/assets/app.css public/build/assets/theme.css public/build/assets/app.js
-
       - name: Copy .env
         run: cp .env.example .env
+
+      - name: Prepare SQLite database
+        run: touch database/database.sqlite
 
       - name: Generate app key
         run: php artisan key:generate
@@ -48,5 +72,53 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
-      - name: Run tests
+      - name: Run full test suite
         run: composer test
+
+  mysql-migrations:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: ministry_system
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: ministry_system
+      DB_USERNAME: root
+      DB_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_mysql
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Clear cached configuration
+        run: php artisan config:clear
+
+      - name: Run fresh MySQL migrations
+        run: php artisan migrate:fresh --force

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\MulticastResult;
+use App\Models\PushDevice;
 use App\Models\User;
 use App\Support\NotificationMetadata;
 use Illuminate\Support\Collection;
@@ -18,10 +19,8 @@ class PushNotificationService
 {
     protected Messaging $messaging;
 
-    /** Maximum tokens per Firebase multicast request */
     private const BATCH_SIZE = 500;
 
-    /** Error codes that indicate a token is permanently invalid */
     private const INVALID_TOKEN_ERRORS = ['UNREGISTERED', 'INVALID_ARGUMENT'];
 
     public function __construct(Messaging $messaging)
@@ -29,24 +28,9 @@ class PushNotificationService
         $this->messaging = $messaging;
     }
 
-    /**
-     * إرسال إشعار لمستخدم واحد
-     */
     public function sendToUser(User $user, string $title, string $body, array $data = []): bool
     {
-        if (empty($user->fcm_token)) {
-            return false;
-        }
-
-        return $this->sendNotification([$user->fcm_token], $title, $body, $data);
-    }
-
-    /**
-     * إرسال إشعار لمجموعة مستخدمين
-     */
-    public function sendToMultiple(Collection $users, string $title, string $body, array $data = []): bool
-    {
-        $tokens = $users->pluck('fcm_token')->filter()->toArray();
+        $tokens = $user->pushTokens();
 
         if (empty($tokens)) {
             return false;
@@ -55,13 +39,28 @@ class PushNotificationService
         return $this->sendNotification($tokens, $title, $body, $data);
     }
 
-    /**
-     * إرسال Multicast مع تقسيم تلقائي لـ 500 token/batch
-     * Requirements 4.1, 4.2, 4.3, 9.2
-     */
+    public function sendToMultiple(Collection $users, string $title, string $body, array $data = []): bool
+    {
+        $users->loadMissing('pushDevices');
+
+        $tokens = $users
+            ->flatMap(fn (User $user) => $user->pushTokens())
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($tokens)) {
+            return false;
+        }
+
+        return $this->sendNotification($tokens, $title, $body, $data);
+    }
+
     public function sendMulticast(array $tokens, string $title, string $body, array $data = []): MulticastResult
     {
         $result = new MulticastResult;
+        $tokens = array_values(array_unique(array_filter($tokens)));
 
         if (empty($tokens)) {
             return $result;
@@ -83,12 +82,6 @@ class PushNotificationService
         return $result;
     }
 
-    /**
-     * معالجة دفعة من إشعارات مختلفة (عناوين/محتوى مختلف)
-     * Requirements 4.4
-     *
-     * @param  array  $notifications  مصفوفة من ['tokens'=>[], 'title'=>'', 'body'=>'', 'data'=>[]]
-     */
     public function sendBatch(array $notifications): void
     {
         foreach ($notifications as $notification) {
@@ -105,56 +98,85 @@ class PushNotificationService
         }
     }
 
-    /**
-     * تنظيف tokens غير الصالحة بعد استجابة Firebase
-     * Requirements 4.3
-     */
     protected function handleInvalidTokens(array $failedTokens): void
     {
+        $failedTokens = array_values(array_unique(array_filter($failedTokens)));
+
         if (empty($failedTokens)) {
             return;
         }
 
+        $hashes = array_map(fn (string $token) => hash('sha256', $token), $failedTokens);
+
+        PushDevice::whereIn('token_hash', $hashes)->delete();
+
+        // Keep transitional legacy storage clean as well.
         User::whereIn('fcm_token', $failedTokens)->update(['fcm_token' => null]);
     }
 
-    /**
-     * المعالجة الفعلية للإرسال عبر Firebase (للتوافق الداخلي)
-     */
     protected function sendNotification(array $tokens, string $title, string $body, array $data = []): bool
     {
         try {
+            $tokens           = array_values(array_unique(array_filter($tokens)));
             $notification     = Notification::create($title, $body);
             $notificationData = NotificationMetadata::enrich($data['type'] ?? 'generic', $data);
             $stringData       = $this->stringifyData($notificationData);
             $message          = $this->buildMessage($notification, $stringData);
 
             if (count($tokens) === 1) {
-                $message = $message->withToken($tokens[0]);
+                try {
+                    $message = $message->withToken($tokens[0]);
 
-                $this->messaging->send($message);
+                    $this->messaging->send($message);
+                } catch (\Throwable $e) {
+                    // Single-token sends have no multicast failure report, so inspect
+                    // the exception and purge dead tokens the same way as batches.
+                    $errorCode = strtoupper($e->getMessage() ?? '');
+
+                    foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
+                        if (str_contains($errorCode, $invalidCode)) {
+                            $this->handleInvalidTokens([$tokens[0]]);
+
+                            break;
+                        }
+                    }
+
+                    throw $e;
+                }
             } else {
-                $this->messaging->sendMulticast($message, $tokens);
+                $report = $this->messaging->sendMulticast($message, $tokens);
+
+                $invalidTokens = [];
+
+                foreach ($report->failures()->getItems() as $failure) {
+                    $token     = $failure->target()->value();
+                    $errorCode = strtoupper($failure->error()?->getMessage() ?? 'UNKNOWN');
+
+                    foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
+                        if (str_contains($errorCode, $invalidCode)) {
+                            $invalidTokens[] = $token;
+
+                            break;
+                        }
+                    }
+                }
+
+                $this->handleInvalidTokens($invalidTokens);
             }
 
-            Log::info('تم إرسال Push Notification بنجاح', [
+            Log::info('Push notification sent', [
                 'title'        => $title,
                 'tokens_count' => count($tokens),
             ]);
 
             return true;
-
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Firebase Push Error: ' . $e->getMessage());
 
             return false;
         }
     }
 
-    /**
-     * معالجة دفعة واحدة من tokens وتحديث MulticastResult
-     * Requirements 4.2, 9.2
-     */
     private function processBatch(
         array $batch,
         Notification $notification,
@@ -163,8 +185,7 @@ class PushNotificationService
     ): void {
         try {
             $message = $this->buildMessage($notification, $stringData);
-
-            $report = $this->messaging->sendMulticast($message, $batch);
+            $report  = $this->messaging->sendMulticast($message, $batch);
 
             $result->successCount += $report->successes()->count();
             $result->failureCount += $report->failures()->count();
@@ -173,14 +194,12 @@ class PushNotificationService
                 $token     = $failure->target()->value();
                 $errorCode = $failure->error()?->getMessage() ?? 'UNKNOWN';
 
-                // Log anonymized failure details — Requirement 9.2
                 Log::error('FCM send failure', [
                     'token_hash' => hash('sha256', $token),
                     'error_code' => $errorCode,
                     'timestamp'  => now()->toIso8601String(),
                 ]);
 
-                // Collect invalid tokens for cleanup — Requirement 4.3
                 foreach (self::INVALID_TOKEN_ERRORS as $invalidCode) {
                     if (str_contains(strtoupper($errorCode), $invalidCode)) {
                         $result->invalidTokens[] = $token;
@@ -189,9 +208,7 @@ class PushNotificationService
                     }
                 }
             }
-
         } catch (\Exception $e) {
-            // Log the batch failure but do not stop other batches — Requirement 4.2
             Log::error('FCM batch send error', [
                 'error'      => $e->getMessage(),
                 'batch_size' => count($batch),

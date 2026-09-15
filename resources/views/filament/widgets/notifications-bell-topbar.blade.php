@@ -1,1 +1,1 @@
-@livewire(\App\Livewire\NotificationsBell::class)
+@livewire('notifications-bell')

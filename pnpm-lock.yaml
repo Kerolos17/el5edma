@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@dietrichgebert/ponytail':
+        specifier: ^4.8.3
+        version: 4.10.0
       '@phosphor-icons/web':
         specifier: ^2.1.2
         version: 2.1.2
@@ -44,6 +47,9 @@ importers:
         version: 7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)
 
 packages:
+
+  '@dietrichgebert/ponytail@4.10.0':
+    resolution: {integrity: sha512-O2H+RWO0ojk8D8yz9q1F82ybKTXpYtrBb7mHkQT+/iCtsXndAxJo05KU1hkLPjV203ABq+cj89Th9jFvdnc6Mg==}
 
   '@esbuild/aix-ppc64@0.27.7':
     resolution: {integrity: sha512-EKX3Qwmhz1eMdEJokhALr0YiD0lhQNwDqkPYyPhiSwKrh7/4KRjQc04sZ8db+5DVVnZ1LmbNDI1uAMPEUBnQPg==}
@@ -1311,6 +1317,8 @@ packages:
     engines: {node: '>=12'}
 
 snapshots:
+
+  '@dietrichgebert/ponytail@4.10.0': {}
 
   '@esbuild/aix-ppc64@0.27.7':
     optional: true

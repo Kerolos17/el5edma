@@ -45,6 +45,8 @@ class UnvisitedWidget extends BaseWidget
 
         if ($user->role === UserRole::FamilyLeader) {
             $query->where('service_group_id', $user->service_group_id);
+        } elseif ($user->role === UserRole::ServiceLeader) {
+            $query->whereIn('service_group_id', $user->managedServiceGroupIds());
         } elseif ($user->role === UserRole::Servant) {
             $query->where('assigned_servant_id', $user->id);
         }
@@ -69,10 +71,10 @@ class UnvisitedWidget extends BaseWidget
                     ->label(__('beneficiaries.financial_status'))
                     ->badge()
                     ->color(fn ($state): string => match ($state) {
-                        'good'     => 'success',
-                        'moderate' => 'warning',
+                        'good'              => 'success',
+                        'moderate'          => 'warning',
                         'poor', 'very_poor' => 'danger',
-                        default => 'gray',
+                        default             => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => $state
                             ? __("beneficiaries.{$state}")

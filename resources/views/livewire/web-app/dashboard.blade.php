@@ -231,7 +231,7 @@
                     <p class="app-section-label">{{ __('web_app.dashboard.stats.visits_this_month') }}</p>
                     <h3>{{ __('web_app.dashboard.visits_chart') }}</h3>
                 </div>
-                <span class="app-chart-total">{{ __('web_app.resources.visits_count', ['count' => $visitsChart->sum()]) }}</span>
+                <span class="app-chart-total">{{ trans_choice('web_app.resources.visits_count', $visitsChart->sum(), ['count' => $visitsChart->sum()]) }}</span>
             </div>
 
             <div class="app-chart">

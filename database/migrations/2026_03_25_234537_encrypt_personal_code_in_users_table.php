@@ -9,7 +9,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        // MySQL cannot retain a full unique index when varchar(10) becomes TEXT.
+        // The unique blind index below replaces this legacy plaintext index before
+        // the column is widened, so uniqueness is preserved without indexing the
+        // encrypted value itself.
+        $legacyPersonalCodeUniqueIndexes = collect(Schema::getIndexes('users'))
+            ->filter(fn (array $index): bool => ($index['unique'] ?? false)
+                && ($index['columns'] ?? []) === ['personal_code'])
+            ->pluck('name')
+            ->all();
+
+        Schema::table('users', function (Blueprint $table) use ($legacyPersonalCodeUniqueIndexes) {
+            foreach ($legacyPersonalCodeUniqueIndexes as $indexName) {
+                $table->dropUnique($indexName);
+            }
+
             // توسيع العمود لاستيعاب القيمة المشفرة (AES-256-CBC + base64 ≈ 200 حرف)
             // نتحقق أولاً لأن بعض البيئات قد تكون عدّلت الـ schema مسبقاً
             if (Schema::getColumnType('users', 'personal_code') !== 'text') {

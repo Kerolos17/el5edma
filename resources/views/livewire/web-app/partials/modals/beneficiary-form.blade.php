@@ -20,6 +20,7 @@
 <x-web-app.modal
     :show="$showBeneficiaryForm"
     title="{{ $editingBeneficiaryId ? __('web_app.forms.beneficiary.edit_title') : __('web_app.forms.beneficiary.create_title') }}"
+    title-id="bene-modal-title"
     description="{{ __('web_app.forms.beneficiary.section') }}"
     close="closeBeneficiaryForm"
     wide

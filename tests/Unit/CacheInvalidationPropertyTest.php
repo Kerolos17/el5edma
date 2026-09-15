@@ -5,7 +5,7 @@
 namespace Tests\Unit;
 
 use App\Filament\Widgets\NotificationsBellWidget;
-use App\Livewire\NotificationsBell;
+use App\Livewire\Servant\NotificationsBell;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

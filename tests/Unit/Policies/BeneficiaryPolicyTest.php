@@ -40,15 +40,23 @@ class BeneficiaryPolicyTest extends TestCase
         $this->assertTrue($this->policy->forceDelete($admin, $this->beneficiaryA));
     }
 
-    public function test_service_leader_can_do_everything_except_force_delete(): void
+    public function test_service_leader_is_scoped_to_managed_groups(): void
     {
         $leader = $this->createServiceLeader();
+        $this->groupA->update(['service_leader_id' => $leader->id]);
+
         $this->assertTrue($this->policy->viewAny($leader));
-        $this->assertTrue($this->policy->view($leader, $this->beneficiaryA));
         $this->assertTrue($this->policy->create($leader));
+        $this->assertTrue($this->policy->view($leader, $this->beneficiaryA));
         $this->assertTrue($this->policy->update($leader, $this->beneficiaryA));
         $this->assertTrue($this->policy->delete($leader, $this->beneficiaryA));
+        $this->assertTrue($this->policy->restore($leader, $this->beneficiaryA));
         $this->assertFalse($this->policy->forceDelete($leader, $this->beneficiaryA));
+
+        $this->assertFalse($this->policy->view($leader, $this->beneficiaryB));
+        $this->assertFalse($this->policy->update($leader, $this->beneficiaryB));
+        $this->assertFalse($this->policy->delete($leader, $this->beneficiaryB));
+        $this->assertFalse($this->policy->restore($leader, $this->beneficiaryB));
     }
 
     public function test_family_leader_can_manage_own_group(): void

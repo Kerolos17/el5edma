@@ -20,24 +20,12 @@ use Illuminate\Support\Facades\Log;
  */
 class RegistrationService
 {
-    /**
-     * معالجة طلب التسجيل وإنشاء الحساب
-     * Requirements: 4.1-4.7, 3.1-3.7
-     *
-     * @param  array  $data  بيانات التسجيل (name, email, phone, password)
-     * @param  ServiceGroup  $serviceGroup  مجموعة الخدمة المرتبطة بالرمز
-     * @param  string  $ipAddress  عنوان IP للطلب
-     *
-     * @throws \Exception
-     */
     public function register(array $data, ServiceGroup $serviceGroup, string $ipAddress): User
     {
         try {
             $user = DB::transaction(function () use ($data, $serviceGroup, $ipAddress) {
-                // إنشاء حساب المستخدم
                 $user = User::createFromSelfRegistration($data, $serviceGroup);
 
-                // تسجيل العملية في audit log (non-blocking)
                 try {
                     $this->logRegistration($user, $serviceGroup, $data['token'] ?? '', $ipAddress);
                 } catch (\Exception $e) {
@@ -47,48 +35,44 @@ class RegistrationService
                     ]);
                 }
 
-                // إشعار ترحيبي للخادم الجديد
-                $this->createWelcomeNotification($user, $serviceGroup);
-
                 return $user;
             });
 
-            // إرسال إشعارات للقادة خارج الـ transaction — فشل الإشعار لا يلغي التسجيل
+            try {
+                $this->createWelcomeNotification($user, $serviceGroup);
+            } catch (\Throwable $e) {
+                Log::warning('Welcome notification failed after self-registration', [
+                    'user_id'          => $user->id,
+                    'service_group_id' => $serviceGroup->id,
+                    'error'            => $e->getMessage(),
+                ]);
+            }
+
             $this->notifyLeaders($user, $serviceGroup);
 
             Log::info('Self-registration completed', [
                 'user_id'          => $user->id,
                 'service_group_id' => $serviceGroup->id,
-                'email'            => $user->email,
             ]);
 
             return $user;
-
         } catch (UniqueConstraintViolationException $e) {
             Log::warning('Duplicate registration attempt', [
-                'email' => $data['email'] ?? 'unknown',
-                'ip'    => $ipAddress,
+                'service_group_id' => $serviceGroup->id,
+                'ip'               => $ipAddress,
             ]);
 
             throw new \RuntimeException(__('registration.errors.duplicate'), 0, $e);
         } catch (\Exception $e) {
             Log::error('Self-registration failed', [
-                'email'            => $data['email'] ?? 'unknown',
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
-                'ip'               => $ipAddress,
             ]);
 
             throw $e;
         }
     }
 
-    /**
-     * التحقق من عدم وجود تسجيل مكرر
-     * Requirements: 9.1, 9.2
-     *
-     * @return array ['email' => bool, 'phone' => bool]
-     */
     public function checkDuplicates(string $email, string $phone): array
     {
         return [
@@ -97,14 +81,9 @@ class RegistrationService
         ];
     }
 
-    /**
-     * إرسال إشعارات للقادة
-     * Requirements: 5.1-5.5
-     */
     public function notifyLeaders(User $newServant, ServiceGroup $serviceGroup): void
     {
         try {
-            // تحديد القادة المستهدفين
             $leaders = $this->getServiceGroupLeaders($serviceGroup);
 
             if ($leaders->isEmpty()) {
@@ -116,27 +95,17 @@ class RegistrationService
                 return;
             }
 
-            // إنشاء الإشعارات في قاعدة البيانات (bulk insert)
             $this->createNotificationRecords($newServant, $serviceGroup, $leaders);
-
-            // إرسال إشعارات FCM (non-blocking)
             $this->dispatchFcmNotifications($newServant, $serviceGroup, $leaders);
-
-        } catch (\Exception $e) {
-            Log::error('Failed to notify leaders for self-registration', [
+        } catch (\Throwable $e) {
+            Log::warning('Failed to notify leaders for self-registration', [
                 'user_id'          => $newServant->id,
                 'service_group_id' => $serviceGroup->id,
                 'error'            => $e->getMessage(),
             ]);
-
-            throw $e;
         }
     }
 
-    /**
-     * تسجيل عملية التسجيل في audit log
-     * Requirements: 8.1-8.5
-     */
     public function logRegistration(
         User $user,
         ServiceGroup $serviceGroup,
@@ -147,74 +116,67 @@ class RegistrationService
         AuditLog::logSelfRegistration($user, $serviceGroup, $maskedToken, $ipAddress);
     }
 
-    /**
-     * الحصول على قادة مجموعة الخدمة + أمين الخدمة + مدير النظام
-     * Requirements: 5.1, 5.2
-     */
     protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): Collection
     {
-        // جمع IDs القادة من الأسرة
         $leaderIds = collect([
-            $serviceGroup->leader_id,         // أمين الأسرة
-            $serviceGroup->service_leader_id, // أمين الخدمة (إن وجد)
-        ])->filter();
+            $serviceGroup->leader_id,
+            $serviceGroup->service_leader_id,
+        ])->filter()->unique()->values();
 
-        // جلب جميع المستخدمين: قادة الأسرة + أمناء الخدمة + مديري النظام
         return User::where(function ($query) use ($leaderIds) {
-            $query->whereIn('id', $leaderIds)   // قادة الأسرة المحددين
-                ->orWhere('role', UserRole::ServiceLeader->value) // جميع أمناء الخدمة
-                ->orWhere('role', UserRole::SuperAdmin->value);   // جميع مديري النظام
+            if ($leaderIds->isNotEmpty()) {
+                $query->whereIn('id', $leaderIds);
+            }
+
+            $method = $leaderIds->isNotEmpty() ? 'orWhere' : 'where';
+            $query->{$method}('role', UserRole::SuperAdmin->value);
         })
             ->where('is_active', true)
+            ->with('pushDevices')
             ->get();
     }
 
-    /**
-     * إنشاء سجلات الإشعارات في قاعدة البيانات
-     * Requirements: 5.1, 5.2, 5.3, 5.5
-     */
     protected function createNotificationRecords(
         User $newServant,
         ServiceGroup $serviceGroup,
         Collection $leaders,
     ): void {
-        $now = now();
-
+        $now            = now();
         $previousLocale = app()->getLocale();
+        $notifications  = [];
 
-        $notifications = $leaders->map(function (User $leader) use ($newServant, $serviceGroup, $now) {
-            // Build notification text in the recipient's preferred locale
-            app()->setLocale($leader->locale ?? 'ar');
+        try {
+            foreach ($leaders as $leader) {
+                $leaderLocale = $leader->locale ?? 'ar';
+                app()->setLocale($leaderLocale);
 
-            return [
-                'user_id' => $leader->id,
-                'type'    => 'servant_registered',
-                'title'   => __('notifications.servant_registered.title'),
-                'body'    => __('notifications.servant_registered.body', [
-                    'name'          => $newServant->name,
-                    'service_group' => $serviceGroup->name,
-                ]),
-                'data' => json_encode(NotificationMetadata::enrich('servant_registered', [
-                    'servant_id'       => $newServant->id,
-                    'servant_name'     => $newServant->name,
-                    'service_group_id' => $serviceGroup->id,
-                    'registered_at'    => $now->toIso8601String(),
-                    'url'              => '/app/users',
-                ])),
-                'read_at'    => null,
-                'created_at' => $now,
-            ];
-        })->toArray();
+                $notifications[] = [
+                    'user_id' => $leader->id,
+                    'type'    => 'servant_registered',
+                    'title'   => __('notifications.servant_registered.title'),
+                    'body'    => __('notifications.servant_registered.body', [
+                        'name'          => $newServant->name,
+                        'service_group' => $serviceGroup->name,
+                    ]),
+                    'data' => json_encode(NotificationMetadata::enrich('servant_registered', [
+                        'servant_id'       => $newServant->id,
+                        'servant_name'     => $newServant->name,
+                        'service_group_id' => $serviceGroup->id,
+                        'registered_at'    => $now->toIso8601String(),
+                        'locale'           => $leaderLocale,
+                        'url'              => '/app/users',
+                    ])),
+                    'read_at'    => null,
+                    'created_at' => $now,
+                ];
+            }
 
-        // Restore the original request locale
-        app()->setLocale($previousLocale);
-
-        DB::table('ministry_notifications')->insert($notifications);
+            DB::table('ministry_notifications')->insert($notifications);
+        } finally {
+            app()->setLocale($previousLocale);
+        }
     }
 
-    /**
-     * إنشاء إشعار ترحيبي للخادم الجديد
-     */
     protected function createWelcomeNotification(User $newServant, ServiceGroup $serviceGroup): void
     {
         MinistryNotification::create([
@@ -225,52 +187,55 @@ class RegistrationService
                 'name'          => $newServant->name,
                 'service_group' => $serviceGroup->name,
             ]),
-            'data' => json_encode(NotificationMetadata::enrich('welcome_servant', [
+            'data' => NotificationMetadata::enrich('welcome_servant', [
                 'service_group_id' => $serviceGroup->id,
                 'registered_at'    => now()->toIso8601String(),
-            ])),
+                'locale'           => $newServant->locale ?? app()->getLocale(),
+            ]),
         ]);
     }
 
-    /**
-     * إرسال إشعارات FCM للقادة الذين لديهم tokens
-     * Requirements: 5.4
-     */
     protected function dispatchFcmNotifications(
         User $newServant,
         ServiceGroup $serviceGroup,
         Collection $leaders,
     ): void {
+        $previousLocale = app()->getLocale();
+
         try {
-            $tokens = $leaders->pluck('fcm_token')->filter()->values()->toArray();
+            foreach ($leaders as $leader) {
+                $tokens = $leader->pushTokens();
 
-            if (empty($tokens)) {
-                return;
+                if ($tokens === []) {
+                    continue;
+                }
+
+                $leaderLocale = $leader->locale ?? 'ar';
+                app()->setLocale($leaderLocale);
+
+                $title = __('notifications.servant_registered.title');
+                $body  = __('notifications.servant_registered.body', [
+                    'name'          => $newServant->name,
+                    'service_group' => $serviceGroup->name,
+                ]);
+                $data = NotificationMetadata::enrich('servant_registered', [
+                    'servant_id'       => $newServant->id,
+                    'servant_name'     => $newServant->name,
+                    'service_group_id' => $serviceGroup->id,
+                    'registered_at'    => now()->toIso8601String(),
+                    'locale'           => $leaderLocale,
+                    'url'              => '/app/users',
+                ]);
+
+                SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
             }
-
-            $title = __('notifications.servant_registered.title');
-            $body  = __('notifications.servant_registered.body', [
-                'name'          => $newServant->name,
-                'service_group' => $serviceGroup->name,
-            ]);
-            $data = [
-                'servant_id'       => $newServant->id,
-                'servant_name'     => $newServant->name,
-                'service_group_id' => $serviceGroup->id,
-                'registered_at'    => now()->toIso8601String(),
-                'type'             => 'servant_registered',
-                'severity'         => 'medium',
-                'url'              => '/app/users',
-            ];
-
-            SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
-
         } catch (\Exception $e) {
-            // لا نرمي الخطأ — الإشعارات داخل التطبيق كافية
             Log::warning('FCM notification dispatch failed for self-registration', [
                 'user_id' => $newServant->id,
                 'error'   => $e->getMessage(),
             ]);
+        } finally {
+            app()->setLocale($previousLocale);
         }
     }
 }

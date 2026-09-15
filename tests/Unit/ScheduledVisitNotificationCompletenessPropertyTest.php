@@ -4,11 +4,13 @@
 
 namespace Tests\Unit;
 
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\ScheduledVisit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -105,6 +107,58 @@ class ScheduledVisitNotificationCompletenessPropertyTest extends TestCase
             Beneficiary::query()->delete();
             User::where('email', 'like', "sv_servant_{$i}_%@test.com")->delete();
         }
+    }
+
+    public function test_scheduled_visit_pushes_preserve_each_recipient_locale_and_deep_link(): void
+    {
+        Queue::fake();
+        App::setLocale('ar');
+
+        $beneficiary = Beneficiary::factory()->create([
+            'full_name' => 'Mixed Locale Beneficiary',
+            'status'    => 'active',
+        ]);
+
+        $arabicServant = User::factory()->create([
+            'locale'    => 'ar',
+            'fcm_token' => 'arabic-device-token',
+        ]);
+        $englishServant = User::factory()->create([
+            'locale'    => 'en',
+            'fcm_token' => 'english-device-token',
+        ]);
+
+        $visit = ScheduledVisit::create([
+            'beneficiary_id'      => $beneficiary->id,
+            'assigned_servant_id' => $arabicServant->id,
+            'scheduled_date'      => now()->addDay()->toDateString(),
+            'scheduled_time'      => '10:00:00',
+            'status'              => 'pending',
+            'reminder_sent_at'    => null,
+            'created_by'          => $arabicServant->id,
+        ]);
+        $visit->servants()->sync([$arabicServant->id, $englishServant->id]);
+
+        $this->artisan('reminders:scheduled-visits');
+
+        Queue::assertPushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->tokens === ['arabic-device-token']
+                && $job->title                                     === 'تذكير بزيارة 📅'
+                && str_contains($job->body, $beneficiary->full_name)
+                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
+        );
+
+        Queue::assertPushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->tokens === ['english-device-token']
+                && $job->title                                     === 'Visit Reminder 📅'
+                && str_contains($job->body, $beneficiary->full_name)
+                && ($job->data['url'] ?? null) === '/app/beneficiary/' . $beneficiary->id,
+        );
+
+        Queue::assertPushed(SendFcmNotificationJob::class, 2);
+        $this->assertSame('ar', App::getLocale());
     }
 
     /**

@@ -9,12 +9,19 @@ use Illuminate\Support\Facades\Auth;
 
 class BeneficiaryObserver
 {
-    // الحقول المستبعدة من الـ audit
-    private array $excluded = ['updated_at'];
+    // الحقول المستبعدة من الـ audit — PII/PHI لا تُسجَّل أبداً
+    private array $excluded = [
+        'updated_at',
+        'full_name', 'phone', 'whatsapp', 'guardian_name', 'guardian_phone',
+        'address_text', 'area', 'governorate',
+        'health_status', 'medical_notes', 'financial_notes',
+        'doctor_name', 'hospital_name', 'photo',
+    ];
 
     public function created(Beneficiary $beneficiary): void
     {
-        $this->log($beneficiary, 'created', null, $beneficiary->getAttributes());
+        $sanitized = collect($beneficiary->getAttributes())->except($this->excluded)->toArray();
+        $this->log($beneficiary, 'created', null, $sanitized);
 
         $notifier  = app(InternalNotificationService::class);
         $adderName = Auth::check() ? Auth::user()->name : __('notifications.system');

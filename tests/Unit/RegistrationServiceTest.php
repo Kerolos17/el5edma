@@ -10,6 +10,7 @@ use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\RegistrationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -74,8 +75,8 @@ class RegistrationServiceTest extends TestCase
         $this->assertEquals(User::class, $auditLog->model_type);
         $this->assertEquals($user->id, $auditLog->model_id);
         $this->assertEquals('192.168.1.1', $auditLog->ip_address);
-        $this->assertArrayHasKey('name', $auditLog->new_values);
-        $this->assertArrayHasKey('email', $auditLog->new_values);
+        $this->assertArrayNotHasKey('name', $auditLog->new_values, 'PII name must not be in audit');
+        $this->assertArrayNotHasKey('email', $auditLog->new_values, 'PII email must not be in audit');
         $this->assertArrayHasKey('service_group_id', $auditLog->new_values);
     }
 
@@ -97,9 +98,8 @@ class RegistrationServiceTest extends TestCase
             'token'    => 'test-token-123',
         ];
 
-        $user = $this->service->register($data, $serviceGroup, '127.0.0.1');
+        $this->service->register($data, $serviceGroup, '127.0.0.1');
 
-        // Check all notifications
         $allNotifications = MinistryNotification::all();
 
         $leaderNotification = MinistryNotification::where('user_id', $leader->id)
@@ -114,6 +114,122 @@ class RegistrationServiceTest extends TestCase
         $this->assertNotNull($serviceLeaderNotification, 'Service leader notification was not created');
         $this->assertNotNull($leaderNotification->body);
         $this->assertNotNull($leaderNotification->title);
+    }
+
+    #[Test]
+    public function register_notifies_only_relevant_leaders_and_super_admins(): void
+    {
+        $familyLeader = User::factory()->create([
+            'role'      => UserRole::FamilyLeader,
+            'is_active' => true,
+        ]);
+        $serviceLeader = User::factory()->create([
+            'role'      => UserRole::ServiceLeader,
+            'is_active' => true,
+        ]);
+        $unrelatedServiceLeader = User::factory()->create([
+            'role'      => UserRole::ServiceLeader,
+            'is_active' => true,
+        ]);
+        $superAdmin = User::factory()->create([
+            'role'      => UserRole::SuperAdmin,
+            'is_active' => true,
+        ]);
+
+        $serviceGroup = ServiceGroup::factory()->create([
+            'leader_id'         => $familyLeader->id,
+            'service_leader_id' => $serviceLeader->id,
+        ]);
+
+        $this->service->register([
+            'name'     => 'Scoped Servant',
+            'email'    => 'scoped-servant@example.com',
+            'phone'    => '01234567891',
+            'password' => 'password123',
+            'token'    => 'scope-token-123',
+        ], $serviceGroup, '127.0.0.1');
+
+        $this->assertDatabaseHas('ministry_notifications', [
+            'user_id' => $familyLeader->id,
+            'type'    => 'servant_registered',
+        ]);
+        $this->assertDatabaseHas('ministry_notifications', [
+            'user_id' => $serviceLeader->id,
+            'type'    => 'servant_registered',
+        ]);
+        $this->assertDatabaseHas('ministry_notifications', [
+            'user_id' => $superAdmin->id,
+            'type'    => 'servant_registered',
+        ]);
+        $this->assertDatabaseMissing('ministry_notifications', [
+            'user_id' => $unrelatedServiceLeader->id,
+            'type'    => 'servant_registered',
+        ]);
+    }
+
+    #[Test]
+    public function registration_succeeds_when_welcome_notification_creation_fails(): void
+    {
+        $serviceGroup = ServiceGroup::factory()->create();
+
+        $service = new class extends RegistrationService
+        {
+            protected function createWelcomeNotification(User $newServant, ServiceGroup $serviceGroup): void
+            {
+                throw new \RuntimeException('simulated welcome notification failure');
+            }
+        };
+
+        $user = $service->register([
+            'name'     => 'Resilient Servant',
+            'email'    => 'resilient-welcome@example.com',
+            'phone'    => '01234567892',
+            'password' => 'password123',
+            'token'    => 'resilient-token-1',
+        ], $serviceGroup, '127.0.0.1');
+
+        $this->assertDatabaseHas('users', [
+            'id'    => $user->id,
+            'email' => 'resilient-welcome@example.com',
+        ]);
+        $this->assertFalse($user->is_active);
+    }
+
+    #[Test]
+    public function registration_succeeds_when_leader_notification_creation_fails(): void
+    {
+        $leader = User::factory()->create([
+            'role'      => UserRole::FamilyLeader,
+            'is_active' => true,
+        ]);
+        $serviceGroup = ServiceGroup::factory()->create([
+            'leader_id' => $leader->id,
+        ]);
+
+        $service = new class extends RegistrationService
+        {
+            protected function createNotificationRecords(
+                User $newServant,
+                ServiceGroup $serviceGroup,
+                Collection $leaders,
+            ): void {
+                throw new \RuntimeException('simulated leader notification failure');
+            }
+        };
+
+        $user = $service->register([
+            'name'     => 'Resilient Servant',
+            'email'    => 'resilient-leader@example.com',
+            'phone'    => '01234567893',
+            'password' => 'password123',
+            'token'    => 'resilient-token-2',
+        ], $serviceGroup, '127.0.0.1');
+
+        $this->assertDatabaseHas('users', [
+            'id'    => $user->id,
+            'email' => 'resilient-leader@example.com',
+        ]);
+        $this->assertFalse($user->is_active);
     }
 
     #[Test]
@@ -170,12 +286,11 @@ class RegistrationServiceTest extends TestCase
     {
         $serviceGroup = ServiceGroup::factory()->create();
 
-        // Create a user with duplicate email to cause constraint violation
         User::factory()->create(['email' => 'duplicate@example.com']);
 
         $data = [
             'name'     => 'Test Servant',
-            'email'    => 'duplicate@example.com', // Duplicate email will cause failure
+            'email'    => 'duplicate@example.com',
             'phone'    => '01234567890',
             'password' => 'password123',
             'token'    => 'test-token-123',
@@ -191,10 +306,7 @@ class RegistrationServiceTest extends TestCase
             // Expected exception
         }
 
-        // Verify no additional user was created
         $this->assertEquals($initialUserCount, User::count());
-
-        // Verify no audit log was created
         $this->assertEquals($initialAuditCount, AuditLog::count());
     }
 
@@ -252,7 +364,6 @@ class RegistrationServiceTest extends TestCase
         ]);
         $servant = User::factory()->create(['role' => 'servant']);
 
-        // Should not throw exception
         $this->service->notifyLeaders($servant, $serviceGroup);
 
         $this->assertEquals(0, MinistryNotification::count());
@@ -293,8 +404,8 @@ class RegistrationServiceTest extends TestCase
 
         $this->assertNotNull($auditLog);
         $this->assertEquals('192.168.1.100', $auditLog->ip_address);
-        $this->assertEquals('Test User', $auditLog->new_values['name']);
-        $this->assertEquals('test@example.com', $auditLog->new_values['email']);
+        $this->assertArrayNotHasKey('name', $auditLog->new_values, 'PII name must not be in audit');
+        $this->assertArrayNotHasKey('email', $auditLog->new_values, 'PII email must not be in audit');
         $this->assertEquals('Test Group', $auditLog->new_values['service_group_name']);
         $this->assertEquals('token123...', $auditLog->new_values['registration_token']);
     }

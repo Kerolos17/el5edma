@@ -26,35 +26,36 @@ class InternalNotificationService
     }
 
     /**
-     * إرسال إشعار للأشخاص المعنيين بمخدوم معين فقط
-     * (الخدام المسؤولين عنه + أمين أسرته + أمناء الخدمة + مديري النظام)
+     * إرسال إشعار للأشخاص المعنيين بمخدوم معين فقط:
+     * الخادم المعين + أمين الأسرة + أمين الخدمة المسؤول عن المجموعة + مديري النظام.
      */
     public function notifyRelatedUsers(Beneficiary $beneficiary, string $type, string $title, string $body, array $data = []): void
     {
-        $userIds = [];
+        $beneficiary->loadMissing('serviceGroup');
 
-        // 1. الخادم المعين
-        if ($beneficiary->assigned_servant_id) {
-            $userIds[] = $beneficiary->assigned_servant_id;
-        }
+        $directRecipientIds = collect([
+            $beneficiary->assigned_servant_id,
+            $beneficiary->serviceGroup?->leader_id,
+            $beneficiary->serviceGroup?->service_leader_id,
+        ])->filter()->unique()->values();
 
-        // 2. أمين الأسرة (نجلبه من ServiceGroup)
-        if ($beneficiary->serviceGroup && $beneficiary->serviceGroup->leader_id) {
-            $userIds[] = $beneficiary->serviceGroup->leader_id;
-        }
+        $users = User::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($directRecipientIds): void {
+                if ($directRecipientIds->isNotEmpty()) {
+                    $query->whereIn('id', $directRecipientIds)
+                        ->orWhere('role', UserRole::SuperAdmin->value);
 
-        // 3. المشرفين العامين وأمناء الخدمة
-        $superAdminsAndLeaders = User::whereIn('role', [UserRole::SuperAdmin->value, UserRole::ServiceLeader->value])->pluck('id')->toArray();
-        $userIds               = array_merge($userIds, $superAdminsAndLeaders);
+                    return;
+                }
 
-        // إزالة التكرارات (في حال كان الخادم هو نفسه أمين الأسرة مثلاً)
-        $userIds = array_unique($userIds);
+                $query->where('role', UserRole::SuperAdmin->value);
+            })
+            ->get();
 
-        if (empty($userIds)) {
+        if ($users->isEmpty()) {
             return;
         }
-
-        $users = User::whereIn('id', $userIds)->get();
 
         $this->notifyUsers($users, $type, $title, $body, $data);
     }
@@ -65,6 +66,7 @@ class InternalNotificationService
     public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = []): void
     {
         $notifications = [];
+        $broadcasts    = [];
         $now           = now();
         $payload       = NotificationMetadata::enrich($type, $data);
 
@@ -78,25 +80,35 @@ class InternalNotificationService
                 'created_at' => $now,
             ];
 
-            // مسح الكاش الخاص بعدد الإشعارات لهذا المستخدم لكي يظهر الإشعار في الحال (Livewire)
-            Cache::forget('notifications_unread_' . $user->id);
-
-            // Dispatch a broadcast event so the user's browser updates in real-time
-            try {
-                event(new NewMinistryNotification($user->id, [
+            $broadcasts[] = [
+                'user_id' => $user->id,
+                'payload' => [
                     'type'       => $type,
                     'title'      => $title,
                     'body'       => $body,
                     'data'       => $payload,
                     'created_at' => $now->toDateTimeString(),
-                ]));
-            } catch (\Throwable $e) {
-                // fail silently if broadcasting isn't configured
-            }
+                ],
+            ];
         }
 
+        // Database is the source of truth. Persist first so realtime clients
+        // cannot refresh before the notification row actually exists.
         if (! empty($notifications)) {
             MinistryNotification::insert($notifications);
+        }
+
+        foreach ($broadcasts as $broadcast) {
+            Cache::forget('notifications_unread_' . $broadcast['user_id']);
+
+            try {
+                event(new NewMinistryNotification(
+                    $broadcast['user_id'],
+                    $broadcast['payload'],
+                ));
+            } catch (\Throwable $e) {
+                // Realtime delivery is best-effort; the database notification remains available.
+            }
         }
     }
 

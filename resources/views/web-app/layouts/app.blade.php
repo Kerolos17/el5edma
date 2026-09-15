@@ -102,7 +102,7 @@
     @livewire('servant.create-visit-wizard')
 
     <button onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"
-            class="app-fab lg:hidden" aria-label="زيارة جديدة">
+            class="app-fab lg:hidden" aria-label="{{ __('web_app.actions.record_visit') }}">
         <i class="ph-bold ph-plus" aria-hidden="true"></i>
     </button>
 

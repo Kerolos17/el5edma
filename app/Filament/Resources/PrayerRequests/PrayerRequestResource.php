@@ -54,6 +54,8 @@ class PrayerRequestResource extends Resource
         $user  = Auth::user();
 
         return match ($user?->role) {
+            UserRole::ServiceLeader => $query->whereHas('beneficiary', fn ($q) => $q->whereIn('service_group_id', $user->managedServiceGroupIds()),
+            ),
             UserRole::FamilyLeader => $query->whereHas('beneficiary', fn ($q) => $q->where('service_group_id', $user->service_group_id),
             ),
             UserRole::Servant => $query->where('created_by', $user->id),

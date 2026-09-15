@@ -35,13 +35,21 @@ class ServiceGroupPolicyTest extends TestCase
         $this->assertTrue($this->policy->manageRegistrationLink($admin, $this->groupA));
     }
 
-    public function test_service_leader_can_manage_but_not_delete(): void
+    public function test_service_leader_can_manage_only_assigned_groups(): void
     {
         $leader = $this->createServiceLeader();
+        $this->groupA->update(['service_leader_id' => $leader->id]);
+
         $this->assertTrue($this->policy->viewAny($leader));
         $this->assertTrue($this->policy->create($leader));
+        $this->assertTrue($this->policy->view($leader, $this->groupA));
         $this->assertTrue($this->policy->update($leader, $this->groupA));
+        $this->assertTrue($this->policy->manageRegistrationLink($leader, $this->groupA));
         $this->assertFalse($this->policy->delete($leader, $this->groupA));
+
+        $this->assertFalse($this->policy->view($leader, $this->groupB));
+        $this->assertFalse($this->policy->update($leader, $this->groupB));
+        $this->assertFalse($this->policy->manageRegistrationLink($leader, $this->groupB));
     }
 
     public function test_family_leader_scoped_to_own_group(): void

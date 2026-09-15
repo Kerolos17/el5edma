@@ -33,11 +33,11 @@ class NotificationMetadata
     public static function severityForType(string $type): string
     {
         return match ($type) {
-            'critical_case' => 'critical',
-            'visit_reminder', 'unvisited_alert' => 'high',
+            'critical_case'                                     => 'critical',
+            'visit_reminder', 'unvisited_alert'                 => 'high',
             'birthday', 'new_beneficiary', 'servant_registered' => 'medium',
-            'welcome_servant' => 'low',
-            default           => 'medium',
+            'welcome_servant'                                   => 'low',
+            default                                             => 'medium',
         };
     }
 
@@ -68,8 +68,8 @@ class NotificationMetadata
     {
         return match ($severity) {
             'critical', 'high' => 'high',
-            'medium' => 'normal',
-            default  => 'low',
+            'medium'           => 'normal',
+            default            => 'low',
         };
     }
 

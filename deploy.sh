@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Never leave the app stuck in maintenance mode if a later step fails.
+trap 'echo "Deployment failed - bringing application online..."; php artisan up || true' ERR
+
 if ! command -v php >/dev/null 2>&1; then
     echo "PHP is not available."
     exit 1
@@ -64,6 +67,11 @@ php artisan icons:cache
 if php artisan list --raw | grep -q '^permission:cache-reset$'; then
     php artisan permission:cache-reset
 fi
+
+# Tell any persistent workers to finish their current job and boot the new code.
+# This is safe even when the hosting provider starts workers separately.
+echo "Restarting queue workers..."
+php artisan queue:restart || true
 
 echo "Bringing application online..."
 php artisan up

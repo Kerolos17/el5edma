@@ -13,7 +13,13 @@ try {
     const pusherKey =
         import.meta.env.VITE_PUSHER_APP_KEY ||
         import.meta.env.MIX_PUSHER_APP_KEY;
+
     if (pusherKey) {
+        const customHost = import.meta.env.VITE_PUSHER_HOST;
+        const customPort = Number(import.meta.env.VITE_PUSHER_PORT || 443);
+        const customScheme = import.meta.env.VITE_PUSHER_SCHEME || "https";
+        const forceTLS = ["https", "wss"].includes(customScheme);
+
         const echoOptions = {
             broadcaster: "pusher",
             key: pusherKey,
@@ -21,24 +27,22 @@ try {
                 import.meta.env.VITE_PUSHER_APP_CLUSTER ||
                 import.meta.env.MIX_PUSHER_APP_CLUSTER ||
                 undefined,
-            forceTLS:
-                (import.meta.env.VITE_PUSHER_FORCE_TLS || "true") === "true",
-            encrypted:
-                (import.meta.env.VITE_PUSHER_FORCE_TLS || "true") === "true",
+            forceTLS,
+            encrypted: forceTLS,
             disableStats: true,
         };
 
-        // For self-hosted websockets you may override host/port via env
-        if (import.meta.env.VITE_WEBSOCKETS_HOST) {
-            echoOptions.wsHost = import.meta.env.VITE_WEBSOCKETS_HOST;
-            echoOptions.wsPort = import.meta.env.VITE_WEBSOCKETS_PORT || 6001;
-            echoOptions.forceTLS = false;
-            echoOptions.encrypted = false;
+        // Self-hosted Pusher-compatible websocket servers can use the same
+        // VITE_PUSHER_* names documented in .env.example.
+        if (customHost) {
+            echoOptions.wsHost = customHost;
+            echoOptions.wsPort = customPort;
+            echoOptions.wssPort = customPort;
             echoOptions.enabledTransports = ["ws", "wss"];
         }
 
         window.Echo = new Echo(echoOptions);
     }
-} catch (e) {
-    console.warn("[bootstrap] Echo/Pusher initialization failed:", e);
+} catch (error) {
+    console.warn("[bootstrap] Echo/Pusher initialization failed:", error);
 }

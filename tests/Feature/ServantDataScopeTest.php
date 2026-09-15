@@ -75,19 +75,23 @@ class ServantDataScopeTest extends TestCase
     }
 
     #[Test]
-    public function service_leader_eloquent_query_returns_all_beneficiaries(): void
+    public function service_leader_eloquent_query_is_scoped_to_managed_groups(): void
     {
         $group1 = ServiceGroup::factory()->create();
         $group2 = ServiceGroup::factory()->create();
 
         $serviceLeader = User::factory()->create(['role' => 'service_leader']);
+        $group1->update(['service_leader_id' => $serviceLeader->id]);
 
-        Beneficiary::factory()->create(['service_group_id' => $group1->id]);
-        Beneficiary::factory()->create(['service_group_id' => $group2->id]);
+        $inScope  = Beneficiary::factory()->create(['service_group_id' => $group1->id]);
+        $outScope = Beneficiary::factory()->create(['service_group_id' => $group2->id]);
 
         $this->actingAs($serviceLeader);
 
-        $this->assertEquals(2, BeneficiaryResource::getEloquentQuery()->count());
+        $ids = BeneficiaryResource::getEloquentQuery()->pluck('id');
+
+        $this->assertContains($inScope->id, $ids);
+        $this->assertNotContains($outScope->id, $ids);
     }
 
     #[Test]

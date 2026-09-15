@@ -97,12 +97,10 @@ class AuditLogSelfRegistrationTest extends TestCase
 
         $auditLog = AuditLog::logSelfRegistration($user, $serviceGroup, 'token123', '127.0.0.1');
 
-        $this->assertArrayHasKey('name', $auditLog->new_values);
-        $this->assertArrayHasKey('email', $auditLog->new_values);
-        $this->assertArrayHasKey('phone', $auditLog->new_values);
-        $this->assertEquals('John Doe', $auditLog->new_values['name']);
-        $this->assertEquals('john@example.com', $auditLog->new_values['email']);
-        $this->assertEquals('01234567890', $auditLog->new_values['phone']);
+        $this->assertArrayNotHasKey('name', $auditLog->new_values, 'PII name must not be in audit');
+        $this->assertArrayNotHasKey('email', $auditLog->new_values, 'PII email must not be in audit');
+        $this->assertArrayNotHasKey('phone', $auditLog->new_values, 'PII phone must not be in audit');
+        $this->assertArrayHasKey('service_group_id', $auditLog->new_values);
     }
 
     #[Test]

@@ -76,10 +76,10 @@ class UsersPage extends PlaceholderPage
     private function applyFilter(Builder $query): Builder
     {
         return match ($this->filter) {
-            'inactive' => $query->where('is_active', false),
-            'active'   => $query->where('is_active', true),
+            'inactive'                                                  => $query->where('is_active', false),
+            'active'                                                    => $query->where('is_active', true),
             'service_leader', 'family_leader', 'servant', 'super_admin' => $query->where('role', $this->filter),
-            default => $query,
+            default                                                     => $query,
         };
     }
 

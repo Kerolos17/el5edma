@@ -91,9 +91,11 @@ class ServiceGroupResource extends Resource
         $query = parent::getEloquentQuery();
         $user  = Auth::user();
 
-        // family_leader يشوف أسرته فقط
+        // family_leader يشوف أسرته فقط — service_leader يشوف المجموعات التي يديرها فقط
         if ($user?->role === UserRole::FamilyLeader) {
             $query->where('id', $user->service_group_id);
+        } elseif ($user?->role === UserRole::ServiceLeader) {
+            $query->whereIn('id', $user->managedServiceGroupIds());
         }
 
         // Apply eager loading and aggregations

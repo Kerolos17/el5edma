@@ -1,6 +1,7 @@
 const CACHE_NAME = "ministry-pwa-v4";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
+const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
 
 let firebaseMessaging = null;
 
@@ -68,6 +69,46 @@ function parseVibrationPattern(value) {
     }
 }
 
+function safeNotificationTarget(value) {
+    if (typeof value !== "string" || value.length === 0) {
+        return DEFAULT_NOTIFICATION_URL;
+    }
+
+    try {
+        const target = new URL(value, self.location.origin);
+
+        if (target.origin !== self.location.origin) {
+            return DEFAULT_NOTIFICATION_URL;
+        }
+
+        const path = target.pathname;
+        const isAppPath = path === "/app" || path.startsWith("/app/");
+        const isAdminPath = path === "/admin" || path.startsWith("/admin/");
+
+        if (!isAppPath && !isAdminPath) {
+            return DEFAULT_NOTIFICATION_URL;
+        }
+
+        return `${path}${target.search}${target.hash}`;
+    } catch {
+        return DEFAULT_NOTIFICATION_URL;
+    }
+}
+
+function notificationDirection(payload) {
+    const locale = payload.data?.locale;
+
+    if (locale === "en") {
+        return "ltr";
+    }
+
+    if (locale === "ar") {
+        return "rtl";
+    }
+
+    return "auto";
+}
+
 function showNotificationFromPayload(payload) {
     const notificationData = payload.data ?? {};
     const notificationTitle = payload.notification?.title || "إشعار جديد";
@@ -75,7 +116,7 @@ function showNotificationFromPayload(payload) {
         body: payload.notification?.body || "",
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-72x72.png",
-        dir: "rtl",
+        dir: notificationDirection(payload),
         tag: notificationData.tag || "ministry-generic",
         renotify: parseBooleanish(notificationData.renotify, false),
         requireInteraction: parseBooleanish(
@@ -85,8 +126,8 @@ function showNotificationFromPayload(payload) {
         vibrate: parseVibrationPattern(notificationData.vibrate),
         silent: false,
         data: {
-            url: notificationData.url || "/app/dashboard",
             ...notificationData,
+            url: safeNotificationTarget(notificationData.url),
         },
     };
 
@@ -123,31 +164,35 @@ function ensureFirebaseMessaging(config) {
         firebaseMessaging.onBackgroundMessage((payload) => {
             console.log("[sw.js] Background Firebase message:", payload);
 
-            // Show the notification as before
-            showNotificationFromPayload(payload);
+            // FCM automatically displays notification+data payloads in the
+            // background. Only data-only payloads need manual rendering here.
+            const displayPromise = payload.notification
+                ? Promise.resolve()
+                : showNotificationFromPayload(payload);
 
-            // Also notify any open clients (pages) so they can refresh UI in realtime
-            // This avoids requiring a full page refresh to see new notifications
-            try {
-                clients
-                    .matchAll({ type: "window", includeUncontrolled: true })
-                    .then((clientList) => {
-                        for (const client of clientList) {
-                            try {
-                                client.postMessage({
-                                    type: "FCM_BACKGROUND_MESSAGE",
-                                    payload,
-                                });
-                            } catch (e) {
-                                // ignore individual client post failures
-                            }
+            // Forward the payload to any open clients so Livewire can refresh.
+            const clientPromise = clients
+                .matchAll({ type: "window", includeUncontrolled: true })
+                .then((clientList) => {
+                    for (const client of clientList) {
+                        try {
+                            client.postMessage({
+                                type: "FCM_BACKGROUND_MESSAGE",
+                                payload,
+                            });
+                        } catch {
+                            // Ignore individual client post failures.
                         }
-                    });
-            } catch (e) {
-                console.warn("[sw.js] Failed to postMessage to clients:", e);
-            }
+                    }
+                })
+                .catch((error) => {
+                    console.warn(
+                        "[sw.js] Failed to postMessage to clients:",
+                        error,
+                    );
+                });
 
-            return;
+            return Promise.all([displayPromise, clientPromise]);
         });
 
         return firebaseMessaging;
@@ -167,7 +212,7 @@ self.addEventListener("message", (event) => {
             "[sw.js] Received message in SW:",
             event.data?.type || event.data,
         );
-    } catch (e) {}
+    } catch {}
 
     if (event.data?.type === "FIREBASE_CONFIG") {
         console.log(
@@ -257,7 +302,7 @@ self.addEventListener("fetch", (event) => {
             }),
         );
     } else {
-        // Network-first for dynamic Filament pages
+        // Network-first for dynamic app pages
         event.respondWith(
             fetch(request).catch(() =>
                 caches
@@ -274,41 +319,45 @@ self.addEventListener("fetch", (event) => {
     }
 });
 
-// ---- Notification click: navigate to the specific record -------------------
+// ---- Notification click: navigate to a safe internal record ----------------
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
 
-    // Read deep-link URL from notification data payload
-    const targetUrl = event.notification.data?.url || "/app/dashboard";
+    const targetUrl = safeNotificationTarget(event.notification.data?.url);
 
     event.waitUntil(
         clients
             .matchAll({ type: "window", includeUncontrolled: true })
-            .then((clientList) => {
-                // Focus and navigate existing window if open
+            .then(async (clientList) => {
                 for (const client of clientList) {
-                    if ("focus" in client) {
-                        client.focus();
-                        if ("navigate" in client) client.navigate(targetUrl);
-                        return;
+                    if (!("focus" in client)) {
+                        continue;
                     }
+
+                    if ("navigate" in client) {
+                        await client.navigate(targetUrl);
+                    }
+
+                    return client.focus();
                 }
-                // Otherwise open a new window at the target URL
+
                 if (clients.openWindow) {
                     return clients.openWindow(targetUrl);
                 }
+
+                return undefined;
             }),
     );
 });
 
-// ---- Push fallback (if FCM SW is not handling) -----------------------------
+// ---- Raw push fallback -------------------------------------------------------
 self.addEventListener("push", (event) => {
-    if (!event.data) return;
+    if (!event.data || firebaseMessaging) return;
 
     try {
         const data = event.data.json();
         event.waitUntil(showNotificationFromPayload(data));
-    } catch (e) {
-        console.error("[sw.js] Push parse error:", e);
+    } catch (error) {
+        console.error("[sw.js] Push parse error:", error);
     }
 });

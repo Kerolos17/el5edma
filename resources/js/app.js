@@ -4,7 +4,6 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 
 const ROOT_SERVICE_WORKER_URL = "/sw.js";
-
 const MUTE_STORAGE_KEY = "ministry-notif-muted";
 
 const isNotificationSoundMuted = () =>
@@ -120,7 +119,7 @@ const buildBrowserNotificationOptions = (payload) => {
         vibrate: parseVibrationPattern(data.vibrate),
         silent: false,
         data: {
-            url: data.url || "/admin",
+            url: data.url || "/app/dashboard",
             ...data,
         },
     };
@@ -159,6 +158,33 @@ const isFirebaseConfigReady = Object.values(firebaseConfig).every(
         !value.includes("YOUR_"),
 );
 
+const updatePushPermissionButtons = () => {
+    const supported =
+        "Notification" in window && "serviceWorker" in navigator;
+    const permission = supported ? Notification.permission : "unsupported";
+
+    document.querySelectorAll("[data-push-enable]").forEach((button) => {
+        const label = button.querySelector("[data-push-label]");
+        const stateLabel =
+            permission === "granted"
+                ? button.dataset.pushEnabledLabel
+                : permission === "denied"
+                  ? button.dataset.pushDeniedLabel
+                  : permission === "unsupported"
+                    ? button.dataset.pushUnsupportedLabel
+                    : button.dataset.pushDefaultLabel;
+
+        if (label && stateLabel) {
+            label.textContent = stateLabel;
+        }
+
+        const disabled = permission !== "default";
+        button.disabled = disabled;
+        button.setAttribute("aria-disabled", disabled ? "true" : "false");
+        button.dataset.pushState = permission;
+    });
+};
+
 const sendConfigToSW = async (registration) => {
     const serviceWorker =
         registration.active ?? registration.waiting ?? registration.installing;
@@ -168,19 +194,14 @@ const sendConfigToSW = async (registration) => {
     }
 
     try {
-        console.log("[app.js] Posting FIREBASE_CONFIG to SW", {
-            scriptURL: serviceWorker.scriptURL,
-            scope: registration.scope,
-        });
-
         serviceWorker.postMessage({
             type: "FIREBASE_CONFIG",
             config: firebaseConfig,
         });
-    } catch (e) {
+    } catch (error) {
         console.warn(
             "[app.js] Failed to postMessage FIREBASE_CONFIG to SW:",
-            e,
+            error,
         );
     }
 };
@@ -214,151 +235,166 @@ const getRootServiceWorkerRegistration = async () => {
     return navigator.serviceWorker.register(ROOT_SERVICE_WORKER_URL);
 };
 
-// التحقق من وجود الـ config قبل التهيئة
+const sendTokenToServer = async (token) => {
+    try {
+        await axios.post("/fcm-token", {
+            fcm_token: token,
+            platform: "web",
+        });
+    } catch (error) {
+        console.error("[app.js] Error saving token to server:", error);
+    }
+};
+
 (async () => {
-if (!isFirebaseConfigReady) {
-    console.warn(
-        "[app.js] Firebase config is missing or contains placeholder values. Push Notifications will not work.",
-    );
-} else {
+    if (!isFirebaseConfigReady) {
+        console.warn(
+            "[app.js] Firebase config is missing or contains placeholder values. Push Notifications will not work.",
+        );
+        updatePushPermissionButtons();
+        return;
+    }
+
     try {
         const app = initializeApp(firebaseConfig);
         const supported = await isSupported();
 
         if (!supported) {
-            console.warn("[app.js] Firebase Messaging is not supported in this browser. Push notifications disabled.");
-        } else {
-            const messaging = getMessaging(app);
+            console.warn(
+                "[app.js] Firebase Messaging is not supported in this browser. Push notifications disabled.",
+            );
+            updatePushPermissionButtons();
+            return;
+        }
 
-        // Request Permission and Generate Token
-        const requestPermissionAndGetToken = async () => {
+        const messaging = getMessaging(app);
+
+        const syncPushToken = async ({ requestPermission = false } = {}) => {
             try {
                 if (
                     !("Notification" in window) ||
                     !("serviceWorker" in navigator)
                 ) {
-                    return;
+                    updatePushPermissionButtons();
+                    return false;
                 }
 
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") {
-                    await cleanupLegacyFirebaseWorker();
+                let permission = Notification.permission;
 
-                    const swRegistration =
-                        await getRootServiceWorkerRegistration();
-                    const readyRegistration =
-                        await navigator.serviceWorker.ready;
+                if (permission === "default" && requestPermission) {
+                    permission = await Notification.requestPermission();
+                }
 
-                    await sendConfigToSW(
-                        swRegistration.active
-                            ? swRegistration
-                            : readyRegistration,
+                updatePushPermissionButtons();
+
+                if (permission !== "granted") {
+                    return false;
+                }
+
+                await cleanupLegacyFirebaseWorker();
+
+                const swRegistration =
+                    await getRootServiceWorkerRegistration();
+                const readyRegistration = await navigator.serviceWorker.ready;
+
+                await sendConfigToSW(
+                    swRegistration.active ? swRegistration : readyRegistration,
+                );
+
+                const currentToken = await getToken(messaging, {
+                    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+                    serviceWorkerRegistration: readyRegistration,
+                });
+
+                if (!currentToken) {
+                    console.warn(
+                        "[app.js] No FCM token received. Check VAPID key and permissions.",
                     );
-
-                    const currentToken = await getToken(messaging, {
-                        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-                        serviceWorkerRegistration: readyRegistration,
-                    });
-
-                    if (currentToken) {
-                        await sendTokenToServer(currentToken);
-                    } else {
-                        console.warn(
-                            "[app.js] No FCM token received. Check VAPID key and permissions.",
-                        );
-                    }
-                } else {
-                    console.log("[app.js] Notification permission denied.");
+                    return false;
                 }
+
+                await sendTokenToServer(currentToken);
+                updatePushPermissionButtons();
+
+                return true;
             } catch (error) {
                 console.error("[app.js] Error retrieving FCM token:", error);
+                updatePushPermissionButtons();
+                return false;
             }
         };
 
-        const sendTokenToServer = async (token) => {
-            try {
-                await axios.post("/fcm-token", { fcm_token: token });
-                console.log("[app.js] FCM Token saved on server successfully.");
-            } catch (error) {
-                console.error("[app.js] Error saving token to server:", error);
+        // Permission prompts must originate from an explicit user action.
+        document.addEventListener("click", (event) => {
+            const trigger = event.target.closest("[data-push-enable]");
+
+            if (!trigger || trigger.disabled) {
+                return;
             }
-        };
 
-        // عند تحميل الصفحة
-        document.addEventListener("DOMContentLoaded", () => {
-            setTimeout(() => {
-                if (
-                    !("Notification" in window) ||
-                    !("serviceWorker" in navigator)
-                ) {
-                    return;
-                }
-
-                if (Notification.permission === "default") {
-                    requestPermissionAndGetToken();
-                } else if (Notification.permission === "granted") {
-                    requestPermissionAndGetToken();
-                }
-            }, 3000);
+            syncPushToken({ requestPermission: true });
         });
 
-        // Listen for messages posted from the service worker (background FCM)
+        const syncExistingPermission = () => {
+            updatePushPermissionButtons();
+
+            if (
+                "Notification" in window &&
+                Notification.permission === "granted"
+            ) {
+                // Already-granted permission can be synchronized silently.
+                syncPushToken({ requestPermission: false });
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", syncExistingPermission, {
+            once: true,
+        });
+        document.addEventListener("livewire:navigated", updatePushPermissionButtons);
+
+        window.MinistryPushNotifications = {
+            enable: () => syncPushToken({ requestPermission: true }),
+            sync: () => syncPushToken({ requestPermission: false }),
+            permission: () =>
+                "Notification" in window
+                    ? Notification.permission
+                    : "unsupported",
+        };
+
+        // Background FCM is already rendered by the service worker/OS. Here we
+        // only refresh application state; do not play a second notification tone.
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 try {
                     const data = event.data;
-                    if (!data) return;
-
-                    if (data.type === "FCM_BACKGROUND_MESSAGE") {
-                        console.log(
-                            "[app.js] Background message forwarded from SW:",
-                            data.payload,
-                        );
-
-                        const soundMode =
-                            data.payload?.data?.sound_mode || "soft";
-                        playForegroundNotificationTone(soundMode);
-                        document.dispatchEvent(
-                            new CustomEvent("new-notification-sound", {
-                                detail: soundMode,
-                            }),
-                        );
-
-                        try {
-                            if (
-                                window.Livewire &&
-                                typeof window.Livewire.dispatch === "function"
-                            ) {
-                                window.Livewire.dispatch(
-                                    "fcmMessageReceived",
-                                    { payload: data.payload },
-                                );
-                            }
-                        } catch (e) {
-                            // Livewire dispatch failed
-                        }
+                    if (!data || data.type !== "FCM_BACKGROUND_MESSAGE") {
+                        return;
                     }
-                } catch (e) {
+
+                    if (
+                        window.Livewire &&
+                        typeof window.Livewire.dispatch === "function"
+                    ) {
+                        window.Livewire.dispatch("fcmMessageReceived", {
+                            payload: data.payload,
+                        });
+                    }
+                } catch (error) {
                     console.warn(
                         "[app.js] Error handling serviceWorker message:",
-                        e,
+                        error,
                     );
                 }
             });
         }
 
-        // استقبال الإشعارات عند فتح التطبيق (Foreground)
+        // Foreground notifications are owned by the page.
         onMessage(messaging, async (payload) => {
             console.log("[app.js] Foreground message received:", payload);
 
             const soundMode = payload.data?.sound_mode || "soft";
 
             playForegroundNotificationTone(soundMode);
-            document.dispatchEvent(
-                new CustomEvent("new-notification-sound", {
-                    detail: soundMode,
-                }),
-            );
 
             if (
                 document.visibilityState !== "visible" ||
@@ -379,21 +415,19 @@ if (!isFirebaseConfigReady) {
                 ) {
                     window.Livewire.dispatch("fcmMessageReceived", { payload });
                 }
-            } catch (e) {
+            } catch {
                 // Livewire dispatch failed
             }
         });
-        }
     } catch (error) {
         console.error("[app.js] Firebase initialization error:", error);
+        updatePushPermissionButtons();
     }
-}
 })();
 
 // Subscribe to server broadcasts via Echo and forward to Livewire
 document.addEventListener("DOMContentLoaded", () => {
     try {
-        // attempt to locate a DOM node rendered by the NotificationsBell Livewire view
         const userEl = document.querySelector("[data-user-id]");
         let userId = null;
 
@@ -401,33 +435,31 @@ document.addEventListener("DOMContentLoaded", () => {
             userId = userEl.getAttribute("data-user-id");
         }
 
-        // fallback: Laravel global object if present
         if (!userId && window.Laravel && window.Laravel.user) {
             userId = window.Laravel.user.id;
         }
 
-        if (!userId) return;
-
-        if (window.Echo) {
-            const handler = (e) => {
-                console.log("[app.js] Broadcast NewMinistryNotification:", e);
-                try {
-                    if (
-                        window.Livewire &&
-                        typeof window.Livewire.dispatch === "function"
-                    ) {
-                        window.Livewire.dispatch("notificationCreated", e);
-                    }
-                } catch (err) {
-                    // Livewire dispatch failed
-                }
-            };
-
-            const channel = window.Echo.private(`user.${userId}`);
-            channel.listen("NewMinistryNotification", handler);
-            channel.listen(`.App\\Events\\NewMinistryNotification`, handler);
+        if (!userId || !window.Echo) {
+            return;
         }
-    } catch (e) {
-        console.warn("[app.js] Echo subscription setup failed:", e);
+
+        const handler = (event) => {
+            try {
+                if (
+                    window.Livewire &&
+                    typeof window.Livewire.dispatch === "function"
+                ) {
+                    window.Livewire.dispatch("notificationCreated", event);
+                }
+            } catch {
+                // Livewire dispatch failed
+            }
+        };
+
+        const channel = window.Echo.private(`user.${userId}`);
+        channel.listen("NewMinistryNotification", handler);
+        channel.listen(`.App\\Events\\NewMinistryNotification`, handler);
+    } catch (error) {
+        console.warn("[app.js] Echo subscription setup failed:", error);
     }
 });

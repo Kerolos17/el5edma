@@ -37,10 +37,10 @@ class ServiceGroupPolicyRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function service_leader_can_manage_registration_link_for_any_service_group(): void
+    public function service_leader_can_manage_registration_link_for_a_managed_service_group(): void
     {
         $serviceLeader = User::factory()->create(['role' => 'service_leader']);
-        $serviceGroup  = ServiceGroup::factory()->create();
+        $serviceGroup  = ServiceGroup::factory()->create(['service_leader_id' => $serviceLeader->id]);
 
         $result = $this->policy->manageRegistrationLink($serviceLeader, $serviceGroup);
 
@@ -121,9 +121,9 @@ class ServiceGroupPolicyRegistrationTest extends TestCase
     public function service_leader_can_manage_multiple_service_groups(): void
     {
         $serviceLeader = User::factory()->create(['role' => 'service_leader']);
-        $serviceGroup1 = ServiceGroup::factory()->create();
-        $serviceGroup2 = ServiceGroup::factory()->create();
-        $serviceGroup3 = ServiceGroup::factory()->create();
+        $serviceGroup1 = ServiceGroup::factory()->create(['service_leader_id' => $serviceLeader->id]);
+        $serviceGroup2 = ServiceGroup::factory()->create(['service_leader_id' => $serviceLeader->id]);
+        $serviceGroup3 = ServiceGroup::factory()->create(['service_leader_id' => $serviceLeader->id]);
 
         $this->assertTrue($this->policy->manageRegistrationLink($serviceLeader, $serviceGroup1));
         $this->assertTrue($this->policy->manageRegistrationLink($serviceLeader, $serviceGroup2));

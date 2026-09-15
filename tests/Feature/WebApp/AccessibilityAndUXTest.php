@@ -67,6 +67,7 @@ class AccessibilityAndUXTest extends TestCase
         Livewire::actingAs($leader)
             ->test(Dashboard::class)
             ->assertOk()
-            ->assertSee(__('web_app.dashboard.recent_visits'));
+            ->assertSee(__('web_app.dashboard.recent_visits'))
+            ->assertDontSee('{0}');
     }
 }

@@ -18,88 +18,112 @@ class SendScheduledVisitReminders extends Command
 
     public function handle(): void
     {
-        $startTime = microtime(true);
-        $tomorrow  = now()->addDay()->toDateString();
-
-        $visits = ScheduledVisit::query()
-            ->where('status', 'pending')
-            ->whereDate('scheduled_date', $tomorrow)
-            ->whereNull('reminder_sent_at')
-            ->with(['beneficiary:id,full_name', 'assignedServant:id,fcm_token,locale', 'servants:id,fcm_token,locale'])
-            ->get();
-
-        $rows     = [];
-        $tokens   = [];
-        $visitIds = [];
-
+        $startTime      = microtime(true);
+        $tomorrow       = now()->addDay()->toDateString();
         $originalLocale = App::getLocale();
+        $count          = 0;
 
-        foreach ($visits as $visit) {
-            $servants = $visit->servants
-                ->whenEmpty(fn ($collection) => $visit->assignedServant ? $collection->push($visit->assignedServant) : $collection)
-                ->unique('id')
-                ->values();
+        try {
+            $visits = ScheduledVisit::query()
+                ->where('status', 'pending')
+                ->whereDate('scheduled_date', $tomorrow)
+                ->whereNull('reminder_sent_at')
+                ->with([
+                    'beneficiary:id,full_name',
+                    'assignedServant:id,fcm_token,locale',
+                    'assignedServant.pushDevices:id,user_id,token',
+                    'servants:id,fcm_token,locale',
+                    'servants.pushDevices:id,user_id,token',
+                ])
+                ->get();
 
-            if ($servants->isEmpty()) {
-                continue;
-            }
+            $rows     = [];
+            $pushes   = [];
+            $visitIds = [];
 
-            foreach ($servants as $servant) {
-                App::setLocale($servant->locale ?? 'ar');
+            foreach ($visits as $visit) {
+                $servants = $visit->servants
+                    ->whenEmpty(fn ($collection) => $visit->assignedServant ? $collection->push($visit->assignedServant) : $collection)
+                    ->unique('id')
+                    ->values();
 
-                $title = __('notifications.visit_reminder_title');
-                $body  = __('notifications.visit_reminder_body', [
-                    'name' => $visit->beneficiary?->full_name ?? '—',
-                ]);
-                $dataPayload = NotificationMetadata::enrich('visit_reminder', [
-                    'scheduled_visit_id' => (string) $visit->id,
-                    'beneficiary_id'     => (string) $visit->beneficiary_id,
-                    'scheduled_date'     => (string) $visit->scheduled_date,
-                    'scheduled_time'     => (string) $visit->scheduled_time,
-                    'url'                => '/app/beneficiary/' . $visit->beneficiary_id,
-                ]);
+                if ($servants->isEmpty()) {
+                    continue;
+                }
 
-                App::setLocale($originalLocale);
+                $hasRecipients = false;
 
-                $rows[] = [
-                    'user_id'    => $servant->id,
-                    'type'       => 'visit_reminder',
-                    'title'      => $title,
-                    'body'       => $body,
-                    'data'       => json_encode($dataPayload),
-                    'created_at' => now()->toDateTimeString(),
-                ];
+                foreach ($servants as $servant) {
+                    $recipientLocale = $servant->locale ?? 'ar';
+                    App::setLocale($recipientLocale);
 
-                if ($servant->fcm_token) {
-                    $tokens[] = $servant->fcm_token;
+                    $title = __('notifications.visit_reminder_title');
+                    $body  = __('notifications.visit_reminder_body', [
+                        'name' => $visit->beneficiary?->full_name ?? '—',
+                    ]);
+                    $dataPayload = NotificationMetadata::enrich('visit_reminder', [
+                        'scheduled_visit_id' => (string) $visit->id,
+                        'beneficiary_id'     => (string) $visit->beneficiary_id,
+                        'scheduled_date'     => (string) $visit->scheduled_date,
+                        'scheduled_time'     => (string) $visit->scheduled_time,
+                        'locale'             => $recipientLocale,
+                        'url'                => '/app/beneficiary/' . $visit->beneficiary_id,
+                    ]);
+
+                    $rows[] = [
+                        'user_id'    => $servant->id,
+                        'type'       => 'visit_reminder',
+                        'title'      => $title,
+                        'body'       => $body,
+                        'data'       => json_encode($dataPayload),
+                        'created_at' => now()->toDateTimeString(),
+                    ];
+
+                    $tokens = $servant->pushTokens();
+
+                    if ($tokens !== []) {
+                        $pushes[] = [
+                            'tokens' => $tokens,
+                            'title'  => $title,
+                            'body'   => $body,
+                            'data'   => $dataPayload,
+                        ];
+                    }
+
+                    $hasRecipients = true;
+                    $count++;
+                }
+
+                if ($hasRecipients) {
+                    $visitIds[] = $visit->id;
                 }
             }
 
-            $visitIds[] = $visit->id;
-        }
+            App::setLocale($originalLocale);
 
-        $count = count($rows);
+            if ($rows !== []) {
+                MinistryNotification::insert($rows);
 
-        if ($count > 0) {
-            MinistryNotification::insert($rows);
+                foreach ($pushes as $push) {
+                    SendFcmNotificationJob::dispatch(
+                        $push['tokens'],
+                        $push['title'],
+                        $push['body'],
+                        $push['data'],
+                    );
+                }
 
-            if (! empty($tokens)) {
-                App::setLocale('ar');
-                $title = __('notifications.visit_reminder_title');
-                $body  = __('notifications.visit_reminder_body', ['name' => '']);
-                App::setLocale($originalLocale);
-                SendFcmNotificationJob::dispatch($tokens, $title, $body, NotificationMetadata::enrich('visit_reminder', [
-                    'url' => route('app.scheduled-visits'),
-                ]));
+                ScheduledVisit::whereIn('id', array_unique($visitIds))
+                    ->update(['reminder_sent_at' => now()]);
             }
 
-            ScheduledVisit::whereIn('id', $visitIds)->update(['reminder_sent_at' => now()]);
+            $elapsed = round(microtime(true) - $startTime, 2);
+
+            Log::info("reminders:scheduled-visits — تم إرسال {$count} تذكير في {$elapsed} ثانية");
+
+            $this->info("✅ تم إرسال {$count} تذكير زيارة مجدولة.");
+        } finally {
+            App::setLocale($originalLocale);
         }
-
-        $elapsed = round(microtime(true) - $startTime, 2);
-
-        Log::info("reminders:scheduled-visits — تم إرسال {$count} تذكير في {$elapsed} ثانية");
-
-        $this->info("✅ تم إرسال {$count} تذكير زيارة مجدولة.");
     }
 }

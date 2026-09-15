@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Broadcasting\TestBroadcaster;
-use App\Livewire\NotificationsBell;
+use App\Livewire\Servant\NotificationsBell;
 use App\Models\Beneficiary;
 use App\Models\MedicalFile;
 use App\Models\PrayerRequest;
@@ -20,10 +20,13 @@ use App\Observers\ScheduledVisitObserver;
 use App\Observers\ServiceGroupObserver;
 use App\Observers\UserObserver;
 use App\Observers\VisitObserver;
+use App\Services\PushDeviceSessionService;
 use App\Services\QueryMonitoringService;
 use App\Services\RegistrationLinkService;
 use App\Services\RegistrationService;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Factory;
 use Livewire\Livewire;
@@ -59,6 +62,14 @@ class AppServiceProvider extends ServiceProvider
             $manager = $this->app->make(BroadcastManager::class);
             $manager->extend('test', fn ($app) => $app->make(TestBroadcaster::class));
         }
+
+        Event::listen(Logout::class, function (Logout $event): void {
+            if (! $event->user instanceof User || ! request()->hasSession()) {
+                return;
+            }
+
+            app(PushDeviceSessionService::class)->revokeCurrent($event->user, request());
+        });
 
         // تسجيل الـ Observers
         Beneficiary::observe(BeneficiaryObserver::class);

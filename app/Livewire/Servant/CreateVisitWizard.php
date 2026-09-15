@@ -128,7 +128,7 @@ class CreateVisitWizard extends Component
 
         $this->open = false;
         $this->dispatch('visit-saved');
-        $this->dispatch('toast', message: __('web_app.wizard.saved_success'), type: 'success');
+        $this->dispatch('toast', message: __('web_app.forms.wizard.saved_success'), type: 'success');
     }
 
     public function render()
@@ -192,18 +192,18 @@ class CreateVisitWizard extends Component
         match ($this->step) {
             1 => $this->validate(
                 ['selectedBeneficiaryId' => 'required|integer'],
-                ['selectedBeneficiaryId.required' => __('web_app.wizard.validation_beneficiary')],
+                ['selectedBeneficiaryId.required' => __('web_app.forms.wizard.validation_beneficiary')],
             ),
             2 => $this->validate(
                 ['visitType' => 'required|in:home_visit,phone_call,church_meeting'],
-                ['visitType.required' => __('web_app.wizard.validation_visit_type')],
+                ['visitType.required' => __('web_app.forms.wizard.validation_visit_type')],
             ),
             3 => $this->validate(
                 [
                     'beneficiaryStatus' => 'required|in:great,good,needs_follow,critical',
                     'durationMinutes'   => 'nullable|integer|min:1|max:480',
                 ],
-                ['beneficiaryStatus.required' => __('web_app.wizard.validation_status')],
+                ['beneficiaryStatus.required' => __('web_app.forms.wizard.validation_status')],
             ),
             default => null,
         };

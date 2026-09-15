@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 class MedicalFileObserver
 {
-    private array $excluded = ['updated_at'];
+    // لا نسجّل file_path — لا يكشِف مسار الملف الطبي
+    private array $excluded = ['updated_at', 'file_path'];
 
     public function created(MedicalFile $file): void
     {

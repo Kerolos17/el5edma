@@ -66,6 +66,20 @@ $nextLocaleLabel = strtoupper($nextLocale);
                     <p>{{ $appUser->name }}</p>
                     <span>{{ $roleLabel }}</span>
                 </div>
+
+                <button
+                    type="button"
+                    class="app-dropdown-item"
+                    role="menuitem"
+                    data-push-enable
+                    data-push-default-label="{{ __('notifications.push.enable') }}"
+                    data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                    data-push-denied-label="{{ __('notifications.push.denied') }}"
+                    data-push-unsupported-label="{{ __('notifications.push.unsupported') }}">
+                    <i class="ph ph-bell-ringing" aria-hidden="true"></i>
+                    <span data-push-label>{{ __('notifications.push.enable') }}</span>
+                </button>
+
                 <a href="{{ route('app.profile') }}" wire:navigate class="app-dropdown-item" role="menuitem">
                     <i class="ph ph-user-circle" aria-hidden="true"></i>
                     {{ __('web_app.navigation.profile') }}
