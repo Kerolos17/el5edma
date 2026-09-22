@@ -196,6 +196,7 @@ function initWebApp() {
     restoreTheme();
     observeModals();
     offlineQueue.init().then(() => {
+        window.offlineQueue = offlineQueue;
         window.__servantOfflineQueue = offlineQueue;
     });
 }

@@ -29,7 +29,7 @@
         <div class="app-toolbar">
             <label class="app-search-field">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-                <input wire:model.live.debounce.300ms="search" type="search" placeholder="{{ __('web_app.notifications.search_placeholder') }}">
+                <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.notifications.search_placeholder') }}">
             </label>
             <div class="app-chip-row" role="tablist">
                 @php
@@ -81,7 +81,7 @@
                         <p>{{ $notification->body }}</p>
                         <span class="app-notif-meta">
                             <time>{{ $notification->created_at->format('Y-m-d H:i') }}</time>
-                            <span class="app-status-pill tone-slate" style="font-size:0.65rem;padding:0.1rem 0.4rem">{{ $notification->type }}</span>
+                            <span class="app-status-pill tone-slate" style="font-size:0.65rem;padding:0.1rem 0.4rem">{{ $notification->type_label }}</span>
                         </span>
                     </button>
                     @if ($isUnread)

@@ -14,7 +14,7 @@
     </div>
     <section class="app-panel app-toolbar-panel">
         <div class="app-toolbar">
-            <label class="app-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input wire:model.live.debounce.300ms="search" type="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"></label>
+            <label class="app-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"></label>
             <div class="app-chip-row" role="tablist">@foreach ($filters as $item)<button wire:click="$set('filter', '{{ $item['value'] }}')" class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">{{ $item['label'] }}</button>@endforeach</div>
         </div>
     </section>
@@ -29,6 +29,8 @@
                 <span class="app-muted-badge">{{ trans_choice('web_app.resources.items_count', $records->total(), ['count' => number_format($records->total())]) }}</span>
             @endif
         </div>
+
+        <x-web-app.list-loading />
 
         <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             <table class="app-table" aria-label="{{ $meta['title'] }}">

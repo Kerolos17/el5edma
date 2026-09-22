@@ -20,6 +20,6 @@
     </div>
     <h2 class="font-bold text-teal-900">{{ $title }}</h2>
     @if(isset($action))
-        <div class="mr-auto">{{ $action }}</div>
+        <div class="ms-auto">{{ $action }}</div>
     @endif
 </div>

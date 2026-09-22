@@ -32,7 +32,12 @@
 
 <div {{ $attributes->class([$s['outer'], $r, 'overflow-hidden flex-shrink-0']) }}>
     @if($src)
-        <img src="{{ $src }}" alt="{{ $name }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
+        <img src="{{ $src }}" alt="{{ $name }}" class="w-full h-full object-cover" loading="lazy" decoding="async" width="96" height="96"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-full h-full items-center justify-center {{ $s['text'] }} font-bold text-teal-800"
+             style="display:none; background: {{ $g }}; font-weight: {{ $s['font'] }};">
+            {{ $initial }}
+        </div>
     @else
         <div class="w-full h-full flex items-center justify-center {{ $s['text'] }} font-bold text-teal-800"
              style="background: {{ $g }}; font-weight: {{ $s['font'] }};">

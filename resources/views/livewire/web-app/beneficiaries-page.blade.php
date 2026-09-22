@@ -37,7 +37,9 @@
                 <input
                     wire:model.live.debounce.300ms="search"
                     type="search"
-                    placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}">
+                    enterkeyhint="search"
+                    placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"
+                    aria-label="{{ __('web_app.resources.search_label') }}">
             </label>
             <div class="app-chip-row" role="tablist">
                 @foreach ($filters as $item)
@@ -61,6 +63,8 @@
             @endif
         </div>
 
+        <x-web-app.list-loading />
+
         <div class="app-table-wrap" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
@@ -77,7 +81,7 @@
                 <tbody>
                     @forelse ($records as $record)
                         <tr>
-                            <td class="!pr-0 !w-12">
+                            <td class="!ps-0 !w-12">
                                 <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate>
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                                         @if ($record->photo_url)
@@ -125,7 +129,7 @@
                                         </button>
                                     @endcan
                                     @can('delete', $record)
-                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="هل أنت متأكد من حذف هذا المخدوم؟" class="app-link-inline app-link-danger">
+                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.delete_beneficiary') }}" class="app-link-inline app-link-danger">
                                             <i class="ph ph-trash" aria-hidden="true"></i>
                                             {{ __('web_app.actions.delete') }}
                                         </button>
@@ -194,7 +198,7 @@
                                         </button>
                                     @endcan
                                     @can('delete', $record)
-                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="هل أنت متأكد من حذف هذا المخدوم؟" class="app-link-inline app-link-danger">
+                                        <button type="button" wire:click="deleteBeneficiary({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.delete_beneficiary') }}" class="app-link-inline app-link-danger">
                                             <i class="ph ph-trash" aria-hidden="true"></i>
                                             {{ __('web_app.actions.delete') }}
                                         </button>

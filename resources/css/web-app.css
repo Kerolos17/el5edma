@@ -332,7 +332,7 @@
   }
 
   .app-global-search input::placeholder {
-    color: #94a3b8;
+    color: #64748b;
   }
 
   .app-icon-button {
@@ -940,14 +940,15 @@
   .app-empty-state i {
     font-size: 2.5rem;
     margin-bottom: 0.15rem;
-    opacity: 0.5;
+    color: #64748b;
   }
 
   .app-empty-state p {
     font-size: 0.9rem;
     font-weight: 700;
     margin: 0.5rem 0 0;
-    opacity: 0.6;
+    color: #475569;
+    line-height: 1.6;
   }
 
   .app-placeholder-panel {
@@ -990,9 +991,10 @@
     place-items: center;
     gap: 0.2rem;
     color: var(--clr-stone-grey);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     min-height: 3.25rem;
+    line-height: 1.5;
   }
 
   .app-mobile-nav-item i {
@@ -1000,7 +1002,11 @@
   }
 
   .app-mobile-nav-item.is-active {
-    color: var(--clr-stone-grey);
+    color: var(--clr-deep-teal);
+  }
+
+  .app-mobile-nav-item.is-active i {
+    font-weight: 900;
   }
 
   .app-fab {
@@ -1538,6 +1544,87 @@
     margin-top: 0.5rem;
   }
 
+  /* Vendor (Laravel Tailwind) pagination: 44px targets on touch screens.
+     The mobile variant already renders prev/next only — just enlarge it. */
+  .app-pagination-wrap nav[role="navigation"] a,
+  .app-pagination-wrap nav[role="navigation"] button,
+  .app-pagination-wrap nav[role="navigation"] span[aria-current="page"] span {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Mobile list loading row ── */
+  .app-list-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    color: var(--clr-stone-grey);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .app-list-spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--clr-silver-mist);
+    border-top-color: var(--clr-deep-teal);
+    animation: app-spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes app-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ── Toast (mirrors servant .s-toast) ── */
+  .app-toast {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    z-index: 200;
+    padding: 14px 28px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: normal;
+    text-align: center;
+    max-width: calc(100vw - 32px);
+    pointer-events: none;
+    color: white;
+  }
+
+  .app-toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .app-toast-success {
+    background: linear-gradient(135deg, #06a77d 0%, #04c99e 100%);
+  }
+
+  .app-toast-warning {
+    background: linear-gradient(135deg, #f77f00 0%, #f4a261 100%);
+  }
+
+  .app-toast-error {
+    background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);
+  }
+
   @media (min-width: 640px) {
     .app-mobile-list {
       display: none;
@@ -1649,6 +1736,14 @@
 
   .app-modal-header {
     margin-bottom: 1rem;
+    /* Sticky header: stays visible while the long form scrolls underneath */
+    position: sticky;
+    top: -1.2rem;
+    z-index: 2;
+    margin: -1.2rem -1.2rem 1rem;
+    padding: 1.2rem 1.2rem 0.75rem;
+    background: white;
+    border-radius: 1.1rem 1.1rem 0 0;
   }
 
   .app-modal-header h3 {
@@ -1752,11 +1847,25 @@
 
   .app-modal-actions {
     margin-top: 1rem;
+    /* Sticky footer: Save/Cancel always reachable on phones + open keyboard */
+    position: sticky;
+    bottom: -1.2rem;
+    z-index: 2;
+    margin: 1rem -1.2rem -1.2rem;
+    padding: 0.75rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));
+    background: white;
+    border-top: 1px solid var(--clr-silver-mist);
+    border-radius: 0 0 1.1rem 1.1rem;
+  }
+
+  [data-theme="dark"] .app-modal-header,
+  [data-theme="dark"] .app-modal-actions {
+    background: #1f2937;
   }
 
   .app-install-prompt {
     position: fixed;
-    right: 1rem;
+    inset-inline-end: 1rem;
     bottom: calc(5rem + env(safe-area-inset-bottom));
     z-index: 80;
     display: flex;
@@ -2086,8 +2195,10 @@
   }
 
   .app-notif-action {
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
     display: grid;
     place-items: center;
     border: 0;
@@ -2104,6 +2215,13 @@
   .app-notif-row:hover .app-notif-action,
   .app-notif-action:focus-visible {
     opacity: 1;
+  }
+
+  /* Touch devices have no hover — the action must always be visible */
+  @media (hover: none) {
+    .app-notif-action {
+      opacity: 1;
+    }
   }
 
   .app-notif-action:hover {
@@ -2756,14 +2874,15 @@
 
 .app-empty-state i {
   font-size: 2.8rem;
-  opacity: 0.4;
+  color: #64748b;
 }
 
 .app-empty-state p {
   font-size: 0.92rem;
   font-weight: 700;
   margin: 0.35rem 0 0;
-  opacity: 0.55;
+  color: #475569;
+  line-height: 1.6;
 }
 
 .app-empty-state a,

@@ -67,8 +67,8 @@
                 <h4>{{ __('beneficiaries.contact_section') }}</h4>
             </div>
             <div class="app-form-grid">
-                <label class="app-form-field"><span>{{ __('beneficiaries.phone') }}</span><input type="text" wire:model="beneficiaryPhone" placeholder="{{ __('web_app.forms.placeholders.phone') }}">@error('beneficiaryPhone') <small>{{ $message }}</small> @enderror</label>
-                <label class="app-form-field"><span>{{ __('beneficiaries.whatsapp') }}</span><input type="text" wire:model="beneficiaryWhatsapp" placeholder="{{ __('web_app.forms.placeholders.whatsapp') }}">@error('beneficiaryWhatsapp') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field"><span>{{ __('beneficiaries.phone') }}</span><input type="tel" inputmode="tel" autocomplete="tel" dir="ltr" enterkeyhint="next" wire:model="beneficiaryPhone" placeholder="{{ __('web_app.forms.placeholders.phone') }}">@error('beneficiaryPhone') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field"><span>{{ __('beneficiaries.whatsapp') }}</span><input type="tel" inputmode="tel" autocomplete="tel" dir="ltr" enterkeyhint="next" wire:model="beneficiaryWhatsapp" placeholder="{{ __('web_app.forms.placeholders.whatsapp') }}">@error('beneficiaryWhatsapp') <small>{{ $message }}</small> @enderror</label>
                 <label class="app-form-field"><span>{{ __('beneficiaries.facebook_url') }}</span><input type="url" wire:model="beneficiaryFacebookUrl" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryFacebookUrl') <small>{{ $message }}</small> @enderror</label>
                 <label class="app-form-field"><span>{{ __('beneficiaries.instagram_url') }}</span><input type="url" wire:model="beneficiaryInstagramUrl" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryInstagramUrl') <small>{{ $message }}</small> @enderror</label>
             </div>
@@ -81,7 +81,7 @@
             </div>
             <div class="app-form-grid">
                 <label class="app-form-field"><span>{{ __('beneficiaries.guardian_name') }}</span><input type="text" wire:model="beneficiaryGuardianName" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryGuardianName') <small>{{ $message }}</small> @enderror</label>
-                <label class="app-form-field"><span>{{ __('beneficiaries.guardian_phone') }}</span><input type="text" wire:model="beneficiaryGuardianPhone" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryGuardianPhone') <small>{{ $message }}</small> @enderror</label>
+                <label class="app-form-field"><span>{{ __('beneficiaries.guardian_phone') }}</span><input type="tel" inputmode="tel" autocomplete="tel" dir="ltr" enterkeyhint="next" wire:model="beneficiaryGuardianPhone" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryGuardianPhone') <small>{{ $message }}</small> @enderror</label>
                 <label class="app-form-field"><span>{{ __('beneficiaries.guardian_relation') }}</span><input type="text" wire:model="beneficiaryGuardianRelation" placeholder="{{ __('web_app.forms.placeholders.optional') }}">@error('beneficiaryGuardianRelation') <small>{{ $message }}</small> @enderror</label>
             </div>
         </section>
@@ -174,7 +174,10 @@
         </section>
     </div>
     <x-slot:actions>
-        <button type="button" wire:click="closeBeneficiaryForm" class="app-secondary-button">{{ __('web_app.actions.cancel') }}</button>
-        <button type="button" wire:click="saveBeneficiary" wire:loading.attr="disabled" class="app-primary-button">{{ __('web_app.forms.beneficiary.save') }}</button>
+        <button type="button" wire:click="closeBeneficiaryForm" wire:loading.attr="disabled" wire:target="saveBeneficiary" class="app-secondary-button">{{ __('web_app.actions.cancel') }}</button>
+        <button type="button" wire:click="saveBeneficiary" wire:loading.attr="disabled" wire:target="saveBeneficiary" class="app-primary-button">
+            <span wire:loading.remove wire:target="saveBeneficiary">{{ __('web_app.forms.beneficiary.save') }}</span>
+            <span wire:loading wire:target="saveBeneficiary">{{ __('web_app.actions.saving') }}</span>
+        </button>
     </x-slot:actions>
 </x-web-app.modal>

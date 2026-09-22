@@ -160,7 +160,7 @@
                     @if ($showPhotoForm)
                         <div class="w-full space-y-3">
                             <input type="file" wire:model="newPhoto" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                                   class="block w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                   class="block w-full text-sm text-gray-500 file:me-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             @error('newPhoto') <small class="text-rose-600 text-xs font-bold">{{ $message }}</small> @enderror
 
                             @if ($newPhoto)

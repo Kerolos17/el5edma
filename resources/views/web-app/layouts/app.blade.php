@@ -92,6 +92,7 @@
         @endphp
         @foreach ($bottomItems as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
+                @if(request()->routeIs($item['route'])) aria-current="page" @endif
                 class="app-mobile-nav-item {{ request()->routeIs($item['route']) ? 'is-active' : '' }}">
                 <i class="ph {{ $item['icon'] }}" aria-hidden="true"></i>
                 <span>{{ $item['label'] }}</span>
@@ -113,11 +114,11 @@
     <div x-show="drawer" @click="drawer = false" class="app-drawer-backdrop lg:hidden" style="display:none" aria-hidden="true"></div>
     <div x-show="drawer"
          x-transition:enter="transition-transform duration-300 ease-out"
-         x-transition:enter-start="translate-x-full"
+         x-transition:enter-start="rtl:translate-x-full ltr:-translate-x-full"
          x-transition:enter-end="translate-x-0"
          x-transition:leave="transition-transform duration-200 ease-in"
          x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="translate-x-full"
+         x-transition:leave-end="rtl:translate-x-full ltr:-translate-x-full"
          class="app-drawer lg:hidden" style="display:none">
 
         <div class="app-drawer-head">
@@ -160,6 +161,42 @@
                     {{ __('web_app.actions.logout') }}
                 </button>
             </form>
+        </div>
+    </div>
+
+    {{-- Toast notifications (mirrors servant layout) --}}
+    <div x-data="{
+            visible: false,
+            message: '',
+            type: 'success',
+            timer: null,
+            show(msg, t = 'success') {
+                this.message = msg;
+                this.type = t;
+                this.visible = true;
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => this.visible = false, t === 'warning' ? 5000 : 3500);
+            }
+         }"
+         @toast.window="show($event.detail.message, $event.detail.type)">
+
+        <div :class="[
+                'app-toast',
+                visible ? 'show' : '',
+                type === 'success' ? 'app-toast-success' : (type === 'error' ? 'app-toast-error' : 'app-toast-warning')
+             ]"
+             x-show="visible"
+             x-cloak
+             :role="type === 'error' ? 'alert' : 'status'"
+             :aria-live="type === 'error' ? 'assertive' : 'polite'"
+             aria-atomic="true">
+            <i :class="{
+                'ph-fill ph-check-circle': type === 'success',
+                'ph-fill ph-x-circle':    type === 'error',
+                'ph-fill ph-warning':      type === 'warning'
+               }"
+               aria-hidden="true"></i>
+            <span x-text="message"></span>
         </div>
     </div>
 </body>

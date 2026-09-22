@@ -17,7 +17,7 @@
         </label>
         <label class="app-form-field" for="user-phone">
             <span>{{ __('users.phone') }}</span>
-            <input id="user-phone" type="text" wire:model="userPhone" placeholder="{{ __('web_app.forms.placeholders.phone') }}" aria-invalid="{{ $errors->has('userPhone') ? 'true' : 'false' }}">
+            <input id="user-phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" enterkeyhint="next" wire:model="userPhone" placeholder="{{ __('web_app.forms.placeholders.phone') }}" aria-invalid="{{ $errors->has('userPhone') ? 'true' : 'false' }}">
             @error('userPhone') <small>{{ $message }}</small> @enderror
         </label>
         <label class="app-form-field" for="user-password">

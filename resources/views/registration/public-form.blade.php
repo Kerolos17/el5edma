@@ -305,11 +305,19 @@
 
         .field-error {
             font-size: .78rem;
+            line-height: 1.6;
             color: #dc2626;
             margin-top: .3rem;
             display: flex;
             align-items: center;
             gap: .3rem;
+        }
+
+        .field-hint {
+            font-size: .78rem;
+            line-height: 1.6;
+            color: #64748b;
+            margin-top: .3rem;
         }
 
         /* password wrapper */
@@ -323,14 +331,21 @@
 
         .pw-toggle {
             position: absolute;
-            inset-inline-end: .75rem;
+            inset-inline-end: .35rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
-            padding: 4px;
-            color: #94a3b8;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            color: #64748b;
             line-height: 0;
             transition: color .15s;
         }
@@ -863,7 +878,7 @@
                                 autocomplete="name" class="field-input @error('name') is-error @enderror"
                                 placeholder="{{ __('registration.name_placeholder') }}">
                             @error('name')
-                                <p class="field-error">
+                                <p class="field-error" role="alert">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
@@ -877,10 +892,10 @@
                         <div class="field">
                             <label for="email">{{ __('registration.email') }}<span class="req">*</span></label>
                             <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                                autocomplete="email" class="field-input @error('email') is-error @enderror"
+                                autocomplete="email" inputmode="email" dir="ltr" class="field-input @error('email') is-error @enderror"
                                 placeholder="{{ __('registration.email_placeholder') }}">
                             @error('email')
-                                <p class="field-error">
+                                <p class="field-error" role="alert">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
@@ -894,10 +909,10 @@
                         <div class="field">
                             <label for="phone">{{ __('registration.phone') }}<span class="req">*</span></label>
                             <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
-                                required autocomplete="tel" class="field-input @error('phone') is-error @enderror"
+                                required autocomplete="tel" inputmode="tel" dir="ltr" class="field-input @error('phone') is-error @enderror"
                                 placeholder="{{ __('registration.phone_placeholder') }}">
                             @error('phone')
-                                <p class="field-error">
+                                <p class="field-error" role="alert">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
@@ -922,7 +937,7 @@
                                 @endforeach
                             </select>
                             @error('service_group_id')
-                                <p class="field-error">
+                                <p class="field-error" role="alert">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
@@ -938,11 +953,12 @@
                                     class="req">*</span></label>
                             <div class="password-wrap">
                                 <input type="password" id="password" name="password" required minlength="8"
-                                    autocomplete="new-password"
+                                    autocomplete="new-password" dir="ltr"
+                                    aria-describedby="pw-hint"
                                     class="field-input @error('password') is-error @enderror"
                                     placeholder="{{ __('registration.password_placeholder') }}"
                                     oninput="checkStrength(this.value)">
-                                <button type="button" class="pw-toggle" aria-label="Toggle password visibility"
+                                <button type="button" class="pw-toggle" aria-label="{{ __('registration.toggle_pw') }}" aria-pressed="false"
                                     onclick="togglePw('password', this)">
                                     <svg id="eye-pw" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -953,6 +969,7 @@
                                     </svg>
                                 </button>
                             </div>
+                            <p class="field-hint" id="pw-hint">{{ __('registration.password_hint') }}</p>
                             <div class="pw-strength" id="pw-strength" style="display:none;">
                                 <div class="pw-strength-bar">
                                     <div class="pw-strength-fill" id="pw-fill"></div>
@@ -960,7 +977,7 @@
                                 <div class="pw-strength-label" id="pw-label"></div>
                             </div>
                             @error('password')
-                                <p class="field-error">
+                                <p class="field-error" role="alert">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
@@ -979,7 +996,7 @@
                                     required minlength="8" autocomplete="new-password" class="field-input"
                                     placeholder="{{ __('registration.password_confirmation_placeholder') }}">
                                 <button type="button" class="pw-toggle"
-                                    aria-label="Toggle confirm password visibility"
+                                    aria-label="{{ __('registration.toggle_pw') }}" aria-pressed="false"
                                     onclick="togglePw('password_confirmation', this)">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.8" stroke="currentColor">
@@ -1075,6 +1092,7 @@
             var input = document.getElementById(id);
             var isText = input.type === 'text';
             input.type = isText ? 'password' : 'text';
+            btn.setAttribute('aria-pressed', isText ? 'false' : 'true');
             var eyePath = isText ?
                 'M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' :
                 'M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88';

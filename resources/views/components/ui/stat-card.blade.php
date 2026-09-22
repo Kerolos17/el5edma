@@ -21,5 +21,5 @@
      style="background: {{ $bg }};">
     <p class="text-white/70 text-xs font-semibold mb-2">{{ $label }}</p>
     <p class="text-4xl font-bold" style="font-family: var(--font-accent);">{{ $value }}</p>
-    <i class="{{ $icon }} absolute left-4 bottom-4 text-white/15 text-5xl"></i>
+    <i class="{{ $icon }} absolute start-4 bottom-4 text-white/15 text-5xl"></i>
 </div>
