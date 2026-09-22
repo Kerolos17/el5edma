@@ -122,6 +122,7 @@ return [
         'beneficiaries_count' => '{0} No beneficiaries|{1} :count beneficiary|[2,*] :count beneficiaries',
         'servants_count'      => '{0} No servants|{1} :count servant|[2,*] :count servants',
         'empty_table'         => 'No data to display.',
+        'loading'             => 'Loading...',
         'search_placeholder'  => 'Search quickly in :title',
         'search_label'        => 'Search',
         'filters_label'       => 'Filters',
@@ -285,11 +286,15 @@ return [
         'closed'          => 'Closed',
     ],
     'confirm' => [
-        'cancel'       => 'Are you sure you want to cancel?',
-        'close_prayer' => 'Are you sure you want to close this request?',
-        'delete'       => 'Are you sure you want to delete?',
+        'cancel'             => 'Are you sure you want to cancel?',
+        'close_prayer'       => 'Are you sure you want to close this request?',
+        'delete'             => 'Are you sure you want to delete?',
+        'delete_beneficiary' => 'Are you sure you want to delete this beneficiary?',
+        'delete_visit'       => 'Are you sure you want to delete this visit?',
+        'delete_user'        => 'Are you sure you want to delete this user?',
     ],
-    'fallback' => [
+    'offline_banner' => 'No internet connection — new visits will be saved on your device and uploaded automatically',
+    'fallback'       => [
         'general'             => 'General',
         'no_code'             => 'No code',
         'no_description'      => 'No description',
@@ -350,6 +355,7 @@ return [
         ],
         'wizard' => [
             'steps'                  => 'Wizard steps',
+            'step_of'                => 'Step :current of :total',
             'step_beneficiary'       => 'Select beneficiary',
             'step_type'              => 'Visit type',
             'step_details'           => 'Visit details',
@@ -361,6 +367,12 @@ return [
             'validation_visit_type'  => 'Please select a visit type',
             'validation_status'      => 'Please set the spiritual and health status',
             'saved_success'          => 'Visit recorded successfully!',
+            'confirm_discard_title'  => 'Discard draft?',
+            'confirm_discard'        => 'You have unsaved changes. Discard and exit?',
+            'discard'                => 'Discard',
+            'keep_editing'           => 'Keep editing',
+            'pending_offline'        => ':count visits pending upload',
+            'offline_conflict'       => 'A visit for this beneficiary already exists on the server.',
         ],
         'prayer' => [
             'save' => 'Save request',

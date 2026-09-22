@@ -22,4 +22,6 @@ return [
     'switch_to_english'   => 'English',
     'switch_to_arabic'    => 'Arabic',
     'no_account_register' => 'Don\'t have an account? Register now',
+    'toggle_password'     => 'Show or hide password',
+    'locked_out_help'     => 'Forgot your password? Contact your service leader or the system admin to reset it.',
 ];

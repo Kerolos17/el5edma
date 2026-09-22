@@ -36,6 +36,8 @@ return [
     'password_placeholder'              => 'Enter a strong password',
     'password_confirmation'             => 'Confirm Password',
     'password_confirmation_placeholder' => 'Re-enter your password',
+    'password_hint'                     => 'At least 8 characters — letters, numbers and symbols recommended',
+    'toggle_pw'                         => 'Show or hide password',
     'select_service_group'              => 'Select Service Group',
 
     // Buttons

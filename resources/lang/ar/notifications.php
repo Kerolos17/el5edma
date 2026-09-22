@@ -17,9 +17,26 @@ return [
     'new_beneficiary_title' => 'مخدوم جديد ✨',
     'new_beneficiary_body'  => 'تم إضافة المخدوم :name بواسطة :adder',
 
-    'system' => 'النظام',
-    'read'   => 'مقروء',
-    'unread' => 'غير مقروء',
+    'system'      => 'النظام',
+    'read'        => 'مقروء',
+    'unread'      => 'غير مقروء',
+    'view_all'    => 'عرض كل الإشعارات',
+    'type'        => 'النوع',
+    'title_field' => 'العنوان',
+    'body_field'  => 'النص',
+    'data_field'  => 'البيانات',
+    'data_helper' => 'بيانات تقنية بصيغة JSON — لا تعدلها إلا إذا كنت متأكداً',
+    'read_at'     => 'وقت القراءة',
+
+    'types' => [
+        'birthday'           => 'عيد ميلاد',
+        'critical_case'      => 'حالة حرجة',
+        'visit_reminder'     => 'تذكير بزيارة',
+        'unvisited_alert'    => 'تنبيه عدم زيارة',
+        'new_beneficiary'    => 'مخدوم جديد',
+        'servant_registered' => 'خادم جديد',
+        'welcome_servant'    => 'ترحيب',
+    ],
 
     'servant_registered' => [
         'title' => 'خادم جديد انضم للخدمة',

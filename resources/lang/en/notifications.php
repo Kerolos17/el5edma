@@ -16,9 +16,26 @@ return [
     'new_beneficiary_title' => 'New Beneficiary ✨',
     'new_beneficiary_body'  => ':name has been added by :adder',
 
-    'system' => 'System',
-    'read'   => 'Read',
-    'unread' => 'Unread',
+    'system'      => 'System',
+    'read'        => 'Read',
+    'unread'      => 'Unread',
+    'view_all'    => 'View all notifications',
+    'type'        => 'Type',
+    'title_field' => 'Title',
+    'body_field'  => 'Body',
+    'data_field'  => 'Data',
+    'data_helper' => 'Technical JSON payload — only edit if you know what you are doing',
+    'read_at'     => 'Read at',
+
+    'types' => [
+        'birthday'           => 'Birthday',
+        'critical_case'      => 'Critical case',
+        'visit_reminder'     => 'Visit reminder',
+        'unvisited_alert'    => 'Unvisited alert',
+        'new_beneficiary'    => 'New beneficiary',
+        'servant_registered' => 'New servant',
+        'welcome_servant'    => 'Welcome',
+    ],
 
     'servant_registered' => [
         'title' => 'New Servant Registered',

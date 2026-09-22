@@ -22,5 +22,7 @@ return [
     'switch_to_english'   => 'English',
     'switch_to_arabic'    => 'العربية',
     'no_account_register' => 'ليس لديك حساب؟ سجل الآن',
+    'toggle_password'     => 'إظهار أو إخفاء كلمة المرور',
+    'locked_out_help'     => 'نسيت كلمة المرور؟ تواصل مع أمين الخدمة أو مدير النظام لإعادة تعيينها.',
     // 'reset_password' => 'إعادة تعيين كلمة المرور',
 ];

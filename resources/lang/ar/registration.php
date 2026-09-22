@@ -36,6 +36,8 @@ return [
     'password_placeholder'              => 'أدخل كلمة مرور قوية',
     'password_confirmation'             => 'تأكيد كلمة المرور',
     'password_confirmation_placeholder' => 'أعد إدخال كلمة المرور',
+    'password_hint'                     => '8 أحرف على الأقل — يفضل حروف وأرقام ورموز',
+    'toggle_pw'                         => 'إظهار أو إخفاء كلمة المرور',
     'select_service_group'              => 'اختر مجموعة الخدمة',
 
     // الأزرار

@@ -122,6 +122,7 @@ return [
         'beneficiaries_count' => '{0} لا مخدومين|{1} :count مخدوم|[2,*] :count مخدوم',
         'servants_count'      => '{0} لا خدام|{1} :count خادم|[2,*] :count خادم',
         'empty_table'         => 'لا توجد بيانات للعرض.',
+        'loading'             => 'جاري التحميل...',
         'search_placeholder'  => 'ابحث بسرعة داخل :title',
         'search_label'        => 'بحث',
         'filters_label'       => 'فلاتر',
@@ -285,11 +286,15 @@ return [
         'closed'          => 'مغلقة',
     ],
     'confirm' => [
-        'cancel'       => 'هل أنت متأكد من الإلغاء؟',
-        'close_prayer' => 'هل أنت متأكد من إغلاق الطلب؟',
-        'delete'       => 'هل أنت متأكد من الحذف؟',
+        'cancel'             => 'هل أنت متأكد من الإلغاء؟',
+        'close_prayer'       => 'هل أنت متأكد من إغلاق الطلب؟',
+        'delete'             => 'هل أنت متأكد من الحذف؟',
+        'delete_beneficiary' => 'هل أنت متأكد من حذف هذا المخدوم؟',
+        'delete_visit'       => 'هل أنت متأكد من حذف هذه الزيارة؟',
+        'delete_user'        => 'هل أنت متأكد من حذف هذا المستخدم؟',
     ],
-    'fallback' => [
+    'offline_banner' => 'لا يوجد اتصال بالإنترنت — سيتم حفظ الزيارات الجديدة على جهازك ورفعها تلقائياً',
+    'fallback'       => [
         'general'             => 'عام',
         'no_code'             => 'بدون كود',
         'no_description'      => 'بدون وصف',
@@ -350,6 +355,7 @@ return [
         ],
         'wizard' => [
             'steps'                  => 'خطوات المعالج',
+            'step_of'                => 'الخطوة :current من :total',
             'step_beneficiary'       => 'اختيار المخدوم',
             'step_type'              => 'نوع الزيارة',
             'step_details'           => 'تفاصيل الزيارة',
@@ -361,6 +367,12 @@ return [
             'validation_visit_type'  => 'يرجى اختيار نوع الزيارة',
             'validation_status'      => 'يرجى تحديد الحالة الروحية والصحية',
             'saved_success'          => 'تم تسجيل الزيارة بنجاح!',
+            'confirm_discard_title'  => 'تجاهل المسودة؟',
+            'confirm_discard'        => 'لديك تغييرات غير محفوظة. هل تريد تجاهلها والخروج؟',
+            'discard'                => 'تجاهل',
+            'keep_editing'           => 'أكمل التعديل',
+            'pending_offline'        => ':count زيارات في الانتظار للرفع',
+            'offline_conflict'       => 'يوجد زيارة سابقة لهذا المخدوم على السيرفر.',
         ],
         'prayer' => [
             'save' => 'حفظ الطلب',
