@@ -85,7 +85,7 @@
                 @if($sv->status === 'pending')
                     <button wire:click="cancel({{ $sv->id }})"
                             wire:confirm="هل تريد إلغاء هذه الزيارة المجدولة؟"
-                            class="flex-shrink-0 w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center
+                            class="flex-shrink-0 w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-red-50 flex items-center justify-center
                                    hover:bg-red-100 transition-colors"
                             aria-label="إلغاء الزيارة">
                         <i class="ph ph-x text-red-500 text-base" aria-hidden="true"></i>

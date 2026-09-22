@@ -35,7 +35,7 @@
     <div wire:loading.remove class="space-y-3">
         @forelse($visits as $visit)
             <div class="s-card card-lift rounded-2xl px-4 py-3 flex items-start gap-3
-                        {{ $visit->is_critical ? 'border-r-4 border-red-400' : '' }}"
+                        {{ $visit->is_critical ? 'border-s-4 border-red-400' : '' }}"
                  role="article"
                  aria-label="زيارة {{ $visit->beneficiary?->full_name ?? 'محذوف' }}">
 

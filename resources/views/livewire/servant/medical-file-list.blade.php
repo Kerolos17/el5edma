@@ -63,7 +63,7 @@
                 <a href="{{ route('medical-files.download', $file->id) }}"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="flex-shrink-0 w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center
+                   class="flex-shrink-0 w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-teal-50 flex items-center justify-center
                           hover:bg-teal-100 transition-colors"
                    aria-label="تحميل {{ $file->title }}">
                     <i class="ph ph-download-simple text-teal-600 text-base" aria-hidden="true"></i>

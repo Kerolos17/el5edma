@@ -24,11 +24,12 @@
 
 <div class="pb-32 lg:pb-10">
 
-    {{-- Secondary Header (back nav) --}}
-    <div class="sticky top-[65px] lg:top-0 z-30 px-4 py-3 flex items-center gap-3"
-         style="background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,109,119,0.07);">
+    {{-- Secondary Header (back nav). Top offset tracks the main sticky header
+         (py-3 + 44px content) plus the notch safe-area so it never overlaps. --}}
+    <div class="sticky lg:top-0 z-30 px-4 py-3 flex items-center gap-3"
+         style="top: calc(68px + env(safe-area-inset-top)); background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,109,119,0.07);">
         <a href="{{ route('servant.beneficiaries') }}" wire:navigate
-           class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0 hover:bg-teal-100 transition-colors"
+           class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0 hover:bg-teal-100 transition-colors"
            aria-label="رجوع للمخدومين">
             <i class="ph-bold ph-arrow-right text-teal-700 text-lg" aria-hidden="true"></i>
         </a>

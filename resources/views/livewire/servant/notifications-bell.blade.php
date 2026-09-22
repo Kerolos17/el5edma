@@ -7,7 +7,9 @@
         type="button"
         data-notif-mute
         class="app-notification-mute"
-        title="{{ __('notifications.sound_unmute') }}">
+        title="{{ __('notifications.sound_unmute') }}"
+        aria-label="{{ __('notifications.sound_unmute') }}"
+        aria-pressed="false">
         <i class="ph ph-speaker-high" aria-hidden="true" data-notif-sound-on></i>
         <i class="ph ph-speaker-slash" style="display:none;" aria-hidden="true" data-notif-sound-off></i>
     </button>
@@ -16,7 +18,10 @@
         type="button"
         data-notif-toggle
         class="app-notification-bell"
-        title="{{ __('notifications.title') }}">
+        title="{{ __('notifications.title') }}"
+        aria-label="{{ __('notifications.title') }}"
+        aria-expanded="false"
+        aria-haspopup="true">
         @if ($unreadCount > 0)
             <i class="ph-fill ph-bell" aria-hidden="true"></i>
             <span>{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
@@ -42,7 +47,7 @@
                     {{ __('notifications.mark_all_read') }}
                 </button>
             @endif
-            <a href="{{ route('app.notifications') }}" wire:navigate class="app-notification-view-all">
+            <a href="{{ route('app.notifications') }}" wire:navigate class="app-notification-view-all" aria-label="{{ __('notifications.view_all') }}">
                 <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
             </a>
         </div>

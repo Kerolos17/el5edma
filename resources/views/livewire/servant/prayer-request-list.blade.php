@@ -32,7 +32,7 @@
             <div class="flex items-center justify-between">
                 <h2 class="font-bold text-teal-900">طلب صلاة جديد</h2>
                 <button wire:click="closeForm"
-                        class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center"
+                        class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center"
                         aria-label="إغلاق النموذج">
                     <i class="ph ph-x text-gray-500" aria-hidden="true"></i>
                 </button>

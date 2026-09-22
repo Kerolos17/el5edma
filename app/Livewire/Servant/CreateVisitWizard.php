@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use App\Models\Beneficiary;
 use App\Models\Visit;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -35,11 +36,18 @@ class CreateVisitWizard extends Component
     public bool $needsFamilyLeader   = false;
     public bool $needsServiceLeader  = false;
 
+    // Draft flag — true if user touched any field beyond initial load
+    public bool $hasDraft = false;
+
+    // Offline pending visits count (from shared offlineQueue module)
+    public int $offlineCount = 0;
+
     #[On('open-wizard')]
     public function openWizard(): void
     {
         $this->resetWizardState();
         $this->open = true;
+        $this->dispatch('wizard-open');
     }
 
     #[On('open-wizard-for')]
@@ -54,11 +62,28 @@ class CreateVisitWizard extends Component
         }
 
         $this->open = true;
+        $this->dispatch('wizard-open');
+    }
+
+    #[On('offlineQueueCount')]
+    public function handleOfflineQueueCount(array $payload): void
+    {
+        $this->dispatch('offlineQueueCount', $payload);
     }
 
     public function close(): void
     {
+        if ($this->hasDraft) {
+            $this->dispatch('confirm-close');
+        } else {
+            $this->forceClose();
+        }
+    }
+
+    public function forceClose(): void
+    {
         $this->open = false;
+        $this->clearDraft();
     }
 
     public function selectBeneficiary(int $id): void
@@ -67,18 +92,22 @@ class CreateVisitWizard extends Component
 
         $this->selectedBeneficiaryId = $id;
         $this->beneficiarySearch     = '';
+        $this->hasDraft              = true;
+        $this->saveDraft();
     }
 
     public function clearBeneficiary(): void
     {
         $this->selectedBeneficiaryId = null;
         $this->beneficiarySearch     = '';
+        $this->saveDraft();
     }
 
     public function updatedBeneficiarySearch(): void
     {
         if ($this->selectedBeneficiaryId) {
             $this->selectedBeneficiaryId = null;
+            $this->saveDraft();
         }
     }
 
@@ -87,8 +116,17 @@ class CreateVisitWizard extends Component
         if ($this->step >= 4) {
             return;
         }
-        $this->validateCurrentStep();
+
+        try {
+            $this->validateCurrentStep();
+        } catch (ValidationException $e) {
+            $this->dispatch('wizard-validation-failed');
+
+            throw $e;
+        }
         $this->step++;
+        $this->hasDraft = true;
+        $this->saveDraft();
     }
 
     public function prevStep(): void
@@ -126,6 +164,7 @@ class CreateVisitWizard extends Component
 
         $visit->servants()->attach(auth()->id());
 
+        $this->clearDraft();
         $this->open = false;
         $this->dispatch('visit-saved');
         $this->dispatch('toast', message: __('web_app.forms.wizard.saved_success'), type: 'success');
@@ -165,8 +204,10 @@ class CreateVisitWizard extends Component
             'step', 'beneficiarySearch', 'selectedBeneficiaryId',
             'visitType', 'durationMinutes', 'beneficiaryStatus',
             'feedback', 'isCritical', 'needsFamilyLeader', 'needsServiceLeader',
+            'hasDraft',
         ]);
         $this->step = 1;
+        // Do NOT clear draft here — allow resume on reopen
     }
 
     private function ownedBeneficiaryQuery(): Builder
@@ -207,5 +248,50 @@ class CreateVisitWizard extends Component
             ),
             default => null,
         };
+    }
+
+    // ── Draft Persistence (client-side via dispatch) ──────────────────────────
+
+    public function saveDraft(): void
+    {
+        $this->dispatch('save-wizard-draft', draft: $this->collectDraft());
+    }
+
+    private function collectDraft(): array
+    {
+        return [
+            'step'                  => $this->step,
+            'beneficiarySearch'     => $this->beneficiarySearch,
+            'selectedBeneficiaryId' => $this->selectedBeneficiaryId,
+            'visitType'             => $this->visitType,
+            'durationMinutes'       => $this->durationMinutes,
+            'beneficiaryStatus'     => $this->beneficiaryStatus,
+            'feedback'              => $this->feedback,
+            'isCritical'            => $this->isCritical,
+            'needsFamilyLeader'     => $this->needsFamilyLeader,
+            'needsServiceLeader'    => $this->needsServiceLeader,
+            'hasDraft'              => $this->hasDraft,
+        ];
+    }
+
+    private function clearDraft(): void
+    {
+        $this->dispatch('clear-wizard-draft');
+    }
+
+    #[On('restore-draft')]
+    public function restoreDraft(array $draft): void
+    {
+        $this->step                  = $draft['step']                  ?? 1;
+        $this->beneficiarySearch     = $draft['beneficiarySearch']     ?? '';
+        $this->selectedBeneficiaryId = $draft['selectedBeneficiaryId'] ?? null;
+        $this->visitType             = $draft['visitType']             ?? '';
+        $this->durationMinutes       = $draft['durationMinutes']       ?? null;
+        $this->beneficiaryStatus     = $draft['beneficiaryStatus']     ?? '';
+        $this->feedback              = $draft['feedback']              ?? '';
+        $this->isCritical            = $draft['isCritical']            ?? false;
+        $this->needsFamilyLeader     = $draft['needsFamilyLeader']     ?? false;
+        $this->needsServiceLeader    = $draft['needsServiceLeader']    ?? false;
+        $this->hasDraft              = $draft['hasDraft']              ?? false;
     }
 }

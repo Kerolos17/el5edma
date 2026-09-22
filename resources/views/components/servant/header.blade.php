@@ -16,13 +16,13 @@
          style="background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(0,0,0,0.06); padding-top: max(0.75rem, env(safe-area-inset-top));">
 
         {{-- Hamburger --}}
-        <button @click="drawer = true" class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="القائمة">
+        <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="القائمة">
             <i class="ph ph-list text-xl"></i>
         </button>
 
         {{-- Search + Notifications --}}
         <div class="flex items-center gap-1">
-            <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
+            <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
                 <i class="ph ph-magnifying-glass text-lg"></i>
             </a>
             @livewire('servant.notifications-bell')
@@ -41,15 +41,15 @@
          x-transition:leave="transition-transform duration-200 ease-in"
          x-transition:leave-start="translate-x-0"
          x-transition:leave-end="translate-x-full"
-         class="fixed top-0 right-0 h-full w-72 max-w-[85vw] z-50 shadow-2xl overflow-y-auto"
-         style="background: linear-gradient(180deg, #0d555c 0%, #003942 100%);">
+          class="fixed top-0 right-0 h-[100dvh] w-72 max-w-[85vw] z-50 shadow-2xl overflow-y-auto"
+          style="background: linear-gradient(180deg, #0d555c 0%, #003942 100%); padding-bottom: env(safe-area-inset-bottom);">
 
         {{-- User Info --}}
         <div class="px-5 py-6 border-b border-white/10 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/20">
                     @if($user->profile_photo_url)
-                        <img src="{{ $user->profile_photo_url }}" alt="" class="w-full h-full object-cover">
+                        <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover" loading="lazy" decoding="async" onerror="this.remove()">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-teal-800 font-bold" style="background: linear-gradient(135deg, #F7BB86, #F4A261);">
                             {{ mb_substr($user->name, 0, 1) }}
@@ -61,7 +61,7 @@
                     <p class="text-white/50 text-xs">{{ $user->role->label() }}</p>
                 </div>
             </div>
-            <button @click="drawer = false" class="w-8 h-8 flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10" aria-label="إغلاق">
+            <button @click="drawer = false" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10" aria-label="إغلاق">
                 <i class="ph ph-x text-lg"></i>
             </button>
         </div>

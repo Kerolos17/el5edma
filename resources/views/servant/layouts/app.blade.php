@@ -37,6 +37,14 @@
         <x-servant.bottom-nav />
     </main>
 
+    {{-- Offline banner: shown by Livewire when the device loses connection --}}
+    <div wire:offline class="fixed top-0 inset-x-0 z-[300] px-4 py-2.5 text-center text-sm font-bold text-white"
+         style="background: linear-gradient(135deg, #F77F00 0%, #D68A3D 100%); padding-top: max(0.625rem, env(safe-area-inset-top));"
+         role="alert">
+        <i class="ph-bold ph-wifi-slash me-1" aria-hidden="true"></i>
+        {{ __('web_app.offline_banner') }}
+    </div>
+
     {{-- PWA Install Prompt --}}
     <x-servant.install-prompt />
 

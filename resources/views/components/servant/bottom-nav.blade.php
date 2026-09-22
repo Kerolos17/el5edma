@@ -12,11 +12,12 @@
 
         @foreach ($items as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
-               class="relative flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 h-full transition-colors duration-200 {{ $item['active'] ? 'text-teal-600' : 'text-gray-400 hover:text-gray-600' }}">
+               @if($item['active']) aria-current="page" @endif
+               class="relative flex flex-col items-center justify-center gap-0.5 min-w-0 min-h-[44px] flex-1 h-full transition-colors duration-200 {{ $item['active'] ? 'text-teal-600' : 'text-gray-500 hover:text-gray-700' }}">
                 <i class="{{ $item['active'] ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-[22px] transition-all duration-200 {{ $item['active'] ? 'scale-110' : '' }}"></i>
-                <span class="text-[10px] font-bold leading-none">{{ $item['label'] }}</span>
+                <span class="text-[11px] font-bold leading-relaxed">{{ $item['label'] }}</span>
                 @if ($item['active'])
-                    <span class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-teal-500"></span>
+                    <span class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-teal-500"></span>
                 @endif
             </a>
         @endforeach
@@ -29,7 +30,7 @@
                 aria-label="تسجيل زيارة جديدة">
                 <i class="ph-bold ph-plus text-white text-xl"></i>
             </button>
-            <span class="text-[10px] font-bold text-teal-600 mt-0.5 leading-none">زيارة</span>
+            <span class="text-[11px] font-bold text-teal-600 mt-0.5 leading-relaxed">زيارة</span>
         </div>
     </nav>
 </div>

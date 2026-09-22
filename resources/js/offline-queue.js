@@ -1,4 +1,5 @@
-// Shared offline visit queue (IndexedDB) — used by servant panel and web-app wizard
+// Shared offline visit queue (IndexedDB + localStorage fallback)
+// Used by servant panel and web-app wizard
 
 function dispatchToLivewire(event, payload) {
     try {
@@ -10,16 +11,29 @@ function dispatchToLivewire(event, payload) {
     }
 }
 
+const LS_KEY = 'servant_offline_visits_v1';
+
 export const offlineQueue = {
     DB_NAME:    'servant-offline',
     DB_VERSION: 1,
     STORE:      'pending-visits',
     db:         null,
+    useLS:      false,
 
     async init() {
-        if (!('indexedDB' in window)) return;
+        if (!('indexedDB' in window)) {
+            this._initLS();
+            return;
+        }
 
-        this.db = await this._openDb();
+        try {
+            this.db = await this._openDb();
+            this.useLS = false;
+        } catch (e) {
+            // IndexedDB blocked (private mode, quota, etc.) — fall back to localStorage
+            this._initLS();
+            return;
+        }
 
         window.addEventListener('online', () => this._syncPending());
 
@@ -30,17 +44,43 @@ export const offlineQueue = {
         this._notifyCount();
     },
 
+    _initLS() {
+        this.useLS = true;
+        if (!localStorage.getItem(LS_KEY)) {
+            localStorage.setItem(LS_KEY, JSON.stringify([]));
+        }
+        window.addEventListener('online', () => this._syncPending());
+        if (navigator.onLine) this._syncPending();
+        this._notifyCount();
+    },
+
     async enqueue(visitData) {
+        const record = { ...visitData, queuedAt: Date.now() };
+
+        if (this.useLS) {
+            const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            arr.push(record);
+            localStorage.setItem(LS_KEY, JSON.stringify(arr));
+            this._notifyCount();
+            return true;
+        }
+
         if (!this.db) return false;
+
         const tx    = this.db.transaction(this.STORE, 'readwrite');
         const store = tx.objectStore(this.STORE);
-        store.add({ ...visitData, queuedAt: Date.now() });
+        store.add(record);
         await this._txDone(tx);
         this._notifyCount();
         return true;
     },
 
     async count() {
+        if (this.useLS) {
+            const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            return arr.length;
+        }
+
         if (!this.db) return 0;
         const tx    = this.db.transaction(this.STORE, 'readonly');
         const store = tx.objectStore(this.STORE);
@@ -52,30 +92,62 @@ export const offlineQueue = {
     },
 
     async _syncPending() {
-        if (!this.db) return;
+        if (!navigator.onLine) return;
 
-        const tx      = this.db.transaction(this.STORE, 'readwrite');
-        const store   = tx.objectStore(this.STORE);
-        const records = await this._getAll(store);
+        let records = [];
+
+        if (this.useLS) {
+            const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            records = arr.map((r, i) => ({ ...r, _lsIndex: i }));
+        } else if (this.db) {
+            const tx      = this.db.transaction(this.STORE, 'readwrite');
+            const store   = tx.objectStore(this.STORE);
+            records = await this._getAll(store);
+        }
 
         if (records.length === 0) return;
 
         for (const record of records) {
             try {
                 await window.axios.post('/servant/visits/sync', record);
-                store.delete(record.id);
+                if (this.useLS) {
+                    const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+                    arr.splice(record._lsIndex, 1);
+                    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+                } else {
+                    const tx    = this.db.transaction(this.STORE, 'readwrite');
+                    const store = tx.objectStore(this.STORE);
+                    store.delete(record.id);
+                    await this._txDone(tx);
+                }
             } catch (err) {
                 if (err?.response?.status === 409) {
-                    store.delete(record.id);
+                    // Conflict — remove from queue and notify
+                    if (this.useLS) {
+                        const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+                        arr.splice(record._lsIndex, 1);
+                        localStorage.setItem(LS_KEY, JSON.stringify(arr));
+                    } else {
+                        const tx    = this.db.transaction(this.STORE, 'readwrite');
+                        const store = tx.objectStore(this.STORE);
+                        store.delete(record.id);
+                        await this._txDone(tx);
+                    }
                     dispatchToLivewire('offlineSyncConflict', {
                         beneficiaryId: record.beneficiary_id,
+                        message: 'A visit for this beneficiary already exists on the server.',
                     });
                 }
+                // Other errors: leave in queue for next retry
             }
         }
 
-        await this._txDone(tx);
         this._notifyCount();
+    },
+
+    // Called manually from UI (e.g., "Retry" button)
+    async retryConflicts() {
+        await this._syncPending();
     },
 
     _notifyCount() {

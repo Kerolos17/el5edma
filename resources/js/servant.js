@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEchoListener();
     offlineQueue.init();
     // Expose للـ wizard في كلا التخطيطين
+    window.offlineQueue = offlineQueue;
     window.__servantOfflineQueue = offlineQueue;
 });
 

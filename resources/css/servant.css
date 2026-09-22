@@ -224,7 +224,7 @@
   /* ---- Timeline ---- */
   .timeline-line {
     position: absolute;
-    right: 9px; top: 0; bottom: 0;
+    inset-inline-end: 9px; top: 0; bottom: 0;
     width: 2px;
     background: linear-gradient(to bottom, #4D9BA3, transparent);
   }
@@ -295,7 +295,9 @@
   .search-input {
     width: 100%;
     min-height: 3rem;
-    padding: 12px 20px 12px 44px;
+    padding: 12px 20px;
+    padding-inline-start: 20px;
+    padding-inline-end: 44px;
     border-radius: 16px;
     border: 2px solid transparent;
     background: white;
@@ -358,7 +360,7 @@
   /* ---- Toast ---- */
   .s-toast {
     position: fixed;
-    top: 20px;
+    top: max(20px, env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%) translateY(-120px);
     z-index: 200;
@@ -367,12 +369,15 @@
     font-family: var(--font-body);
     font-weight: 600;
     font-size: 0.95rem;
+    line-height: 1.6;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     align-items: center;
     gap: 10px;
-    white-space: nowrap;
+    white-space: normal;
+    text-align: center;
+    max-width: calc(100vw - 32px);
     pointer-events: none;
   }
   .s-toast.show { transform: translateX(-50%) translateY(0); }
@@ -438,8 +443,10 @@
   }
 
   .app-notification-mute {
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 999px;
     opacity: 0.65;
     font-size: 1.1rem;
@@ -447,8 +454,10 @@
 
   .app-notification-bell {
     position: relative;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 999px;
     font-size: 1.4rem;
   }
@@ -461,15 +470,16 @@
   .app-notification-bell span {
     position: absolute;
     top: 0.25rem;
-    left: 0.25rem;
+    inset-inline-start: 0.25rem;
     display: grid;
     place-items: center;
-    width: 1rem;
-    height: 1rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
     border-radius: 999px;
     background: #e63946;
     color: white;
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     font-weight: 800;
   }
 
@@ -689,6 +699,10 @@
     background-size: 400% 100%;
     animation: shimmer-ltr 1.6s ease-in-out infinite;
   }
+  /* RTL: reverse shimmer direction so motion matches reading direction */
+  [dir="rtl"] .skeleton-shimmer {
+    animation-direction: reverse;
+  }
 }
 
 /* =========================================================
@@ -702,6 +716,15 @@
   .servant-scroll-container {
     overflow-x: hidden;
     width: 100%;
+  }
+
+  /* Hide scrollbars on horizontal chip rows (WebKit) — Firefox covered by scrollbar-width:none */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

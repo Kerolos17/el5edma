@@ -37,9 +37,9 @@ class RegistrationLinkModalTest extends TestCase
             compact('url', 'registeredCount'),
         );
 
-        $view->assertSee('copyToClipboard', false);
-        $view->assertSee('registration-url', false);
-        $view->assertSee('copy-button-text', false);
+        $view->assertSee('copyRegistrationLink', false);
+        $view->assertSee('registration-url-', false);
+        $view->assertSee('navigator.clipboard', false);
     }
 
     /** @test */

@@ -116,7 +116,7 @@
                 @click="install"
                 class="flex-[2] py-3 rounded-2xl font-bold text-sm text-white btn-ripple"
                 style="background: linear-gradient(135deg, #006D77 0%, #003942 100%); box-shadow: 0 4px 16px rgba(0,109,119,0.3);">
-                <i class="ph-bold ph-download-simple ml-1" aria-hidden="true"></i>
+                <i class="ph-bold ph-download-simple me-1" aria-hidden="true"></i>
                 تثبيت التطبيق
             </button>
         </div>

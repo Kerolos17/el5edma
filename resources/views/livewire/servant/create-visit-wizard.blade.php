@@ -13,10 +13,67 @@
 @endphp
 
 {{-- Single Livewire root --}}
-<div x-data="{ open: $wire.entangle('open') }"
+<div x-data="{
+        open: $wire.entangle('open'),
+        offlineCount: 0,
+        init() {
+            // Listen for offline queue count from the shared module
+            window.addEventListener('offlineQueueCount', (e) => {
+                this.offlineCount = e.detail?.count ?? 0;
+            });
+            // Ask the queue for current count on init
+            if (window.offlineQueue) {
+                window.offlineQueue.count().then(c => { this.offlineCount = c; });
+            }
+        }
+    }"
      @open-wizard.window="open = true"
      @open-wizard-for.window="open = true"
+     @wizard-open.window="
+        // Restore draft from localStorage if available
+        const saved = localStorage.getItem('wizard_draft');
+        if (saved) {
+            try {
+                const draft = JSON.parse(saved);
+                if (draft.hasDraft) {
+                    $wire.call('restoreDraft', draft);
+                }
+            } catch (e) {}
+        }
+    "
+     @confirm-close.window="
+        if (confirm('{{ __('web_app.forms.wizard.confirm_discard') }}')) {
+            $wire.forceClose();
+        }
+    "
+     @save-wizard-draft.window="
+        const draft = $event.detail.draft;
+        localStorage.setItem('wizard_draft', JSON.stringify(draft));
+        $wire.hasDraft = draft.hasDraft;
+    "
+     @clear-wizard-draft.window="
+        localStorage.removeItem('wizard_draft');
+        $wire.hasDraft = false;
+    "
+     @restore-draft.window="
+        const draft = $event.detail.draft;
+        if (draft) {
+            Object.keys(draft).forEach(k => {
+                if (k !== 'hasDraft' && $wire[k] !== undefined) {
+                    $wire[k] = draft[k];
+                }
+            });
+            $wire.hasDraft = draft.hasDraft ?? false;
+        }
+    "
+     @offlineSyncConflict.window="
+        $dispatch('toast', {
+            message: '{{ __('web_app.forms.wizard.offline_conflict') }}',
+            type: 'warning'
+        });
+    "
      role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
+    <div class="wizard-container">
 
     {{-- Overlay --}}
     <div x-show="open"
@@ -34,7 +91,8 @@
     {{-- Bottom Sheet --}}
     <div class="fixed bottom-0 inset-x-0 z-[160] wizard-sheet-outer"
          :style="{ transform: open ? 'translateY(0)' : 'translateY(100%)' }"
-         style="transform: translateY(100%);">
+         style="transform: translateY(100%);"
+         @wizard-validation-failed.window="$el.querySelector('.wizard-error-text')?.scrollIntoView({ behavior: 'smooth', block: 'center' })">
 
         <div class="rounded-t-[28px] overflow-hidden wizard-sheet-inner">
 
@@ -45,26 +103,41 @@
 
             {{-- Step Indicator --}}
             <div class="px-5 pt-2 pb-4" aria-live="polite">
-                <div class="flex items-center gap-1 mb-3" role="group" aria-label="{{ __('web_app.forms.wizard.steps') }}">
+                <div class="flex items-center gap-1 mb-2" role="group" aria-label="{{ __('web_app.forms.wizard.steps') }}">
                     @for($i = 1; $i <= 4; $i++)
                         <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300 wizard-step-dot {{ $step >= $i ? 'is-active' : '' }}"
-                             aria-current="{{ $step === $i ? 'step' : 'false' }}">
-                            {{ $i }}
+                             @if($step === $i) aria-current="step" @endif>
+                            @if($step > $i)
+                                <i class="ph-bold ph-check" aria-hidden="true"></i>
+                            @else
+                                {{ $i }}
+                            @endif
                         </div>
                         @if($i < 4)
                             <div class="step-connector {{ $step > $i ? 'completed' : '' }}"></div>
                         @endif
                     @endfor
                 </div>
+                <p class="text-xs font-semibold wizard-text-muted mb-1">
+                    {{ __('web_app.forms.wizard.step_of', ['current' => $step, 'total' => 4]) }}
+                </p>
 
                 {{-- Step Title --}}
-                <h3 class="font-bold text-lg wizard-step-title">
-                    {{ match($step) {
-                        1 => __('web_app.forms.wizard.step_beneficiary'),
-                        2 => __('web_app.forms.wizard.step_type'),
-                        3 => __('web_app.forms.wizard.step_details'),
-                        default => __('web_app.forms.wizard.step_summary'),
-                    } }}
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-lg wizard-step-title">
+                        {{ match($step) {
+                            1 => __('web_app.forms.wizard.step_beneficiary'),
+                            2 => __('web_app.forms.wizard.step_type'),
+                            3 => __('web_app.forms.wizard.step_details'),
+                            default => __('web_app.forms.wizard.step_summary'),
+                        } }}
+                    </h3>
+                    @if ($offlineCount > 0)
+                        <span class="min-w-[20px] min-h-[20px] inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-800 text-xs font-bold px-1.5"
+                              aria-label="{{ __('web_app.forms.wizard.pending_offline', ['count' => $offlineCount]) }}"
+                              x-text="$wire.offlineCount"></span>
+                    @endif
+                </div>
                 </h3>
             </div>
 
@@ -77,7 +150,7 @@
                         <div class="wizard-card rounded-2xl px-4 py-3 flex items-center gap-3">
                             <div class="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0">
                                 @if($selectedBeneficiary->photo_url)
-                                    <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="">
+                                    <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="{{ $selectedBeneficiary->full_name }}" loading="lazy" decoding="async" onerror="this.remove()">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center font-bold wizard-avatar-fallback">
                                         {{ mb_substr($selectedBeneficiary->full_name, 0, 1) }}
@@ -100,6 +173,8 @@
                             <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-lg pointer-events-none wizard-search-icon" aria-hidden="true"></i>
                             <input wire:model.live.debounce.250ms="beneficiarySearch"
                                    type="search"
+                                   enterkeyhint="search"
+                                   x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                    placeholder="{{ __('web_app.forms.placeholders.search_beneficiary') }}"
                                    class="search-input wizard-search-input"
                                    aria-label="{{ __('web_app.forms.placeholders.search_beneficiary') }}">
@@ -112,7 +187,7 @@
                                         class="w-full text-start wizard-card rounded-2xl px-4 py-3 flex items-center gap-3 hover:shadow-md transition-all duration-200 active:scale-[0.98]">
                                     <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
                                         @if($b->photo_url)
-                                            <img src="{{ $b->photo_url }}" class="w-full h-full object-cover" alt="">
+                                            <img src="{{ $b->photo_url }}" class="w-full h-full object-cover" alt="{{ $b->full_name }}" loading="lazy" decoding="async" onerror="this.remove()">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center font-bold text-sm wizard-avatar-fallback">
                                                 {{ mb_substr($b->full_name, 0, 1) }}
@@ -207,7 +282,8 @@
                                 </button>
                             @endforeach
                             <input wire:model.live.debounce.150ms="durationMinutes"
-                                   type="number" min="1" max="480" placeholder="{{ __('visits.other') }}"
+                                   type="number" inputmode="numeric" min="1" max="480" placeholder="{{ __('visits.other') }}"
+                                   x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                    class="w-20 min-h-[44px] px-3 rounded-xl border-2 text-sm text-center font-bold outline-none transition-colors wizard-duration-input"
                                    aria-label="{{ __('visits.duration_minutes') }}">
                         </div>
@@ -219,6 +295,8 @@
                         <textarea wire:model.lazy="feedback"
                                   class="form-textarea"
                                   rows="4"
+                                  enterkeyhint="done"
+                                  x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
                                   placeholder="{{ __('visits.feedback') }}"></textarea>
                     </div>
 
@@ -264,7 +342,7 @@
                         <div class="wizard-card rounded-2xl px-4 py-3 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
                                 @if($selectedBeneficiary->photo_url)
-                                    <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="">
+                                    <img src="{{ $selectedBeneficiary->photo_url }}" class="w-full h-full object-cover" alt="{{ $selectedBeneficiary->full_name }}" loading="lazy" decoding="async" onerror="this.remove()">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center font-bold wizard-avatar-fallback">
                                         {{ mb_substr($selectedBeneficiary->full_name, 0, 1) }}
@@ -395,3 +473,40 @@
         </div>
     </div>
 </div>
+
+    {{-- Confirm discard draft modal (inside root to keep single Livewire root) --}}
+    <div x-show="open && $wire.hasDraft" x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-[170] flex items-center justify-center p-4"
+         style="display: none;"
+         role="alertdialog" aria-modal="true" aria-labelledby="confirm-discard-title">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="$wire.forceClose()"></div>
+        <div class="relative bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 id="confirm-discard-title" class="text-lg font-bold text-teal-900 dark:text-teal-100 mb-2">
+                {{ __('web_app.forms.wizard.confirm_discard_title') }}
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                {{ __('web_app.forms.wizard.confirm_discard') }}
+            </p>
+            <div class="flex gap-3">
+                <button @click="$wire.forceClose()"
+                        class="flex-1 py-3 rounded-2xl font-bold text-sm bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                    {{ __('web_app.forms.wizard.discard') }}
+                </button>
+                <button @click="$wire.hasDraft = false"
+                        class="flex-1 py-3 rounded-2xl font-bold text-sm border-2 border-teal-500 text-teal-700 hover:bg-teal-50 transition-colors">
+                    {{ __('web_app.forms.wizard.keep_editing') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+        < / d i v > 
+ < / d i v > 
+ < / d i v >  
+ 
