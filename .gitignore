@@ -32,3 +32,9 @@ storage/app/firebase-credentials.json
 
 # Test artifacts
 /output/
+
+# Tool artifacts (local only, never commit)
+/.codex-worktrees/
+/.pnpm-store/
+/.impeccable/
+storage/framework/ui-qa-*.sqlite
