@@ -57,13 +57,37 @@ class NotificationsBellWidget extends Widget
         $this->loadNotifications();
     }
 
-    public function markRead(int $id): void
+    public function markRead(int $id): mixed
     {
-        MinistryNotification::where('id', $id)
+        $notification = MinistryNotification::where('id', $id)
             ->where('user_id', Auth::id())
-            ->update(['read_at' => now()]);
+            ->first();
+
+        if (! $notification) {
+            return null;
+        }
+
+        $notification->update(['read_at' => now()]);
 
         Cache::forget('notifications_unread_' . Auth::id());
         $this->loadNotifications();
+
+        // Navigate to the related record so a tap never just clears state.
+        return $this->redirect($this->targetUrl($notification), navigate: true);
+    }
+
+    private function targetUrl(MinistryNotification $notification): string
+    {
+        $data = $notification->data ?? [];
+
+        if (! empty($data['visit_id'])) {
+            return route('filament.admin.resources.visits.view', $data['visit_id']);
+        }
+
+        if (! empty($data['beneficiary_id'])) {
+            return route('filament.admin.resources.beneficiaries.view', $data['beneficiary_id']);
+        }
+
+        return route('filament.admin.resources.ministry-notifications.index');
     }
 }

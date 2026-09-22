@@ -77,7 +77,7 @@ class VisitForm
                         ->numeric()
                         ->minValue(1)
                         ->nullable(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('visits.beneficiary_status'))
                 ->schema([
@@ -125,7 +125,7 @@ class VisitForm
                         ->label(__('visits.feedback'))
                         ->rows(4)
                         ->columnSpanFull(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('visits.is_critical'))
                 ->schema([
@@ -142,7 +142,7 @@ class VisitForm
 
                     Toggle::make('needs_service_leader')
                         ->label(__('visits.needs_service_leader')),
-                ])->columns(3),
+                ])->columns(['default' => 1, 'sm' => 3]),
         ]);
     }
 }

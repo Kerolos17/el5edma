@@ -9,7 +9,7 @@
         <x-heroicon-o-bell class="w-6 h-6 text-gray-500 dark:text-gray-400" />
 
         @if($unreadCount > 0)
-            <span class="absolute top-1 end-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+            <span class="absolute top-1 end-1 flex items-center justify-center min-w-5 h-5 px-1 text-[11px] font-bold text-white bg-red-500 rounded-full">
                 {{ $unreadCount > 9 ? '9+' : $unreadCount }}
             </span>
         @endif
@@ -26,7 +26,7 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-12 end-0 z-50 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        class="absolute top-12 end-0 z-50 w-[min(20rem,calc(100vw-2rem))] bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
         style="display: none;"
     >
         {{-- Header --}}
@@ -43,8 +43,7 @@
             @if($unreadCount > 0)
                 <button
                     wire:click="markAllRead"
-                    class="text-xs font-medium hover:opacity-80 transition"
-                    style="color: #0073A3;"
+                    class="text-xs font-medium hover:opacity-80 transition min-h-[44px] px-2 text-[#0073A3] dark:text-sky-400"
                 >
                     {{ __('notifications.mark_all_read') }}
                 </button>
@@ -57,22 +56,22 @@
                 <div
                     wire:key="notification-{{ $notification['id'] }}"
                     wire:click="markRead({{ $notification['id'] }})"
+                    title="{{ __('notifications.view_all') }}"
                     class="flex gap-3 px-4 py-3 cursor-pointer transition
                         {{ $notification['read']
                             ? 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                            : 'bg-blue-50/50 dark:bg-blue-900/10 border-s-2'
+                            : 'bg-blue-50/50 dark:bg-blue-900/10 border-s-2 border-[#0073A3] dark:border-sky-400'
                         }}"
-                    style="{{ !$notification['read'] ? 'border-color: #0073A3;' : '' }}"
                 >
                     {{-- أيقونة النوع --}}
                     <div class="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-base
                         {{ match($notification['type']) {
-                            'birthday'        => 'bg-amber-100',
-                            'critical_case'   => 'bg-red-100',
-                            'visit_reminder'  => 'bg-blue-100',
-                            'unvisited_alert' => 'bg-amber-100',
-                            'new_beneficiary' => 'bg-green-100',
-                            default           => 'bg-gray-100',
+                            'birthday'        => 'bg-amber-100 dark:bg-amber-900/40',
+                            'critical_case'   => 'bg-red-100 dark:bg-red-900/40',
+                            'visit_reminder'  => 'bg-blue-100 dark:bg-blue-900/40',
+                            'unvisited_alert' => 'bg-amber-100 dark:bg-amber-900/40',
+                            'new_beneficiary' => 'bg-green-100 dark:bg-green-900/40',
+                            default           => 'bg-gray-100 dark:bg-gray-800',
                         } }}
                     ">
                         @switch($notification['type'])
@@ -99,7 +98,7 @@
                     </div>
 
                     @if(! $notification['read'])
-                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full self-start" style="background-color: #0073A3;"></div>
+                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full self-start bg-[#0073A3] dark:bg-sky-400"></div>
                     @endif
                 </div>
             @empty
@@ -113,10 +112,10 @@
         {{-- Footer --}}
         <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
              <a href="{{ route('filament.admin.resources.ministry-notifications.index') }}"
-                class="text-xs font-medium hover:opacity-80 transition"
-                style="color: #0073A3;"
+                class="text-xs font-medium hover:opacity-80 transition inline-flex items-center gap-1 min-h-[44px] px-2 text-[#0073A3] dark:text-sky-400"
             >
-                {{ __('notifications.title') }} ←
+                {{ __('notifications.title') }}
+                <x-heroicon-o-arrow-left class="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
             </a>
         </div>
     </div>

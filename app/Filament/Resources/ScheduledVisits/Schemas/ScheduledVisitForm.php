@@ -126,7 +126,7 @@ class ScheduledVisitForm
                         ->label(__('visits.feedback'))
                         ->rows(3)
                         ->columnSpanFull(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 

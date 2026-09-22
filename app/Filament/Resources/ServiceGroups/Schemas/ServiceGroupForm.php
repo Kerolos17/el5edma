@@ -33,7 +33,7 @@ class ServiceGroupForm
                     Toggle::make('is_active')
                         ->label(__('service_groups.is_active'))
                         ->default(true),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('navigation.management'))
                 ->schema([
@@ -56,7 +56,7 @@ class ServiceGroupForm
                         )
                         ->searchable()
                         ->nullable(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

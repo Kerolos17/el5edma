@@ -26,7 +26,7 @@ class ServiceGroupInfolist
                     IconEntry::make('is_active')
                         ->label(__('service_groups.is_active'))
                         ->boolean(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('navigation.management'))
                 ->schema([
@@ -49,7 +49,7 @@ class ServiceGroupInfolist
                         ->state(fn ($record) => $record->beneficiaries()->count())
                         ->badge()
                         ->color('success'),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

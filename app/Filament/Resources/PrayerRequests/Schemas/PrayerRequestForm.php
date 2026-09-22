@@ -56,7 +56,7 @@ class PrayerRequestForm
                         ->rows(5)
                         ->required()
                         ->columnSpanFull(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

@@ -47,7 +47,7 @@ class ScheduledVisitInfolist
                         ->label(__('visits.feedback'))
                         ->placeholder('—')
                         ->columnSpanFull(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

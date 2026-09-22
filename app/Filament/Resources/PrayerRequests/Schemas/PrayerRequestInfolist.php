@@ -49,7 +49,7 @@ class PrayerRequestInfolist
                         ->dateTime()
                         ->placeholder('—')
                         ->visible(fn ($record) => $record?->status === 'answered'),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

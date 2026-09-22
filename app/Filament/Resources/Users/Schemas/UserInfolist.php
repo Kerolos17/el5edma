@@ -41,7 +41,7 @@ class UserInfolist
                         ->fontFamily('mono')
                         ->placeholder('-')
                         ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('users.role'))
                 ->schema([
@@ -78,7 +78,7 @@ class UserInfolist
                         ->label(__('users.last_login_at'))
                         ->dateTime()
                         ->placeholder('-'),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

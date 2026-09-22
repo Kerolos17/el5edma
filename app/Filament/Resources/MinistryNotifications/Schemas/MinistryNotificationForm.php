@@ -16,25 +16,33 @@ class MinistryNotificationForm
             ->components([
                 Select::make('user_id')
                     ->relationship('user', 'name')
+                    ->label(__('users.singular'))
                     ->required(),
                 Select::make('type')
+                    ->label(__('notifications.type'))
                     ->options([
-                        'birthday'        => 'Birthday',
-                        'critical_case'   => 'Critical case',
-                        'visit_reminder'  => 'Visit reminder',
-                        'unvisited_alert' => 'Unvisited alert',
-                        'new_beneficiary' => 'New beneficiary',
+                        'birthday'           => __('notifications.types.birthday'),
+                        'critical_case'      => __('notifications.types.critical_case'),
+                        'visit_reminder'     => __('notifications.types.visit_reminder'),
+                        'unvisited_alert'    => __('notifications.types.unvisited_alert'),
+                        'new_beneficiary'    => __('notifications.types.new_beneficiary'),
+                        'servant_registered' => __('notifications.types.servant_registered'),
                     ])
                     ->required(),
                 TextInput::make('title')
+                    ->label(__('notifications.title_field'))
                     ->required(),
                 Textarea::make('body')
+                    ->label(__('notifications.body_field'))
                     ->required()
                     ->columnSpanFull(),
                 Textarea::make('data')
+                    ->label(__('notifications.data_field'))
                     ->default(null)
-                    ->columnSpanFull(),
-                DateTimePicker::make('read_at'),
+                    ->columnSpanFull()
+                    ->helperText(__('notifications.data_helper')),
+                DateTimePicker::make('read_at')
+                    ->label(__('notifications.read_at')),
             ]);
     }
 }

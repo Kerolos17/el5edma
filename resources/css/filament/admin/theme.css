@@ -590,10 +590,27 @@ button,
     opacity: 0.6;
 }
 
-/* ─── Tabs: icon only on mobile, icon + label on desktop ─── */
+/* ─── Tabs: keep labels visible on mobile (compact, scrollable) ───
+   Hiding labels strands users on the wrong tab when validation fails. */
 @media (max-width: 639px) {
+    .fi-tabs {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .fi-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
     .fi-tabs-item-label {
-        display: none !important;
+        display: inline !important;
+        font-size: 0.72rem;
+        white-space: nowrap;
+    }
+
+    .fi-tabs-item {
+        flex-shrink: 0;
+        min-height: 44px;
     }
 }
 

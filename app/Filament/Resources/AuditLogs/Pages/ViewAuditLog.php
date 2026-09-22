@@ -47,7 +47,7 @@ class ViewAuditLog extends ViewRecord
                     TextEntry::make('created_at')
                         ->label(__('beneficiaries.created_at'))
                         ->dateTime(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('audit_logs.old_values'))
                 ->schema([

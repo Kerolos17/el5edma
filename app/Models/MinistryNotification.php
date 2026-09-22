@@ -28,4 +28,15 @@ class MinistryNotification extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Localized human-readable notification type. Falls back to the raw
+     * type slug when no translation exists.
+     */
+    public function getTypeLabelAttribute(): string
+    {
+        $key = "notifications.types.{$this->type}";
+
+        return __($key) === $key ? (string) $this->type : __($key);
+    }
 }

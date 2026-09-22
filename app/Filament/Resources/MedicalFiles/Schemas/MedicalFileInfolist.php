@@ -48,7 +48,7 @@ class MedicalFileInfolist
                         )
                         ->openUrlInNewTab()
                         ->color('primary'),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

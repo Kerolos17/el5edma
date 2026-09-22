@@ -62,7 +62,7 @@ class BeneficiaryInfolist
                                         default    => 'gray',
                                     })
                                     ->formatStateUsing(fn (string $state) => __("beneficiaries.{$state}")),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
                 // ── Tab 2: التواصل والأسرة ──
@@ -87,7 +87,7 @@ class BeneficiaryInfolist
                                 TextEntry::make('instagram_url')
                                     ->label(__('beneficiaries.instagram_url'))
                                     ->placeholder('—'),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
 
                         Section::make(__('beneficiaries.guardian_section'))
                             ->schema([
@@ -103,7 +103,7 @@ class BeneficiaryInfolist
                                 TextEntry::make('guardian_relation')
                                     ->label(__('beneficiaries.guardian_relation'))
                                     ->placeholder('—'),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
 
                         Section::make(__('beneficiaries.family_section'))
                             ->description(__('beneficiaries.family_note'))
@@ -139,7 +139,7 @@ class BeneficiaryInfolist
                                 TextEntry::make('siblings_note')
                                     ->label(__('beneficiaries.siblings_note'))
                                     ->placeholder('—'),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
 
                         Section::make(__('beneficiaries.financial_section'))
                             ->schema([
@@ -159,7 +159,7 @@ class BeneficiaryInfolist
                                     ->label(__('beneficiaries.financial_notes'))
                                     ->placeholder('—')
                                     ->columnSpanFull(),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
                 // ── Tab 3: العنوان ──
@@ -187,7 +187,7 @@ class BeneficiaryInfolist
                                     ->url(fn ($state) => $state)
                                     ->openUrlInNewTab()
                                     ->columnSpanFull(),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
                 // ── Tab 4: الحالة الطبية ──
@@ -233,7 +233,7 @@ class BeneficiaryInfolist
                                     ->label(__('beneficiaries.medical_notes'))
                                     ->placeholder('—')
                                     ->columnSpanFull(),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
                 // ── Tab 5: التعيين الخدمي ──
@@ -258,7 +258,7 @@ class BeneficiaryInfolist
                                 TextEntry::make('createdBy.name')
                                     ->label(__('beneficiaries.created_by'))
                                     ->placeholder('—'),
-                            ])->columns(2),
+                            ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 
             ])->columnSpanFull(),

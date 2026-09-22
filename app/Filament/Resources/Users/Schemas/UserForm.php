@@ -59,7 +59,7 @@ class UserForm
                         ->dehydrated(fn ($state) => filled($state))
                         ->required(fn (string $operation) => $operation === 'create')
                         ->maxLength(255),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('users.role'))
                 ->schema([
@@ -147,7 +147,7 @@ class UserForm
                         ->label(__('users.is_active'))
                         ->default(true)
                         ->visible(fn (?User $record) => self::canManageRoleFields(Auth::user(), $record)),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('users.personal_code'))
                 ->schema([

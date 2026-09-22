@@ -66,7 +66,7 @@ class MedicalFileForm
                         ->maxSize(5120) // 5MB
                         ->required()
                         ->columnSpanFull(),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
         ]);
     }
 }

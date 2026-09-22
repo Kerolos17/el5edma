@@ -47,7 +47,7 @@ class VisitInfolist
                     TextEntry::make('createdBy.name')
                         ->label(__('beneficiaries.created_by'))
                         ->placeholder('—'),
-                ])->columns(2),
+                ])->columns(['default' => 1, 'sm' => 2]),
 
             Section::make(__('visits.feedback'))
                 ->schema([
@@ -79,7 +79,7 @@ class VisitInfolist
                     TextEntry::make('resolvedBy.name')
                         ->label(__('visits.resolved_by'))
                         ->placeholder('—'),
-                ])->columns(3),
+                ])->columns(['default' => 1, 'sm' => 3]),
         ]);
     }
 }
