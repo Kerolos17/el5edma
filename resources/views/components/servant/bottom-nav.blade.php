@@ -7,14 +7,14 @@
 @endphp
 
 <div class="fixed bottom-0 left-0 right-0 lg:hidden z-50" style="padding-bottom: env(safe-area-inset-bottom);">
-    <nav class="flex items-center justify-around h-16 px-1"
+    <nav class="flex items-center justify-around h-16 px-1" aria-label="التنقل السريع"
          style="background: rgba(255,255,255,0.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 1px solid rgba(0,0,0,0.06);">
 
         @foreach ($items as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
                @if($item['active']) aria-current="page" @endif
                class="relative flex flex-col items-center justify-center gap-0.5 min-w-0 min-h-[44px] flex-1 h-full transition-colors duration-200 {{ $item['active'] ? 'text-teal-600' : 'text-gray-500 hover:text-gray-700' }}">
-                <i class="{{ $item['active'] ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-[22px] transition-all duration-200 {{ $item['active'] ? 'scale-110' : '' }}"></i>
+                <i aria-hidden="true" class="{{ $item['active'] ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-[22px] transition-all duration-200 {{ $item['active'] ? 'scale-110' : '' }}"></i>
                 <span class="text-[11px] font-bold leading-relaxed">{{ $item['label'] }}</span>
                 @if ($item['active'])
                     <span class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-teal-500"></span>
@@ -28,7 +28,7 @@
                 class="w-12 h-12 -mt-5 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/25 transition-all duration-200 active:scale-95"
                 style="background: linear-gradient(135deg, #0d9488, #0f766e);"
                 aria-label="تسجيل زيارة جديدة">
-                <i class="ph-bold ph-plus text-white text-xl"></i>
+                <i aria-hidden="true" class="ph-bold ph-plus text-white text-xl"></i>
             </button>
             <span class="text-[11px] font-bold text-teal-600 mt-0.5 leading-relaxed">زيارة</span>
         </div>

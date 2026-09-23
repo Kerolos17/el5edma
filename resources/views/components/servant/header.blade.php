@@ -11,19 +11,31 @@
     $user = auth()->user();
 @endphp
 
-<header class="sticky top-0 z-40 lg:hidden" x-data="{ drawer: false }">
+<header class="sticky top-0 z-40 lg:hidden" x-data="{
+        drawer: false,
+        trapDrawer(e) {
+            const root = this.$refs.drawerPanel;
+            if (!root) return;
+            const items = Array.from(root.querySelectorAll('a[href], button:not([disabled])')).filter((el) => el.getClientRects().length > 0);
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    }">
     <div class="px-4 py-3 flex items-center justify-between gap-3"
          style="background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(0,0,0,0.06); padding-top: max(0.75rem, env(safe-area-inset-top));">
 
         {{-- Hamburger --}}
         <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="القائمة">
-            <i class="ph ph-list text-xl"></i>
+            <i aria-hidden="true" class="ph ph-list text-xl"></i>
         </button>
 
         {{-- Search + Notifications --}}
         <div class="flex items-center gap-1">
             <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
-                <i class="ph ph-magnifying-glass text-lg"></i>
+                <i aria-hidden="true" class="ph ph-magnifying-glass text-lg"></i>
             </a>
             @livewire('servant.notifications-bell')
         </div>
@@ -35,6 +47,11 @@
 
     {{-- Drawer --}}
     <div x-cloak x-show="drawer"
+         x-ref="drawerPanel"
+         role="dialog" aria-modal="true" aria-label="القائمة"
+         :inert="!drawer"
+         @keydown.escape.window="drawer = false"
+         @keydown.tab="trapDrawer($event)"
          x-transition:enter="transition-transform duration-300 ease-out"
          x-transition:enter-start="translate-x-full"
          x-transition:enter-end="translate-x-0"
@@ -62,7 +79,7 @@
                 </div>
             </div>
             <button @click="drawer = false" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10" aria-label="إغلاق">
-                <i class="ph ph-x text-lg"></i>
+                <i aria-hidden="true" class="ph ph-x text-lg"></i>
             </button>
         </div>
 
@@ -82,7 +99,7 @@
             <button @click="drawer = false; window.dispatchEvent(new CustomEvent('open-wizard'))"
                     class="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all duration-200 active:scale-[0.98]"
                     style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);">
-                <i class="ph-bold ph-calendar-plus text-lg"></i>
+                <i aria-hidden="true" class="ph-bold ph-calendar-plus text-lg"></i>
                 تسجيل زيارة جديدة
             </button>
         </div>
@@ -93,7 +110,7 @@
                 @csrf
                 <button type="submit"
                         class="w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white/50 hover:text-white hover:bg-white/[8%] transition-colors">
-                    <i class="ph ph-sign-out text-lg"></i>
+                    <i aria-hidden="true" class="ph ph-sign-out text-lg"></i>
                     تسجيل خروج
                 </button>
             </form>

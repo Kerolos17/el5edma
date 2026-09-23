@@ -6,17 +6,17 @@
             class="sidebar-panel flex flex-row md:flex-col items-center justify-center md:w-2/5 lg:w-1/3 p-4 md:p-10 gap-3 md:gap-0 text-white text-center">
 
             {{-- أيقونة الصليب --}}
-            <div class="md:mb-6 shrink-0">
-                <svg class="w-8 h-8 md:w-16 md:h-16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="md:mb-6 shrink-0" aria-hidden="true">
+                <svg class="w-8 h-8 md:w-16 md:h-16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
                     <rect x="30" y="5" width="20" height="70" rx="6" fill="white" opacity="0.9" />
                     <rect x="5" y="28" width="70" height="20" rx="6" fill="white" opacity="0.9" />
                 </svg>
             </div>
 
             {{-- اسم النظام --}}
-            <h2 class="text-sm md:text-2xl font-bold leading-snug">
+            <p class="text-sm md:text-2xl font-bold leading-snug">
                 {{ __('auth.system_name') }}
-            </h2>
+            </p>
 
             {{-- الآية — مخفية على الموبايل --}}
             <p class="hidden md:block text-sm opacity-70 mt-4 leading-relaxed max-w-xs">
@@ -28,7 +28,7 @@
         </div>
 
         {{-- ── جانب النموذج ── --}}
-        <div class="flex flex-col justify-center flex-1 min-w-[280px] p-6 md:p-10">
+        <div class="flex flex-col justify-center flex-1 min-w-0 w-full p-4 sm:p-6 md:p-10">
 
             {{-- الـ Logo على الموبايل — محذوف لأن الـ sidebar بيظهر دايمًا --}}
 
@@ -41,11 +41,11 @@
             </p>
 
             {{-- Tabs --}}
-            <div class="flex gap-2 mb-6 p-1 bg-gray-100 rounded-full w-fit">
-                <button wire:click="switchTab('email')" class="tab-pill {{ $activeTab === 'email' ? 'active' : '' }}">
+            <div class="flex gap-2 mb-6 p-1 bg-gray-100 rounded-full w-fit" role="tablist" aria-label="{{ __('auth.login') }}">
+                <button type="button" role="tab" aria-selected="{{ $activeTab === 'email' ? 'true' : 'false' }}" wire:click="switchTab('email')" class="tab-pill {{ $activeTab === 'email' ? 'active' : '' }}">
                     📧 {{ __('auth.by_email') }}
                 </button>
-                <button wire:click="switchTab('code')" class="tab-pill {{ $activeTab === 'code' ? 'active' : '' }}">
+                <button type="button" role="tab" aria-selected="{{ $activeTab === 'code' ? 'true' : 'false' }}" wire:click="switchTab('code')" class="tab-pill {{ $activeTab === 'code' ? 'active' : '' }}">
                     🔑 {{ __('auth.by_code') }}
                 </button>
             </div>
@@ -56,21 +56,21 @@
                     <div class="space-y-4">
 
                         <div>
-                            <label class="input-label">{{ __('auth.email') }}</label>
-                            <input type="email" wire:model="data.email" class="fi-input"
+                            <label class="input-label" for="login-email">{{ __('auth.email') }}</label>
+                            <input type="email" wire:model="data.email" id="login-email" class="fi-input"
                                 placeholder="admin@ministry.local" autocomplete="email" required />
                             @error('data.email')
-                                <p class="error-msg">{{ $message }}</p>
+                                <p class="error-msg" role="alert">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="input-label">{{ __('auth.password_label') }}</label>
-                            <div class="relative">
-                                <input type="password" wire:model="data.password" class="fi-input pe-12"
+                            <label class="input-label" for="login-password">{{ __('auth.password_label') }}</label>
+                            <div class="relative" x-data="{ showPw: false }">
+                                <input :type="showPw ? 'text' : 'password'" wire:model="data.password" id="login-password" class="fi-input pe-12"
                                     autocomplete="current-password" required x-ref="passwordInput" />
                                 <button type="button"
-                                    @click="const i = $refs.passwordInput; const show = i.type === 'password'; i.type = show ? 'text' : 'password'; $el.setAttribute('aria-pressed', show ? 'true' : 'false');"
+                                    @click="showPw = !showPw; $el.setAttribute('aria-pressed', showPw.toString())"
                                     aria-label="{{ __('auth.toggle_password') }}" aria-pressed="false"
                                     class="absolute inset-y-0 end-0 w-11 min-w-[44px] inline-flex items-center justify-center text-gray-400 hover:text-gray-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
@@ -88,7 +88,7 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <input type="checkbox" wire:model="data.remember" id="remember" class="rounded" />
+                            <input type="checkbox" wire:model="data.remember" id="remember" class="w-5 h-5 rounded" />
                             <label for="remember" class="text-sm text-gray-600 cursor-pointer">
                                 {{ __('auth.remember_me') }}
                             </label>
@@ -109,11 +109,11 @@
 
                         {{-- مربعات الكود --}}
                         <div>
-                            <label class="input-label mb-3">
+                            <label class="input-label mb-3" id="code-group-label">
                                 {{ __('auth.enter_code') }}
                             </label>
 
-                            <div class="flex gap-2 justify-center my-4" dir="ltr" x-data="{
+                            <div class="flex gap-2 justify-center my-4" dir="ltr" role="group" aria-labelledby="code-group-label" x-data="{
                                 code: ['', '', '', '', '', ''],
                                 handleInput(index, event) {
                                     const val = event.target.value.replace(/\D/g, '');
@@ -156,6 +156,7 @@
                                 @foreach (range(0, 5) as $i)
                                     <input x-ref="box_{{ $i }}" type="text" inputmode="numeric"
                                         maxlength="1" class="code-input" x-model="code[{{ $i }}]"
+                                        aria-label="{{ __('auth.code_digit', ['position' => $i + 1]) }}"
                                         @input="handleInput({{ $i }}, $event)"
                                         @keydown="handleKeydown({{ $i }}, $event)"
                                         @paste="handlePaste($event)" />

@@ -1,22 +1,31 @@
-<div x-data="{ open: false }" class="relative flex items-center" wire:poll.60s="loadNotifications">
+<div x-data="{ open: false }" class="relative flex items-center" wire:poll.60s="loadNotifications"
+     @keydown.escape.window="open = false">
 
     {{-- زر الجرس --}}
     <button
         @click="open = !open"
         type="button"
+        aria-haspopup="true"
+        :aria-expanded="open.toString()"
+        aria-controls="filament-notifications-menu"
+        aria-label="{{ __('notifications.title') }}"
         class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition focus:outline-none"
     >
         <x-heroicon-o-bell class="w-6 h-6 text-gray-500 dark:text-gray-400" />
 
         @if($unreadCount > 0)
-            <span class="absolute top-1 end-1 flex items-center justify-center min-w-5 h-5 px-1 text-[11px] font-bold text-white bg-red-500 rounded-full">
+            <span class="absolute top-1 end-1 flex items-center justify-center min-w-5 h-5 px-1 text-[11px] font-bold text-white bg-red-500 rounded-full" aria-hidden="true">
                 {{ $unreadCount > 9 ? '9+' : $unreadCount }}
             </span>
+            <span class="sr-only">{{ __('notifications.unread_count', ['count' => $unreadCount]) }}</span>
         @endif
     </button>
 
     {{-- الـ Dropdown --}}
     <div
+        id="filament-notifications-menu"
+        role="menu"
+        aria-label="{{ __('notifications.title') }}"
         x-show="open"
         x-cloak
         @click.outside="open = false"
@@ -56,6 +65,10 @@
                 <div
                     wire:key="notification-{{ $notification['id'] }}"
                     wire:click="markRead({{ $notification['id'] }})"
+                    role="button" tabindex="0"
+                    @keydown.enter="$wire.markRead({{ $notification['id'] }})"
+                    @keydown.space.prevent="$wire.markRead({{ $notification['id'] }})"
+                    aria-label="{{ $notification['title'] }} — {{ __('notifications.mark_read') }}"
                     title="{{ __('notifications.view_all') }}"
                     class="flex gap-3 px-4 py-3 cursor-pointer transition
                         {{ $notification['read']

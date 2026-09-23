@@ -40,7 +40,19 @@
     @livewireStyles
 </head>
 
-<body class="web-app-body" x-data="{ drawer: false }">
+    <body class="web-app-body" x-data="{
+        drawer: false,
+        trapDrawer(e) {
+            const root = this.$refs.drawerPanel;
+            if (!root) return;
+            const items = Array.from(root.querySelectorAll('a[href], button:not([disabled])')).filter((el) => el.getClientRects().length > 0);
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    }">
     @php
         $appUser = auth()->user();
         $navigationItems = \App\Support\WebAppNavigation::items($appUser);
@@ -113,6 +125,11 @@
 
     <div x-show="drawer" @click="drawer = false" class="app-drawer-backdrop lg:hidden" style="display:none" aria-hidden="true"></div>
     <div x-show="drawer"
+         x-ref="drawerPanel"
+         role="dialog" aria-modal="true" aria-label="{{ __('web_app.shell.main_navigation') }}"
+         :inert="!drawer"
+         @keydown.escape.window="drawer = false"
+         @keydown.tab="trapDrawer($event)"
          x-transition:enter="transition-transform duration-300 ease-out"
          x-transition:enter-start="rtl:translate-x-full ltr:-translate-x-full"
          x-transition:enter-end="translate-x-0"
@@ -176,6 +193,15 @@
                 this.visible = true;
                 clearTimeout(this.timer);
                 this.timer = setTimeout(() => this.visible = false, t === 'warning' ? 5000 : 3500);
+            },
+            dismiss() {
+                clearTimeout(this.timer);
+                this.visible = false;
+            },
+            pause() { clearTimeout(this.timer); },
+            resume() {
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => this.visible = false, this.type === 'warning' ? 5000 : 3500);
             }
          }"
          @toast.window="show($event.detail.message, $event.detail.type)">
@@ -187,9 +213,18 @@
              ]"
              x-show="visible"
              x-cloak
+             role="status"
+             aria-live="polite"
+             @mouseenter="pause()"
+             @mouseleave="resume()"
+             @focusin="pause()"
+             @focusout="resume()"
              :role="type === 'error' ? 'alert' : 'status'"
              :aria-live="type === 'error' ? 'assertive' : 'polite'"
              aria-atomic="true">
+            <button type="button" @click="dismiss()" class="app-toast-close" aria-label="{{ __('web_app.actions.close') }}">
+                <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
             <i :class="{
                 'ph-fill ph-check-circle': type === 'success',
                 'ph-fill ph-x-circle':    type === 'error',

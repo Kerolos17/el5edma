@@ -127,14 +127,38 @@
 
         <div class="app-mobile-list">
             @forelse ($records as $record)
-                <a href="{{ route('app.visit-profile', $record->id) }}" wire:navigate class="app-mobile-card">
-                    <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
-                    <p>{{ optional($record->visit_date)->format('Y-m-d') }} · {{ $record->type ? __("visits.{$record->type}") : __('visits.singular') }}</p>
-                    <div class="app-mobile-meta">
-                        <span>{{ $record->createdBy?->name ?? __('web_app.fallback.unassigned') }}</span>
-                        <span>{{ $record->is_critical ? __('web_app.states.critical') : __('web_app.states.stable') }}</span>
-                    </div>
-                </a>
+                <div class="app-mobile-card">
+                    <a href="{{ route('app.visit-profile', $record->id) }}" wire:navigate class="block">
+                        <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
+                        <p>{{ optional($record->visit_date)->format('Y-m-d') }} · {{ $record->type ? __("visits.{$record->type}") : __('visits.singular') }}</p>
+                        <div class="app-mobile-meta">
+                            <span>{{ $record->createdBy?->name ?? __('web_app.fallback.unassigned') }}</span>
+                            <span>{{ $record->is_critical ? __('web_app.states.critical') : __('web_app.states.stable') }}</span>
+                        </div>
+                    </a>
+                    @if (auth()->user()->can('update', $record) || auth()->user()->can('delete', $record))
+                        <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                            @can('update', $record)
+                                <button type="button" wire:click="editVisit({{ $record->id }})" class="app-mobile-action">
+                                    <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                                    {{ __('web_app.actions.edit') }}
+                                </button>
+                                @if ($record->is_critical || $record->needs_family_leader || $record->needs_service_leader)
+                                    <button type="button" wire:click="resolveVisitFollowUp({{ $record->id }})" class="app-mobile-action">
+                                        <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                        {{ __('web_app.actions.close_follow_up') }}
+                                    </button>
+                                @endif
+                            @endcan
+                            @can('delete', $record)
+                                <button type="button" wire:click="deleteVisit({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.delete_visit') }}" class="app-mobile-action app-mobile-action-danger">
+                                    <i class="ph ph-trash" aria-hidden="true"></i>
+                                    {{ __('web_app.actions.delete') }}
+                                </button>
+                            @endcan
+                        </div>
+                    @endif
+                </div>
             @empty
                 <x-web-app.empty-state icon="ph-clipboard-text" :message="__('web_app.resources.empty_table')" />
             @endforelse

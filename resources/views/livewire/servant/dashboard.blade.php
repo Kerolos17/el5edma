@@ -49,7 +49,7 @@
         <div class="flex items-center justify-between mb-4">
             <h2 class="font-bold text-teal-900">آخر الزيارات</h2>
             <a href="{{ route('servant.visits') }}" wire:navigate
-               class="text-sm font-semibold text-teal-500 hover:text-teal-700 transition-colors">
+               class="inline-flex items-center min-h-[44px] px-2 -me-2 text-sm font-semibold text-teal-500 hover:text-teal-700 transition-colors">
                 عرض الكل
             </a>
         </div>

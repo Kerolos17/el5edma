@@ -7,7 +7,7 @@
     'close' => '',
 ])
 @if ($show)
-    <div class="app-modal-backdrop" wire:click="{{ $close }}" aria-hidden="true"></div>
+    <div class="app-modal-backdrop" wire:click="{{ $close }}"></div>
     <section
         class="app-modal-sheet"
         role="dialog"
@@ -15,7 +15,7 @@
         @if ($titleId)
             aria-labelledby="{{ $titleId }}"
         @else
-            aria-label="{{ $title }}"
+            aria-label="{{ $title !== '' ? $title : __('web_app.actions.dialog') }}"
         @endif
     >
         <div class="app-modal-panel{{ $wide ? ' app-modal-panel-wide' : '' }}" tabindex="-1">

@@ -128,7 +128,7 @@
                             @endif
                             @if($hasPhone)
                                 <a href="tel:{{ $b->phone }}"
-                                   class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 flex-shrink-0"
+                                   class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 flex-shrink-0"
                                    style="background: linear-gradient(135deg, #457B9D, #6BA3C7); box-shadow: 0 2px 8px rgba(69,123,157,0.3);"
                                    aria-label="اتصال هاتفي">
                                     <i class="ph-fill ph-phone text-white text-lg" aria-hidden="true"></i>
@@ -136,7 +136,7 @@
                             @endif
                             @if($hasMaps)
                                 <a href="{{ $b->google_maps_url }}" target="_blank" rel="noopener noreferrer"
-                                   class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 flex-shrink-0"
+                                   class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 flex-shrink-0"
                                    style="background: linear-gradient(135deg, #EA4335, #FBBC04); box-shadow: 0 2px 8px rgba(234,67,53,0.25);"
                                    aria-label="فتح الموقع على الخريطة">
                                     <i class="ph-fill ph-map-pin text-white text-lg" aria-hidden="true"></i>
@@ -146,7 +146,7 @@
                     @endif
 
                     <button wire:click="visitThis"
-                            class="w-full py-2.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white btn-ripple"
+                            class="w-full py-2.5 min-h-[44px] rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white btn-ripple"
                             style="background: linear-gradient(135deg, #006D77 0%, #003942 100%); box-shadow: 0 4px 16px rgba(0,109,119,0.3);">
                         <i class="ph-bold ph-calendar-plus text-base" aria-hidden="true"></i>
                         تسجيل زيارة

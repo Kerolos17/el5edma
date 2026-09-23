@@ -49,6 +49,7 @@ return [
         'view'                => 'View',
         'logout'              => 'Logout',
         'close'               => 'Close',
+        'dialog'              => 'Dialog',
         'delete'              => 'Delete',
         'approve'             => 'Approve',
         'reopen'              => 'Reopen',

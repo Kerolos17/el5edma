@@ -1386,6 +1386,52 @@
     flex-wrap: wrap;
   }
 
+  .app-mobile-actions {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--clr-silver-mist);
+  }
+
+  .app-mobile-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: var(--btn-min-height);
+    min-width: var(--btn-min-height);
+    padding: 0.5rem 0.75rem;
+    color: var(--clr-calm-blue);
+    font-size: 0.84rem;
+    font-weight: 800;
+    border-radius: 0.75rem;
+  }
+
+  .app-mobile-action-danger {
+    color: #be123c;
+  }
+
+  .app-toast-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-inline-start: 4px;
+    border-radius: 12px;
+    color: inherit;
+    opacity: 0.85;
+  }
+
+  .app-toast-close:hover {
+    opacity: 1;
+  }
+
+  .app-toast.show {
+    pointer-events: auto;
+  }
+
   .app-table-wrap {
     overflow: auto;
   }

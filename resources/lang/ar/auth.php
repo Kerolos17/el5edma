@@ -19,6 +19,7 @@ return [
     'verse'               => 'اخدموا بعضكم بعضاً كل واحد بالموهبة التي أخذها',
     'signing_in'          => 'جاري الدخول...',
     'enter_code'          => 'أدخل الكود الشخصي',
+    'code_digit'          => 'الرقم :position من الكود',
     'switch_to_english'   => 'English',
     'switch_to_arabic'    => 'العربية',
     'no_account_register' => 'ليس لديك حساب؟ سجل الآن',

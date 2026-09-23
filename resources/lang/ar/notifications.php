@@ -3,6 +3,8 @@
 return [
     'title'            => 'الإشعارات',
     'mark_all_read'    => 'تحديد الكل كمقروء',
+    'mark_read'        => 'تعليم كمقروء',
+    'unread_count'     => ':count غير مقروء',
     'no_notifications' => 'لا توجد إشعارات',
 
     // Types

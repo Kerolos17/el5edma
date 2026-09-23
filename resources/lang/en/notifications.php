@@ -3,6 +3,8 @@
 return [
     'title'            => 'Notifications',
     'mark_all_read'    => 'Mark all as read',
+    'mark_read'        => 'Mark as read',
+    'unread_count'     => ':count unread',
     'no_notifications' => 'No notifications',
 
     'birthday_title'        => 'Upcoming Birthday 🎂',

@@ -44,10 +44,17 @@ const NOTIF_MUTE_KEY = 'ministry-notif-muted';
 
 /**
  * Close the topmost visible modal by simulating a backdrop click.
+ * NOTE: offsetParent is always null for position:fixed elements, so
+ * visibility is detected via computed style + client rects instead.
  */
 function closeTopmostModal() {
     const backdrops = document.querySelectorAll('.app-modal-backdrop');
-    const visible = Array.from(backdrops).filter((b) => b.offsetParent !== null);
+    const visible = Array.from(backdrops).filter((b) => {
+        if (b.hasAttribute('hidden')) return false;
+        const style = window.getComputedStyle(b);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        return b.getClientRects().length > 0;
+    });
     visible[visible.length - 1]?.click();
 }
 
@@ -68,10 +75,28 @@ document.addEventListener('keydown', (event) => {
     closeTopmostModal();
 });
 
-// Focus first focusable element when a modal opens (via Livewire DOM mutation)
-const modalObserver = new MutationObserver(() => {
+// Focus first focusable element when a modal opens (via Livewire DOM mutation),
+// and restore focus to the opener when the modal is removed.
+let lastModalOpener = null;
+const modalObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+        for (const node of mutation.removedNodes) {
+            if (
+                node instanceof HTMLElement &&
+                (node.matches('.app-modal-panel') || node.querySelector('.app-modal-panel'))
+            ) {
+                if (lastModalOpener && document.contains(lastModalOpener)) {
+                    lastModalOpener.focus();
+                }
+                lastModalOpener = null;
+            }
+        }
+    }
     const panel = document.querySelector('.app-modal-panel:not([data-focused])');
     if (!panel) return;
+    if (document.activeElement && !panel.contains(document.activeElement)) {
+        lastModalOpener = document.activeElement;
+    }
     panel.dataset.focused = '1';
     const first = focusableEls(panel)[0];
     if (first) {

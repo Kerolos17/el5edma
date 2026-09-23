@@ -19,6 +19,7 @@ return [
     'verse'               => 'Serve one another as good stewards of God\'s grace',
     'signing_in'          => 'Signing in...',
     'enter_code'          => 'Enter Personal Code',
+    'code_digit'          => 'Digit :position of the code',
     'switch_to_english'   => 'English',
     'switch_to_arabic'    => 'Arabic',
     'no_account_register' => 'Don\'t have an account? Register now',

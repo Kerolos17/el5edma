@@ -16,6 +16,7 @@
 <div x-data="{
         open: $wire.entangle('open'),
         offlineCount: 0,
+        lastFocused: null,
         init() {
             // Listen for offline queue count from the shared module
             window.addEventListener('offlineQueueCount', (e) => {
@@ -25,6 +26,41 @@
             if (window.offlineQueue) {
                 window.offlineQueue.count().then(c => { this.offlineCount = c; });
             }
+            // Return focus to the opener when the wizard closes
+            this.$watch('open', (value) => { if (!value) this.restoreFocus(); });
+        },
+        openWizard() {
+            this.lastFocused = document.activeElement;
+            this.open = true;
+            this.$nextTick(() => this.focusFirst());
+        },
+        focusFirst() {
+            const target = this.$el.querySelector('.wizard-sheet-inner button, .wizard-sheet-inner input, .wizard-sheet-inner [tabindex]');
+            if (target) target.focus();
+        },
+        focusables() {
+            return Array.from(this.$el.querySelectorAll(
+                'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex=\'-1\'])'
+            )).filter((el) => el.offsetParent !== null);
+        },
+        trapFocus(event) {
+            const items = this.focusables();
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+        restoreFocus() {
+            if (this.lastFocused && document.contains(this.lastFocused)) {
+                this.lastFocused.focus();
+            }
+            this.lastFocused = null;
         },
         restoreDraftFromStorage() {
             let saved = null;
@@ -50,22 +86,51 @@
         },
         confirmCloseWizard(message) {
             if (window.confirm(message)) this.$wire.forceClose();
+        },
+        scrollOpts(block) {
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            return { behavior: reduce ? 'auto' : 'smooth', block: block || 'center' };
+        },
+        async submitVisit() {
+            if (!navigator.onLine) {
+                const queue = window.__servantOfflineQueue || window.offlineQueue;
+                if (queue) {
+                    await queue.enqueue({
+                        beneficiary_id:     this.$wire.selectedBeneficiaryId,
+                        visitType:          this.$wire.visitType,
+                        beneficiaryStatus:  this.$wire.beneficiaryStatus,
+                        durationMinutes:    this.$wire.durationMinutes,
+                        feedback:           this.$wire.feedback,
+                        isCritical:         this.$wire.isCritical,
+                        needsFamilyLeader:  this.$wire.needsFamilyLeader,
+                        needsServiceLeader: this.$wire.needsServiceLeader,
+                        queuedAt:           Date.now(),
+                    });
+                    this.$wire.close();
+                    this.$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_queued') }}', type: 'warning' });
+                }
+            } else {
+                this.$wire.submit();
+            }
         }
     }"
-     @open-wizard.window="open = true"
-     @open-wizard-for.window="open = true"
+     @open-wizard.window="openWizard()"
+     @open-wizard-for.window="openWizard()"
      @wizard-open.window="restoreDraftFromStorage()"
      @confirm-close.window="confirmCloseWizard('{{ __('web_app.forms.wizard.confirm_discard') }}')"
      @save-wizard-draft.window="persistDraft($event)"
      @clear-wizard-draft.window="clearStoredDraft()"
      @restore-draft.window="applyDraft($event)"
      @offlineSyncConflict.window="$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_conflict') }}', type: 'warning' })"
+     @keydown.escape.window="if (open) { $wire.close(); }"
      role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
     <div class="wizard-container">
 
-    {{-- Overlay --}}
+    {{-- Overlay (decorative: dialog already labelled + ESC + cancel button dismiss) --}}
     <div x-show="open"
          x-cloak
+         aria-hidden="true"
+         :inert="!open"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -80,9 +145,13 @@
     <div class="fixed bottom-0 inset-x-0 z-[160] wizard-sheet-outer"
          :style="{ transform: open ? 'translateY(0)' : 'translateY(100%)' }"
          style="transform: translateY(100%);"
-         @wizard-validation-failed.window="$el.querySelector('.wizard-error-text')?.scrollIntoView({ behavior: 'smooth', block: 'center' })">
+         :inert="!open"
+         :aria-hidden="(!open).toString()"
+         @keydown.tab="trapFocus($event)"
+         @wizard-validation-failed.window="$el.querySelector('.wizard-error-text')?.scrollIntoView(scrollOpts())">
 
-        <div class="rounded-t-[28px] overflow-hidden wizard-sheet-inner">
+        <div class="rounded-t-[28px] overflow-y-auto overscroll-contain wizard-sheet-inner"
+             style="max-height: min(92dvh, 720px);">
 
             {{-- Drag Handle --}}
             <div class="flex justify-center pt-3 pb-1">
@@ -126,7 +195,6 @@
                               x-text="$wire.offlineCount"></span>
                     @endif
                 </div>
-                </h3>
             </div>
 
             {{-- ══════════════════ STEP 1: Select Beneficiary ══════════════════ --}}
@@ -162,14 +230,14 @@
                             <input wire:model.live.debounce.250ms="beneficiarySearch"
                                    type="search"
                                    enterkeyhint="search"
-                                   x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                                   x-on:focus="$el.scrollIntoView(scrollOpts())"
                                    placeholder="{{ __('web_app.forms.placeholders.search_beneficiary') }}"
                                    class="search-input wizard-search-input"
                                    aria-label="{{ __('web_app.forms.placeholders.search_beneficiary') }}">
                         </div>
 
                         {{-- Beneficiary List --}}
-                        <div class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="space-y-2 max-h-64 overflow-y-auto" role="group" aria-label="{{ __('web_app.forms.placeholders.search_beneficiary') }}" tabindex="0">
                             @forelse($beneficiaries as $b)
                                 <button wire:click="selectBeneficiary({{ $b->id }})"
                                         class="w-full text-start wizard-card rounded-2xl px-4 py-3 flex items-center gap-3 hover:shadow-md transition-all duration-200 active:scale-[0.98]">
@@ -208,9 +276,10 @@
 
             {{-- ══════════════════ STEP 2: Visit Type ══════════════════ --}}
             @if($step === 2)
-                <div class="px-5 pb-6 space-y-3">
+                <div class="px-5 pb-6 space-y-3" role="radiogroup" aria-label="{{ __('web_app.forms.wizard.step_type') }}">
                     @foreach($visitTypes as $key => $type)
                         <button wire:click="$set('visitType', '{{ $key }}')"
+                                role="radio" aria-checked="{{ $visitType === $key ? 'true' : 'false' }}"
                                 class="w-full text-start rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-200 border-2 wizard-type-card {{ $visitType === $key ? 'is-selected' : '' }}">
                             <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 wizard-type-icon {{ $visitType === $key ? 'is-selected' : '' }}"
                                  style="--type-color: {{ $type['var'] }}">
@@ -245,7 +314,7 @@
                         <div class="grid grid-cols-2 gap-2">
                             @foreach($statuses as $key => $status)
                                 <button wire:click="$set('beneficiaryStatus', '{{ $key }}')"
-                                        type="button"
+                                        type="button" aria-pressed="{{ $beneficiaryStatus === $key ? 'true' : 'false' }}"
                                         class="py-3 rounded-2xl text-center font-bold text-sm transition-all duration-200 border-2 wizard-status-chip {{ $beneficiaryStatus === $key ? 'is-selected ' . $status['class'] : '' }}">
                                     {{ $status['label'] }}
                                 </button>
@@ -264,14 +333,14 @@
                         <div class="flex gap-2 flex-wrap">
                             @foreach([15, 30, 45, 60, 90] as $min)
                                 <button wire:click="$set('durationMinutes', {{ $min }})"
-                                        type="button"
+                                        type="button" aria-pressed="{{ $durationMinutes == $min ? 'true' : 'false' }}"
                                         class="px-4 min-h-[44px] rounded-xl text-sm font-bold transition-all duration-200 border-2 wizard-duration-chip {{ $durationMinutes == $min ? 'is-selected' : '' }}">
                                     {{ $min }}{{ __('visits.minute_suffix') }}
                                 </button>
                             @endforeach
                             <input wire:model.live.debounce.150ms="durationMinutes"
                                    type="number" inputmode="numeric" min="1" max="480" placeholder="{{ __('visits.other') }}"
-                                   x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                                   x-on:focus="$el.scrollIntoView(scrollOpts())"
                                    class="w-20 min-h-[44px] px-3 rounded-xl border-2 text-sm text-center font-bold outline-none transition-colors wizard-duration-input"
                                    aria-label="{{ __('visits.duration_minutes') }}">
                         </div>
@@ -284,7 +353,7 @@
                                   class="form-textarea"
                                   rows="4"
                                   enterkeyhint="done"
-                                  x-on:focus="$el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                                  x-on:focus="$el.scrollIntoView(scrollOpts())"
                                   placeholder="{{ __('visits.feedback') }}"></textarea>
                     </div>
 
@@ -293,7 +362,7 @@
                         <legend class="sr-only">{{ __('visits.follow_up_flags') }}</legend>
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $isCritical ? 'is-critical' : '' }}">
                             <input wire:model="isCritical" type="checkbox"
-                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-critical">
+                                   class="w-6 h-6 rounded cursor-pointer flex-shrink-0 wizard-checkbox-critical">
                             <div>
                                 <p class="font-bold text-sm {{ $isCritical ? 'wizard-error-text' : 'wizard-text-strong' }}">{{ __('visits.is_critical') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.critical_case_help') }}</p>
@@ -302,7 +371,7 @@
 
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsFamilyLeader ? 'is-family-leader' : '' }}">
                             <input wire:model="needsFamilyLeader" type="checkbox"
-                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-warning">
+                                   class="w-6 h-6 rounded cursor-pointer flex-shrink-0 wizard-checkbox-warning">
                             <div>
                                 <p class="font-bold text-sm {{ $needsFamilyLeader ? 'wizard-text-warning' : 'wizard-text-strong' }}">{{ __('visits.needs_family_leader') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.needs_family_leader_help') }}</p>
@@ -311,7 +380,7 @@
 
                         <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-3 cursor-pointer wizard-flag-card {{ $needsServiceLeader ? 'is-service-leader' : '' }}">
                             <input wire:model="needsServiceLeader" type="checkbox"
-                                   class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-info">
+                                   class="w-6 h-6 rounded cursor-pointer flex-shrink-0 wizard-checkbox-info">
                             <div>
                                 <p class="font-bold text-sm {{ $needsServiceLeader ? 'wizard-text-primary-emph' : 'wizard-text-strong' }}">{{ __('visits.needs_service_leader') }}</p>
                                 <p class="text-xs wizard-text-muted">{{ __('visits.needs_service_leader_help') }}</p>
@@ -427,29 +496,7 @@
                     </button>
                 @else
                     <button
-                        x-data
-                        @click.prevent="
-                            if (!navigator.onLine) {
-                                const queue = window.__servantOfflineQueue;
-                                if (queue) {
-                                    await queue.enqueue({
-                                        beneficiary_id:     $wire.selectedBeneficiaryId,
-                                        visitType:          $wire.visitType,
-                                        beneficiaryStatus:  $wire.beneficiaryStatus,
-                                        durationMinutes:    $wire.durationMinutes,
-                                        feedback:           $wire.feedback,
-                                        isCritical:         $wire.isCritical,
-                                        needsFamilyLeader:  $wire.needsFamilyLeader,
-                                        needsServiceLeader: $wire.needsServiceLeader,
-                                        queuedAt:           Date.now(),
-                                    });
-                                    $wire.close();
-                                    $dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_queued') }}', type: 'warning' });
-                                }
-                            } else {
-                                $wire.submit();
-                            }
-                        "
+                        @click.prevent="submitVisit()"
                         wire:loading.attr="disabled"
                         type="button"
                         class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60 wizard-btn-save">
