@@ -26,7 +26,7 @@ class ScheduledVisitList extends Component
 
         abort_unless($sv !== null, 404);  // 404 whether the record doesn't exist or isn't owned
 
-        abort_unless($sv->status === 'pending', 403);
+        abort_unless(auth()->user()->can('cancel', $sv), 403);
 
         $sv->update(['status' => 'cancelled']);
 

@@ -6,6 +6,7 @@ namespace Tests\Feature\Servant;
 
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
+use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -109,5 +110,67 @@ class OfflineVisitSyncControllerTest extends TestCase
         $this->actingAs($servant)
             ->postJson(route('servant.visits.sync'), [])
             ->assertUnprocessable();
+    }
+
+    #[Test]
+    public function service_leader_without_managed_groups_gets_403_on_sync(): void
+    {
+        $group        = ServiceGroup::factory()->create();
+        $lonelyLeader = $this->createServiceLeader();
+        $beneficiary  = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+
+        $this->actingAs($lonelyLeader)
+            ->postJson(route('servant.visits.sync'), $this->validPayload($beneficiary->id))
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function replay_with_same_client_uuid_returns_original_without_duplicate(): void
+    {
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
+        $beneficiary = Beneficiary::factory()->create([
+            'assigned_servant_id' => $servant->id,
+            'service_group_id'    => $group->id,
+        ]);
+
+        $payload               = $this->validPayload($beneficiary->id);
+        $payload['clientUuid'] = 'test-uuid-replay-001';
+
+        $first = $this->actingAs($servant)
+            ->postJson(route('servant.visits.sync'), $payload);
+        $first->assertCreated()->assertJsonStructure(['id']);
+
+        $second = $this->actingAs($servant)
+            ->postJson(route('servant.visits.sync'), $payload);
+        $second->assertOk()->assertJson(['id' => $first->json('id'), 'duplicate' => true]);
+
+        $this->assertSame(1, Visit::where('client_uuid', 'test-uuid-replay-001')->count());
+    }
+
+    #[Test]
+    public function seconds_epoch_queued_at_falls_back_to_now(): void
+    {
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
+        $beneficiary = Beneficiary::factory()->create([
+            'assigned_servant_id' => $servant->id,
+            'service_group_id'    => $group->id,
+        ]);
+
+        $payload             = $this->validPayload($beneficiary->id);
+        $payload['queuedAt'] = 1700000000; // seconds, not ms (would be 1970 if misread)
+
+        $response = $this->actingAs($servant)
+            ->postJson(route('servant.visits.sync'), $payload);
+        $response->assertCreated();
+
+        $visit = Visit::findOrFail($response->json('id'));
+
+        // Must be ~now, not 1970 and not a far-future misread.
+        $this->assertTrue($visit->visit_date->greaterThan(now()->subMinutes(5)));
+        $this->assertTrue($visit->visit_date->lessThanOrEqualTo(now()->addMinute()));
     }
 }

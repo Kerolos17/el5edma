@@ -105,6 +105,9 @@
                         needsFamilyLeader:  this.$wire.needsFamilyLeader,
                         needsServiceLeader: this.$wire.needsServiceLeader,
                         queuedAt:           Date.now(),
+                        clientUuid:         (window.crypto && window.crypto.randomUUID)
+                            ? window.crypto.randomUUID()
+                            : ('fallback-' + Date.now() + '-' + Math.floor(Math.random() * 1000000)),
                     });
                     this.$wire.close();
                     this.$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_queued') }}', type: 'warning' });

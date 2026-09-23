@@ -16,6 +16,7 @@ class Visit extends Model
         'beneficiary_status', 'feedback', 'is_critical',
         'critical_resolved_at', 'critical_resolved_by',
         'needs_family_leader', 'needs_service_leader', 'created_by',
+        'client_uuid',
     ];
 
     protected function casts(): array

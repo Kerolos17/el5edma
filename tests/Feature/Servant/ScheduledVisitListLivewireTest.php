@@ -115,4 +115,30 @@ class ScheduledVisitListLivewireTest extends TestCase
             ->assertViewHas('scheduledVisits', fn ($sv) => $sv->contains('id', $upcoming->id))
             ->assertViewHas('scheduledVisits', fn ($sv) => ! $sv->contains('id', $past->id));
     }
+
+    #[Test]
+    public function servant_cannot_cancel_non_pending_own_visit(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+        $b       = Beneficiary::factory()->create(['assigned_servant_id' => $servant->id]);
+
+        $sv = ScheduledVisit::factory()->create([
+            'assigned_servant_id' => $servant->id,
+            'beneficiary_id'      => $b->id,
+            'status'              => 'completed',
+            'scheduled_date'      => now()->subDay(),
+        ]);
+        $sv->syncAssignedServants([$servant->id]);
+
+        Livewire::actingAs($servant)
+            ->test(ScheduledVisitList::class)
+            ->call('cancel', $sv->id)
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('scheduled_visits', [
+            'id'     => $sv->id,
+            'status' => 'completed',
+        ]);
+    }
 }

@@ -1267,4 +1267,160 @@ class ResourceActionsTest extends TestCase
             'feedback'           => 'Updated from profile',
         ]);
     }
+
+    #[Test]
+    public function outsider_service_leader_cannot_cancel_unmanaged_scheduled_visit(): void
+    {
+        $groupA  = ServiceGroup::factory()->create();
+        $groupB  = ServiceGroup::factory()->create();
+        $leaderA = $this->createServiceLeader();
+        $groupA->update(['service_leader_id' => $leaderA->id]);
+
+        $beneficiary    = Beneficiary::factory()->create(['service_group_id' => $groupB->id]);
+        $scheduledVisit = ScheduledVisit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'status'         => 'pending',
+        ]);
+
+        // Out-of-scope rows 404 via firstOrFail() before any Gate runs.
+        try {
+            Livewire::actingAs($leaderA)
+                ->test(ScheduledVisitsPage::class)
+                ->call('cancelScheduledVisit', $scheduledVisit->id);
+
+            $this->fail('Expected ModelNotFoundException for out-of-scope row.');
+        } catch (ModelNotFoundException) {
+            // Expected: scope boundary rejects before authorization.
+        }
+
+        $this->assertDatabaseHas('scheduled_visits', [
+            'id'     => $scheduledVisit->id,
+            'status' => 'pending',
+        ]);
+    }
+
+    #[Test]
+    public function family_leader_can_cancel_own_group_scheduled_visit(): void
+    {
+        $group          = ServiceGroup::factory()->create();
+        $familyLeader   = $this->createFamilyLeader($group);
+        $beneficiary    = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+        $scheduledVisit = ScheduledVisit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'status'         => 'pending',
+        ]);
+
+        Livewire::actingAs($familyLeader)
+            ->test(ScheduledVisitsPage::class)
+            ->call('cancelScheduledVisit', $scheduledVisit->id)
+            ->assertDispatched('toast');
+
+        $this->assertDatabaseHas('scheduled_visits', [
+            'id'     => $scheduledVisit->id,
+            'status' => 'cancelled',
+        ]);
+    }
+
+    #[Test]
+    public function service_leader_can_approve_user_in_managed_group(): void
+    {
+        $group  = ServiceGroup::factory()->create();
+        $leader = $this->createServiceLeader();
+        $group->update(['service_leader_id' => $leader->id]);
+
+        $servant = $this->createServant($group, ['is_active' => false]);
+
+        Livewire::actingAs($leader)
+            ->test(UsersPage::class)
+            ->call('approveUser', $servant->id)
+            ->assertDispatched('toast');
+
+        $this->assertTrue($servant->fresh()->is_active);
+    }
+
+    #[Test]
+    public function family_leader_cannot_approve_users(): void
+    {
+        $group        = ServiceGroup::factory()->create();
+        $familyLeader = $this->createFamilyLeader($group);
+        $servant      = $this->createServant($group, ['is_active' => false]);
+
+        Livewire::actingAs($familyLeader)
+            ->test(UsersPage::class)
+            ->call('approveUser', $servant->id)
+            ->assertForbidden();
+
+        $this->assertFalse($servant->fresh()->is_active);
+    }
+
+    #[Test]
+    public function user_cannot_approve_themselves(): void
+    {
+        // SuperAdmin scope includes every user (incl. self), so the
+        // self-approval ban in approveUser() is what rejects this (403).
+        $admin = $this->createSuperAdmin();
+
+        Livewire::actingAs($admin)
+            ->test(UsersPage::class)
+            ->call('approveUser', $admin->id)
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function family_leader_forged_user_form_calls_are_rejected(): void
+    {
+        $group        = ServiceGroup::factory()->create();
+        $familyLeader = $this->createFamilyLeader($group);
+
+        Livewire::actingAs($familyLeader)
+            ->test(UsersPage::class)
+            ->call('openUserForm')
+            ->assertForbidden();
+
+        Livewire::actingAs($familyLeader)
+            ->test(UsersPage::class)
+            ->call('saveUser')
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function open_visit_from_scheduled_sets_context_for_authorized_user(): void
+    {
+        $group          = ServiceGroup::factory()->create();
+        $familyLeader   = $this->createFamilyLeader($group);
+        $beneficiary    = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+        $scheduledVisit = ScheduledVisit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'status'         => 'pending',
+        ]);
+
+        Livewire::actingAs($familyLeader)
+            ->test(ScheduledVisitsPage::class)
+            ->call('openVisitFromScheduled', $scheduledVisit->id)
+            ->assertSet('showVisitForm', true)
+            ->assertSet('scheduledVisitContextId', $scheduledVisit->id);
+    }
+
+    #[Test]
+    public function servant_can_open_visit_only_from_assigned_scheduled_visit(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+        $other   = $this->createServant($group);
+
+        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+        $unassigned  = ScheduledVisit::factory()->create([
+            'beneficiary_id'      => $beneficiary->id,
+            'assigned_servant_id' => $other->id,
+            'status'              => 'pending',
+        ]);
+        $unassigned->syncAssignedServants([$other->id]);
+
+        // Out-of-scope rows 404 via firstOrFail() before any Gate runs.
+        $this->expectException(ModelNotFoundException::class);
+
+        Livewire::actingAs($servant)
+            ->test(ScheduledVisitsPage::class)
+            ->call('openVisitFromScheduled', $unassigned->id);
+    }
 }

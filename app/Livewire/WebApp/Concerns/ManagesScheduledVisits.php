@@ -154,20 +154,7 @@ trait ManagesScheduledVisits
         $scheduledVisit = WebAppScope::scheduledVisits(auth()->user())->whereKey($scheduledVisitId)->firstOrFail();
 
         abort_unless($scheduledVisit->status === 'pending', 403);
-
-        if (auth()->user()->can('delete', $scheduledVisit)) {
-            $scheduledVisit->update(['status' => 'cancelled']);
-            $this->dispatch('toast', message: __('web_app.toasts.scheduled_visit_cancelled'), type: 'success');
-
-            return;
-        }
-
-        abort_unless(
-            auth()->user()->isServant()
-            && $scheduledVisit->isAssignedTo(auth()->id())
-            && $scheduledVisit->status === 'pending',
-            403,
-        );
+        abort_unless(auth()->user()->can('cancel', $scheduledVisit), 403);
 
         $scheduledVisit->update(['status' => 'cancelled']);
         $this->dispatch('toast', message: __('web_app.toasts.scheduled_visit_cancelled'), type: 'success');
@@ -178,6 +165,7 @@ trait ManagesScheduledVisits
         $scheduledVisit = WebAppScope::scheduledVisits(auth()->user())->whereKey($scheduledVisitId)->firstOrFail();
 
         abort_unless($scheduledVisit->status === 'pending', 403);
+        abort_unless(auth()->user()->can('view', $scheduledVisit), 403);
 
         $this->openVisitForm($scheduledVisit->beneficiary_id);
         $this->scheduledVisitContextId = $scheduledVisit->id;
@@ -229,7 +217,12 @@ trait ManagesScheduledVisits
                 ->where('status', 'pending')
                 ->first();
 
-            if ($scheduledVisit !== null) {
+            // Leaders need update rights; servants may complete visits they
+            // are personally assigned to (same carve-out as cancel/auto paths).
+            if ($scheduledVisit !== null
+                && (auth()->user()->can('update', $scheduledVisit)
+                    || (auth()->user()->isServant() && $scheduledVisit->isAssignedTo(auth()->id())))
+            ) {
                 $scheduledVisit->update([
                     'status'             => 'completed',
                     'completed_visit_id' => $visit->id,

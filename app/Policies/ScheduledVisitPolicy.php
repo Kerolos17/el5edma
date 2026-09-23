@@ -115,6 +115,33 @@ class ScheduledVisitPolicy
     }
 
     /**
+     * Determine whether the user can cancel (soft-close to `cancelled`
+     * status, not row delete) the scheduled visit.
+     */
+    public function cancel(User $user, ScheduledVisit $scheduledVisit): bool
+    {
+        if ($user->role === UserRole::SuperAdmin) {
+            return true;
+        }
+
+        if ($this->delete($user, $scheduledVisit)) {
+            return true;
+        }
+
+        // Servant carve-out: cancelling one's own assigned pending visit is a
+        // designed field workflow (not a policy bypass) — enforced here so
+        // every caller goes through the Gate instead of bespoke checks.
+        if ($user->role === UserRole::Servant) {
+            $scheduledVisit->loadMissing('servants');
+
+            return $scheduledVisit->isAssignedTo($user)
+                && $scheduledVisit->status === 'pending';
+        }
+
+        return false;
+    }
+
+    /**
      * Determine whether the user can restore the scheduled visit.
      */
     public function restore(User $user, ScheduledVisit $scheduledVisit): bool

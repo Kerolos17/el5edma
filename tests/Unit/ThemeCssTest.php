@@ -59,9 +59,9 @@ class ThemeCssTest extends TestCase
         $this->assertStringContainsString('[dir="rtl"] .sidebar-panel', $mediaContent);
     }
 
-    public function test_code_input_base_rule_has_40px_width(): void
+    public function test_code_input_base_rule_has_44px_width(): void
     {
-        $this->assertMatchesRegularExpression('/\.code-input\s*\{[^}]*width:\s*40px/s', $this->css);
+        $this->assertMatchesRegularExpression('/\.code-input\s*\{[^}]*width:\s*44px/s', $this->css);
     }
 
     public function test_code_input_has_44px_width_in_400px_media_query(): void

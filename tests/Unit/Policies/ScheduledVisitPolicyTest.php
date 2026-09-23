@@ -102,4 +102,58 @@ class ScheduledVisitPolicyTest extends TestCase
         $this->assertFalse($this->policy->update($this->serviceLeader, $svOut));
         $this->assertFalse($this->policy->delete($this->serviceLeader, $svOut));
     }
+
+    public function test_super_admin_can_cancel_anything(): void
+    {
+        $admin = $this->createSuperAdmin();
+        $sv    = $this->scheduledVisitInGroup($this->groupA);
+
+        $this->assertTrue($this->policy->cancel($admin, $sv));
+    }
+
+    public function test_service_leader_can_cancel_managed_but_not_unmanaged(): void
+    {
+        $this->assertTrue($this->policy->cancel($this->serviceLeader, $this->scheduledVisitInGroup($this->groupA)));
+        $this->assertFalse($this->policy->cancel($this->serviceLeader, $this->scheduledVisitInGroup($this->groupB)));
+    }
+
+    public function test_family_leader_can_cancel_own_group_only(): void
+    {
+        $fl = $this->createFamilyLeader($this->groupA);
+
+        $this->assertTrue($this->policy->cancel($fl, $this->scheduledVisitInGroup($this->groupA)));
+        $this->assertFalse($this->policy->cancel($fl, $this->scheduledVisitInGroup($this->groupB)));
+    }
+
+    public function test_servant_can_cancel_only_own_assigned_pending_visit(): void
+    {
+        $servant = $this->createServant($this->groupA);
+        $other   = $this->createServant($this->groupA);
+
+        $mine = $this->scheduledVisitInGroup($this->groupA);
+        $mine->update(['assigned_servant_id' => $servant->id]);
+        $mine->syncAssignedServants([$servant->id]);
+
+        $theirs = $this->scheduledVisitInGroup($this->groupA);
+        $theirs->update(['assigned_servant_id' => $other->id]);
+        $theirs->syncAssignedServants([$other->id]);
+
+        $done = $this->scheduledVisitInGroup($this->groupA, 'completed');
+        $done->update(['assigned_servant_id' => $servant->id]);
+        $done->syncAssignedServants([$servant->id]);
+
+        $this->assertTrue($this->policy->cancel($servant, $mine));
+        $this->assertFalse($this->policy->cancel($servant, $theirs));
+        $this->assertFalse($this->policy->cancel($servant, $done));
+    }
+
+    private function scheduledVisitInGroup(ServiceGroup $group, string $status = 'pending'): ScheduledVisit
+    {
+        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+
+        return ScheduledVisit::factory()->create([
+            'beneficiary_id' => $beneficiary->id,
+            'status'         => $status,
+        ]);
+    }
 }

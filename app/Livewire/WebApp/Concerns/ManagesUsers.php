@@ -176,10 +176,13 @@ trait ManagesUsers
 
     public function approveUser(int $id): void
     {
-        $actor = auth()->user();
-        abort_unless($actor->can('update', new User), 403);
-
+        $actor  = auth()->user();
         $record = WebAppScope::users($actor)->whereKey($id)->firstOrFail();
+
+        // Authorize against the RECORD (not an empty model) + never self-approve,
+        // mirroring toggleUserActive() just above.
+        abort_unless($actor->id !== $record->id && $actor->can('update', $record), 403);
+
         $record->update(['is_active' => true]);
         $this->dispatch('toast', message: __('web_app.toasts.user_enabled'), type: 'success');
     }

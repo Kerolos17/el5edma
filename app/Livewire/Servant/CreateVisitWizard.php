@@ -151,6 +151,8 @@ class CreateVisitWizard extends Component
 
     public function submit(): void
     {
+        abort_unless(auth()->user()->can('create', Visit::class), 403);
+
         $this->validate([
             'selectedBeneficiaryId' => 'required|integer',
             'visitType'             => 'required|in:home_visit,phone_call,church_meeting',

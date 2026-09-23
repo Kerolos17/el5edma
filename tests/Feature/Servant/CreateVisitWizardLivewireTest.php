@@ -137,6 +137,20 @@ class CreateVisitWizardLivewireTest extends TestCase
     }
 
     #[Test]
+    public function service_leader_without_managed_groups_cannot_submit_visit(): void
+    {
+        // Phase 1 authz: submit() must enforce can('create', Visit) BEFORE
+        // validation/ownership. A service leader leading zero groups fails
+        // VisitPolicy::create and gets 403 (not a validation error).
+        $lonelyLeader = $this->createServiceLeader();
+
+        Livewire::actingAs($lonelyLeader)
+            ->test(CreateVisitWizard::class)
+            ->call('submit')
+            ->assertForbidden();
+    }
+
+    #[Test]
     public function offline_queue_count_event_updates_pending_badge(): void
     {
         $group   = ServiceGroup::factory()->create();
