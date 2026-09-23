@@ -33,7 +33,7 @@
     <x-servant.desktop-sidebar />
 
     {{-- Main content wrapper --}}
-    <main class="relative z-10 lg:mr-64 min-h-screen">
+    <main class="relative z-10 lg:me-64 min-h-screen">
         {{-- Mobile / tablet header --}}
         <x-servant.header />
 

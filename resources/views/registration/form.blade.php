@@ -97,6 +97,27 @@
         .form-footer { margin-top: 1.5rem; text-align: center; font-size: .84rem; color: #64748b; }
         .form-footer a { color: var(--brand); font-weight: 600; text-decoration: none; transition: color .15s; }
         .form-footer a:hover { color: var(--brand-dark); text-decoration: underline; }
+
+        /* ─── Dark Mode ─────────────────────────────────────────── */
+        @media (prefers-color-scheme: dark) {
+            body { background: #0c1824; color: #e2e8f0; }
+            .form-header h1 { color: #f1f5f9; }
+            .form-header p, .form-footer { color: #94a3b8; }
+            .field label { color: #94a3b8; }
+            .field-input { background: #111f2e; border-color: #1e3448; color: #e2e8f0; }
+            .field-hint { color: #94a3b8; }
+            .field-error { color: #f87171; }
+            .pw-toggle { color: #94a3b8; }
+            .group-badge { background: rgba(0,115,163,.15); color: #7ab8db; }
+            .alert-error { background: #2d0a0a; border-color: #7f1d1d; color: #fca5a5; }
+        }
+
+        /* ─── Reduced Motion ────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            .form-card { animation: none; }
+            .btn-submit:active { transform: none; }
+            * { transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 

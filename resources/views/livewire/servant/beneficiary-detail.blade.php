@@ -63,7 +63,7 @@
                         class="avatar-ring relative z-10 mb-3"
                     />
                     <p class="font-bold text-teal-900 text-lg leading-tight">{{ $b->full_name }}</p>
-                    <p class="text-sm text-gray-400 mt-0.5" dir="ltr">{{ $b->code }}</p>
+                    <p class="text-sm text-gray-500 mt-0.5" dir="ltr">{{ $b->code }}</p>
                 </div>
 
                 {{-- Info chips row --}}
@@ -102,7 +102,7 @@
                             size="xs"
                             shape="round"
                         />
-                        <p class="text-xs text-gray-400">
+                        <p class="text-xs text-gray-500">
                             الخادم المسؤول:
                             <span class="font-semibold text-teal-800">{{ $b->assignedServant->name }}</span>
                         </p>
@@ -149,7 +149,7 @@
                             class="w-full py-2.5 min-h-[44px] rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white btn-ripple"
                             style="background: linear-gradient(135deg, #006D77 0%, #003942 100%); box-shadow: 0 4px 16px rgba(0,109,119,0.3);">
                         <i class="ph-bold ph-calendar-plus text-base" aria-hidden="true"></i>
-                        تسجيل زيارة
+                        {{ __('servant.record_visit') }}
                     </button>
                 </div>
             </div>
@@ -158,8 +158,8 @@
         {{-- ══════════ Recent Visits ══════════ --}}
         <div class="reveal-card" style="animation-delay: 0.08s">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="font-bold text-teal-900">آخر الزيارات</h2>
-                <span class="text-xs text-gray-400">{{ $recentVisits->count() }} زيارة</span>
+                <h2 class="font-bold text-teal-900">{{ __('servant.recent_visits') }}</h2>
+                <span class="text-xs text-gray-500">{{ $recentVisits->count() }} {{ __('visits.singular') }}</span>
             </div>
 
             @if($recentVisits->isEmpty())
@@ -176,7 +176,7 @@
                                 <p class="text-xl font-bold text-teal-700 leading-none" style="font-family: var(--font-accent);">
                                     {{ $visit->visit_date->format('d') }}
                                 </p>
-                                <p class="text-[10px] text-gray-400 leading-tight mt-0.5">
+                                <p class="text-[10px] text-gray-500 leading-tight mt-0.5">
                                     {{ $visit->visit_date->format('M Y') }}
                                 </p>
                             </div>
@@ -204,7 +204,7 @@
                                     <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $visit->feedback }}</p>
                                 @endif
                                 @if($visit->duration_minutes)
-                                    <p class="text-xs text-gray-400 mt-1">
+                                    <p class="text-xs text-gray-500 mt-1">
                                         <i class="ph ph-clock text-xs" aria-hidden="true"></i> {{ $visit->duration_minutes }} دقيقة
                                     </p>
                                 @endif
@@ -248,7 +248,7 @@
                                         @endif
                                     </div>
                                     @if($med->notes)
-                                        <p class="text-xs text-gray-400 mt-1">{{ $med->notes }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ $med->notes }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -275,7 +275,7 @@
                             @if($prayer->body)
                                 <p class="text-xs text-gray-500 mt-1 leading-relaxed">{{ $prayer->body }}</p>
                             @endif
-                            <p class="text-xs text-gray-400 mt-2">
+                            <p class="text-xs text-gray-500 mt-2">
                                 {{ $prayer->created_at->locale('ar')->isoFormat('D MMM YYYY') }}
                             </p>
                         </div>
@@ -316,12 +316,12 @@
                             <i class="ph {{ $icon }} text-sm text-teal-600"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs text-gray-400">{{ $label }}</p>
+                            <p class="text-xs text-gray-500">{{ $label }}</p>
                             <p class="text-sm font-semibold text-teal-900 mt-0.5 leading-snug">{{ $value }}</p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-gray-400 text-center py-2">لا توجد بيانات مضافة</p>
+                    <p class="text-sm text-gray-500 text-center py-2">{{ __('servant.no_extra_data') }}</p>
                 @endforelse
             </div>
         </div>
@@ -338,7 +338,7 @@
                 <div class="s-card rounded-2xl px-4 py-3">
                     <p class="text-sm text-gray-600 leading-relaxed">{{ $b->medical_notes }}</p>
                     @if($b->last_medical_update)
-                        <p class="text-xs text-gray-400 mt-2">
+                        <p class="text-xs text-gray-500 mt-2">
                             آخر تحديث: {{ $b->last_medical_update->locale('ar')->isoFormat('D MMM YYYY') }}
                         </p>
                     @endif

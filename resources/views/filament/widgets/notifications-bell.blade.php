@@ -9,7 +9,7 @@
         :aria-expanded="open.toString()"
         aria-controls="filament-notifications-menu"
         aria-label="{{ __('notifications.title') }}"
-        class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition focus:outline-none"
+        class="relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition focus:outline-none focus-visible:ring-2"
     >
         <x-heroicon-o-bell class="w-6 h-6 text-gray-500 dark:text-gray-400" />
 

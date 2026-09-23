@@ -3,7 +3,7 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">الزيارات المجدولة</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $scheduledVisits->total() }} زيارة</p>
+        <p class="text-sm text-gray-500 mt-0.5">{{ $scheduledVisits->total() }} زيارة</p>
     </div>
 
     {{-- Filter Chips --}}
@@ -38,7 +38,7 @@
                     <p class="text-2xl font-bold text-teal-700 leading-none" style="font-family: var(--font-accent);">
                         {{ $sv->scheduled_date->format('d') }}
                     </p>
-                    <p class="text-xs text-gray-400 mt-0.5">
+                    <p class="text-xs text-gray-500 mt-0.5">
                         {{ $sv->scheduled_date->locale('ar')->isoFormat('MMM') }}
                     </p>
                 </div>

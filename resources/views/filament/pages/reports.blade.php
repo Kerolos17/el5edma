@@ -31,7 +31,7 @@
                     <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-xl">👥</div>
                     <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ __('reports.r1_title') }}</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
                     {{ __('reports.r1_description') }}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-2">
@@ -53,7 +53,7 @@
                         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-xl">📋</div>
                         <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ __('reports.r2_title') }}</h3>
                     </div>
-                    <p class="text-xs text-gray-500 mb-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
                         {{ __('reports.r2_description') }}
                     </p>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -74,7 +74,7 @@
                         <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-xl">⚠️</div>
                         <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ __('reports.r3_title') }}</h3>
                     </div>
-                    <p class="text-xs text-gray-500 mb-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
                         {{ __('reports.r3_description') }}
                     </p>
                     <div class="flex flex-col sm:flex-row gap-2">

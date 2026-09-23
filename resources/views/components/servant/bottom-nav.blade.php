@@ -1,13 +1,13 @@
 @php
     $items = [
-        ['route' => 'servant.dashboard',        'icon' => 'ph-house',       'label' => 'الرئيسية',      'active' => request()->routeIs('servant.dashboard')],
-        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',       'label' => 'المخدومون',     'active' => request()->routeIs('servant.beneficiaries*')],
-        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar',    'label' => 'جدولي',         'active' => request()->routeIs('servant.scheduled-visits')],
+        ['route' => 'servant.dashboard',        'icon' => 'ph-house',       'label' => __('servant.nav_home'),          'active' => request()->routeIs('servant.dashboard')],
+        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',       'label' => __('servant.nav_beneficiaries'), 'active' => request()->routeIs('servant.beneficiaries*')],
+        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar',    'label' => __('servant.nav_schedule'),      'active' => request()->routeIs('servant.scheduled-visits')],
     ];
 @endphp
 
-<div class="fixed bottom-0 left-0 right-0 lg:hidden z-50" style="padding-bottom: env(safe-area-inset-bottom);">
-    <nav class="flex items-center justify-around h-16 px-1 servant-bottombar" aria-label="التنقل السريع">
+<div class="fixed bottom-0 inset-x-0 lg:hidden z-50" style="padding-bottom: env(safe-area-inset-bottom);">
+    <nav class="flex items-center justify-around h-16 px-1 servant-bottombar" aria-label="{{ __('servant.nav_quick') }}">
 
         @foreach ($items as $item)
             <a href="{{ route($item['route']) }}" wire:navigate
@@ -33,10 +33,10 @@
                 onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"
                 class="w-12 h-12 -mt-5 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/25 transition-all duration-200 active:scale-95"
                 style="background: linear-gradient(135deg, #0d9488, #0f766e);"
-                aria-label="تسجيل زيارة جديدة">
+                aria-label="{{ __('servant.record_visit') }}">
                 <i aria-hidden="true" class="ph-bold ph-plus text-white text-xl"></i>
             </button>
-            <span class="text-[11px] font-bold text-teal-600 mt-0.5 leading-relaxed">زيارة</span>
+            <span class="text-[11px] font-bold text-teal-600 mt-0.5 leading-relaxed">{{ __('servant.nav_visit') }}</span>
         </div>
     </nav>
 </div>

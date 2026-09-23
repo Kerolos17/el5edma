@@ -27,13 +27,13 @@
     <div class="px-4 py-3 flex items-center justify-between gap-3 servant-topbar">
 
         {{-- Hamburger --}}
-        <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="القائمة">
+        <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="{{ __('servant.menu') }}">
             <i aria-hidden="true" class="ph ph-list text-xl"></i>
         </button>
 
         {{-- Search + Theme + Notifications --}}
         <div class="flex items-center gap-1">
-            <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
+            <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="{{ __('servant.search') }}">
                 <i aria-hidden="true" class="ph ph-magnifying-glass text-lg"></i>
             </a>
             <x-servant.theme-toggle />
@@ -48,7 +48,7 @@
     {{-- Drawer --}}
     <div x-cloak x-show="drawer"
          x-ref="drawerPanel"
-         role="dialog" aria-modal="true" aria-label="القائمة"
+         role="dialog" aria-modal="true" aria-label="{{ __('servant.menu') }}"
          :inert="!drawer"
          @open-drawer.window="drawer = true"
          @keydown.escape.window="drawer = false"
@@ -76,10 +76,10 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-white font-bold text-sm truncate">{{ $user->name }}</p>
-                    <p class="text-white/50 text-xs">{{ $user->role->label() }}</p>
+                    <p class="text-white/70 text-xs">{{ $user->role->label() }}</p>
                 </div>
             </div>
-            <button @click="drawer = false" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10" aria-label="إغلاق">
+            <button @click="drawer = false" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/75 hover:text-white hover:bg-white/10" aria-label="{{ __('servant.close') }}">
                 <i aria-hidden="true" class="ph ph-x text-lg"></i>
             </button>
         </div>
@@ -88,7 +88,7 @@
         <nav class="px-3 py-4 space-y-1">
             @foreach ($nav as $item)
                 <a href="{{ route($item['route']) }}" wire:navigate @click="drawer = false"
-                   class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors {{ request()->routeIs($item['route'].'*') ? 'bg-white/15 text-white' : 'text-white/60 hover:bg-white/[8%] hover:text-white' }}">
+                   class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors {{ request()->routeIs($item['route'].'*') ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/[8%] hover:text-white' }}">
                     <i class="{{ request()->routeIs($item['route'].'*') ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-xl flex-shrink-0"></i>
                     <span class="font-semibold text-sm">{{ $item['label'] }}</span>
                 </a>
@@ -110,7 +110,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                        class="w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white/50 hover:text-white hover:bg-white/[8%] transition-colors">
+                        class="w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm text-white/70 hover:text-white hover:bg-white/[8%] transition-colors">
                     <i aria-hidden="true" class="ph ph-sign-out text-lg"></i>
                     تسجيل خروج
                 </button>

@@ -5,7 +5,7 @@
     x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 transform translate-y-0 sm:scale-100"
     x-transition:leave-end="opacity-0 transform translate-y-4 sm:translate-y-0 sm:scale-95"
-    class="fixed bottom-0 left-0 right-0 z-100 pb-safe sm:bottom-6 sm:left-auto sm:right-6 sm:w-96"
+    class="fixed bottom-0 inset-x-0 z-100 pb-safe sm:bottom-6 sm:start-auto sm:end-6 sm:w-96"
     style="display: none;">
 
     <div
@@ -18,19 +18,19 @@
 
         <div class="flex-1">
             <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1 leading-tight">
-                تثبيت التطبيق
+                {{ __('servant.pwa_title') }}
             </h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">
-                أضف نظام الافتقاد إلى شاشتك الرئيسية للوصول السريع والإشعارات الفورية.
+                {{ __('servant.pwa_body') }}
             </p>
             <div class="flex gap-2">
                 <button @click="install()"
                     class="flex-1 bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors min-h-[44px]">
-                    تثبيت
+                    {{ __('servant.pwa_install') }}
                 </button>
                 <button @click="dismiss()"
                     class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px]">
-                    ربما لاحقاً
+                    {{ __('servant.pwa_later') }}
                 </button>
             </div>
         </div>
@@ -44,7 +44,7 @@
     x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 transform translate-y-0"
     x-transition:leave-end="opacity-0 transform translate-y-4"
-    class="fixed bottom-0 left-0 right-0 z-100 pb-safe sm:bottom-6 sm:left-auto sm:right-6 sm:w-96"
+    class="fixed bottom-0 inset-x-0 z-100 pb-safe sm:bottom-6 sm:start-auto sm:end-6 sm:w-96"
     style="display: none;">
 
     <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 sm:rounded-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.12)] sm:shadow-2xl">
@@ -54,10 +54,10 @@
                 class="w-12 h-12 rounded-xl shrink-0 border border-gray-100 dark:border-gray-700" alt="App Icon">
             <div>
                 <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-tight">
-                    تثبيت التطبيق على iPhone
+                    {{ __('servant.pwa_ios_title') }}
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    أضف النظام لشاشتك الرئيسية للوصول السريع
+                    {{ __('servant.pwa_ios_body') }}
                 </p>
             </div>
         </div>

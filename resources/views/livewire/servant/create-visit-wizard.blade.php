@@ -62,6 +62,22 @@
             }
             this.lastFocused = null;
         },
+        trapModal(event, modalId) {
+            const root = document.getElementById(modalId);
+            if (!root) return;
+            const items = Array.from(root.querySelectorAll('button:not([disabled])'))
+                .filter((el) => el.getClientRects().length > 0);
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
         restoreDraftFromStorage() {
             let saved = null;
             try { saved = localStorage.getItem('wizard_draft'); } catch (err) { return; }
@@ -514,6 +530,9 @@
 
     {{-- Confirm discard draft modal (inside root to keep single Livewire root) --}}
     <div x-show="open && $wire.hasDraft" x-cloak
+         id="confirm-discard-modal"
+         @keydown.tab="trapModal($event, 'confirm-discard-modal')"
+         @keydown.escape.window="$wire.hasDraft = false"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100"

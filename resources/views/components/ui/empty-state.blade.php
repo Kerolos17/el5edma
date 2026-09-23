@@ -15,7 +15,7 @@
 
 <div {{ $attributes->class(['s-card rounded-3xl text-center', $s['wrap']]) }}>
     <i class="ph {{ $icon }} {{ $s['icon'] }} text-gray-300 mb-3 block"></i>
-    <p class="{{ $s['msg'] }} text-gray-400">{{ $message }}</p>
+    <p class="{{ $s['msg'] }} text-gray-500">{{ $message }}</p>
     @if(isset($action))
         <div class="mt-3">{{ $action }}</div>
     @endif

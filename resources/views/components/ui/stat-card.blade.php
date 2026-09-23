@@ -19,7 +19,7 @@
 
 <div class="s-card stat-card relative overflow-hidden rounded-3xl p-5 text-white {{ $pulse ? 'critical-indicator' : '' }}"
      style="background: {{ $bg }};">
-    <p class="text-white/70 text-xs font-semibold mb-2">{{ $label }}</p>
+    <p class="text-white/85 text-xs font-semibold mb-2">{{ $label }}</p>
     <p class="text-4xl font-bold" style="font-family: var(--font-accent);">{{ $value }}</p>
     <i class="{{ $icon }} absolute start-4 bottom-4 text-white/15 text-5xl"></i>
 </div>

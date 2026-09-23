@@ -3,12 +3,12 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">الزيارات</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $visits->total() }} زيارة</p>
+        <p class="text-sm text-gray-500 mt-0.5">{{ $visits->total() }} زيارة</p>
     </div>
 
     {{-- Search --}}
     <div class="relative reveal-card" style="animation-delay: 0.03s">
-        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-500 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
@@ -27,7 +27,7 @@
                     class="radio-chip flex-shrink-0 {{ $filter === $val ? 'selected' : '' }}"
                     aria-pressed="{{ $filter === $val ? 'true' : 'false' }}">
                 @if($val === 'critical')
-                    <i class="ph-fill ph-warning text-sm {{ $filter === 'critical' ? 'text-red-500' : 'text-gray-400' }}"
+                    <i class="ph-fill ph-warning text-sm {{ $filter === 'critical' ? 'text-red-500' : 'text-gray-500' }}"
                        aria-hidden="true"></i>
                 @endif
                 {{ $label }}
@@ -56,7 +56,7 @@
                     <p class="text-2xl font-bold text-teal-700 leading-none" style="font-family: var(--font-accent);">
                         {{ $visit->visit_date->format('d') }}
                     </p>
-                    <p class="text-xs text-gray-400 mt-0.5">
+                    <p class="text-xs text-gray-500 mt-0.5">
                         {{ $visit->visit_date->locale('ar')->isoFormat('MMM') }}
                     </p>
                 </div>
@@ -81,7 +81,7 @@
                             <span class="badge-pill badge-info text-xs px-2 py-0.5">{{ $visit->type }}</span>
                         @endif
                         @if($visit->duration_minutes)
-                            <span class="text-xs text-gray-400">
+                            <span class="text-xs text-gray-500">
                                 <i class="ph ph-clock text-xs" aria-hidden="true"></i>
                                 {{ $visit->duration_minutes }} دقيقة
                             </span>

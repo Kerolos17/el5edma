@@ -94,9 +94,9 @@
                 <button
                     type="button"
                     wire:click="closeModal"
-                    class="shrink-0 flex items-center justify-center w-8 h-8 rounded-full
+                    class="shrink-0 flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-full
                            text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700
-                           transition focus:outline-none"
+                           transition focus:outline-none focus-visible:ring-2"
                     aria-label="{{ __('search.close') }}"
                 >
                     <x-heroicon-o-x-mark class="w-5 h-5" />

@@ -188,11 +188,12 @@
     {{-- Detail Modal --}}
     @if ($viewingLog)
         <div class="app-modal-backdrop" wire:click.self="closeView"></div>
-        <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}">
+        <section class="app-modal-sheet" role="dialog" aria-modal="true" aria-label="{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}"
+                 @keydown.escape.window="$wire.closeView()">
             <div class="app-modal-panel app-modal-panel-wide">
                 <div class="app-modal-header">
                     <h3>{{ __('audit_logs.singular') }} #{{ $viewingLog->id }}</h3>
-                    <button type="button" wire:click="closeView" class="app-icon-button !border-0 !w-8 !h-8">
+                    <button type="button" wire:click="closeView" class="app-icon-button !border-0 !w-11 !min-w-[44px] !h-11 !min-h-[44px]" aria-label="{{ __('web_app.actions.close') }}">
                         <i class="ph ph-x" aria-hidden="true"></i>
                     </button>
                 </div>

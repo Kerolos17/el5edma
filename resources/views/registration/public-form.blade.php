@@ -585,6 +585,24 @@
             .form-footer {
                 color: #475569;
             }
+
+            .modal-card {
+                background: #111f2e;
+                color: #e2e8f0;
+            }
+        }
+
+        /* ─── Reduced Motion ────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            .field,
+            .btn-submit {
+                animation: none;
+            }
+
+            .modal-overlay,
+            .modal-card {
+                animation-duration: 0.01ms;
+            }
         }
 
         /* ─── Staggered field animation ───────────────────────── */
@@ -1046,7 +1064,7 @@
                     </div>
 
                     {{-- Wave divider --}}
-                    <div class="modal-wave">
+                    <div class="modal-wave" aria-hidden="true">
                         <svg viewBox="0 0 460 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 40 Q115 0 230 20 Q345 40 460 0 L460 40 Z" fill="#ffffff"/>
                         </svg>
@@ -1055,7 +1073,7 @@
 
                 {{-- Body --}}
                 <div class="modal-body">
-                    <h2 id="modal-heading">{{ __('registration.success_title') }}</h2>
+                    <h2 id="modal-heading" tabindex="-1" autofocus>{{ __('registration.success_title') }}</h2>
                     <p class="modal-tagline">{{ __('registration.success_message') }}</p>
 
                     {{-- Pending badge --}}

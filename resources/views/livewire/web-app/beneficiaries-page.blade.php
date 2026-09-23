@@ -83,12 +83,12 @@
                     @forelse ($records as $record)
                         <tr>
                             <td class="!ps-0 !w-12">
-                                <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}">
+                                <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center">
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                                         @if ($record->photo_url)
                                             <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover" loading="lazy" decoding="async">
                                         @else
-                                            <span class="text-sm font-bold text-gray-400 dark:text-gray-500">{{ mb_substr($record->full_name, 0, 1) }}</span>
+                                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400">{{ mb_substr($record->full_name, 0, 1) }}</span>
                                         @endif
                                     </div>
                                 </a>
@@ -153,12 +153,12 @@
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <div class="flex items-center gap-3 mb-2">
-                        <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}">
+                        <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center">
                             <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                                 @if ($record->photo_url)
                                     <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover" loading="lazy" decoding="async">
                                 @else
-                                    <span class="text-sm font-bold text-gray-400">{{ mb_substr($record->full_name, 0, 1) }}</span>
+                                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400">{{ mb_substr($record->full_name, 0, 1) }}</span>
                                 @endif
                             </div>
                         </a>

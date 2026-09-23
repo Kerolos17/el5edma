@@ -34,7 +34,7 @@
                class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group
                {{ $item['active']
                     ? 'bg-white/15 text-white'
-                    : 'text-white/60 hover:bg-white/[8%] hover:text-white' }}">
+                    : 'text-white/75 hover:bg-white/[8%] hover:text-white' }}">
                 <i class="{{ $item['active'] ? 'ph-fill' : 'ph' }} {{ $item['icon'] }} text-xl flex-shrink-0"></i>
                 <span class="font-semibold text-sm">{{ $item['label'] }}</span>
                 @if($item['active'])
@@ -70,7 +70,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <p class="text-white font-bold text-sm truncate">{{ $user->name }}</p>
-                <p class="text-white/50 text-xs truncate">{{ $user->role->label() }}</p>
+                <p class="text-white/70 text-xs truncate">{{ $user->role->label() }}</p>
             </div>
         </div>
     </div>

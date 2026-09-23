@@ -64,11 +64,12 @@
         x-transition:leave="transition ease-in duration-250"
         x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full"
-        class="fixed bottom-0 left-0 right-0 z-[180] rounded-t-[28px] p-6"
+        class="fixed bottom-0 inset-x-0 z-[180] rounded-t-[28px] p-6"
         style="background: #FFFBF7; padding-bottom: max(1.5rem, env(safe-area-inset-bottom));"
         role="dialog"
         aria-modal="true"
-        aria-label="تثبيت التطبيق">
+        aria-label="{{ __('servant.install_title') }}"
+        @keydown.escape.window="if (show) dismiss()">
 
         {{-- Drag handle --}}
         <div class="flex justify-center mb-5" aria-hidden="true">
@@ -78,22 +79,22 @@
         {{-- App icon + info --}}
         <div class="flex items-center gap-4 mb-5">
             <div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg">
-                <img src="/icons/icon-192x192.png" alt="أيقونة التطبيق" class="w-full h-full object-cover">
+                <img src="/icons/icon-192x192.png" alt="{{ __('servant.app_icon_alt') }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
             </div>
             <div>
                 <h3 class="font-bold text-teal-900 text-lg" style="font-family: var(--font-display);">
                     {{ config('app.name') }}
                 </h3>
-                <p class="text-sm text-gray-500 mt-0.5">ثبّت التطبيق للوصول السريع بدون متصفح</p>
+                <p class="text-sm text-gray-500 mt-0.5">{{ __('servant.install_body') }}</p>
             </div>
         </div>
 
         {{-- Benefits --}}
         <div class="space-y-2 mb-6">
             @foreach([
-                ['ph-fill ph-lightning', 'تشغيل أسرع بدون تحميل الصفحة'],
-                ['ph-fill ph-wifi-slash', 'عمل أوفلاين وحفظ الزيارات'],
-                ['ph-fill ph-bell', 'إشعارات فورية للحالات الحرجة'],
+                ['ph-fill ph-lightning', __('servant.install_faster')],
+                ['ph-fill ph-wifi-slash', __('servant.install_offline')],
+                ['ph-fill ph-bell', __('servant.install_alerts')],
             ] as [$icon, $text])
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -109,15 +110,15 @@
         <div class="flex gap-3">
             <button
                 @click="dismiss"
-                class="flex-1 py-3 rounded-2xl border-2 border-gray-200 text-gray-500 font-semibold text-sm hover:bg-gray-50 transition-colors">
-                لاحقاً
+                class="flex-1 py-3 min-h-[44px] rounded-2xl border-2 border-gray-200 text-gray-500 font-semibold text-sm hover:bg-gray-50 transition-colors">
+                {{ __('servant.later') }}
             </button>
             <button
                 @click="install"
-                class="flex-[2] py-3 rounded-2xl font-bold text-sm text-white btn-ripple"
+                class="flex-[2] py-3 min-h-[44px] rounded-2xl font-bold text-sm text-white btn-ripple"
                 style="background: linear-gradient(135deg, #006D77 0%, #003942 100%); box-shadow: 0 4px 16px rgba(0,109,119,0.3);">
                 <i class="ph-bold ph-download-simple me-1" aria-hidden="true"></i>
-                تثبيت التطبيق
+                {{ __('servant.install') }}
             </button>
         </div>
     </div>

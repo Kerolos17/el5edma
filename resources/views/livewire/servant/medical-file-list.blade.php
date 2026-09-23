@@ -3,7 +3,7 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">الملفات الطبية</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $medicalFiles->total() }} ملف</p>
+        <p class="text-sm text-gray-500 mt-0.5">{{ $medicalFiles->total() }} ملف</p>
     </div>
 
     {{-- Filter Chips --}}
@@ -49,7 +49,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="font-bold text-teal-900 text-sm truncate">{{ $file->title }}</p>
                     <p class="text-xs text-teal-500 mt-0.5">{{ $file->beneficiary?->full_name ?? '' }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">
+                    <p class="text-xs text-gray-500 mt-0.5">
                         @switch($file->file_type)
                             @case('report') تقرير طبي @break
                             @case('image') صورة طبية @break
@@ -72,7 +72,7 @@
         @empty
             <div class="s-card rounded-2xl px-4 py-10 text-center">
                 <i class="ph ph-folder-open text-4xl text-teal-200 block mb-2"></i>
-                <p class="text-sm text-gray-400">
+                <p class="text-sm text-gray-500">
                     {{ $filter !== 'all' ? 'لا توجد ملفات من هذا النوع' : 'لا توجد ملفات طبية' }}
                 </p>
             </div>

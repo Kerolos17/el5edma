@@ -3,12 +3,12 @@
     {{-- Page Title + FAB --}}
     <div class="reveal-card flex items-center justify-between">
         <div>
-            <h1 class="text-xl font-bold text-teal-900">طلبات الصلاة</h1>
-            <p class="text-sm text-gray-400 mt-0.5">{{ $prayerRequests->total() }} طلب</p>
+            <h1 class="text-xl font-bold text-teal-900">{{ __('servant.prayer_title') }}</h1>
+            <p class="text-sm text-gray-500 mt-0.5">{{ __('servant.prayer_count', ['count' => $prayerRequests->total()]) }}</p>
         </div>
         <button wire:click="openForm"
-                class="w-11 h-11 rounded-2xl gradient-deep flex items-center justify-center shadow-lg text-white"
-                aria-label="إضافة طلب صلاة">
+                class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl gradient-deep flex items-center justify-center shadow-lg text-white"
+                aria-label="{{ __('servant.add_prayer') }}">
             <i class="ph-bold ph-plus text-lg" aria-hidden="true"></i>
         </button>
     </div>
@@ -16,8 +16,8 @@
     {{-- Filter Chips --}}
     <div class="flex gap-2 overflow-x-auto pb-1 reveal-card"
          style="animation-delay:0.06s; scrollbar-width:none;"
-         role="group" aria-label="فلتر طلبات الصلاة">
-        @foreach([['open','مفتوحة'], ['answered','مجابة'], ['closed','مغلقة'], ['all','الكل']] as [$val, $label])
+         role="group" aria-label="{{ __('servant.filter_prayer') }}">
+        @foreach([['open', __('servant.filter_open')], ['answered', __('servant.filter_answered')], ['closed', __('servant.filter_closed')], ['all', __('servant.filter_all')]] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
                     class="radio-chip flex-shrink-0 {{ $filter === $val ? 'selected' : '' }}"
                     aria-pressed="{{ $filter === $val ? 'true' : 'false' }}">
@@ -28,25 +28,25 @@
 
     {{-- Create Form --}}
     @if($showForm)
-        <div class="s-card rounded-2xl p-5 space-y-4 reveal-card" role="region" aria-label="نموذج طلب صلاة جديد">
+        <div class="s-card rounded-2xl p-5 space-y-4 reveal-card" role="region" aria-label="{{ __('servant.new_prayer_form') }}">
             <div class="flex items-center justify-between">
-                <h2 class="font-bold text-teal-900">طلب صلاة جديد</h2>
+                <h2 class="font-bold text-teal-900">{{ __('servant.new_prayer') }}</h2>
                 <button wire:click="closeForm"
                         class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center"
-                        aria-label="إغلاق النموذج">
+                        aria-label="{{ __('servant.close_form') }}">
                     <i class="ph ph-x text-gray-500" aria-hidden="true"></i>
                 </button>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-teal-900 mb-1.5">
-                    المخدوم <span class="text-red-500" aria-hidden="true">*</span>
+                    {{ __('servant.prayer_beneficiary') }} <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <select wire:model="beneficiaryId"
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white
+                        class="w-full rounded-xl border border-gray-200 px-3 min-h-[44px] py-2.5 text-sm bg-white
                                focus:ring-2 focus:ring-teal-400 focus:outline-none"
                         aria-required="true">
-                    <option value="">-- اختر مخدوماً --</option>
+                    <option value="">{{ __('servant.select_beneficiary') }}</option>
                     @foreach($myBeneficiaries as $b)
                         <option value="{{ $b->id }}">{{ $b->full_name }}</option>
                     @endforeach
@@ -56,34 +56,34 @@
 
             <div>
                 <label class="block text-sm font-semibold text-teal-900 mb-1.5">
-                    الموضوع <span class="text-red-500" aria-hidden="true">*</span>
+                    {{ __('servant.topic_title') }} <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input wire:model.live.debounce.300ms="title"
                        type="text"
-                       placeholder="موضوع الصلاة"
+                       placeholder="{{ __('servant.topic_placeholder') }}"
                        maxlength="255"
-                       class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm
+                       class="w-full rounded-xl border border-gray-200 px-3 min-h-[44px] py-2.5 text-sm
                               focus:ring-2 focus:ring-teal-400 focus:outline-none"
                        aria-required="true" />
                 @error('title') <p class="text-xs text-red-500 mt-1" role="alert">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-teal-900 mb-1.5">التفاصيل</label>
+                <label class="block text-sm font-semibold text-teal-900 mb-1.5">{{ __('servant.prayer_topic') }}</label>
                 <textarea wire:model="body"
                           rows="3"
-                          placeholder="تفاصيل إضافية (اختياري)"
+                          placeholder="{{ __('servant.details_placeholder') }}"
                           maxlength="2000"
-                          class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm
+                          class="w-full rounded-xl border border-gray-200 px-3 min-h-[44px] py-2.5 text-sm
                                  focus:ring-2 focus:ring-teal-400 focus:outline-none resize-none"></textarea>
             </div>
 
             <button wire:click="save"
                     wire:loading.attr="disabled"
-                    class="w-full py-3 rounded-2xl gradient-deep text-white font-bold text-sm
+                    class="w-full py-3 min-h-[44px] rounded-2xl gradient-deep text-white font-bold text-sm
                            shadow-lg disabled:opacity-60 transition-opacity">
-                <span wire:loading.remove wire:target="save">حفظ طلب الصلاة</span>
-                <span wire:loading wire:target="save">جاري الحفظ...</span>
+                <span wire:loading.remove wire:target="save">{{ __('servant.save_prayer') }}</span>
+                <span wire:loading wire:target="save">{{ __('servant.saving') }}</span>
             </button>
         </div>
     @endif
@@ -102,7 +102,7 @@
                 <div class="flex items-start justify-between gap-2">
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-teal-900 text-sm truncate">{{ $pr->title }}</p>
-                        <p class="text-xs text-teal-500 mt-0.5">{{ $pr->beneficiary?->full_name ?? '' }}</p>
+                        <p class="text-xs text-teal-700 mt-0.5">{{ $pr->beneficiary?->full_name ?? '' }}</p>
                         @if($pr->body)
                             <p class="text-xs text-gray-500 mt-1.5 line-clamp-2">{{ $pr->body }}</p>
                         @endif
@@ -114,14 +114,14 @@
                         'bg-gray-100 text-gray-500' => $pr->status === 'closed',
                     ])>
                         @match($pr->status)
-                            'open'     => 'مفتوح',
-                            'answered' => 'مجاب',
-                            'closed'   => 'مغلق',
+                            'open'     => __('servant.prayer_open'),
+                            'answered' => __('servant.prayer_answered'),
+                            'closed'   => __('servant.prayer_closed'),
                             default    => $pr->status
                         @endmatch
                     </span>
                 </div>
-                <p class="text-xs text-gray-400 mt-2">
+                <p class="text-xs text-gray-500 mt-2">
                     <i class="ph ph-clock text-xs" aria-hidden="true"></i>
                     {{ $pr->created_at->locale('ar')->diffForHumans() }}
                 </p>
@@ -129,7 +129,7 @@
         @empty
             <x-ui.empty-state
                 icon="ph-hands-praying"
-                message="{{ $filter === 'open' ? 'لا توجد طلبات صلاة مفتوحة' : 'لا توجد طلبات' }}"
+                message="{{ $filter === 'open' ? __('servant.no_open_prayers') : __('servant.no_prayers') }}"
             />
         @endforelse
     </div>

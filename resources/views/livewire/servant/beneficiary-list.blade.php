@@ -2,26 +2,26 @@
 
     {{-- Page Title --}}
     <div class="reveal-card">
-        <h1 class="text-xl font-bold text-teal-900">المخدومون</h1>
-        <p class="text-sm text-gray-500 mt-0.5">{{ $beneficiaries->total() }} مخدوم</p>
+        <h1 class="text-xl font-bold text-teal-900">{{ __('servant.nav_beneficiaries') }}</h1>
+        <p class="text-sm text-gray-500 mt-0.5">{{ __('servant.beneficiaries_count', ['count' => $beneficiaries->total()]) }}</p>
     </div>
 
     {{-- Search --}}
     <div class="relative reveal-card" style="animation-delay: 0.06s">
-        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;"></i>
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
-            placeholder="ابحث بالاسم أو الكود أو الهاتف..."
+            placeholder="{{ __('servant.search_beneficiary_placeholder') }}"
             class="search-input"
             style="padding-inline-end: 44px;"
-            aria-label="بحث عن مخدوم">
+            aria-label="{{ __('servant.search_beneficiary') }}">
     </div>
 
     {{-- Filter Chips --}}
     <div class="flex gap-2 overflow-x-auto pb-1 reveal-card" style="animation-delay: 0.1s; scrollbar-width: none;"
-         role="group" aria-label="فلتر المخدومين">
-        @foreach([['all','الكل'], ['mine','مخدوميّ'], ['recent','الأحدث']] as [$val, $label])
+         role="group" aria-label="{{ __('servant.filter_beneficiaries') }}">
+        @foreach([['all', __('servant.filter_all')], ['mine', __('servant.filter_mine')], ['recent', __('servant.filter_recent')]] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
                     class="radio-chip flex-shrink-0 {{ $filter === $val ? 'selected' : '' }}"
                     aria-pressed="{{ $filter === $val ? 'true' : 'false' }}">

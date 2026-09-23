@@ -82,7 +82,7 @@
                             @error('data.password')
                                 <p class="error-msg" role="alert">{{ $message }}</p>
                             @enderror
-                            <p class="mt-2 text-xs leading-relaxed text-gray-400">
+                            <p class="mt-2 text-xs leading-relaxed text-gray-500">
                                 {{ __('auth.locked_out_help') }}
                             </p>
                         </div>
@@ -163,7 +163,7 @@
                                 @endforeach
                             </div>
 
-                            <p class="text-xs text-gray-400 text-center mt-2">
+                            <p class="text-xs text-gray-500 text-center mt-2">
                                 {{ __('auth.code_hint') }}
                             </p>
 
@@ -186,7 +186,7 @@
                     action="{{ route('language.switch.guest', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
                     class="inline">
                     @csrf
-                    <button type="submit" class="text-sm text-gray-400 hover:text-gray-600 transition">
+                    <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition min-h-[44px] px-4">
                         {{ app()->getLocale() === 'ar' ? __('auth.switch_to_english') : __('auth.switch_to_arabic') }}
                     </button>
                 </form>
