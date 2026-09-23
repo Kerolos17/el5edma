@@ -25,53 +25,41 @@
             if (window.offlineQueue) {
                 window.offlineQueue.count().then(c => { this.offlineCount = c; });
             }
+        },
+        restoreDraftFromStorage() {
+            let saved = null;
+            try { saved = localStorage.getItem('wizard_draft'); } catch (err) { return; }
+            if (!saved) return;
+            let draft = null;
+            try { draft = JSON.parse(saved); } catch (err) { return; }
+            if (draft && draft.hasDraft) this.$wire.call('restoreDraft', draft);
+        },
+        applyDraft(event) {
+            const draft = event && event.detail ? event.detail.draft : null;
+            if (draft && draft.hasDraft) this.$wire.call('restoreDraft', draft);
+        },
+        persistDraft(event) {
+            const draft = event && event.detail ? event.detail.draft : null;
+            if (!draft) return;
+            try { localStorage.setItem('wizard_draft', JSON.stringify(draft)); } catch (err) {}
+            this.$wire.set('hasDraft', !!draft.hasDraft);
+        },
+        clearStoredDraft() {
+            try { localStorage.removeItem('wizard_draft'); } catch (err) {}
+            this.$wire.set('hasDraft', false);
+        },
+        confirmCloseWizard(message) {
+            if (window.confirm(message)) this.$wire.forceClose();
         }
     }"
      @open-wizard.window="open = true"
      @open-wizard-for.window="open = true"
-     @wizard-open.window="
-        // Restore draft from localStorage if available
-        const saved = localStorage.getItem('wizard_draft');
-        if (saved) {
-            try {
-                const draft = JSON.parse(saved);
-                if (draft.hasDraft) {
-                    $wire.call('restoreDraft', draft);
-                }
-            } catch (e) {}
-        }
-    "
-     @confirm-close.window="
-        if (confirm('{{ __('web_app.forms.wizard.confirm_discard') }}')) {
-            $wire.forceClose();
-        }
-    "
-     @save-wizard-draft.window="
-        const draft = $event.detail.draft;
-        localStorage.setItem('wizard_draft', JSON.stringify(draft));
-        $wire.hasDraft = draft.hasDraft;
-    "
-     @clear-wizard-draft.window="
-        localStorage.removeItem('wizard_draft');
-        $wire.hasDraft = false;
-    "
-     @restore-draft.window="
-        const draft = $event.detail.draft;
-        if (draft) {
-            Object.keys(draft).forEach(k => {
-                if (k !== 'hasDraft' && $wire[k] !== undefined) {
-                    $wire[k] = draft[k];
-                }
-            });
-            $wire.hasDraft = draft.hasDraft ?? false;
-        }
-    "
-     @offlineSyncConflict.window="
-        $dispatch('toast', {
-            message: '{{ __('web_app.forms.wizard.offline_conflict') }}',
-            type: 'warning'
-        });
-    "
+     @wizard-open.window="restoreDraftFromStorage()"
+     @confirm-close.window="confirmCloseWizard('{{ __('web_app.forms.wizard.confirm_discard') }}')"
+     @save-wizard-draft.window="persistDraft($event)"
+     @clear-wizard-draft.window="clearStoredDraft()"
+     @restore-draft.window="applyDraft($event)"
+     @offlineSyncConflict.window="$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_conflict') }}', type: 'warning' })"
      role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
     <div class="wizard-container">
 
