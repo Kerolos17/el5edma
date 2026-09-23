@@ -53,6 +53,19 @@
         </div>
 
         <div class="app-notification-list">
+            <button
+                type="button"
+                data-push-enable
+                data-push-default-label="{{ __('notifications.push.enable') }}"
+                data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                data-push-denied-label="{{ __('notifications.push.denied') }}"
+                data-push-unsupported-label="{{ __('notifications.push.unsupported') }}"
+                class="app-notification-enable"
+            >
+                <i class="ph ph-bell-ringing" aria-hidden="true"></i>
+                <span data-push-label>{{ __('notifications.push.enable') }}</span>
+            </button>
+
             @forelse ($notifications as $n)
                 <button
                     type="button"

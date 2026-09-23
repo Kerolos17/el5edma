@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\MinistryNotification;
 use App\Models\User;
 use App\Services\PushNotificationService;
 use App\Support\NotificationMetadata;
@@ -15,7 +14,7 @@ class TestPushNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'pwa:test-push {uid_or_email} {--title=Test Notification} {--body=This is a test push from Artisan!}';
+    protected $signature = 'pwa:test-push {uid_or_email?} {--token=} {--title=Test Notification} {--body=This is a test push from Artisan!}';
 
     /**
      * The console command description.
@@ -29,41 +28,50 @@ class TestPushNotification extends Command
      */
     public function handle(PushNotificationService $pushService)
     {
-        $identifier = $this->argument('uid_or_email');
-
-        $user = User::where('email', $identifier)->orWhere('id', $identifier)->first();
-
-        if (! $user) {
-            $this->error("المستخدم {$identifier} غير موجود.");
-
-            return;
-        }
-
-        if (empty($user->fcm_token)) {
-            $this->warn("المستخدم {$identifier} ('{$user->name}') ليس لديه FCM Token مسجل. يرجى تسجيل الدخول للحساب من متصفح داعم والموافقة على الإشعارات أولاً.");
-
-            return;
-        }
-
-        $this->info("جاري إرسال إشعار إلى {$user->name}...");
-
-        // 1. إنشاء الإشعار في لوحة التحكم (Dashboard)
         $payload = NotificationMetadata::enrich('test_alert', [
             'severity'  => 'high',
             'url'       => route('app.notifications'),
             'test_data' => 'This is test payload',
         ]);
 
-        MinistryNotification::create([
-            'user_id' => $user->id,
-            'type'    => 'test_alert',
-            'title'   => $this->option('title'),
-            'body'    => $this->option('body'),
-            'data'    => $payload,
-        ]);
-        $this->info('✅ الإشعار تم إضافته داخل لوحة التحكم (Dashboard) بنجاح!');
+        // Direct-to-token mode: no user lookup, no database writes.
+        if ($token = $this->option('token')) {
+            $this->info('جاري إرسال إشعار تجريبي إلى التوكن المُعطى...');
 
-        // 2. إرسال الـ Push Notification عبر الهاتف/Firebase
+            $result = $pushService->sendMulticast(
+                [$token],
+                $this->option('title'),
+                $this->option('body'),
+                $payload,
+            );
+
+            return $this->reportResult($result->successCount > 0);
+        }
+
+        $identifier = $this->argument('uid_or_email');
+
+        if (! $identifier) {
+            $this->error('حدد uid_or_email أو استخدم --token="..."');
+
+            return 1;
+        }
+
+        $user = User::where('email', $identifier)->orWhere('id', $identifier)->first();
+
+        if (! $user) {
+            $this->error("المستخدم {$identifier} غير موجود.");
+
+            return 1;
+        }
+
+        if (empty($user->pushTokens())) {
+            $this->warn("المستخدم {$identifier} ('{$user->name}') ليس لديه FCM Token مسجل. يرجى تسجيل الدخول للحساب من متصفح داعم والموافقة على الإشعارات أولاً.");
+
+            return 1;
+        }
+
+        $this->info("جاري إرسال إشعار إلى {$user->name}...");
+
         $success = $pushService->sendToUser(
             $user,
             $this->option('title'),
@@ -71,10 +79,19 @@ class TestPushNotification extends Command
             $payload,
         );
 
+        return $this->reportResult($success);
+    }
+
+    private function reportResult(bool $success): int
+    {
         if ($success) {
             $this->info('✅ الإشعار تم إرساله بنجاح! راجع جهاز المستخدم للتأكد.');
-        } else {
-            $this->error('❌ فشل الإرسال، تواصل مع السجلات (Logs) أو تأكد من إعدادات Firebase Credentials.');
+
+            return 0;
         }
+
+        $this->error('❌ فشل الإرسال، تواصل مع السجلات (Logs) أو تأكد من إعدادات Firebase Credentials.');
+
+        return 1;
     }
 }

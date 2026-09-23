@@ -546,6 +546,36 @@
     cursor: pointer;
   }
 
+  /* Push-permission enable row inside the bell dropdown. Mirrors the
+     notification rows; state label + disabled state are driven by the
+     shared push module (data-push-enable / data-push-state). */
+  .app-notification-enable {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: var(--btn-min-height);
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 109, 119, 0.08);
+    background: transparent;
+    color: #006d77;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: start;
+  }
+
+  .app-notification-enable:disabled {
+    cursor: default;
+    opacity: 0.75;
+  }
+
+  [data-theme="dark"] .app-notification-enable {
+    border-bottom-color: rgba(148, 163, 184, 0.14);
+    color: #4d9ba3;
+  }
+
   .app-notification-list {
     max-height: 65dvh;
     overflow-y: auto;

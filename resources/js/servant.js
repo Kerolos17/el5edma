@@ -3,11 +3,10 @@
 import './bootstrap';
 import './notifications';
 import { offlineQueue } from './offline-queue';
+import { initPushNotifications } from './push-notifications';
 import '@phosphor-icons/web/regular';
 import '@phosphor-icons/web/bold';
 import '@phosphor-icons/web/fill';
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 // ─── Reveal animations ────────────────────────────────────────────────────────
 
@@ -18,9 +17,8 @@ document.addEventListener('livewire:navigated', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     triggerRevealAnimations();
-    setupFcm();
+    initPushNotifications({ logTag: 'servant.js' });
     setupEchoListener();
-    applyServantTheme(servantTheme(), false);
     offlineQueue.init();
     // Expose للـ wizard في كلا التخطيطين
     window.offlineQueue = offlineQueue;
@@ -75,71 +73,6 @@ function triggerRevealAnimations() {
         void el.offsetWidth;
         el.style.animation = `revealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.06}s forwards`;
     });
-}
-
-// ─── Firebase / FCM ───────────────────────────────────────────────────────────
-
-const ROOT_SW_URL = '/sw.js';
-
-const firebaseConfig = {
-    apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId:             import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
-
-const isFirebaseReady = Object.values(firebaseConfig).every(
-    (v) => typeof v === 'string' && v.length > 0 && !v.includes('YOUR_'),
-);
-
-async function setupFcm() {
-    if (!isFirebaseReady) return;
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
-
-    try {
-        const app       = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
-
-        onMessage(messaging, (payload) => {
-            dispatchToLivewire('fcmMessageReceived', payload);
-        });
-
-        navigator.serviceWorker.addEventListener('message', (event) => {
-            const data = event?.data;
-            if (data?.type === 'FCM_BACKGROUND_MESSAGE') {
-                dispatchToLivewire('fcmMessageReceived', data.payload);
-            }
-        });
-
-        if (Notification.permission === 'default') {
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-        }
-
-        if (Notification.permission !== 'granted') return;
-
-        const swReg = await navigator.serviceWorker.register(ROOT_SW_URL);
-        await navigator.serviceWorker.ready;
-
-        const sw = swReg.active ?? swReg.waiting ?? swReg.installing;
-        if (sw) {
-            sw.postMessage({ type: 'FIREBASE_CONFIG', config: firebaseConfig });
-        }
-
-        const token = await getToken(messaging, {
-            vapidKey:                  import.meta.env.VITE_FIREBASE_VAPID_KEY,
-            serviceWorkerRegistration: await navigator.serviceWorker.ready,
-        });
-
-        if (token) {
-            await window.axios.post('/fcm-token', { fcm_token: token });
-        }
-    } catch (e) {
-        // FCM not configured — silently ignore
-    }
 }
 
 // ─── Real-time (Echo / Pusher) ────────────────────────────────────────────────
