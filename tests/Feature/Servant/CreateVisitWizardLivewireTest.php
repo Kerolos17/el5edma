@@ -135,4 +135,31 @@ class CreateVisitWizardLivewireTest extends TestCase
             ->assertSet('step', 2)
             ->assertSet('open', true);
     }
+
+    #[Test]
+    public function offline_queue_count_event_updates_pending_badge(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        // Regression: offline-queue.js dispatches {count: n}; the listener
+        // must resolve it (was: array $payload -> BindingResolutionException -> 500).
+        Livewire::actingAs($servant)
+            ->test(CreateVisitWizard::class)
+            ->dispatch('offlineQueueCount', count: 2)
+            ->assertSet('offlineCount', 2)
+            ->assertDispatched('offlineQueueCount');
+    }
+
+    #[Test]
+    public function offline_sync_conflict_event_bridges_to_browser(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        Livewire::actingAs($servant)
+            ->test(CreateVisitWizard::class)
+            ->dispatch('offlineSyncConflict')
+            ->assertDispatched('offlineSyncConflict');
+    }
 }

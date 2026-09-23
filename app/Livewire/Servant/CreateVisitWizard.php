@@ -66,9 +66,16 @@ class CreateVisitWizard extends Component
     }
 
     #[On('offlineQueueCount')]
-    public function handleOfflineQueueCount(array $payload): void
+    public function handleOfflineQueueCount(int $count = 0): void
     {
-        $this->dispatch('offlineQueueCount', $payload);
+        $this->offlineCount = max(0, $count);
+        $this->dispatch('offlineQueueCount', ['count' => $this->offlineCount]);
+    }
+
+    #[On('offlineSyncConflict')]
+    public function handleOfflineSyncConflict(): void
+    {
+        $this->dispatch('offlineSyncConflict');
     }
 
     public function close(): void
