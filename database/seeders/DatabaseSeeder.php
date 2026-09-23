@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             ServiceGroupSeeder::class,
             BeneficiarySeeder::class,
+            MinistryActivitySeeder::class,
         ]);
     }
 }

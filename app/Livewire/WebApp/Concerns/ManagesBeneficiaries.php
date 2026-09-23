@@ -177,7 +177,8 @@ trait ManagesBeneficiaries
         abort_unless($record ? $actor->can('update', $record) : $actor->can('create', Beneficiary::class), 403);
 
         $data = $this->validate([
-            'beneficiaryPhoto'             => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,gif,webp,bmp', 'mimetypes:image/jpeg,image/png,image/gif,image/webp,image/bmp'],
+            'beneficiaryPhoto' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,gif,webp',
+                'mimetypes:image/jpeg,image/png,image/gif,image/webp'],
             'beneficiaryFullName'          => ['required', 'string', 'max:255'],
             'beneficiaryBirthDate'         => ['required', 'date', 'before_or_equal:today'],
             'beneficiaryGender'            => ['required', Rule::in(['male', 'female'])],

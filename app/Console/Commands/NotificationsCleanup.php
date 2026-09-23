@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\MinistryNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class NotificationsCleanup extends Command
 {
@@ -33,5 +34,9 @@ class NotificationsCleanup extends Command
             });
 
         $this->info("✅ تم حذف {$deleted} إشعار قديم.");
+
+        Log::info('notifications:cleanup', [
+            'deleted' => $deleted,
+        ]);
     }
 }

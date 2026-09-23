@@ -17,6 +17,15 @@
             document.documentElement.dataset.theme = theme;
         })();
     </script>
+    <script nonce="{{ $cspNonce }}">
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(
+                    (err) => console.warn('SW registration failed:', err),
+                );
+            });
+        }
+    </script>
 
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -66,7 +66,7 @@ return [
              *
              */
 
-            'project_id' => env('FIREBASE_PROJECT_ID', 'gen-lang-client-0943504918'),
+            'project_id' => env('FIREBASE_PROJECT_ID'),
 
             /*
              * ------------------------------------------------------------------------

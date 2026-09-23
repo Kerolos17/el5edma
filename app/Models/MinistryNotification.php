@@ -12,7 +12,7 @@ class MinistryNotification extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id', 'type', 'title', 'body', 'data', 'read_at',
+        'user_id', 'type', 'title', 'body', 'data', 'read_at', 'dedupe_key',
     ];
 
     protected function casts(): array

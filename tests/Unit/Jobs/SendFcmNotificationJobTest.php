@@ -43,11 +43,11 @@ class SendFcmNotificationJobTest extends TestCase
     }
 
     /**
-     * The job has $backoff = 60 seconds configured.
+     * The job uses exponential backoff with jitter between retries.
      *
      * Validates: Requirements 8.4
      */
-    public function test_job_has_backoff_of_60_seconds(): void
+    public function test_job_has_exponential_backoff_with_jitter(): void
     {
         $job = new SendFcmNotificationJob(
             tokens: ['token1'],
@@ -55,7 +55,15 @@ class SendFcmNotificationJobTest extends TestCase
             body: 'Body',
         );
 
-        $this->assertSame(60, $job->backoff);
+        $backoff = $job->backoff();
+
+        $this->assertIsArray($backoff);
+        $this->assertCount(3, $backoff);
+        // Increasing delays: ~60s, ~5m, ~15m (with jitter bands).
+        $this->assertGreaterThanOrEqual(60, $backoff[0]);
+        $this->assertLessThan(120, $backoff[0]);
+        $this->assertGreaterThan($backoff[0], $backoff[1]);
+        $this->assertGreaterThan($backoff[1], $backoff[2]);
     }
 
     /**

@@ -52,7 +52,7 @@ class SendBirthdayReminders extends Command
                     'serviceGroup.leader:id,fcm_token,locale',
                     'serviceGroup.leader.pushDevices:id,user_id,token',
                 ])
-                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale): void {
+                ->chunkById(100, function (Collection $chunk) use (&$count, $originalLocale, $targetDate): void {
                     $rows   = [];
                     $pushes = [];
 
@@ -66,6 +66,22 @@ class SendBirthdayReminders extends Command
                         foreach ($recipients as $recipient) {
                             $recipientLocale = $recipient->locale ?? 'ar';
                             App::setLocale($recipientLocale);
+
+                            // Idempotency: same beneficiary + recipient + target day.
+                            $dedupeKey = implode(':', [
+                                'birthday',
+                                $beneficiary->id,
+                                $targetDate->toDateString(),
+                                $recipient->id,
+                            ]);
+
+                            $alreadySent = MinistryNotification::query()
+                                ->where('dedupe_key', $dedupeKey)
+                                ->exists();
+
+                            if ($alreadySent) {
+                                continue;
+                            }
 
                             $params = [
                                 'name' => $beneficiary->full_name,
@@ -87,6 +103,7 @@ class SendBirthdayReminders extends Command
                                 'title'      => $title,
                                 'body'       => $body,
                                 'data'       => json_encode($notificationData),
+                                'dedupe_key' => $dedupeKey,
                                 'created_at' => now()->toDateTimeString(),
                             ];
 
@@ -108,7 +125,7 @@ class SendBirthdayReminders extends Command
                     App::setLocale($originalLocale);
 
                     if ($rows !== []) {
-                        MinistryNotification::insert($rows);
+                        MinistryNotification::insertOrIgnore($rows);
                     }
 
                     foreach ($pushes as $push) {

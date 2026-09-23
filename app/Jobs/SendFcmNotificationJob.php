@@ -26,10 +26,18 @@ class SendFcmNotificationJob implements ShouldQueue
     public int $tries = 3;
 
     /**
-     * وقت الانتظار بين المحاولات (بالثواني)
+     * Exponential backoff with jitter between retries (60s → 5m → 15m),
+     * so FCM outages don't hammer the API on a fixed cadence.
      * Requirement 8.4
      */
-    public int $backoff = 60;
+    public function backoff(): array
+    {
+        return [
+            60  + random_int(0, 30),
+            300 + random_int(0, 120),
+            900 + random_int(0, 300),
+        ];
+    }
 
     /**
      * @param  array  $tokens  قائمة FCM tokens
