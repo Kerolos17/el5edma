@@ -2078,8 +2078,7 @@
   }
 
   .app-notification-item.is-unread {
-    background: rgba(0, 109, 119, 0.05);
-    border-inline-start: 3px solid var(--clr-deep-teal);
+    background: rgba(0, 109, 119, 0.09);
   }
 
   .app-notification-type {
@@ -2180,7 +2179,6 @@
 
   .app-notif-row.is-unread {
     background: var(--nav-item-hover-bg);
-    border-inline-start: 3px solid var(--clr-calm-blue);
   }
 
   .app-notif-dot {
@@ -2832,7 +2830,6 @@
 .app-chart-fill {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.5s ease;
   animation: chart-grow 0.6s ease both;
 }
 
