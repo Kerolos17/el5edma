@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-teal-900" style="font-family: var(--font-display);">
             مرحباً، {{ auth()->user()->name }}
         </h1>
-        <p class="text-sm text-gray-400 mt-1">
+        <p class="text-sm text-gray-500 mt-1">
             {{ now()->locale('ar')->isoFormat('dddd، D MMMM YYYY') }}
         </p>
     </div>
@@ -79,7 +79,7 @@
                             <p class="font-bold text-teal-900 text-sm truncate">
                                 {{ $visit->beneficiary?->full_name ?? 'محذوف' }}
                             </p>
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-gray-500">
                                 {{ $visit->visit_date->locale('ar')->isoFormat('D MMM') }}
                                 @if($visit->type)
                                     · {{ $visit->type }}
@@ -89,7 +89,7 @@
 
                         @if($visit->is_critical)
                             <span class="badge-pill badge-critical text-xs px-2 py-1 critical-indicator">
-                                <i class="ph-fill ph-warning text-xs"></i>
+                                <i aria-hidden="true" class="ph-fill ph-warning text-xs"></i>
                                 حرجة
                             </span>
                         @endif

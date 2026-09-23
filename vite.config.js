@@ -31,4 +31,21 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                // Split heavy third-party SDKs so admin/servant/web-app
+                // entries share cached vendor chunks instead of duplicating them.
+                manualChunks: {
+                    'vendor-firebase': ['firebase/app', 'firebase/messaging'],
+                    'vendor-push': ['laravel-echo', 'pusher-js'],
+                    'vendor-icons': [
+                        '@phosphor-icons/web/regular',
+                        '@phosphor-icons/web/bold',
+                        '@phosphor-icons/web/fill',
+                    ],
+                },
+            },
+        },
+    },
 })

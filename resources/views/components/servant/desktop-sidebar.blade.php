@@ -59,7 +59,7 @@
             @php $user = auth()->user(); @endphp
             <div class="w-10 h-10 rounded-full overflow-hidden avatar-ring flex-shrink-0">
                 @if($user->profile_photo_url)
-                    <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                    <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover" loading="lazy" decoding="async" onerror="this.remove()">
                 @else
                     <div class="w-full h-full flex items-center justify-center text-teal-800 font-bold text-base"
                          style="background: linear-gradient(135deg, #F7BB86, #F4A261);">

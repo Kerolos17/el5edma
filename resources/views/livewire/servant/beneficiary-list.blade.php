@@ -3,7 +3,7 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">المخدومون</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $beneficiaries->total() }} مخدوم</p>
+        <p class="text-sm text-gray-500 mt-0.5">{{ $beneficiaries->total() }} مخدوم</p>
     </div>
 
     {{-- Search --}}

@@ -1644,7 +1644,7 @@
     font-size: 0.95rem;
     line-height: 1.6;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1876,8 +1876,10 @@
   }
 
   .app-check-row input {
-    width: 1rem;
-    height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    accent-color: var(--clr-calm-blue);
   }
 
   .app-check-empty {
@@ -2560,6 +2562,7 @@
   @media (max-width: 640px) {
     .app-modal-sheet {
       padding: 0.75rem;
+      place-items: end center;
     }
 
     .app-modal-panel {
@@ -2568,6 +2571,19 @@
       min-height: 0;
       border-bottom-right-radius: 0;
       border-bottom-left-radius: 0;
+    }
+  }
+
+  /* Thumb-reach: bottom-anchored toast on phones (above the bottom nav) */
+  @media (max-width: 639px) {
+    .app-toast {
+      top: auto;
+      bottom: calc(5.25rem + env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(120px);
+    }
+
+    .app-toast.show {
+      transform: translateX(-50%) translateY(0);
     }
   }
 }
@@ -2996,7 +3012,7 @@
 }
 
 .wizard-sheet-outer {
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wizard-sheet-inner {

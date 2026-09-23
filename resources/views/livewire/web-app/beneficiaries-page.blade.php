@@ -41,9 +41,10 @@
                     placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"
                     aria-label="{{ __('web_app.resources.search_label') }}">
             </label>
-            <div class="app-chip-row" role="tablist">
+            <div class="app-chip-row" role="group" aria-label="{{ $meta['title'] }}">
                 @foreach ($filters as $item)
                     <button type="button" wire:click="$set('filter', '{{ $item['value'] }}')"
+                        aria-pressed="{{ $filter === $item['value'] ? 'true' : 'false' }}"
                         class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">
                         {{ $item['label'] }}
                     </button>
@@ -69,7 +70,7 @@
             <table class="app-table" aria-label="{{ $meta['title'] }}">
                 <thead>
                     <tr>
-                        <th scope="col"></th>
+                        <th scope="col"><span class="sr-only">{{ __('web_app.table.beneficiary') }}</span></th>
                         <th scope="col">{{ __('web_app.table.beneficiary') }}</th>
                         <th scope="col">{{ __('web_app.table.group') }}</th>
                         <th scope="col">{{ __('web_app.table.servant') }}</th>
@@ -82,10 +83,10 @@
                     @forelse ($records as $record)
                         <tr>
                             <td class="!ps-0 !w-12">
-                                <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate>
+                                <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}">
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                                         @if ($record->photo_url)
-                                            <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover">
+                                            <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover" loading="lazy" decoding="async">
                                         @else
                                             <span class="text-sm font-bold text-gray-400 dark:text-gray-500">{{ mb_substr($record->full_name, 0, 1) }}</span>
                                         @endif
@@ -148,14 +149,14 @@
             </table>
         </div>
 
-        <div class="app-mobile-list">
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <div class="flex items-center gap-3 mb-2">
-                        <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate>
+                        <a href="{{ route('app.beneficiary-profile', $record->id) }}" wire:navigate aria-label="{{ $record->full_name }}">
                             <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                                 @if ($record->photo_url)
-                                    <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover">
+                                    <img src="{{ $record->photo_url }}" alt="" class="w-full h-full object-cover" loading="lazy" decoding="async">
                                 @else
                                     <span class="text-sm font-bold text-gray-400">{{ mb_substr($record->full_name, 0, 1) }}</span>
                                 @endif

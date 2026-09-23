@@ -31,7 +31,7 @@ function triggerRevealAnimations() {
         el.style.transform = 'translateY(30px)';
         el.style.animation = 'none';
         void el.offsetWidth;
-        el.style.animation = `revealUp 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.06}s forwards`;
+        el.style.animation = `revealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.06}s forwards`;
     });
 }
 

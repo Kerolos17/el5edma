@@ -32,11 +32,13 @@
         <div class="app-toolbar">
             <label class="app-search-field">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-                <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}">
+                <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"
+                    aria-label="{{ __('web_app.resources.search_label') }}">
             </label>
-            <div class="app-chip-row" role="tablist">
+            <div class="app-chip-row" role="group" aria-label="{{ $meta['title'] }}">
                 @foreach ($filters as $item)
                     <button type="button" wire:click="$set('filter', '{{ $item['value'] }}')"
+                        aria-pressed="{{ $filter === $item['value'] ? 'true' : 'false' }}"
                         class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">
                         {{ $item['label'] }}
                     </button>
@@ -125,7 +127,7 @@
             </table>
         </div>
 
-        <div class="app-mobile-list">
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             @forelse ($records as $record)
                 <div class="app-mobile-card">
                     <a href="{{ route('app.visit-profile', $record->id) }}" wire:navigate class="block">

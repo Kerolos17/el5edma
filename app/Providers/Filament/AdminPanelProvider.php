@@ -38,7 +38,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->font('Cairo', 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap')
+            // NOTE: Cairo + JetBrains Mono load once via theme.css @import; do NOT
+            // re-add ->font() here (it would double-fetch the same Google Fonts CSS).
             ->brandName(fn () => __('auth.system_name'))
             ->brandLogoHeight('40px')
             ->favicon(asset('favicon.ico'))

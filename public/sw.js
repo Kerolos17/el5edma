@@ -1,5 +1,5 @@
-const CACHE_NAME = "ministry-pwa-v7";
-const SW_VERSION = "v7";
+const CACHE_NAME = "ministry-pwa-v8";
+const SW_VERSION = "v8";
 const OFFLINE_URL = "/offline.html";
 const FIREBASE_VERSION = "12.11.0";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
@@ -23,6 +23,21 @@ const STATIC_ASSET_PATTERNS = [
     /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
     /\.(?:woff|woff2|ttf|eot)$/,
 ];
+
+// Bound Cache Storage growth on mobile: keep only the newest entries.
+const MAX_CACHE_ENTRIES = 80;
+
+async function trimCache(cache) {
+    try {
+        const keys = await cache.keys();
+        if (keys.length <= MAX_CACHE_ENTRIES) return;
+        await Promise.all(
+            keys.slice(0, keys.length - MAX_CACHE_ENTRIES).map((key) => cache.delete(key)),
+        );
+    } catch {
+        // Cache maintenance must never break serving.
+    }
+}
 
 // Paths to never intercept
 const SKIP_PATHS = [
@@ -307,6 +322,7 @@ self.addEventListener("fetch", (event) => {
 
                     if (networkRes && networkRes.ok) {
                         cache.put(request, networkRes.clone());
+                        trimCache(cache);
                     }
 
                     return (

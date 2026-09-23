@@ -131,17 +131,17 @@
          @keydown.escape.window="drawer = false"
          @keydown.tab="trapDrawer($event)"
          x-transition:enter="transition-transform duration-300 ease-out"
-         x-transition:enter-start="rtl:translate-x-full ltr:-translate-x-full"
+         x-transition:enter-start="rtl:-translate-x-full ltr:translate-x-full"
          x-transition:enter-end="translate-x-0"
          x-transition:leave="transition-transform duration-200 ease-in"
          x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="rtl:translate-x-full ltr:-translate-x-full"
+         x-transition:leave-end="rtl:-translate-x-full ltr:translate-x-full"
          class="app-drawer lg:hidden" style="display:none">
 
         <div class="app-drawer-head">
             <div class="app-drawer-avatar">
                 @if ($appUser->profile_photo_url)
-                    <img src="{{ $appUser->profile_photo_url }}" alt="">
+                    <img src="{{ $appUser->profile_photo_url }}" alt="" loading="lazy" decoding="async">
                 @else
                     <span>{{ mb_substr($appUser->name, 0, 1) }}</span>
                 @endif

@@ -113,7 +113,7 @@
                                 {{ __('auth.enter_code') }}
                             </label>
 
-                            <div class="flex gap-2 justify-center my-4" dir="ltr" role="group" aria-labelledby="code-group-label" x-data="{
+                            <div class="flex gap-1.5 sm:gap-2 justify-center my-4" dir="ltr" role="group" aria-labelledby="code-group-label" x-data="{
                                 code: ['', '', '', '', '', ''],
                                 handleInput(index, event) {
                                     const val = event.target.value.replace(/\D/g, '');

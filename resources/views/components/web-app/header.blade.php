@@ -52,7 +52,7 @@ $nextLocaleLabel = strtoupper($nextLocale);
                 title="{{ __('web_app.navigation.profile') }}">
                 <span class="app-profile-avatar">
                     @if ($appUser->profile_photo_url)
-                        <img src="{{ $appUser->profile_photo_url }}" alt="">
+                        <img src="{{ $appUser->profile_photo_url }}" alt="" loading="lazy" decoding="async">
                     @else
                         <span aria-hidden="true">{{ mb_substr($appUser->name, 0, 1) }}</span>
                     @endif

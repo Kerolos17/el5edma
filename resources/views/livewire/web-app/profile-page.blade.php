@@ -148,7 +148,7 @@
                 <div class="flex flex-col items-center gap-4 py-4">
                     <div class="w-28 h-28 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center ring-4 ring-gray-100 dark:ring-gray-700">
                         @if ($user->profile_photo_url)
-                            <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}"
+                            <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" loading="lazy" decoding="async"
                                  class="w-full h-full object-cover">
                         @else
                             <span class="text-3xl font-bold text-gray-400 dark:text-gray-500">

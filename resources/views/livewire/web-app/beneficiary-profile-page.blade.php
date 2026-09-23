@@ -6,7 +6,7 @@
         <div class="flex items-start gap-4 sm:gap-6 flex-wrap sm:flex-nowrap">
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden ring-4 ring-white/30 flex-shrink-0 flex items-center justify-center" style="background: var(--clr-soft-frost)">
                 @if ($beneficiary->photo_url)
-                    <img src="{{ $beneficiary->photo_url }}" alt="{{ $beneficiary->full_name }}" class="w-full h-full object-cover">
+                    <img src="{{ $beneficiary->photo_url }}" alt="{{ $beneficiary->full_name }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                 @else
                     <span class="text-2xl sm:text-3xl font-bold app-text-muted">{{ mb_substr($beneficiary->full_name, 0, 1) }}</span>
                 @endif

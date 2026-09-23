@@ -87,6 +87,9 @@
     --color-table-header:  #1e3a4f;
     --color-table-row-alt: #161e2e;
 
+    /* Dark-adjusted danger for small text on dark surfaces */
+    --color-danger-soft:   #f87171;
+
     --shadow-sm:  0 1px 3px rgba(0,0,0,0.20);
     --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.30), 0 2px 4px -1px rgba(0,0,0,0.20);
     --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.40), 0 4px 6px -2px rgba(0,0,0,0.25);
@@ -126,7 +129,7 @@ body {
 
 /* نصوص القائمة الجانبية */
 .fi-sidebar-item-button {
-    color: #475569 !important;
+    color: var(--color-text-secondary) !important;
     margin-inline: 12px !important;
     border-radius: var(--radius-md) !important;
     transition: var(--transition-fast) !important;
@@ -139,6 +142,12 @@ body {
 .fi-sidebar-item-button:hover {
     background-color: var(--color-primary-50) !important;
     color: var(--color-primary-600) !important;
+}
+
+.dark .fi-sidebar-item-button:hover,
+.dark .fi-sidebar-item-button.fi-active {
+    background-color: rgba(0, 137, 163, 0.22) !important;
+    color: var(--color-primary-200) !important;
 }
 
 .fi-sidebar-item-button.fi-active {
@@ -448,7 +457,7 @@ button,
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text-secondary);
     margin-bottom: 6px;
 }
 
@@ -534,9 +543,13 @@ button,
     margin-top: 4px;
 }
 
+.dark .error-msg {
+    color: var(--color-danger-soft);
+}
+
 /* ─── Code Input (OTP/PIN) ───────────────────────────────── */
 .code-input {
-    width: 40px;
+    width: 44px;
     height: 48px;
     text-align: center;
     font-size: 18px;

@@ -236,14 +236,14 @@
 
             <div class="app-chart">
                 @php $max = max(1, max($visitsChart->values()->toArray())); @endphp
-                <div class="app-chart-bars">
+                <div class="app-chart-bars" role="img" aria-label="{{ __('web_app.dashboard.visits_chart') }}: {{ trans_choice('web_app.resources.visits_count', $visitsChart->sum(), ['count' => $visitsChart->sum()]) }}">
                     @foreach ($visitsChart as $month => $count)
                         @php
                             $pct = ($count / $max) * 100;
                             $barLevel = $count >= $max * 0.75 ? 'high' : ($count >= $max * 0.5 ? 'mid' : 'low');
                             $monthLabel = \Carbon\Carbon::createFromFormat('Y-m', $month)->isoFormat('MMM');
                         @endphp
-                        <div class="app-chart-bar-group">
+                        <div class="app-chart-bar-group" aria-hidden="true">
                             <span class="app-chart-label">{{ $monthLabel }}</span>
                             <div class="app-chart-track">
                                 <div class="app-chart-fill {{ $barLevel }}"
@@ -254,6 +254,17 @@
                         </div>
                     @endforeach
                 </div>
+                <table class="sr-only">
+                    <caption>{{ __('web_app.dashboard.visits_chart') }}</caption>
+                    <tbody>
+                        @foreach ($visitsChart as $month => $count)
+                            <tr>
+                                <th scope="row">{{ \Carbon\Carbon::createFromFormat('Y-m', $month)->isoFormat('MMM YYYY') }}</th>
+                                <td>{{ $count }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </section>
     @endif

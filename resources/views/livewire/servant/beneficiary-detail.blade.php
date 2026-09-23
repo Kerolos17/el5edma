@@ -168,9 +168,10 @@
                 <div class="space-y-2">
                     @foreach($recentVisits as $visit)
                         <div class="s-card rounded-2xl px-4 py-3 flex items-start gap-3"
-                             style="{{ $visit->is_critical ? 'border-inline-end: 3px solid var(--wizard-error);' : '' }}"
+                             style="{{ $visit->is_critical ? 'background: rgba(230,57,70,0.06);' : '' }}"
                              role="article">
                             {{-- Date --}}
+                            <span class="sr-only">{{ $visit->visit_date->isoFormat('D MMMM YYYY') }}</span>
                             <div class="text-center flex-shrink-0 w-12" aria-hidden="true">
                                 <p class="text-xl font-bold text-teal-700 leading-none" style="font-family: var(--font-accent);">
                                     {{ $visit->visit_date->format('d') }}
