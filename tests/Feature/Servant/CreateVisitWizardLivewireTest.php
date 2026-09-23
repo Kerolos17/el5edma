@@ -152,6 +152,22 @@ class CreateVisitWizardLivewireTest extends TestCase
     }
 
     #[Test]
+    public function offline_queue_count_accepts_browser_positional_payload(): void
+    {
+        $group   = ServiceGroup::factory()->create();
+        $servant = $this->createServant($group);
+
+        // Production regression: the browser's Livewire.dispatch() delivers
+        // the payload as ONE positional array (not named params), which
+        // threw TypeError (masked as 419 with debug off). Must not throw.
+        Livewire::actingAs($servant)
+            ->test(CreateVisitWizard::class)
+            ->dispatch('offlineQueueCount', ['count' => 3])
+            ->assertSet('offlineCount', 3)
+            ->assertDispatched('offlineQueueCount');
+    }
+
+    #[Test]
     public function offline_sync_conflict_event_bridges_to_browser(): void
     {
         $group   = ServiceGroup::factory()->create();

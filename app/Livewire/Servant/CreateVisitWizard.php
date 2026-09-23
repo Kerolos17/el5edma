@@ -66,9 +66,17 @@ class CreateVisitWizard extends Component
     }
 
     #[On('offlineQueueCount')]
-    public function handleOfflineQueueCount(int $count = 0): void
+    public function handleOfflineQueueCount(mixed $count = 0): void
     {
-        $this->offlineCount = max(0, $count);
+        // Livewire.dispatch() from the browser delivers the payload as ONE
+        // positional array (e.g. ['count' => n)), while server-side callers
+        // pass a named int. Accept both shapes — a TypeError here surfaces
+        // as a 419 with debug off and breaks every page hosting the wizard.
+        if (is_array($count)) {
+            $count = $count['count'] ?? 0;
+        }
+
+        $this->offlineCount = max(0, (int) $count);
         $this->dispatch('offlineQueueCount', ['count' => $this->offlineCount]);
     }
 

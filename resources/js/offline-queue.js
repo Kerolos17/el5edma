@@ -152,6 +152,10 @@ export const offlineQueue = {
 
     _notifyCount() {
         this.count().then((n) => {
+            // Instant client-side update (no server roundtrip needed).
+            window.dispatchEvent(new CustomEvent('offlineQueueCount', { detail: { count: n } }));
+            // Server-side bridge: keeps the Livewire offlineCount prop (and
+            // its aria-label) in sync for first paint + screen readers.
             dispatchToLivewire('offlineQueueCount', { count: n });
         });
     },
