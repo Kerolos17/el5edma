@@ -4,7 +4,7 @@
     <div class="reveal-card flex items-center justify-between">
         <div>
             <h1 class="text-xl font-bold text-teal-900">طلبات الصلاة</h1>
-            <p class="text-sm text-gray-400 mt-0.5">{{ $prayerRequests->count() }} طلب</p>
+            <p class="text-sm text-gray-400 mt-0.5">{{ $prayerRequests->total() }} طلب</p>
         </div>
         <button wire:click="openForm"
                 class="w-11 h-11 rounded-2xl gradient-deep flex items-center justify-center shadow-lg text-white"
@@ -132,6 +132,11 @@
                 message="{{ $filter === 'open' ? 'لا توجد طلبات صلاة مفتوحة' : 'لا توجد طلبات' }}"
             />
         @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    <div wire:loading.remove>
+        <x-ui.pagination :paginator="$prayerRequests" />
     </div>
 
 </div>

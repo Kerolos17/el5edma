@@ -110,6 +110,10 @@
                 <span>{{ $item['label'] }}</span>
             </a>
         @endforeach
+        <button type="button" @click="drawer = true" class="app-mobile-nav-item" aria-label="{{ __('web_app.actions.more') }}" aria-haspopup="dialog">
+            <i class="ph ph-dots-three-circle" aria-hidden="true"></i>
+            <span>{{ __('web_app.actions.more') }}</span>
+        </button>
     </nav>
 
     @livewire('servant.create-visit-wizard')

@@ -6,6 +6,18 @@
         <p class="text-sm text-gray-400 mt-0.5">{{ $visits->total() }} زيارة</p>
     </div>
 
+    {{-- Search --}}
+    <div class="relative reveal-card" style="animation-delay: 0.03s">
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
+        <input
+            wire:model.live.debounce.300ms="search"
+            type="search"
+            placeholder="ابحث باسم المخدوم أو الكود..."
+            class="search-input"
+            style="padding-inline-end: 44px;"
+            aria-label="بحث في الزيارات">
+    </div>
+
     {{-- Filter Chips --}}
     <div class="flex gap-2 overflow-x-auto pb-1 reveal-card"
          style="animation-delay: 0.06s; scrollbar-width: none;"

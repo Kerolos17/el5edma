@@ -22,10 +22,18 @@ class VisitList extends Component
     #[Url(except: 'all')]
     public string $filter = 'all'; // all | month | critical
 
+    #[Url(except: '')]
+    public string $search = '';
+
     #[On('visit-saved')]
     public function refresh(): void {}
 
     public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }
@@ -48,6 +56,13 @@ class VisitList extends Component
                     ),
             ))
             ->latest('visit_date');
+
+        if ($this->search !== '') {
+            $term = '%' . mb_strtolower($this->search) . '%';
+            $query->whereHas('beneficiary', fn (Builder $q) => $q
+                ->whereRaw('LOWER(full_name) LIKE ?', [$term])
+                ->orWhere('code', 'like', '%' . $this->search . '%'));
+        }
 
         match ($this->filter) {
             'month' => $query->whereMonth('visit_date', now()->month)

@@ -12,8 +12,8 @@
     </div>
     <section class="app-panel app-toolbar-panel">
         <div class="app-toolbar">
-            <label class="app-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}"></label>
-            <div class="app-chip-row" role="tablist">@foreach ($filters as $item)<button wire:click="$set('filter', '{{ $item['value'] }}')" class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">{{ $item['label'] }}</button>@endforeach</div>
+            <label class="app-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}" aria-label="{{ __('web_app.resources.search_label') }}"></label>
+            <div class="app-chip-row" role="group" aria-label="{{ $meta['title'] }}">@foreach ($filters as $item)<button wire:click="$set('filter', '{{ $item['value'] }}')" aria-pressed="{{ $filter === $item['value'] ? 'true' : 'false' }}" class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">{{ $item['label'] }}</button>@endforeach</div>
         </div>
     </section>
 
@@ -81,7 +81,7 @@
             </table>
         </div>
 
-        <div class="app-mobile-list">
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <strong>{{ $record->title }}</strong>
@@ -90,6 +90,18 @@
                         <span>{{ $record->createdBy?->name ?? '—' }}</span>
                         <span class="app-status-pill @switch($record->status) @case('answered') tone-emerald @break @case('closed') tone-slate @break @default tone-blue @endswitch">{{ __("web_app.states.{$record->status}") }}</span>
                     </div>
+                    @can('update', $record)
+                        <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                            <button type="button" wire:click="editPrayer({{ $record->id }})" class="app-mobile-action">
+                                <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                                {{ __('web_app.actions.edit') }}
+                            </button>
+                            <button type="button" wire:click="closePrayerRequest({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.close_prayer') }}" class="app-mobile-action">
+                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                {{ __('web_app.actions.close') }}
+                            </button>
+                        </div>
+                    @endcan
                 </article>
             @empty
                 <x-web-app.empty-state icon="ph-hands-praying" :message="__('web_app.resources.empty_table')" />

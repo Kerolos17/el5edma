@@ -112,7 +112,7 @@
             </table>
         </div>
 
-        <div class="app-mobile-list">
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <strong>{{ $record->name }}</strong>
@@ -120,6 +120,26 @@
                     <div class="app-mobile-meta">
                         <span>{{ $record->email ?? '—' }}</span>
                         <span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span>
+                    </div>
+                    <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                        @can('update', $record)
+                            <button type="button" wire:click="openUserForm({{ $record->id }})" class="app-mobile-action">
+                                <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                                {{ __('web_app.actions.edit') }}
+                            </button>
+                            @if(!$record->is_active)
+                                <button type="button" wire:click="approveUser({{ $record->id }})" class="app-mobile-action">
+                                    <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                    {{ __('web_app.actions.approve') }}
+                                </button>
+                            @endif
+                        @endcan
+                        @can('delete', $record)
+                            <button type="button" wire:click="deleteUser({{ $record->id }})" wire:confirm="{{ __('web_app.confirm.delete_user') }}" class="app-mobile-action app-mobile-action-danger">
+                                <i class="ph ph-trash" aria-hidden="true"></i>
+                                {{ __('web_app.actions.delete') }}
+                            </button>
+                        @endcan
                     </div>
                 </article>
             @empty

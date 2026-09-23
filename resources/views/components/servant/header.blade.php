@@ -50,6 +50,7 @@
          x-ref="drawerPanel"
          role="dialog" aria-modal="true" aria-label="القائمة"
          :inert="!drawer"
+         @open-drawer.window="drawer = true"
          @keydown.escape.window="drawer = false"
          @keydown.tab="trapDrawer($event)"
          x-transition:enter="transition-transform duration-300 ease-out"

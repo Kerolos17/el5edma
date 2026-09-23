@@ -9,13 +9,21 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('servant.layouts.app')]
 #[Title('الزيارات المجدولة')]
 class ScheduledVisitList extends Component
 {
+    use WithPagination;
+
     #[Url(except: 'upcoming')]
     public string $filter = 'upcoming';
+
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public function cancel(int $id): void
     {
@@ -49,20 +57,17 @@ class ScheduledVisitList extends Component
                 ->where('scheduled_date', '>=', now()->toDateString())
                 ->orderBy('scheduled_date')
                 ->orderBy('scheduled_time')
-                ->limit(100)
-                ->get(),
+                ->paginate(15),
             'past' => (clone $query)
                 ->where(fn ($q) => $q
                     ->where('scheduled_date', '<', now()->toDateString())
                     ->orWhere('status', 'completed'),
                 )
                 ->orderByDesc('scheduled_date')
-                ->limit(50)
-                ->get(),
+                ->paginate(15),
             default => (clone $query)
                 ->orderByDesc('scheduled_date')
-                ->limit(100)
-                ->get(),
+                ->paginate(15),
         };
 
         return view('livewire.servant.scheduled-visit-list', compact('scheduledVisits'));

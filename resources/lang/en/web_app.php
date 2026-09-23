@@ -33,6 +33,7 @@ return [
         'add_user'            => 'Add user',
         'add_service_group'   => 'Add service group',
         'view_all'            => 'View all',
+        'more'                => 'More',
         'edit'                => 'Edit',
         'visit'               => 'Visit',
         'prayer'              => 'Prayer',

@@ -3,7 +3,7 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">الزيارات المجدولة</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $scheduledVisits->count() }} زيارة</p>
+        <p class="text-sm text-gray-400 mt-0.5">{{ $scheduledVisits->total() }} زيارة</p>
     </div>
 
     {{-- Filter Chips --}}
@@ -98,6 +98,11 @@
                 message="{{ $filter === 'upcoming' ? 'لا توجد زيارات مجدولة قادمة' : 'لا توجد زيارات' }}"
             />
         @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    <div wire:loading.remove>
+        <x-ui.pagination :paginator="$scheduledVisits" />
     </div>
 
 </div>

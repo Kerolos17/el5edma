@@ -33,6 +33,7 @@ return [
         'add_user'            => 'إضافة مستخدم',
         'add_service_group'   => 'إضافة مجموعة',
         'view_all'            => 'عرض الكل',
+        'more'                => 'المزيد',
         'edit'                => 'تعديل',
         'visit'               => 'زيارة',
         'prayer'              => 'صلاة',

@@ -3,7 +3,7 @@
     {{-- Page Title --}}
     <div class="reveal-card">
         <h1 class="text-xl font-bold text-teal-900">الملفات الطبية</h1>
-        <p class="text-sm text-gray-400 mt-0.5">{{ $medicalFiles->count() }} ملف</p>
+        <p class="text-sm text-gray-400 mt-0.5">{{ $medicalFiles->total() }} ملف</p>
     </div>
 
     {{-- Filter Chips --}}
@@ -77,6 +77,11 @@
                 </p>
             </div>
         @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    <div wire:loading.remove>
+        <x-ui.pagination :paginator="$medicalFiles" />
     </div>
 
 </div>

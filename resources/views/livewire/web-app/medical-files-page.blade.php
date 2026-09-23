@@ -72,7 +72,7 @@
             </table>
         </div>
 
-        <div class="app-mobile-list">
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter,gotoPage,nextPage,previousPage">
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <strong>{{ $record->title ?? __('web_app.fallback.no_title') }}</strong>
@@ -80,6 +80,12 @@
                     <div class="app-mobile-meta">
                         <span>{{ $record->beneficiary?->full_name ?? '—' }}</span>
                         <span>{{ $record->uploadedBy?->name ?? '—' }}</span>
+                    </div>
+                    <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                        <a href="{{ route('medical-files.download', $record->id) }}" class="app-mobile-action">
+                            <i class="ph ph-download-simple" aria-hidden="true"></i>
+                            {{ __('web_app.table.download') }}
+                        </a>
                     </div>
                 </article>
             @empty

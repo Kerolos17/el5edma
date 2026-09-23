@@ -40,6 +40,18 @@
                         <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                         {{ __('web_app.actions.edit') }}
                     </button>
+                    @if ($visit->is_critical || $visit->needs_family_leader || $visit->needs_service_leader)
+                        <button type="button" wire:click="resolveVisitFollowUp({{ $visit->id }})" class="app-secondary-button app-hero-button">
+                            <i class="ph ph-check-circle" aria-hidden="true"></i>
+                            {{ __('web_app.actions.close_follow_up') }}
+                        </button>
+                    @endif
+                @endcan
+                @can('delete', $visit)
+                    <button type="button" wire:click="deleteVisit({{ $visit->id }})" wire:confirm="{{ __('web_app.confirm.delete_visit') }}" class="app-secondary-button app-hero-button app-hero-danger">
+                        <i class="ph ph-trash" aria-hidden="true"></i>
+                        {{ __('web_app.actions.delete') }}
+                    </button>
                 @endcan
                 <a href="{{ route('app.visits') }}" wire:navigate class="app-secondary-button app-hero-button">
                     <i class="ph ph-arrow-right" aria-hidden="true"></i>

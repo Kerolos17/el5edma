@@ -685,10 +685,20 @@
   }
 
   .app-hero-button {
-    min-height: 2.25rem;
+    min-height: 2.75rem;
     padding: 0 0.65rem;
     font-size: 0.78rem;
     border-radius: 0.65rem;
+  }
+
+  .app-hero-danger {
+    color: #be123c;
+    border-color: rgba(190, 18, 60, 0.35);
+  }
+
+  [data-theme="dark"] .app-hero-danger {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.4);
   }
 
   .app-text-muted {
@@ -972,7 +982,7 @@
     left: 0;
     z-index: 60;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     min-height: 4.5rem;
     padding: 0.45rem 0.45rem calc(0.45rem + env(safe-area-inset-bottom));
     background: rgba(255, 255, 255, 0.94);

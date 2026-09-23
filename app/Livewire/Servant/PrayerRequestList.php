@@ -11,13 +11,21 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('servant.layouts.app')]
 #[Title('طلبات الصلاة')]
 class PrayerRequestList extends Component
 {
+    use WithPagination;
+
     #[Url(except: 'open')]
     public string $filter = 'open';
+
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public bool $showForm = false;
 
@@ -74,8 +82,7 @@ class PrayerRequestList extends Component
             ->with('beneficiary')
             ->when($this->filter !== 'all', fn ($q) => $q->where('status', $this->filter))
             ->latest()
-            ->limit(100)
-            ->get();
+            ->paginate(15);
 
         $myBeneficiaries = $this->ownedBeneficiaryQuery()->orderBy('full_name')->get(['id', 'full_name']);
 

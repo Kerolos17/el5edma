@@ -11,13 +11,21 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('servant.layouts.app')]
 #[Title('الملفات الطبية')]
 class MedicalFileList extends Component
 {
+    use WithPagination;
+
     #[Url(except: 'all')]
     public string $filter = 'all';
+
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public function render(): View
     {
@@ -37,8 +45,7 @@ class MedicalFileList extends Component
             ->with('beneficiary', 'uploadedBy')
             ->when($this->filter !== 'all', fn ($q) => $q->where('file_type', $this->filter))
             ->orderByDesc('id')
-            ->limit(100)
-            ->get();
+            ->paginate(15);
 
         return view('livewire.servant.medical-file-list', compact('medicalFiles'));
     }

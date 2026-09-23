@@ -21,6 +21,13 @@
             </a>
         @endforeach
 
+        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-drawer'))"
+               class="relative flex flex-col items-center justify-center gap-0.5 min-w-0 min-h-[44px] flex-1 h-full transition-colors duration-200 text-gray-500 hover:text-gray-700"
+               aria-label="{{ __('web_app.actions.more') }}" aria-haspopup="dialog">
+            <i aria-hidden="true" class="ph ph-dots-three-circle text-[22px]"></i>
+            <span class="text-[11px] font-bold leading-relaxed">{{ __('web_app.actions.more') }}</span>
+        </button>
+
         <div class="relative flex flex-col items-center justify-center min-w-0 flex-1 h-full">
             <button
                 onclick="window.dispatchEvent(new CustomEvent('open-wizard'))"

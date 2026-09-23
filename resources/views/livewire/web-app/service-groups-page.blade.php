@@ -74,13 +74,24 @@
 
         <div class="app-mobile-list">
             @forelse ($records as $record)
-                <a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="app-mobile-card">
-                    <strong>{{ $record->name }}</strong>
-                    <p>{{ $record->leader?->name ?? $record->serviceLeader?->name ?? '—' }}</p>
-                    <div class="app-mobile-meta">
-                        <span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span>
-                    </div>
-                </a>
+                <div class="app-mobile-card">
+                    <a href="{{ route('app.service-group-profile', $record->id) }}" wire:navigate class="block">
+                        <strong>{{ $record->name }}</strong>
+                        <p>{{ __('web_app.table.leader') }}: {{ $record->leader?->name ?? __('web_app.fallback.unassigned') }}</p>
+                        <p>{{ __('web_app.table.service_leader') }}: {{ $record->serviceLeader?->name ?? __('web_app.fallback.unassigned') }}</p>
+                        <div class="app-mobile-meta">
+                            <span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span>
+                        </div>
+                    </a>
+                    @can('update', $record)
+                        <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                            <button type="button" wire:click="openServiceGroupForm({{ $record->id }})" class="app-mobile-action">
+                                <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                                {{ __('web_app.actions.edit') }}
+                            </button>
+                        </div>
+                    @endcan
+                </div>
             @empty
                 <x-web-app.empty-state icon="ph-tree-structure" :message="__('web_app.resources.empty_table')" />
             @endforelse
