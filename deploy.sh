@@ -52,7 +52,14 @@ echo "Running database migrations..."
 php artisan migrate --force
 
 echo "Creating storage symlink..."
-php artisan storage:link --force
+# NOTE: hosts without symlink()/exec() (e.g. restricted shared hosting) cannot
+# create the link. In that case keep a real directory synced via cron:
+#   */5 * * * * cp -rn <app>/storage/app/public/. <app>/public/storage/
+if ! php artisan storage:link --force; then
+    echo "Symlink unsupported on this host. Falling back to copied storage..."
+    mkdir -p public/storage
+    cp -rn storage/app/public/. public/storage/
+fi
 
 echo "Clearing stale caches..."
 php artisan optimize:clear
