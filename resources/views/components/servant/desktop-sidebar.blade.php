@@ -23,6 +23,7 @@
             <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
                 <i class="ph-bold ph-cross text-white text-xl"></i>
             </div>
+            <x-servant.theme-toggle class="servant-theme-btn servant-theme-btn-on-dark ms-auto" />
         </div>
     </div>
 

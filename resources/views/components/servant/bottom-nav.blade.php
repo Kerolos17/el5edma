@@ -7,8 +7,7 @@
 @endphp
 
 <div class="fixed bottom-0 left-0 right-0 lg:hidden z-50" style="padding-bottom: env(safe-area-inset-bottom);">
-    <nav class="flex items-center justify-around h-16 px-1" aria-label="التنقل السريع"
-         style="background: rgba(255,255,255,0.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 1px solid rgba(0,0,0,0.06);">
+    <nav class="flex items-center justify-around h-16 px-1 servant-bottombar" aria-label="التنقل السريع">
 
         @foreach ($items as $item)
             <a href="{{ route($item['route']) }}" wire:navigate

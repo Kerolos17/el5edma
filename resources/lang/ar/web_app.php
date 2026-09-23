@@ -50,6 +50,7 @@ return [
         'logout'              => 'تسجيل خروج',
         'close'               => 'إغلاق',
         'dialog'              => 'نافذة حوار',
+        'theme_toggle'        => 'تبديل المظهر الداكن',
         'delete'              => 'حذف',
         'approve'             => 'تفعيل',
         'reopen'              => 'إعادة فتح',

@@ -50,6 +50,7 @@ return [
         'logout'              => 'Logout',
         'close'               => 'Close',
         'dialog'              => 'Dialog',
+        'theme_toggle'        => 'Toggle dark mode',
         'delete'              => 'Delete',
         'approve'             => 'Approve',
         'reopen'              => 'Reopen',

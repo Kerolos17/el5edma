@@ -24,19 +24,19 @@
             else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         }
     }">
-    <div class="px-4 py-3 flex items-center justify-between gap-3"
-         style="background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(0,0,0,0.06); padding-top: max(0.75rem, env(safe-area-inset-top));">
+    <div class="px-4 py-3 flex items-center justify-between gap-3 servant-topbar">
 
         {{-- Hamburger --}}
         <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="القائمة">
             <i aria-hidden="true" class="ph ph-list text-xl"></i>
         </button>
 
-        {{-- Search + Notifications --}}
+        {{-- Search + Theme + Notifications --}}
         <div class="flex items-center gap-1">
             <a href="{{ route('servant.beneficiaries') }}" wire:navigate class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" aria-label="بحث">
                 <i aria-hidden="true" class="ph ph-magnifying-glass text-lg"></i>
             </a>
+            <x-servant.theme-toggle />
             @livewire('servant.notifications-bell')
         </div>
     </div>

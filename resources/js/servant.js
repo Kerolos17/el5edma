@@ -13,16 +13,58 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 document.addEventListener('livewire:navigated', () => {
     triggerRevealAnimations();
+    applyServantTheme(servantTheme(), false);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     triggerRevealAnimations();
     setupFcm();
     setupEchoListener();
+    applyServantTheme(servantTheme(), false);
     offlineQueue.init();
     // Expose للـ wizard في كلا التخطيطين
     window.offlineQueue = offlineQueue;
     window.__servantOfflineQueue = offlineQueue;
+});
+
+// ─── Servant theme (light default, dark optional + persisted) ───────────────
+
+const SERVANT_THEME_KEY = 'servant-theme';
+
+function servantTheme() {
+    try {
+        return localStorage.getItem(SERVANT_THEME_KEY) === 'dark' ? 'dark' : 'light';
+    } catch (e) {
+        return 'light';
+    }
+}
+
+function applyServantTheme(mode, persist = true) {
+    document.documentElement.setAttribute('data-theme', mode);
+
+    if (persist) {
+        try {
+            localStorage.setItem(SERVANT_THEME_KEY, mode);
+        } catch (e) {
+            // Private mode: theme applies for this session only.
+        }
+    }
+
+    document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', mode === 'dark' ? '#0f172a' : '#006D77');
+
+    document.querySelectorAll('[data-servant-theme-toggle]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
+        btn.querySelector('.icon-moon')?.classList.toggle('hidden', mode === 'dark');
+        btn.querySelector('.icon-sun')?.classList.toggle('hidden', mode !== 'dark');
+    });
+}
+
+document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-servant-theme-toggle]')) {
+        applyServantTheme(servantTheme() === 'dark' ? 'light' : 'dark');
+    }
 });
 
 function triggerRevealAnimations() {
