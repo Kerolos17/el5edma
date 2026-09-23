@@ -11,6 +11,7 @@ use App\Livewire\WebApp\PrayerRequestsPage;
 use App\Livewire\WebApp\ScheduledVisitsPage;
 use App\Livewire\WebApp\ServiceGroupsPage;
 use App\Livewire\WebApp\UsersPage;
+use App\Livewire\WebApp\VisitProfilePage;
 use App\Livewire\WebApp\VisitsPage;
 use App\Models\Beneficiary;
 use App\Models\MedicalFile;
@@ -1224,6 +1225,46 @@ class ResourceActionsTest extends TestCase
         $this->assertDatabaseHas('visits', [
             'beneficiary_id' => $beneficiary->id,
             'created_by'     => $admin->id,
+        ]);
+    }
+
+    #[Test]
+    public function visit_profile_page_can_edit_and_save_visit_without_scheduled_trait(): void
+    {
+        // Regression (staging 500): VisitProfilePage uses ManagesVisits WITHOUT
+        // the sibling ManagesScheduledVisits trait, so resetVisitForm() threw
+        // ReflectionException on scheduledVisitContextId and saveVisit() called
+        // the undefined completeLinkedScheduledVisit(). Both must be safe.
+        $group        = ServiceGroup::factory()->create();
+        $familyLeader = $this->createFamilyLeader($group);
+        $beneficiary  = Beneficiary::factory()->create([
+            'service_group_id' => $group->id,
+        ]);
+        $visit = Visit::factory()->create([
+            'beneficiary_id'     => $beneficiary->id,
+            'type'               => 'home_visit',
+            'beneficiary_status' => 'good',
+            'feedback'           => 'Old feedback',
+        ]);
+
+        Livewire::actingAs($familyLeader)
+            ->test(VisitProfilePage::class, ['visit' => $visit])
+            ->call('editVisit', $visit->id)
+            ->assertSet('editingVisitId', $visit->id)
+            ->assertSet('showVisitForm', true)
+            ->set('visitType', 'phone_call')
+            ->set('visitDate', now()->subDay()->format('Y-m-d\TH:i'))
+            ->set('beneficiaryStatus', 'needs_follow')
+            ->set('visitFeedback', 'Updated from profile')
+            ->call('saveVisit')
+            ->assertDispatched('toast')
+            ->assertSet('showVisitForm', false);
+
+        $this->assertDatabaseHas('visits', [
+            'id'                 => $visit->id,
+            'type'               => 'phone_call',
+            'beneficiary_status' => 'needs_follow',
+            'feedback'           => 'Updated from profile',
         ]);
     }
 }

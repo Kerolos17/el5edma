@@ -120,7 +120,11 @@ trait ManagesVisits
             $visit->servants()->syncWithoutDetaching([auth()->id()]);
         }
 
-        $this->completeLinkedScheduledVisit($visit);
+        // completeLinkedScheduledVisit() lives in the sibling ManagesScheduledVisits
+        // trait; lean components (e.g. VisitProfilePage) don't have it.
+        if (method_exists($this, 'completeLinkedScheduledVisit')) {
+            $this->completeLinkedScheduledVisit($visit);
+        }
 
         $message = $this->editingVisitId
             ? __('web_app.toasts.visit_updated')
@@ -159,18 +163,26 @@ trait ManagesVisits
 
     private function resetVisitForm(): void
     {
-        $this->reset([
-            'editingVisitId',
-            'visitBeneficiaryId',
-            'visitType',
-            'visitDate',
-            'durationMinutes',
-            'beneficiaryStatus',
-            'visitFeedback',
-            'isCritical',
-            'needsFamilyLeader',
-            'needsServiceLeader',
-            'scheduledVisitContextId',
-        ]);
+        // NOTE: scheduledVisitContextId lives in the sibling ManagesScheduledVisits
+        // trait. Only reset properties the using component actually declares, so
+        // lean components (e.g. VisitProfilePage) never hit ReflectionException.
+        $props = array_filter(
+            [
+                'editingVisitId',
+                'visitBeneficiaryId',
+                'visitType',
+                'visitDate',
+                'durationMinutes',
+                'beneficiaryStatus',
+                'visitFeedback',
+                'isCritical',
+                'needsFamilyLeader',
+                'needsServiceLeader',
+                'scheduledVisitContextId',
+            ],
+            fn (string $prop) => property_exists($this, $prop),
+        );
+
+        $this->reset($props);
     }
 }
