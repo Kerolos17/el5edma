@@ -2,8 +2,8 @@
 
 > **Status:** In progress
 > **Created:** 2026-09-24
-> **Last updated:** 2026-09-24
-> **Current phase:** Phase 5 — بروفة النشر (بانتظار بيانات cPanel من المالك)
+> **Last updated:** 2026-09-25
+> **Current phase:** Phase 6 ✅ نُشر فعلياً — متبقية إجراءات مالك فقط
 > **Owner:** Kerolos
 > _Lifecycle: rename to `[In Progress]` on start, update the Progress log before each
 > phase transition, `[Done]` + move to `Archive/` when complete._
@@ -178,3 +178,12 @@
   **التحقق الوظيفي بعد النشر (كلها ناجحة):** /up=200، تحويل /→/app/dashboard، دخول بالكود الشخصي 302 على APP_KEY جديد وقاعدة MySQL حقيقية (يؤكد فك تشفير personal_code)، لوحة التحكم 200 بمحتوى عربي، CSP/X-Frame/Permissions-Policy/HSTS حاضرة، /beneficiary-photos بدون جلسة → 302 (محجوز بالدخول)، sw.js + manifest + assets تعمل، `FORCE_HTTPS=false` صار يُحترم.
   ملاحظة: أصلحت سجلات Aria التالفة لـ XAMPP MySQL المحلي. بيئة البروفة بقيت في `E:/rehearsal/ministry-app` لإعادة الاستخدام.
 - 2026-09-25 — **متبقٍ في Phase 5:** البروفة على cPanel حقيقي (قيود الاستضافة: symlinks، exec، مسارات PHP) + تدوير Mailtrap/Firebase. ثم Phase 6.
+- 2026-09-25 — **تحول خطير في الخطط:** المالك أكد أن المشروع **حي فعلاً على Hostinger بدومين مؤقت** (username من أثر .htaccess: u524612520). المرحلة 5/6 صارتا **تحديث نسخة حية** مع احتياطات إلزامية: نسخ احتياطي كامل قبل أي خطوة (DB + storage + .env)، **لا تدوير APP_KEY إطلاقاً** (الحقول المشفرة الحية تعتمد عليه)، والصور الحالية على القرص العام ستصبح 404 (مؤقتة — مقبول بقرار المالك).
+- 2026-09-25 — **إصلاح أمني إضافي (commit 77fd1da):** حارس زرع في deploy.sh — `db:seed` فقط إذا كان جدول users فارغاً. بدون الحارس كان updateOrCreate سيعيد تعيين كلمة مرور المدير الحي إلى Admin@1234. تحقق عملي: قاعدة بها 11 مستخدماً → تخطي.
+- 2026-09-25 — **Phase 5 + 6 ✅ — النشر الفعلي على Hostinger تم** (المشروع كان حياً بدومين مؤقت yellowgreen-monkey-119844.hostingersite.com):
+  - نسخة احتياطية كاملة أولاً: `~/backups/ministry-20260925/` (DB 26 جدولاً + storage 7.4MB + .env) — على السيرفر.
+  - النشر بإصدار جديد في مجلد منفصل ثم تبديل (rollback متاح: `public_html_old_20260925`). APP_KEY الحي لم يُمَس. قاعدة البيانات اتضح أنها محدثة أصلاً (38 migration) — لا تغييرات مخطط.
+  - **مشكلتان أثناء النشر حُلّتا:** (1) CLI السيرفر PHP 8.3 بينما vendor يتطلب 8.4 → استُخدم `/opt/alt/php84/usr/bin/php`؛ (2) route/view cache يخزّن المسار المطلق → 500 بعد إعادة تسمية المجلد → إعادة بناء الكاش في الموقع النهائي (وجّب توثيقه لأي نشر مستقبلي: ابِنِ الكاش بعد الوصول للمسار النهائي).
+  - **تحقق كامل على الحي:** /up 200، دخول بالكود الشخصي ناجح عبر مستخدم اختباري مؤقت (أُنشئ ثم حُذف)، لوحة التحكم والمخدومين 200، مسار الصور الجديد محجوز بالدخول (302)، assets جديدة (theme-CUHH24aj)، PWA تعمل، لا أخطاء في السجل بعد النشر، Firebase credentials موجودة، schedule:list صحيح.
+  - **قيد مستضافي موثّق:** hcdn (CDN الخاص بـ Hostinger) يستبدل ترويسة CSP بالنسخة الضعيفة `upgrade-insecure-requests` حتى لملف PHP ساذج — CSP الكامل لتطبيقنا لا يصل على الدومين المؤقت (X-Frame-Options وHSTS يصلان). **إعادة الفحص عند ربط الدومين الحقيقي.**
+  - **متبقٍ على المالك:** (1) إضافة Cron Jobs من hPanel (crontab غير متاح من SSH): schedule:run كل دقيقة + queue:work --stop-when-empty كل دقيقة — المسار الكامل موثق في DEPLOYMENT.md؛ (2) تدوير Mailtrap + تقييد مفتاح Firebase؛ (3) تغيير كلمة مرور SSH (شاركت في المحادثة)؛ (4) مراجعة CSP عند الدومين الحقيقي.
