@@ -169,3 +169,12 @@
 - 2026-09-24 — **Phase 4 ✅**: حذف hot/plan/server.php، firebase 8.5.0 موسوم، كل بوابات الاعتماديات خضراء. لا commits بعد — بانتظار قرار المالك.
 - 2026-09-24 — **متبقٍ:** تدوير أسرار (مالك) → Phase 5 بروفة على cPanel (يحتاج بيانات الدخول) → Phase 6 نشر.
 - 2026-09-24 — **Commits مسجّلة (main):** b67917c design contract / 6f2d1c3 security / 5663298 privacy photos / 8ac01f8 deps pin / ad5d5cc dev script fix (artisan serve بدل server.php). الشجرة نظيفة.
+- 2026-09-25 — **Phase 5 (الجزء المحلي) ✅ — بروفة deploy.sh على MySQL نظيف** (استنساخ نظيف في `E:/rehearsal/ministry-app` + MariaDB 10.4 + env إنتاجي):
+  **اكتشافات أصلحتها (كلها كانت ستكسر النشر الفعلي):**
+  1. `composer install --no-dev` يفشل: `pusher/pusher-php-server` لم يكن في `composer.json` رغم `BROADCAST_CONNECTION=pusher` في قالب الإنتاج (التطوير كان يستخدم `log`). أُضيفت (7.3) — commit 9548b16.
+  2. **عيب كودي:** `env('FORCE_HTTPS')` يُرجع null بعد `config:cache` (والنشر يبني الكاش دائماً) → النظام يجبر https دائماً في الإنتاج مهما ضُبط. النقل عبر `config('app.force_https')`. وكذلك `TRUSTED_PROXIES` عبر وسيط `TrustProxies` مخصص يقرأ config وقت الطلب (bootstrap/app.php يعمل قبل تحميل config). — commit 6ae9457.
+  3. `deploy.sh` لم يزرع البيانات — تثبيت جديد بلا أي مستخدم يقدر يدخل. أُضيف `db:seed --force` (المزروعات idempotent updateOrCreate). — commit 6ae9457.
+  4. PHP المحمول على جهاز النشر lacked `gd` (مطلوبة لـ PDF/Excel) — فعّلت gd/pdo_mysql في `.tools/php.ini` (ملاحظة للسيرفر الفعلي: runbook يشترط gd/intl أصلاً).
+  **التحقق الوظيفي بعد النشر (كلها ناجحة):** /up=200، تحويل /→/app/dashboard، دخول بالكود الشخصي 302 على APP_KEY جديد وقاعدة MySQL حقيقية (يؤكد فك تشفير personal_code)، لوحة التحكم 200 بمحتوى عربي، CSP/X-Frame/Permissions-Policy/HSTS حاضرة، /beneficiary-photos بدون جلسة → 302 (محجوز بالدخول)، sw.js + manifest + assets تعمل، `FORCE_HTTPS=false` صار يُحترم.
+  ملاحظة: أصلحت سجلات Aria التالفة لـ XAMPP MySQL المحلي. بيئة البروفة بقيت في `E:/rehearsal/ministry-app` لإعادة الاستخدام.
+- 2026-09-25 — **متبقٍ في Phase 5:** البروفة على cPanel حقيقي (قيود الاستضافة: symlinks، exec، مسارات PHP) + تدوير Mailtrap/Firebase. ثم Phase 6.
