@@ -3191,20 +3191,20 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "8.4.2",
+            "version": "8.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beste/firebase-php.git",
-                "reference": "d1d5a29382377c54e4454f32afc92fe5d8e4a316"
+                "reference": "6186639d263fcac7ece5014b864a16761a5e02b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beste/firebase-php/zipball/d1d5a29382377c54e4454f32afc92fe5d8e4a316",
-                "reference": "d1d5a29382377c54e4454f32afc92fe5d8e4a316",
+                "url": "https://api.github.com/repos/beste/firebase-php/zipball/6186639d263fcac7ece5014b864a16761a5e02b5",
+                "reference": "6186639d263fcac7ece5014b864a16761a5e02b5",
                 "shasum": ""
             },
             "require": {
-                "beste/clock": "^3.0",
+                "beste/clock": "^3.0 || ^4.0",
                 "beste/in-memory-cache": "^1.3.1",
                 "beste/json": "^1.5.1",
                 "cuyz/valinor": "^2.2.1",
@@ -3225,6 +3225,7 @@
                 "php": "~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
                 "psr/cache": "^2.0 || ^3.0",
                 "psr/clock": "^1.0",
+                "psr/event-dispatcher": "^1.0",
                 "psr/http-client": "^1.0.3",
                 "psr/http-factory": "^1.1",
                 "psr/http-message": "^1.1 || ^2.0"
@@ -3280,7 +3281,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-05T19:59:55+00:00"
+            "time": "2026-09-12T22:02:01+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
