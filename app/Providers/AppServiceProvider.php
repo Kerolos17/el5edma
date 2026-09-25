@@ -93,7 +93,8 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Force HTTPS in production (or when FORCE_HTTPS=true); FORCE_HTTPS=false opts out.
-        $forceHttps  = env('FORCE_HTTPS');
+        // Read via config — env() returns null once the config is cached.
+        $forceHttps  = config('app.force_https');
         $shouldForce = $forceHttps === null
             ? app()->environment('production')
             : in_array($forceHttps, [true, 'true', '1'], true);

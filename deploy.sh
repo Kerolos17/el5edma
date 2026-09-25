@@ -51,6 +51,9 @@ chmod -R 755 public || true
 echo "Running database migrations..."
 php artisan migrate --force
 
+echo "Seeding base data (idempotent: updateOrCreate)..."
+php artisan db:seed --force
+
 echo "Creating storage symlink..."
 # NOTE: hosts without symlink()/exec() (e.g. restricted shared hosting) cannot
 # create the link. In that case keep a real directory synced via cron:
