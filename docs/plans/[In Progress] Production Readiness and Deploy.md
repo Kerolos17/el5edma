@@ -168,3 +168,4 @@
 - 2026-09-24 — **Phase 3 ✅**: TRUSTED_PROXIES + FORCE_HTTPS + تحويل HTTPS في htaccess + CSP بلا unsafe-eval/https: + صور المخدومين للقرص الخاص بمسار مخوّل. السويت 658/658 بعد التعديلات.
 - 2026-09-24 — **Phase 4 ✅**: حذف hot/plan/server.php، firebase 8.5.0 موسوم، كل بوابات الاعتماديات خضراء. لا commits بعد — بانتظار قرار المالك.
 - 2026-09-24 — **متبقٍ:** تدوير أسرار (مالك) → Phase 5 بروفة على cPanel (يحتاج بيانات الدخول) → Phase 6 نشر.
+- 2026-09-24 — **Commits مسجّلة (main):** b67917c design contract / 6f2d1c3 security / 5663298 privacy photos / 8ac01f8 deps pin / ad5d5cc dev script fix (artisan serve بدل server.php). الشجرة نظيفة.
