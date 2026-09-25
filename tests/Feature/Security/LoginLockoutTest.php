@@ -77,7 +77,8 @@ class LoginLockoutTest extends TestCase
 
         $response = $this->post(route('login.code'), ['code' => '654321']);
 
-        $response->assertRedirect('/app/dashboard');
+        // Factory users are servants — routed to their own dashboard.
+        $response->assertRedirect('/servant/dashboard');
         $this->assertAuthenticatedAs($user);
     }
 }
