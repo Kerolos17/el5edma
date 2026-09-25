@@ -1103,3 +1103,72 @@
   background: var(--clr-deep-ink);
   color: var(--wizard-surface);
 }
+
+/* ── Semantic skeleton heights (contract: no inline styles) ── */
+.skeleton-card { height: 100px; }
+.skeleton-row  { height: 68px; }
+.skeleton-chip { height: 76px; }
+
+/* ── Display font utility (DESIGN.md display face) ── */
+.display-font {
+  font-family: var(--ff-display);
+}
+
+/* ── Search input semantic helpers ── */
+.search-input__icon {
+  inset-inline-end: 1rem;
+}
+
+.search-input--padded {
+  padding-inline-end: 44px;
+}
+
+/* ── Servant drawer semantic surfaces (moved from inline styles) ── */
+.servant-drawer {
+  background: linear-gradient(180deg, #0d555c 0%, #003942 100%);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.servant-drawer__new-visit {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.servant-drawer__avatar {
+  background: linear-gradient(135deg, #F7BB86, #F4A261);
+}
+
+/* ── Beneficiary detail headings (contract: semantic classes) ── */
+.servant-bene-detail-hero__title {
+  font-weight: var(--weight-bold);
+  color: #134e4a;
+  font-size: var(--text-md);
+  line-height: var(--leading-tight);
+}
+
+.servant-detail h2 {
+  font-weight: var(--weight-bold);
+  color: #134e4a;
+}
+
+/* ── Accent font utility ── */
+.accent-font {
+  font-family: var(--ff-accent);
+}
+
+/* ── Medical file icon surface ── */
+.medical-file-icon {
+  background: rgba(0, 109, 119, 0.1);
+}
+
+/* ── Profile card surfaces (moved from inline styles) ── */
+.profile-card__noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #E63946 0%, #C2323E 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(230, 57, 70, 0.25);
+}

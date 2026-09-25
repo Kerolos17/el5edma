@@ -8,24 +8,24 @@
 
 @php
     $sizes = [
-        'xs' => ['outer' => 'w-7 h-7',   'text' => 'text-xs',   'font' => '700'],
-        'sm' => ['outer' => 'w-9 h-9',   'text' => 'text-sm',   'font' => '700'],
-        'md' => ['outer' => 'w-11 h-11', 'text' => 'text-base', 'font' => '700'],
-        'lg' => ['outer' => 'w-14 h-14', 'text' => 'text-xl',   'font' => '700'],
-        'xl' => ['outer' => 'w-16 h-16', 'text' => 'text-2xl',  'font' => '700'],
+        'xs' => ['outer' => 'w-7 h-7',   'text' => 'text-xs'],
+        'sm' => ['outer' => 'w-9 h-9',   'text' => 'text-sm'],
+        'md' => ['outer' => 'w-11 h-11', 'text' => 'text-base'],
+        'lg' => ['outer' => 'w-14 h-14', 'text' => 'text-xl'],
+        'xl' => ['outer' => 'w-16 h-16', 'text' => 'text-2xl'],
     ];
     $shapes = [
         'round'  => 'rounded-full',
         'square' => 'rounded-2xl',
     ];
-    $gradients = [
-        'teal' => 'linear-gradient(135deg, #C7E5E8, #4D9BA3)',
-        'gold' => 'linear-gradient(135deg, #F7BB86, #F4A261)',
+    $surfaces = [
+        'teal' => 'avatar__surface--teal',
+        'gold' => 'avatar__surface--gold',
     ];
 
-    $s = $sizes[$size]   ?? $sizes['md'];
-    $r = $shapes[$shape] ?? $shapes['round'];
-    $g = $gradients[$gradient] ?? $gradients['teal'];
+    $s = $sizes[$size]     ?? $sizes['md'];
+    $r = $shapes[$shape]   ?? $shapes['round'];
+    $g = $surfaces[$gradient] ?? $surfaces['teal'];
 
     $initial = $name ? mb_substr($name, 0, 1) : '؟';
 @endphp
@@ -33,14 +33,12 @@
 <div {{ $attributes->class([$s['outer'], $r, 'overflow-hidden flex-shrink-0']) }}>
     @if($src)
         <img src="{{ $src }}" alt="{{ $name }}" class="w-full h-full object-cover" loading="lazy" decoding="async" width="96" height="96"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="w-full h-full items-center justify-center {{ $s['text'] }} font-bold text-teal-800"
-             style="display:none; background: {{ $g }}; font-weight: {{ $s['font'] }};">
+             onerror="this.classList.add('hidden'); this.nextElementSibling.classList.add('avatar__fallback--show');">
+        <div class="avatar__fallback {{ $g }} {{ $s['text'] }} text-teal-800">
             {{ $initial }}
         </div>
     @else
-        <div class="w-full h-full flex items-center justify-center {{ $s['text'] }} font-bold text-teal-800"
-             style="background: {{ $g }}; font-weight: {{ $s['font'] }};">
+        <div class="w-full h-full flex items-center justify-center {{ $s['text'] }} font-bold {{ $g }} text-teal-800">
             {{ $initial }}
         </div>
     @endif

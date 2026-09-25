@@ -12,8 +12,7 @@
     <script nonce="{{ $cspNonce }}">
         (() => {
             const storedTheme = localStorage.getItem('web-app-theme');
-            const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            const theme = storedTheme === 'dark' ? 'dark' : 'light';
             document.documentElement.dataset.theme = theme;
         })();
     </script>

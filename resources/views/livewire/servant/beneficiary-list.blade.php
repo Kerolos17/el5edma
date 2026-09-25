@@ -1,25 +1,24 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
     {{-- Page Title --}}
-    <div class="reveal-card">
+    <div>
         <h1 class="text-xl font-bold text-teal-900">{{ __('servant.nav_beneficiaries') }}</h1>
         <p class="text-sm text-gray-500 mt-0.5">{{ __('servant.beneficiaries_count', ['count' => $beneficiaries->total()]) }}</p>
     </div>
 
     {{-- Search --}}
-    <div class="relative reveal-card" style="animation-delay: 0.06s">
-        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
+    <div class="relative">
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none search-input__icon" aria-hidden="true"></i>
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
             placeholder="{{ __('servant.search_beneficiary_placeholder') }}"
-            class="search-input"
-            style="padding-inline-end: 44px;"
+            class="search-input search-input--padded"
             aria-label="{{ __('servant.search_beneficiary') }}">
     </div>
 
     {{-- Filter Chips --}}
-    <div class="flex gap-2 overflow-x-auto pb-1 reveal-card" style="animation-delay: 0.1s; scrollbar-width: none;"
+    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar"
          role="group" aria-label="{{ __('servant.filter_beneficiaries') }}">
         @foreach([['all', __('servant.filter_all')], ['mine', __('servant.filter_mine')], ['recent', __('servant.filter_recent')]] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
@@ -35,7 +34,7 @@
     {{-- Skeleton: shown during search / filter / pagination round-trips --}}
     <div wire:loading.delay class="space-y-3" aria-hidden="true">
         @for ($i = 0; $i < 6; $i++)
-            <div class="skeleton-shimmer rounded-2xl" style="height:76px;"></div>
+            <div class="skeleton-shimmer skeleton-chip rounded-2xl"></div>
         @endfor
     </div>
 

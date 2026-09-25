@@ -13,7 +13,7 @@
 
 <header class="sticky top-0 z-40 lg:hidden" x-data="{
         drawer: false,
-        trapDrawer(e) {
+        trapFocus(e) {
             const root = this.$refs.drawerPanel;
             if (!root) return;
             const items = Array.from(root.querySelectorAll('a[href], button:not([disabled])')).filter((el) => el.getClientRects().length > 0);
@@ -27,7 +27,7 @@
     <div class="px-4 py-3 flex items-center justify-between gap-3 servant-topbar">
 
         {{-- Hamburger --}}
-        <button @click="drawer = true" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="{{ __('servant.menu') }}">
+        <button @click="drawer = true" class="w-12 h-12 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 transition-colors" aria-label="{{ __('servant.menu') }}">
             <i aria-hidden="true" class="ph ph-list text-xl"></i>
         </button>
 
@@ -52,15 +52,14 @@
          :inert="!drawer"
          @open-drawer.window="drawer = true"
          @keydown.escape.window="drawer = false"
-         @keydown.tab="trapDrawer($event)"
+         @keydown.tab="trapFocus($event)"
          x-transition:enter="transition-transform duration-300 ease-out"
          x-transition:enter-start="translate-x-full"
          x-transition:enter-end="translate-x-0"
          x-transition:leave="transition-transform duration-200 ease-in"
          x-transition:leave-start="translate-x-0"
          x-transition:leave-end="translate-x-full"
-          class="fixed top-0 right-0 h-[100dvh] w-72 max-w-[85vw] z-50 shadow-2xl overflow-y-auto"
-          style="background: linear-gradient(180deg, #0d555c 0%, #003942 100%); padding-bottom: env(safe-area-inset-bottom);">
+          class="servant-drawer fixed top-0 right-0 h-[100dvh] w-72 max-w-[85vw] z-50 shadow-2xl overflow-y-auto">
 
         {{-- User Info --}}
         <div class="px-5 py-6 border-b border-white/10 flex items-center justify-between">
@@ -69,7 +68,7 @@
                     @if($user->profile_photo_url)
                         <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover" loading="lazy" decoding="async" onerror="this.remove()">
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-teal-800 font-bold" style="background: linear-gradient(135deg, #F7BB86, #F4A261);">
+                        <div class="w-full h-full flex items-center justify-center text-teal-800 font-bold servant-drawer__avatar">
                             {{ mb_substr($user->name, 0, 1) }}
                         </div>
                     @endif
@@ -98,8 +97,7 @@
         {{-- New Visit Button --}}
         <div class="px-4 pb-4">
             <button @click="drawer = false; window.dispatchEvent(new CustomEvent('open-wizard'))"
-                    class="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all duration-200 active:scale-[0.98]"
-                    style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    class="servant-drawer__new-visit w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all duration-200 active:scale-[0.98]">
                 <i aria-hidden="true" class="ph-bold ph-calendar-plus text-lg"></i>
                 تسجيل زيارة جديدة
             </button>

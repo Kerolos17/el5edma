@@ -496,13 +496,13 @@
                 @if($step > 1)
                     <button wire:click="prevStep"
                             type="button"
-                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
+                            class="flex-1 min-h-12 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
                         {{ __('web_app.actions.back') }}
                     </button>
                 @else
                     <button wire:click="close"
                             type="button"
-                            class="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
+                            class="flex-1 min-h-12 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all duration-200 wizard-btn-secondary">
                         {{ __('web_app.actions.cancel') }}
                     </button>
                 @endif
@@ -510,7 +510,7 @@
                 @if($step < 4)
                     <button wire:click="nextStep"
                             type="button"
-                            class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 wizard-btn-primary">
+                            class="flex-[2] min-h-12 py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 wizard-btn-primary">
                         {{ __('web_app.actions.next') }}
                     </button>
                 @else
@@ -518,7 +518,7 @@
                         @click.prevent="submitVisit()"
                         wire:loading.attr="disabled"
                         type="button"
-                        class="flex-[2] py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60 wizard-btn-save">
+                        class="flex-[2] min-h-12 py-3.5 rounded-2xl font-bold text-sm text-white btn-ripple transition-all duration-200 disabled:opacity-60 wizard-btn-save">
                         <span wire:loading.remove wire:target="submit">{{ __('web_app.forms.wizard.confirm_save') }}</span>
                         <span wire:loading wire:target="submit">{{ __('web_app.actions.saving') }}</span>
                     </button>

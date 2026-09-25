@@ -9,6 +9,8 @@
         class="app-notification-mute"
         title="{{ __('notifications.sound_unmute') }}"
         aria-label="{{ __('notifications.sound_unmute') }}"
+        data-label-mute="{{ __('notifications.sound_unmute') }}"
+        data-label-unmute="{{ __('notifications.sound_mute') }}"
         aria-pressed="false">
         <i class="ph ph-speaker-high" aria-hidden="true" data-notif-sound-on></i>
         <i class="ph ph-speaker-slash" style="display:none;" aria-hidden="true" data-notif-sound-off></i>
@@ -32,7 +34,9 @@
 
     <div data-notif-backdrop class="app-notification-backdrop" aria-hidden="true"></div>
 
-    <div data-notif-panel class="app-notification-panel">
+    <div data-notif-panel class="app-notification-panel"
+         role="dialog" aria-modal="true" inert
+         aria-label="{{ __('notifications.title') }}">
 
         <div class="app-notification-header">
             <div>

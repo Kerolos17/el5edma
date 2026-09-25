@@ -1,12 +1,12 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
+    <h1 class="sr-only">حسابي</h1>
+
     {{-- Profile Card --}}
-    <div class="s-card reveal-card rounded-3xl overflow-hidden">
+    <div class="s-card rounded-3xl overflow-hidden">
         {{-- Header gradient --}}
         <div class="h-24 gradient-deep relative">
-            <div class="absolute inset-0 opacity-20"
-                 style="background-image: url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E\");">
-            </div>
+            <div class="profile-card__noise absolute inset-0 opacity-20"></div>
         </div>
 
         {{-- Avatar --}}
@@ -59,7 +59,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">الكود الشخصي</p>
-                            <p class="text-lg font-bold text-teal-900 tracking-widest" style="font-family: var(--font-accent);">
+                            <p class="accent-font text-lg font-bold text-teal-900 tracking-widest">
                                 {{ $user->personal_code }}
                             </p>
                         </div>
@@ -82,11 +82,10 @@
     </div>
 
     {{-- Logout --}}
-    <div class="reveal-card" style="animation-delay: 0.1s">
+    <div>
         <button wire:click="logout"
                 wire:confirm="هل تريد تسجيل الخروج؟"
-                class="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-base btn-ripple transition-all duration-200"
-                style="background: linear-gradient(135deg, #E63946 0%, #C2323E 100%); color: white; box-shadow: 0 4px 16px rgba(230,57,70,0.25);">
+                class="logout-btn w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-base btn-ripple transition-all duration-200">
             <i class="ph-bold ph-sign-out text-xl"></i>
             تسجيل الخروج
         </button>

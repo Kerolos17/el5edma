@@ -1,14 +1,13 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
     {{-- Page Title --}}
-    <div class="reveal-card">
+    <div>
         <h1 class="text-xl font-bold text-teal-900">الملفات الطبية</h1>
         <p class="text-sm text-gray-500 mt-0.5">{{ $medicalFiles->total() }} ملف</p>
     </div>
 
     {{-- Filter Chips --}}
-    <div class="flex gap-2 overflow-x-auto pb-1 reveal-card"
-         style="animation-delay: 0.06s; scrollbar-width: none;"
+    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar"
          role="group" aria-label="فلتر الملفات الطبية">
         @foreach([['all','الكل'], ['report','تقارير'], ['image','صور'], ['document','مستندات']] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
@@ -22,18 +21,18 @@
     {{-- Skeleton --}}
     <div wire:loading.delay class="space-y-3" aria-hidden="true">
         @for ($i = 0; $i < 4; $i++)
-            <div class="skeleton-shimmer rounded-2xl" style="height:72px;"></div>
+            <div class="skeleton-shimmer skeleton-row rounded-2xl"></div>
         @endfor
     </div>
 
     {{-- File Cards --}}
     <div wire:loading.remove class="space-y-3">
         @forelse($medicalFiles as $file)
-            <div class="s-card card-lift rounded-2xl px-4 py-3 flex items-center gap-3" role="article">
+            <div class="s-card rounded-2xl px-4 py-3 flex items-center gap-3" role="article">
 
                 {{-- Icon --}}
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                     style="background: rgba(0,109,119,0.1);" aria-hidden="true">
+                <div class="medical-file-icon w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                     aria-hidden="true">
                     @switch($file->file_type)
                         @case('report')
                             <i class="ph-fill ph-file-text text-teal-600 text-xl"></i>

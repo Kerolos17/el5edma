@@ -22,7 +22,7 @@
     ];
 @endphp
 
-<div class="pb-32 lg:pb-10">
+<div class="servant-detail pb-32 lg:pb-10">
 
     {{-- Secondary Header (back nav). Top offset tracks the main sticky header
          (py-3 + 44px content) plus the notch safe-area so it never overlaps. --}}
@@ -33,7 +33,7 @@
            aria-label="رجوع للمخدومين">
             <i class="ph-bold ph-arrow-right text-teal-700 text-lg" aria-hidden="true"></i>
         </a>
-        <h1 class="font-bold text-teal-900 text-base truncate flex-1">{{ $b->full_name }}</h1>
+        <p class="font-bold text-teal-900 text-base truncate flex-1">{{ $b->full_name }}</p>
         <span class="badge-pill text-xs px-3 py-1 flex-shrink-0"
               style="background: {{ $sc['bg'] }}; color: {{ $sc['text'] }}; font-weight: 700;">
             {{ $sc['label'] }}
@@ -62,7 +62,7 @@
                         gradient="gold"
                         class="avatar-ring relative z-10 mb-3"
                     />
-                    <p class="font-bold text-teal-900 text-lg leading-tight">{{ $b->full_name }}</p>
+                    <h1 class="servant-bene-detail-hero__title">{{ $b->full_name }}</h1>
                     <p class="text-sm text-gray-500 mt-0.5" dir="ltr">{{ $b->code }}</p>
                 </div>
 
@@ -158,7 +158,7 @@
         {{-- ══════════ Recent Visits ══════════ --}}
         <div class="reveal-card" style="animation-delay: 0.08s">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="font-bold text-teal-900">{{ __('servant.recent_visits') }}</h2>
+                <h2>{{ __('servant.recent_visits') }}</h2>
                 <span class="text-xs text-gray-500">{{ $recentVisits->count() }} {{ __('visits.singular') }}</span>
             </div>
 
@@ -218,12 +218,12 @@
         {{-- ══════════ Active Medications ══════════ --}}
         @if($activeMedications->isNotEmpty())
             <div class="reveal-card" style="animation-delay: 0.12s">
-                <x-ui.section-header
-                    icon="ph-fill ph-pill"
-                    title="الأدوية الحالية"
-                    color="red"
-                    class="mb-3"
-                />
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="section-header__badge section-header__badge--red">
+                        <i class="ph-fill ph-pill text-sm section-header__icon" aria-hidden="true"></i>
+                    </div>
+                    <h2>الأدوية الحالية</h2>
+                </div>
 
                 <div class="space-y-2">
                     @foreach($activeMedications as $med)
@@ -261,12 +261,12 @@
         {{-- ══════════ Prayer Requests ══════════ --}}
         @if($openPrayerRequests->isNotEmpty())
             <div class="reveal-card" style="animation-delay: 0.16s">
-                <x-ui.section-header
-                    icon="ph-fill ph-hands-praying"
-                    title="طلبات الصلاة"
-                    color="teal"
-                    class="mb-3"
-                />
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="section-header__badge section-header__badge--teal">
+                        <i class="ph-fill ph-hands-praying text-sm section-header__icon" aria-hidden="true"></i>
+                    </div>
+                    <h2>طلبات الصلاة</h2>
+                </div>
 
                 <div class="space-y-2">
                     @foreach($openPrayerRequests as $prayer)

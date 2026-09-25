@@ -1,26 +1,24 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
     {{-- Page Title --}}
-    <div class="reveal-card">
+    <div>
         <h1 class="text-xl font-bold text-teal-900">الزيارات</h1>
         <p class="text-sm text-gray-500 mt-0.5">{{ $visits->total() }} زيارة</p>
     </div>
 
     {{-- Search --}}
-    <div class="relative reveal-card" style="animation-delay: 0.03s">
-        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-500 text-lg pointer-events-none" style="inset-inline-end: 1rem;" aria-hidden="true"></i>
+    <div class="relative">
+        <i class="ph ph-magnifying-glass absolute top-1/2 -translate-y-1/2 text-gray-500 text-lg pointer-events-none search-input__icon" aria-hidden="true"></i>
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
             placeholder="ابحث باسم المخدوم أو الكود..."
-            class="search-input"
-            style="padding-inline-end: 44px;"
+            class="search-input search-input--padded"
             aria-label="بحث في الزيارات">
     </div>
 
     {{-- Filter Chips --}}
-    <div class="flex gap-2 overflow-x-auto pb-1 reveal-card"
-         style="animation-delay: 0.06s; scrollbar-width: none;"
+    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar"
          role="group" aria-label="فلتر الزيارات">
         @foreach([['all','الكل'], ['month','هذا الشهر'], ['critical','حرجة']] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
@@ -40,20 +38,20 @@
     {{-- Skeleton: shown during filter / pagination round-trips --}}
     <div wire:loading.delay class="space-y-3" aria-hidden="true">
         @for ($i = 0; $i < 5; $i++)
-            <div class="skeleton-shimmer rounded-2xl" style="height:84px;"></div>
+            <div class="skeleton-shimmer skeleton-row rounded-2xl"></div>
         @endfor
     </div>
 
     <div wire:loading.remove class="space-y-3">
         @forelse($visits as $visit)
-            <div class="s-card card-lift rounded-2xl px-4 py-3 flex items-start gap-3
+            <div class="s-card rounded-2xl px-4 py-3 flex items-start gap-3
                         {{ $visit->is_critical ? 'border-s-4 border-red-400' : '' }}"
                  role="article"
                  aria-label="زيارة {{ $visit->beneficiary?->full_name ?? 'محذوف' }}">
 
                 {{-- Date column --}}
                 <div class="text-center flex-shrink-0 w-12" aria-hidden="true">
-                    <p class="text-2xl font-bold text-teal-700 leading-none" style="font-family: var(--font-accent);">
+                    <p class="accent-font text-2xl font-bold text-teal-700 leading-none">
                         {{ $visit->visit_date->format('d') }}
                     </p>
                     <p class="text-xs text-gray-500 mt-0.5">

@@ -8,6 +8,7 @@ use App\Http\Middleware\RedirectNonAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Responses\LoginResponse;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -44,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('40px')
             ->favicon(asset('favicon.ico'))
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->defaultThemeMode(ThemeMode::Light)
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('260px')
             ->collapsedSidebarWidth('72px')
