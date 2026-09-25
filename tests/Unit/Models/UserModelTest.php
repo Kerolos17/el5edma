@@ -70,15 +70,18 @@ class UserModelTest extends TestCase
         $this->assertTrue($user->canAccessPanel($panel));
     }
 
-    public function test_active_non_admin_cannot_access_filament_panel(): void
+    public function test_active_non_admin_can_authenticate_through_login_panel(): void
     {
+        // The Filament login page is the product's only login UI, so every
+        // active user must pass canAccessPanel to sign in. Back-office pages
+        // stay super-admin-only via RedirectNonAdmin.
         $user = User::factory()->create([
             'role'      => UserRole::Servant,
             'is_active' => true,
         ]);
         $panel = app(Panel::class);
 
-        $this->assertFalse($user->canAccessPanel($panel));
+        $this->assertTrue($user->canAccessPanel($panel));
     }
 
     public function test_inactive_super_admin_cannot_access_filament_panel(): void
