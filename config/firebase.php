@@ -50,11 +50,11 @@ return [
              *
              */
 
-            'credentials' => (function () {
-                $path = env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS'));
-
-                return ($path && file_exists($path)) ? $path : null;
-            })(),
+            // Plain string path (JSON file path or inline JSON). Must NOT be a
+            // closure: the package expects a string, and env() inside a lazy
+            // closure returns null once the config is cached. Relative paths
+            // are resolved by FirebaseProjectManager against the app base path.
+            'credentials' => env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS')),
 
             /*
              * ------------------------------------------------------------------------
