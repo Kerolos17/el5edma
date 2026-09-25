@@ -6,7 +6,7 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
 
-const ROOT_SW_URL = '/sw.js';
+const ROOT_SW_URL = '/sw-v9.js';
 const SENT_TOKEN_KEY = 'ministry-fcm-token-sent';
 
 let booted = false;
