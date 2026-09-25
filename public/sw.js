@@ -1,7 +1,6 @@
-const CACHE_NAME = "ministry-pwa-v8";
-const SW_VERSION = "v8";
+const CACHE_NAME = "ministry-pwa-v9";
+const SW_VERSION = "v9";
 const OFFLINE_URL = "/offline.html";
-const FIREBASE_VERSION = "12.11.0";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
 
 let firebaseMessaging = null;
@@ -13,6 +12,8 @@ const PRECACHE_ASSETS = [
     "/icons/icon-192x192.png",
     "/icons/icon-512x512.png",
     "/icons/apple-touch-icon.png",
+    "/firebase/firebase-app-compat.js",
+    "/firebase/firebase-messaging-compat.js",
 ];
 
 // Static asset patterns - use stale-while-revalidate
@@ -168,12 +169,11 @@ function ensureFirebaseMessaging(config) {
 
     try {
         if (typeof firebase === "undefined") {
-            importScripts(
-                `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app-compat.js`,
-            );
-            importScripts(
-                `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-messaging-compat.js`,
-            );
+            // Same-origin copies of the compat SDK (public/firebase/) —
+            // cross-origin importScripts from gstatic failed for some
+            // users (CDN/network interference) and blocked FCM entirely.
+            importScripts("/firebase/firebase-app-compat.js");
+            importScripts("/firebase/firebase-messaging-compat.js");
         }
 
         if (!firebase.apps.length) {
