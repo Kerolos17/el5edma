@@ -3218,3 +3218,27 @@
     transition: none;
   }
 }
+
+/* ── Native file inputs — match the design system ── */
+input[type="file"] {
+  font-family: var(--ff-body);
+  color: var(--text-body);
+}
+
+input[type="file"]::file-selector-button {
+  margin-inline-end: 0.75rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--btn-secondary-border);
+  border-radius: var(--btn-radius);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-family: var(--ff-body);
+  font-size: 0.84rem;
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: background var(--motion-normal) var(--ease-out);
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--nav-item-hover-bg);
+}
