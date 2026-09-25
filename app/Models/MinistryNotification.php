@@ -39,4 +39,23 @@ class MinistryNotification extends Model
 
         return __($key) === $key ? (string) $this->type : __($key);
     }
+
+    /**
+     * Title localized for the current viewer. System notifications store
+     * their text at creation time in the creator's locale, so known types
+     * are re-translated at display time instead of showing a stale string.
+     */
+    public function getDisplayTitleAttribute(): string
+    {
+        $key = match ($this->type) {
+            'birthday'        => 'notifications.birthday_title',
+            'critical_case'   => 'notifications.critical_case_title',
+            'visit_reminder'  => 'notifications.visit_reminder_title',
+            'unvisited_alert' => 'notifications.unvisited_alert_title',
+            'new_beneficiary' => 'notifications.new_beneficiary_title',
+            default           => null,
+        };
+
+        return $key ? (string) __($key) : (string) $this->title;
+    }
 }

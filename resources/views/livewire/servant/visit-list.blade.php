@@ -76,7 +76,7 @@
 
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                         @if($visit->type)
-                            <span class="badge-pill badge-info text-xs px-2 py-0.5">{{ $visit->type }}</span>
+                            <span class="badge-pill badge-info text-xs px-2 py-0.5">{{ in_array($visit->type, ['home_visit', 'phone_call', 'church_meeting'], true) ? __("visits.$visit->type") : $visit->type }}</span>
                         @endif
                         @if($visit->duration_minutes)
                             <span class="text-xs text-gray-500">

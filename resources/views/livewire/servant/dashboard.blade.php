@@ -82,7 +82,7 @@
                             <p class="text-xs text-gray-500">
                                 {{ $visit->visit_date->locale('ar')->isoFormat('D MMM') }}
                                 @if($visit->type)
-                                    · {{ $visit->type }}
+                                    · {{ in_array($visit->type, ['home_visit', 'phone_call', 'church_meeting'], true) ? __("visits.$visit->type") : $visit->type }}
                                 @endif
                             </p>
                         </div>

@@ -491,6 +491,11 @@
     position: fixed;
     inset: 0;
     z-index: 59;
+    display: none;
+  }
+
+  .app-notification-backdrop.is-open {
+    display: block;
   }
 
   .app-notification-panel {
@@ -503,6 +508,11 @@
     background: #fffbf7;
     border: 1px solid rgba(0, 109, 119, 0.12);
     box-shadow: 0 20px 60px rgba(0, 109, 119, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: none;
+  }
+
+  .app-notification-panel.is-open {
+    display: block;
   }
 
   .app-notification-header,

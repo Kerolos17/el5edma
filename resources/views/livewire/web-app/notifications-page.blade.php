@@ -77,7 +77,7 @@
                         <i class="ph {{ $typeConfig['icon'] }}" aria-hidden="true"></i>
                     </div>
                     <button type="button" wire:click="markReadAndRedirect({{ $notification->id }})" class="app-notif-body" style="text-align:inherit;cursor:pointer">
-                        <strong>{{ $notification->title }}</strong>
+                        <strong>{{ $notification->display_title }}</strong>
                         <p>{{ $notification->body }}</p>
                         <span class="app-notif-meta">
                             <time>{{ $notification->created_at->format('Y-m-d H:i') }}</time>

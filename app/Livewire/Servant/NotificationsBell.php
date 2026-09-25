@@ -53,7 +53,7 @@ class NotificationsBell extends Component
             ->map(fn ($n) => [
                 'id'    => $n->id,
                 'type'  => $n->type,
-                'title' => $n->title,
+                'title' => $n->display_title,
                 'body'  => $n->body,
                 'read'  => $n->read_at !== null,
                 'time'  => $n->created_at->diffForHumans(),
