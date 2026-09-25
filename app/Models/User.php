@@ -272,6 +272,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === UserRole::SuperAdmin && $this->is_active;
+        // The Filament login page is the product's only login UI, so every
+        // active user must pass this gate to authenticate. Back-office pages
+        // stay protected by the RedirectNonAdmin middleware, and the login
+        // response routes each role to its own dashboard.
+        return $this->is_active;
     }
 }

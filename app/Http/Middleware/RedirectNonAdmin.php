@@ -14,7 +14,7 @@ class RedirectNonAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user() && $request->user()->role !== UserRole::SuperAdmin) {
-            return redirect()->route('app.dashboard');
+            return redirect()->route($request->user()->homeRoute());
         }
 
         return $next($request);
