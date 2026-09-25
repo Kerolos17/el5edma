@@ -39,6 +39,11 @@ class CreateVisitWizard extends Component
     // Draft flag — true if user touched any field beyond initial load
     public bool $hasDraft = false;
 
+    // Set when the user discards the draft; blocks late debounced updates
+    // (e.g. a queued beneficiarySearch roundtrip) from re-persisting the
+    // discarded draft and resurrecting the discard prompt on every close.
+    protected bool $discardRequested = false;
+
     // Offline pending visits count (from shared offlineQueue module)
     public int $offlineCount = 0;
 
@@ -97,7 +102,8 @@ class CreateVisitWizard extends Component
 
     public function forceClose(): void
     {
-        $this->open = false;
+        $this->discardRequested = true;
+        $this->open             = false;
         $this->clearDraft();
     }
 
@@ -223,7 +229,8 @@ class CreateVisitWizard extends Component
             'feedback', 'isCritical', 'needsFamilyLeader', 'needsServiceLeader',
             'hasDraft',
         ]);
-        $this->step = 1;
+        $this->step             = 1;
+        $this->discardRequested = false;
         // Do NOT clear draft here — allow resume on reopen
     }
 
@@ -271,6 +278,10 @@ class CreateVisitWizard extends Component
 
     public function saveDraft(): void
     {
+        if ($this->discardRequested || ! $this->open) {
+            return;
+        }
+
         $this->dispatch('save-wizard-draft', draft: $this->collectDraft());
     }
 
