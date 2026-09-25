@@ -32,9 +32,8 @@ class BeneficiariesTable
                 ImageColumn::make('photo')
                     ->label('')
                     ->circular()
-                    ->disk('public')
                     ->imageSize(40)
-                    ->getStateUsing(fn ($record) => $record->photo)
+                    ->getStateUsing(fn ($record) => $record->photo_url)
                     ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff',
                     ),
 

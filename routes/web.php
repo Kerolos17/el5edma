@@ -18,6 +18,10 @@ Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')
     ->middleware('auth', 'throttle:60,1');
 
+Route::get('/beneficiary-photos/{beneficiary}', [FileAccessController::class, 'showPhoto'])
+    ->name('beneficiary-photos.show')
+    ->middleware('auth', 'throttle:60,1');
+
 Route::post('/language/{locale}', [LocaleController::class, 'switch'])
     ->name('language.switch');
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\Beneficiary;
 use App\Models\MedicalFile;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
@@ -71,5 +72,27 @@ class FileAccessController extends Controller
         $type = Storage::disk('private')->mimeType($normalizedPath);
 
         return Response::make($file, 200)->header('Content-Type', $type);
+    }
+
+    /**
+     * Beneficiary photos live on the private disk (they are personal data,
+     * not public web assets). Access is authorized via the beneficiary policy.
+     */
+    public function showPhoto(Beneficiary $beneficiary): HttpResponse
+    {
+        Gate::authorize('view', $beneficiary);
+
+        if (! $beneficiary->photo
+            || str_contains($beneficiary->photo, '..')
+            || ! Storage::disk('private')->exists($beneficiary->photo)) {
+            abort(404);
+        }
+
+        $file = Storage::disk('private')->get($beneficiary->photo);
+        $type = Storage::disk('private')->mimeType($beneficiary->photo);
+
+        return Response::make($file, 200)
+            ->header('Content-Type', $type)
+            ->header('Cache-Control', 'private, max-age=3600');
     }
 }

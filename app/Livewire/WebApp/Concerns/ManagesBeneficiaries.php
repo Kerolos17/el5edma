@@ -160,7 +160,7 @@ trait ManagesBeneficiaries
         abort_unless(auth()->user()->can('delete', $record), 403);
 
         if ($record->photo) {
-            Storage::disk('public')->delete($record->photo);
+            Storage::disk('private')->delete($record->photo);
         }
 
         $record->delete();
@@ -255,10 +255,10 @@ trait ManagesBeneficiaries
 
         if ($this->beneficiaryPhoto instanceof TemporaryUploadedFile) {
             if ($record?->photo) {
-                Storage::disk('public')->delete($record->photo);
+                Storage::disk('private')->delete($record->photo);
             }
 
-            $payload['photo'] = $this->beneficiaryPhoto->store('beneficiaries/photos', 'public');
+            $payload['photo'] = $this->beneficiaryPhoto->store('beneficiaries/photos', 'private');
         }
 
         if ($record) {

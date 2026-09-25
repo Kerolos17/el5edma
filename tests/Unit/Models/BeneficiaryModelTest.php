@@ -26,10 +26,10 @@ class BeneficiaryModelTest extends TestCase
         $this->assertNull($ben->photo_url);
     }
 
-    public function test_photo_url_returns_path_when_photo_exists(): void
+    public function test_photo_url_returns_private_route_when_photo_exists(): void
     {
         $ben = Beneficiary::factory()->create(['photo' => 'beneficiaries/test.jpg']);
-        $this->assertSame('/storage/beneficiaries/test.jpg', $ben->photo_url);
+        $this->assertSame(route('beneficiary-photos.show', $ben), $ben->photo_url);
     }
 
     public function test_whatsapp_url_uses_phone_fallback(): void

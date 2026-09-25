@@ -35,7 +35,7 @@ class BeneficiaryForm
                                 FileUpload::make('photo')
                                     ->label(__('beneficiaries.photo'))
                                     ->image()
-                                    ->disk('public')
+                                    ->disk('private')
                                     ->directory('beneficiaries/photos')
                                     ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'])
                                     ->maxSize(5120)

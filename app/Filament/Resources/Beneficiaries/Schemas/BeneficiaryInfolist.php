@@ -27,9 +27,8 @@ class BeneficiaryInfolist
                                     ->circular()
                                     ->imageSize(150)
                                     ->checkFileExistence(false)
-                                    ->getStateUsing(fn ($record) => $record->photo
-                                        ? asset('storage/' . $record->photo)
-                                        : 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150',
+                                    ->getStateUsing(fn ($record) => $record->photo_url
+                                        ?? 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff&size=150',
                                     )
                                     ->columnSpanFull(),
 

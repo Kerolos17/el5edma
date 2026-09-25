@@ -20,7 +20,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class BeneficiaryResource extends Resource
 {
@@ -84,10 +83,7 @@ class BeneficiaryResource extends Resource
             return 'https://ui-avatars.com/api/?name=' . urlencode($record->full_name) . '&background=2A9393&color=fff';
         }
 
-        /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
-
-        return $disk->url($record->photo);
+        return $record->photo_url;
     }
 
     public static function getGlobalSearchResultTitle(Model $record): string
