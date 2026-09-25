@@ -211,6 +211,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return in_array($serviceGroupId, $this->managedServiceGroupIds(), true);
     }
 
+    /**
+     * The dashboard route this role lands on after login. Servants work
+     * from the mobile-first servant panel; everyone else uses the web app.
+     * (/admin is back-office only and is never a login destination.)
+     */
+    public function homeRoute(): string
+    {
+        return $this->role === UserRole::Servant
+            ? 'servant.dashboard'
+            : 'app.dashboard';
+    }
+
     // ── Self-Registration Methods ──
 
     /**
