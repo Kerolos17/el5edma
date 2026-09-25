@@ -809,8 +809,32 @@
 .wizard-sheet-inner {
   background: var(--wizard-surface);
   color: var(--wizard-text);
-  max-height: 92dvh;
+  max-height: min(92dvh, 720px);
   overflow-y: auto;
+}
+
+/* Desktop: the visit wizard opens as a centered dialog, not a bottom strip.
+   div.* beats the Tailwind single-class positioning utilities. */
+@media (min-width: 1024px) {
+  div.wizard-sheet-outer {
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  div.wizard-sheet-inner {
+    width: 100%;
+    max-width: 42rem;
+    max-height: min(86dvh, 760px);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-modal);
+  }
+
+  .wizard-drag-handle {
+    display: none;
+  }
 }
 .wizard-card {
   background: var(--clr-soft-frost);

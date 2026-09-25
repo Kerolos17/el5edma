@@ -169,8 +169,7 @@
          @keydown.tab="trapFocus($event)"
          @wizard-validation-failed.window="$el.querySelector('.wizard-error-text')?.scrollIntoView(scrollOpts())">
 
-        <div class="rounded-t-[28px] overflow-y-auto overscroll-contain wizard-sheet-inner"
-             style="max-height: min(92dvh, 720px);">
+        <div class="rounded-t-[28px] overflow-y-auto overscroll-contain wizard-sheet-inner">
 
             {{-- Drag Handle --}}
             <div class="flex justify-center pt-3 pb-1">
