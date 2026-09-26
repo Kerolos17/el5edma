@@ -14,6 +14,32 @@
         </div>
     </div>
 
+    {{-- Device push notifications control — always visible (mobile-first),
+         no dropdowns needed. The shared JS drives every [data-push-enable]. --}}
+    <section class="app-panel">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <p class="app-section-label">{{ __('notifications.push.device_title') }}</p>
+                <button
+                    type="button"
+                    data-push-enable
+                    data-push-default-label="{{ __('notifications.push.enable') }}"
+                    data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                    data-push-disable-label="{{ __('notifications.push.disable') }}"
+                    data-push-denied-label="{{ __('notifications.push.denied') }}"
+                    data-push-unsupported-label="{{ __('notifications.push.unsupported') }}"
+                    data-push-unavailable-label="{{ __('notifications.push.unavailable') }}"
+                    data-push-unavailable-toast="{{ __('notifications.push.unavailable') }}"
+                    data-push-disabled-toast="{{ __('notifications.push.disabled_toast') }}"
+                    class="app-primary-button mt-2">
+                    <i class="ph ph-bell-ringing" aria-hidden="true"></i>
+                    <span data-push-label>{{ __('notifications.push.enable') }}</span>
+                </button>
+            </div>
+            <i class="ph ph-bell-ringing text-4xl text-teal-200" aria-hidden="true"></i>
+        </div>
+    </section>
+
     <div class="app-stat-grid app-stat-grid-compact">
         @foreach ($stats as $stat)
             <article class="app-stat-card tone-{{ $stat['tone'] }}">

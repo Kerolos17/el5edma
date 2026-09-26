@@ -50,6 +50,7 @@ return [
     ],
 
     'push' => [
+        'device_title'   => 'Notifications on this device',
         'enable'         => 'Enable push notifications',
         'enabled'        => 'Push notifications enabled',
         'disable'        => 'Turn off push notifications',
