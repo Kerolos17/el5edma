@@ -38,3 +38,6 @@ storage/app/firebase-credentials.json
 /.pnpm-store/
 /.impeccable/
 storage/framework/ui-qa-*.sqlite
+
+# Tool artifacts (local only, never commit)
+/.mimosa/

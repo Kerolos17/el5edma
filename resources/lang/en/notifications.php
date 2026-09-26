@@ -50,10 +50,14 @@ return [
     ],
 
     'push' => [
-        'enable'      => 'Enable push notifications',
-        'enabled'     => 'Push notifications enabled',
-        'denied'      => 'Notifications blocked in browser',
-        'unsupported' => 'Push notifications unavailable',
+        'enable'         => 'Enable push notifications',
+        'enabled'        => 'Push notifications enabled',
+        'disable'        => 'Turn off push notifications',
+        'denied'         => 'Notifications blocked in browser',
+        'unsupported'    => 'Push notifications unavailable',
+        'unavailable'    => 'The push service is unreachable on your current network — try another network',
+        'enabled_toast'  => 'Push notifications enabled on this device',
+        'disabled_toast' => 'Push notifications turned off on this device',
     ],
 
     'sound_mute'   => 'Mute notification sound',

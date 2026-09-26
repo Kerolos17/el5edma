@@ -4,12 +4,17 @@
 // when permission was already granted, otherwise the user must tap an
 // explicit [data-push-enable] control (see updatePushPermissionButtons).
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
+import { deleteToken, getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
 
 const ROOT_SW_URL = '/sw-v9.js';
 const SENT_TOKEN_KEY = 'ministry-fcm-token-sent';
+const PUSH_DISABLED_KEY = 'ministry-push-disabled';
 
 let booted = false;
+// Set when the browser push service itself is unreachable (e.g. the
+// network blocks Google's push endpoints) — surfaces as a distinct
+// button state instead of a silent failure.
+let pushUnavailable = false;
 
 const firebaseConfig = {
     apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -61,24 +66,56 @@ const updatePushPermissionButtons = () => {
 
     document.querySelectorAll('[data-push-enable]').forEach((button) => {
         const label = button.querySelector('[data-push-label]');
-        const stateLabel =
-            permission === 'granted'
-                ? button.dataset.pushEnabledLabel
-                : permission === 'denied'
-                  ? button.dataset.pushDeniedLabel
-                  : permission === 'unsupported'
-                    ? button.dataset.pushUnsupportedLabel
-                    : button.dataset.pushDefaultLabel;
+        let stateLabel;
+        let disabled = false;
+        let state = permission;
+
+        if (permission === 'unsupported') {
+            stateLabel = button.dataset.pushUnsupportedLabel;
+            disabled = true;
+        } else if (permission === 'denied') {
+            stateLabel = button.dataset.pushDeniedLabel;
+            disabled = true;
+        } else if (pushUnavailable) {
+            stateLabel = button.dataset.pushUnavailableLabel;
+            disabled = true;
+        } else if (isPushDisabledByUser()) {
+            // User turned notifications off — offer to re-enable.
+            stateLabel = button.dataset.pushDefaultLabel;
+            state = 'disabled';
+        } else if (hasSentToken()) {
+            stateLabel = button.dataset.pushDisableLabel;
+            state = 'active';
+        } else if (permission === 'granted') {
+            stateLabel = button.dataset.pushEnabledLabel;
+        } else {
+            stateLabel = button.dataset.pushDefaultLabel;
+        }
 
         if (label && stateLabel) {
             label.textContent = stateLabel;
         }
 
-        const disabled = permission !== 'default';
         button.disabled = disabled;
         button.setAttribute('aria-disabled', disabled ? 'true' : 'false');
-        button.dataset.pushState = permission;
+        button.dataset.pushState = state;
     });
+};
+
+const isPushDisabledByUser = () => {
+    try {
+        return localStorage.getItem(PUSH_DISABLED_KEY) === '1';
+    } catch {
+        return false;
+    }
+};
+
+const hasSentToken = () => {
+    try {
+        return !!localStorage.getItem(SENT_TOKEN_KEY);
+    } catch {
+        return false;
+    }
 };
 
 const sendConfigToSW = async (registration) => {
@@ -217,11 +254,29 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             }
 
             await sendTokenToServer(currentToken, logTag);
+
+            try {
+                localStorage.removeItem(PUSH_DISABLED_KEY);
+            } catch {
+                // Private mode.
+            }
+            pushUnavailable = false;
+
             updatePushPermissionButtons();
 
             return true;
         } catch (error) {
             console.error(`[${logTag}] Error retrieving FCM token:`, error);
+
+            if (String(error?.message || error).includes('push service not available')) {
+                pushUnavailable = true;
+                const trigger = document.querySelector('[data-push-enable]');
+                const msg = trigger?.dataset.pushUnavailableToast;
+                if (msg) {
+                    dispatchLivewire('toast', { message: msg, type: 'warning' });
+                }
+            }
+
             updatePushPermissionButtons();
 
             return false;
@@ -236,8 +291,66 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             return;
         }
 
+        if (trigger.dataset.pushState === 'active') {
+            disablePush();
+            return;
+        }
+
         syncPushToken({ requestPermission: true });
     });
+
+    const disablePush = async () => {
+        let token = null;
+
+        try {
+            token = localStorage.getItem(SENT_TOKEN_KEY);
+        } catch {
+            // Private mode.
+        }
+
+        try {
+            if (messaging) {
+                await deleteToken(messaging);
+            }
+        } catch (error) {
+            console.warn('[push] deleteToken failed:', error);
+        }
+
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) {
+                await sub.unsubscribe();
+            }
+        } catch (error) {
+            console.warn('[push] unsubscribe failed:', error);
+        }
+
+        if (token) {
+            try {
+                await window.axios.delete('/fcm-token', { data: { fcm_token: token } });
+            } catch (error) {
+                console.warn('[push] server token removal failed:', error);
+            }
+        }
+
+        try {
+            localStorage.removeItem(SENT_TOKEN_KEY);
+            localStorage.setItem(PUSH_DISABLED_KEY, '1');
+        } catch {
+            // Private mode.
+        }
+
+        updatePushPermissionButtons();
+
+        const trigger = document.querySelector('[data-push-enable]');
+        const msg = trigger?.dataset.pushDisabledToast;
+        if (msg) {
+            dispatchLivewire('toast', { message: msg, type: 'info' });
+        }
+
+        return true;
+    };
 
     const syncExistingPermission = () => {
         updatePushPermissionButtons();
@@ -316,6 +429,7 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
 
     window.MinistryPushNotifications = window.MinistryPushNotifications ?? {
         enable:     () => syncPushToken({ requestPermission: true }),
+        disable:    () => disablePush(),
         sync:       () => syncPushToken({ requestPermission: false }),
         permission: () => ('Notification' in window ? Notification.permission : 'unsupported'),
     };
