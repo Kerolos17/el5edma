@@ -1,4 +1,12 @@
-<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6">
+<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6"
+     wire:poll.60000ms.visible="$refresh"
+     x-data="{ t: null }"
+     x-init="
+         document.addEventListener('visibilitychange', () => {
+             if (! document.hidden) { clearTimeout(t); t = setTimeout(() => $wire.$refresh(), 600); }
+         });
+         window.addEventListener('pageshow', (e) => { if (e.persisted) $wire.$refresh(); });
+     ">
 
     {{-- Greeting --}}
     <div>

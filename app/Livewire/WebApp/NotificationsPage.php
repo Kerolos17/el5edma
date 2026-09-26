@@ -8,6 +8,7 @@ use App\Models\MinistryNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,6 +17,10 @@ use Livewire\WithPagination;
 class NotificationsPage extends Component
 {
     use WithPagination;
+
+    // A push arriving while the page is open refreshes the list instantly.
+    #[On('fcmMessageReceived')]
+    public function refresh(): void {}
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
