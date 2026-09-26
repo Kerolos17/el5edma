@@ -153,6 +153,8 @@
 
 ---
 
+- 2026-09-27 — **إصلاح توقيت الإشعارات "منذ 3 ساعات" دائماً (بلاغ المالك بصورة):** الجداول immutable الثلاثة (ministry_notifications, audit_logs, medical_files) تملأ created_at بـ CURRENT_TIMESTAMP والـ MySQL على الاستضافة UTC بينما التطبيق Africa/Cairo → كل الإشعارات المكتوبة DB تظهر +3 ساعات. قياس حي حسم التخزين المختلط: critical_case/audit مكتوبة UTC، بينما servant_registered/new_beneficiary من InternalNotificationService مكتوبة PHP/Cairo (لا تُزح). الإصلاح: creating hook في النماذج الثلاثة يختم created_at من PHP (app tz) — كل الكتابات الجديدة متسقة، و migration ترحيلية واحدة (driver-aware MySQL/SQLite) تزيح الصفوف المكتوبة UTC +3h مع استثناء الأنواع المكتوبة PHP، بنسخة احتياطية قبلها (db-before-tz-shift.sql.gz). تحقق حي عبر عين التطبيق: أحدث إشعار "منذ 43 دقيقة" يطابق عمره الحقيقي (كان "منذ 3 ساعات").
+
 ## Open decisions
 
 1. **عقد التصميم:** ✅ محسوم (2026-09-24) — الكود هو المخالف، نصلح الكود ليطابق `DESIGN.md` والعقد.
