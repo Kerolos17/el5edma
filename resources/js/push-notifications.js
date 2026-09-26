@@ -254,12 +254,16 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
                 // Firebase swallows the underlying failure and returns null.
                 // With permission granted but no token, the browser push
                 // service is unreachable (e.g. the network blocks Google's
-                // push endpoints) — surface that honestly.
+                // push endpoints) — surface that honestly. Toast only on an
+                // explicit user action; background syncs just update the
+                // button state (a toast on every page load is noise).
                 pushUnavailable = true;
-                const trigger = document.querySelector('[data-push-enable]');
-                const msg = trigger?.dataset.pushUnavailableToast;
-                if (msg) {
-                    dispatchLivewire('toast', { message: msg, type: 'warning' });
+                if (requestPermission) {
+                    const trigger = document.querySelector('[data-push-enable]');
+                    const msg = trigger?.dataset.pushUnavailableToast;
+                    if (msg) {
+                        dispatchLivewire('toast', { message: msg, type: 'warning' });
+                    }
                 }
 
                 updatePushPermissionButtons();
