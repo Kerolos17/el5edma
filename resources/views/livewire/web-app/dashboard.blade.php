@@ -1,13 +1,6 @@
 <section
     class="app-page-stack"
-    wire:poll.60000ms.visible="$refresh"
-    x-data="{ t: null }"
-    x-init="
-        document.addEventListener('visibilitychange', () => {
-            if (! document.hidden) { clearTimeout(t); t = setTimeout(() => $wire.$refresh(), 600); }
-        });
-        window.addEventListener('pageshow', (e) => { if (e.persisted) $wire.$refresh(); });
-    ">
+    @window.app-resumed="$refresh">
     <x-slot:title>{{ $title }}</x-slot:title>
 
     <div class="app-hero-panel" data-role="{{ auth()->user()->role }}">

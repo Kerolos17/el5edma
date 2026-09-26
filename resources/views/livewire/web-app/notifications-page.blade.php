@@ -1,16 +1,6 @@
 <section
     class="app-page-stack"
-    wire:poll.45000ms.visible="$refresh"
-    x-data="{ refreshTimer: null }"
-    x-init="
-        clearTimeout(refreshTimer);
-        document.addEventListener('visibilitychange', () => {
-            if (! document.hidden) {
-                refreshTimer = setTimeout(() => $wire.$refresh(), 600);
-            }
-        });
-        window.addEventListener('pageshow', (e) => { if (e.persisted) $wire.$refresh(); });
-    ">
+    @window.app-resumed="$refresh">
     <x-slot:title>{{ __('web_app.notifications.title') }}</x-slot:title>
 
     <div class="app-hero-panel">

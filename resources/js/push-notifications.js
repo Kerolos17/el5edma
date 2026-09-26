@@ -16,6 +16,30 @@ let booted = false;
 // button state instead of a silent failure.
 let pushUnavailable = false;
 
+// ── Global resume dispatcher (installed exactly once per page load) ──────
+// Installed PWAs resume from the background with stale state. Components
+// listen for `app-resumed` on the window (@window.app-resumed) and refresh
+// themselves. One debounced dispatcher here instead of per-component
+// document/window listeners — those leak and multiply across wire:navigate.
+if (typeof window !== 'undefined' && !window.__ministryResumeDispatch) {
+    window.__ministryResumeDispatch = true;
+    let resumeTimer = null;
+    const dispatchResume = () => {
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(
+            () => window.dispatchEvent(new CustomEvent('app-resumed')),
+            400,
+        );
+    };
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) dispatchResume();
+    });
+    window.addEventListener('focus', dispatchResume);
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) dispatchResume();
+    });
+}
+
 const firebaseConfig = {
     apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

@@ -1,24 +1,8 @@
 <div
     class="app-notification-root"
     data-user-id="{{ Auth::id() }}"
-    wire:poll.45000ms.visible="loadNotifications"
-    x-data="{
-        refreshTimer: null,
-        refreshSoon() {
-            clearTimeout(this.refreshTimer);
-            this.refreshTimer = setTimeout(() => $wire.loadNotifications(), 600);
-        },
-    }"
-    x-init="
-        // Installed-PWA UX: the app resumes from the background with stale
-        // state (polling was suspended). Refresh the moment it is visible
-        // again instead of waiting for the next poll tick.
-        document.addEventListener('visibilitychange', () => {
-            if (! document.hidden) refreshSoon();
-        });
-        window.addEventListener('focus', refreshSoon);
-        window.addEventListener('pageshow', (e) => { if (e.persisted) refreshSoon(); });
-    ">
+    wire:poll.60000ms.visible="loadNotifications"
+    @window.app-resumed="$wire.loadNotifications">
 
     <button
         type="button"
