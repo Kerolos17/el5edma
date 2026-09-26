@@ -2,7 +2,7 @@
     class="app-notification-root"
     data-user-id="{{ Auth::id() }}"
     wire:poll.60000ms.visible="loadNotifications"
-    @window.app-resumed="$wire.loadNotifications">
+    @app-resumed.window="$wire.loadNotifications">
 
     <button
         type="button"
