@@ -52,6 +52,8 @@ class CreateVisitWizard extends Component
     {
         $this->resetWizardState();
         $this->open = true;
+        // One-way sync of the Alpine-side wizard state (replaces entangle).
+        $this->dispatch('wizard-open-state', open: true);
         $this->dispatch('wizard-open');
     }
 
@@ -67,6 +69,7 @@ class CreateVisitWizard extends Component
         }
 
         $this->open = true;
+        $this->dispatch('wizard-open-state', open: true);
         $this->dispatch('wizard-open');
     }
 
@@ -81,8 +84,10 @@ class CreateVisitWizard extends Component
             $count = $count['count'] ?? 0;
         }
 
+        // MUST NOT re-dispatch 'offlineQueueCount' here: this component is
+        // itself a listener, so re-dispatching loops back into this handler
+        // at network speed (~6 commits/second on every page with the wizard).
         $this->offlineCount = max(0, (int) $count);
-        $this->dispatch('offlineQueueCount', ['count' => $this->offlineCount]);
     }
 
     #[On('offlineSyncConflict')]
@@ -104,6 +109,7 @@ class CreateVisitWizard extends Component
     {
         $this->discardRequested = true;
         $this->open             = false;
+        $this->dispatch('wizard-open-state', open: false);
         $this->clearDraft();
     }
 

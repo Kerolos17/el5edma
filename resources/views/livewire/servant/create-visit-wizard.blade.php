@@ -13,8 +13,10 @@
 @endphp
 
 {{-- Single Livewire root --}}
+{{-- open is one-way synced from the server via the wizard-open-state event:
+     $wire.entangle() here caused a commit ping-pong (~6/s) on every morph. --}}
 <div x-data="{
-        open: $wire.entangle('open'),
+        open: false,
         offlineCount: 0,
         lastFocused: null,
         init() {
@@ -136,6 +138,7 @@
      @open-wizard.window="openWizard()"
      @open-wizard-for.window="openWizard()"
      @wizard-open.window="restoreDraftFromStorage()"
+     @wizard-open-state.window="open = $event.detail.open"
      @confirm-close.window="confirmCloseWizard('{{ __('web_app.forms.wizard.confirm_discard') }}')"
      @save-wizard-draft.window="persistDraft($event)"
      @clear-wizard-draft.window="clearStoredDraft()"
