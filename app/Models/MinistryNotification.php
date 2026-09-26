@@ -15,6 +15,16 @@ class MinistryNotification extends Model
         'user_id', 'type', 'title', 'body', 'data', 'read_at', 'dedupe_key',
     ];
 
+    protected static function booted(): void
+    {
+        // The column is DATETIME DEFAULT CURRENT_TIMESTAMP and the MySQL
+        // server runs in UTC — DB-filled values displayed 3 hours behind.
+        // Always stamp from PHP (app timezone) instead.
+        static::creating(function (self $notification) {
+            $notification->created_at ??= now();
+        });
+    }
+
     protected function casts(): array
     {
         return [

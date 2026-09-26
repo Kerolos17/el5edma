@@ -16,6 +16,16 @@ class MedicalFile extends Model
         'beneficiary_id', 'file_path', 'file_type', 'title', 'uploaded_by',
     ];
 
+    protected static function booted(): void
+    {
+        // created_at is DATETIME DEFAULT CURRENT_TIMESTAMP and the MySQL
+        // server runs in UTC — DB-filled values displayed 3 hours behind.
+        // Always stamp from PHP (app timezone) instead.
+        static::creating(function (self $file) {
+            $file->created_at ??= now();
+        });
+    }
+
     protected function casts(): array
     {
         return ['created_at' => 'datetime'];

@@ -17,6 +17,16 @@ class AuditLog extends Model
         'action', 'old_values', 'new_values', 'ip_address',
     ];
 
+    protected static function booted(): void
+    {
+        // created_at is DATETIME DEFAULT CURRENT_TIMESTAMP and the MySQL
+        // server runs in UTC — DB-filled values displayed 3 hours behind.
+        // Always stamp from PHP (app timezone) instead.
+        static::creating(function (self $log) {
+            $log->created_at ??= now();
+        });
+    }
+
     protected function casts(): array
     {
         return [
