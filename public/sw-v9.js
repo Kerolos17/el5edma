@@ -158,7 +158,30 @@ function showNotificationFromPayload(payload) {
     );
 }
 
-function ensureFirebaseMessaging(config) {
+// importScripts from the network can fail transiently (CDN MISS to origin
+// hiccups). Fall back to the precached copy via a blob URL — the compat SDK
+// attaches itself to the worker global, so blob execution is equivalent.
+async function importScriptResilient(path) {
+    const cache = await caches.open(CACHE_NAME);
+
+    try {
+        importScripts(path);
+        return;
+    } catch (networkError) {
+        console.warn(`[sw ${SW_VERSION}] importScripts(${path}) failed, using precached copy:`, String(networkError.message || networkError));
+    }
+
+    const cached = await cache.match(path);
+    if (!cached) {
+        throw new Error(`Cannot load ${path}: network failed and no precached copy`);
+    }
+
+    const code = await cached.text();
+    const blobUrl = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+    importScripts(blobUrl);
+}
+
+async function ensureFirebaseMessaging(config) {
     if (!config) {
         return null;
     }
@@ -172,8 +195,8 @@ function ensureFirebaseMessaging(config) {
             // Same-origin copies of the compat SDK (public/firebase/) —
             // cross-origin importScripts from gstatic failed for some
             // users (CDN/network interference) and blocked FCM entirely.
-            importScripts("/firebase/firebase-app-compat.js");
-            importScripts("/firebase/firebase-messaging-compat.js");
+            await importScriptResilient("/firebase/firebase-app-compat.js");
+            await importScriptResilient("/firebase/firebase-messaging-compat.js");
         }
 
         if (!firebase.apps.length) {
@@ -238,7 +261,11 @@ self.addEventListener("message", (event) => {
         console.log(
             "[sw.js] Initializing Firebase messaging with config from page",
         );
-        ensureFirebaseMessaging(event.data.config);
+        event.waitUntil(
+            ensureFirebaseMessaging(event.data.config).catch((error) => {
+                console.error("[sw.js] Firebase init failed:", error);
+            }),
+        );
     }
 });
 

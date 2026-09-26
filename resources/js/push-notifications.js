@@ -156,6 +156,26 @@ const getRootServiceWorkerRegistration = async () => {
     return navigator.serviceWorker.register(ROOT_SW_URL);
 };
 
+const TOKEN_COOLDOWN_KEY = 'ministry-fcm-token-cooldown';
+
+const tokenSendCoolingDown = () => {
+    try {
+        const until = Number(localStorage.getItem(TOKEN_COOLDOWN_KEY) || 0);
+        return Date.now() < until;
+    } catch {
+        return false;
+    }
+};
+
+const startTokenSendCooldown = () => {
+    try {
+        // After a 429, wait out the per-minute throttle window.
+        localStorage.setItem(TOKEN_COOLDOWN_KEY, String(Date.now() + 65_000));
+    } catch {
+        // Private mode.
+    }
+};
+
 const sendTokenToServer = async (token, logTag) => {
     try {
         let previous = null;
@@ -170,6 +190,12 @@ const sendTokenToServer = async (token, logTag) => {
             return true;
         }
 
+        if (tokenSendCoolingDown()) {
+            console.warn(`[${logTag}] Token send skipped: still cooling down after a 429.`);
+
+            return false;
+        }
+
         await window.axios.post('/fcm-token', {
             fcm_token:    token,
             platform:     'web',
@@ -178,6 +204,7 @@ const sendTokenToServer = async (token, logTag) => {
 
         try {
             localStorage.setItem(SENT_TOKEN_KEY, token);
+            localStorage.removeItem(TOKEN_COOLDOWN_KEY);
         } catch {
             // Private mode: skip persistence.
         }
@@ -185,6 +212,10 @@ const sendTokenToServer = async (token, logTag) => {
         return true;
     } catch (error) {
         console.error(`[${logTag}] Error saving token to server:`, error);
+
+        if (String(error?.response?.status || '') === '429') {
+            startTokenSendCooldown();
+        }
 
         return false;
     }
