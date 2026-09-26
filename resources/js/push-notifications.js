@@ -77,8 +77,9 @@ const updatePushPermissionButtons = () => {
             stateLabel = button.dataset.pushDeniedLabel;
             disabled = true;
         } else if (pushUnavailable) {
+            // Keep clickable so the user can retry after switching networks.
             stateLabel = button.dataset.pushUnavailableLabel;
-            disabled = true;
+            state = 'unavailable';
         } else if (isPushDisabledByUser()) {
             // User turned notifications off — offer to re-enable.
             stateLabel = button.dataset.pushDefaultLabel;
