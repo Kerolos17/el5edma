@@ -11,7 +11,9 @@ class NotificationsBellWidget extends Widget
 {
     protected string $view = 'filament.widgets.notifications-bell';
 
-    protected static bool $isLazy = true; // ← static
+    // Eager: a lazy widget in the topbar renders a placeholder that keeps
+    // hammering the server with rapid polling instead of ever resolving.
+    protected static bool $isLazy = false;
 
     public int $unreadCount = 0;
 
