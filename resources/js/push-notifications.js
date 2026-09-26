@@ -250,6 +250,19 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             if (!currentToken) {
                 console.warn(`[${logTag}] No FCM token received. Check VAPID key and permissions.`);
 
+                // Firebase swallows the underlying failure and returns null.
+                // With permission granted but no token, the browser push
+                // service is unreachable (e.g. the network blocks Google's
+                // push endpoints) — surface that honestly.
+                pushUnavailable = true;
+                const trigger = document.querySelector('[data-push-enable]');
+                const msg = trigger?.dataset.pushUnavailableToast;
+                if (msg) {
+                    dispatchLivewire('toast', { message: msg, type: 'warning' });
+                }
+
+                updatePushPermissionButtons();
+
                 return false;
             }
 
