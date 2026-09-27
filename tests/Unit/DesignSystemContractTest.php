@@ -117,6 +117,7 @@ final class DesignSystemContractTest extends TestCase
         $this->assertStringContainsString('x-show="open && showConfirmDiscard"', $wizard);
         $this->assertStringNotContainsString('x-show="open && $wire.hasDraft"', $wizard);
         $this->assertStringContainsString('await this.$wire.submit()', $wizard);
+        $this->assertMatchesRegularExpression('/<div x-show="open"\s+x-cloak\s+class="fixed inset-x-0 z-\[160\] wizard-sheet-outer"/', $wizard);
         $this->assertStringContainsString('role="dialog"', $header);
         $this->assertStringContainsString('@keydown.tab="trapFocus($event)"', $header);
         $this->assertStringContainsString('w-12 h-12', $header);
