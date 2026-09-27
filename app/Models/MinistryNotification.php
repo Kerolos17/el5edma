@@ -63,6 +63,7 @@ class MinistryNotification extends Model
             'visit_reminder'  => 'notifications.visit_reminder_title',
             'unvisited_alert' => 'notifications.unvisited_alert_title',
             'new_beneficiary' => 'notifications.new_beneficiary_title',
+            'visit_created'   => 'notifications.visit_created_title',
             default           => null,
         };
 

@@ -92,6 +92,7 @@
                         'visit_reminder' => ['icon' => 'ph-calendar-check', 'color' => '#2563eb', 'bg' => '#dbeafe'],
                         'unvisited_alert' => ['icon' => 'ph-warning', 'color' => '#d97706', 'bg' => '#fef3c7'],
                         'new_beneficiary' => ['icon' => 'ph-user-plus', 'color' => '#059669', 'bg' => '#d1fae5'],
+                        'visit_created' => ['icon' => 'ph-check-circle', 'color' => '#2563eb', 'bg' => '#dbeafe'],
                         'servant_registered' => ['icon' => 'ph-handshake', 'color' => '#7c3aed', 'bg' => '#ede9fe'],
                         default => ['icon' => 'ph-bell', 'color' => '#64748b', 'bg' => '#f1f5f9'],
                     };

@@ -18,6 +18,8 @@ return [
     'unvisited_alert_body'  => 'مر :days يوماً على آخر زيارة للمخدوم :name',
     'new_beneficiary_title' => 'مخدوم جديد ✨',
     'new_beneficiary_body'  => 'تم إضافة المخدوم :name بواسطة :adder',
+    'visit_created_title'   => 'زيارة جديدة ✅',
+    'visit_created_body'    => 'سجّل :servant زيارة جديدة للمخدوم :name',
 
     'system'      => 'النظام',
     'read'        => 'مقروء',
@@ -36,6 +38,7 @@ return [
         'visit_reminder'     => 'تذكير بزيارة',
         'unvisited_alert'    => 'تنبيه عدم زيارة',
         'new_beneficiary'    => 'مخدوم جديد',
+        'visit_created'      => 'زيارة جديدة',
         'servant_registered' => 'خادم جديد',
         'welcome_servant'    => 'ترحيب',
     ],

@@ -24,6 +24,14 @@ class VisitObserver
 
         if ($visit->is_critical) {
             $this->sendCriticalCaseNotification($visit);
+
+            return;
+        }
+
+        // Visits created interactively must notify the same related audience
+        // as critical cases. Skip seed/import activity where no user is logged in.
+        if (Auth::check()) {
+            $this->sendVisitCreatedNotification($visit);
         }
     }
 
@@ -50,7 +58,17 @@ class VisitObserver
 
     private function sendCriticalCaseNotification(Visit $visit): void
     {
-        $visit->loadMissing('beneficiary.serviceGroup');
+        $this->sendVisitNotification($visit, 'critical_case');
+    }
+
+    private function sendVisitCreatedNotification(Visit $visit): void
+    {
+        $this->sendVisitNotification($visit, 'visit_created');
+    }
+
+    private function sendVisitNotification(Visit $visit, string $type): void
+    {
+        $visit->loadMissing(['beneficiary.serviceGroup', 'createdBy']);
         $beneficiary = $visit->beneficiary;
 
         if (! $beneficiary) {
@@ -93,9 +111,18 @@ class VisitObserver
                 $recipientLocale = $recipient->locale ?? 'ar';
                 App::setLocale($recipientLocale);
 
-                $title = __('notifications.critical_case_title');
-                $body  = __('notifications.critical_case_body', ['name' => $beneficiary->full_name]);
-                $data  = NotificationMetadata::enrich('critical_case', [
+                $titleKey = $type === 'critical_case'
+                    ? 'notifications.critical_case_title'
+                    : 'notifications.visit_created_title';
+                $bodyKey = $type === 'critical_case'
+                    ? 'notifications.critical_case_body'
+                    : 'notifications.visit_created_body';
+                $title = __($titleKey);
+                $body  = __($bodyKey, [
+                    'name'    => $beneficiary->full_name,
+                    'servant' => $visit->createdBy?->name ?? __('notifications.system'),
+                ]);
+                $data = NotificationMetadata::enrich($type, [
                     'beneficiary_id' => $beneficiary->id,
                     'visit_id'       => $visit->id,
                     'locale'         => $recipientLocale,
@@ -104,7 +131,7 @@ class VisitObserver
 
                 // Database row first (notifyUser persists before broadcast),
                 // then the per-recipient localized push.
-                $notifier->notifyUser($recipient, 'critical_case', $title, $body, $data);
+                $notifier->notifyUser($recipient, $type, $title, $body, $data);
 
                 $tokens = $recipient->pushTokens();
 
