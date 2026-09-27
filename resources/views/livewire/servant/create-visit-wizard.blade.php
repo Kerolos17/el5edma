@@ -185,7 +185,9 @@
     </div>
 
     {{-- Bottom Sheet --}}
-    <div class="fixed inset-x-0 z-[160] wizard-sheet-outer"
+    <div x-show="open"
+         x-cloak
+         class="fixed inset-x-0 z-[160] wizard-sheet-outer"
          :style="{ transform: open ? 'translateY(0)' : 'translateY(100%)' }"
          style="transform: translateY(100%);"
          :inert="!open"
