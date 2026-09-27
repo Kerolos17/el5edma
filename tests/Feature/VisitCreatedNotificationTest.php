@@ -16,7 +16,7 @@ class VisitCreatedNotificationTest extends TestCase
 {
     use CreatesTestUsers, RefreshDatabase;
 
-    public function test_normal_visit_notifies_related_users_in_database_and_push_queue(): void
+    public function test_normal_visit_notifies_related_users_in_database_and_dispatches_push_immediately(): void
     {
         Queue::fake();
 
