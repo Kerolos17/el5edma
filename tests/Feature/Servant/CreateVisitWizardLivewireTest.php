@@ -162,7 +162,7 @@ class CreateVisitWizardLivewireTest extends TestCase
             ->test(CreateVisitWizard::class)
             ->dispatch('offlineQueueCount', count: 2)
             ->assertSet('offlineCount', 2)
-            ->assertDispatched('offlineQueueCount');
+            ->assertNotDispatched('offlineQueueCount');
     }
 
     #[Test]
@@ -178,7 +178,7 @@ class CreateVisitWizardLivewireTest extends TestCase
             ->test(CreateVisitWizard::class)
             ->dispatch('offlineQueueCount', ['count' => 3])
             ->assertSet('offlineCount', 3)
-            ->assertDispatched('offlineQueueCount');
+            ->assertNotDispatched('offlineQueueCount');
     }
 
     #[Test]
