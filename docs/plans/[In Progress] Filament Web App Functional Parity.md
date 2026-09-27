@@ -155,3 +155,4 @@
 ## Progress log
 
 - 2026-09-27 — Plan created and moved directly to In progress after owner approval. Resource/page inventory completed; duplicate domain logic between Filament and Livewire identified as the main architectural cause of drift. Dashboard selected as the first shared-service slice.
+- 2026-09-27 — Dashboard slice temporarily paused by owner priority: make every stored notification produce an immediate device alert. The notification delivery contract is being centralized and will be completed, deployed, and verified before Phase 2 resumes.

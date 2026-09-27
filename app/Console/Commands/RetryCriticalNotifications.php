@@ -54,7 +54,7 @@ class RetryCriticalNotifications extends Command
                     $data['renotify']            = true;
                     $data['require_interaction'] = true;
 
-                    SendFcmNotificationJob::dispatch($tokens, $notification->title, $notification->body, $data);
+                    SendFcmNotificationJob::dispatchSync($tokens, $notification->title, $notification->body, $data);
 
                     $notification->forceFill(['data' => $data])->save();
                     $retried++;

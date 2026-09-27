@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\InternalNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class InternalNotificationScopeTest extends TestCase
@@ -16,9 +18,12 @@ class InternalNotificationScopeTest extends TestCase
 
     public function test_related_notifications_only_target_relevant_active_users_and_super_admins(): void
     {
+        Queue::fake();
+
         $assignedServant = User::factory()->create([
             'role'      => UserRole::Servant,
             'is_active' => true,
+            'fcm_token' => 'assigned-servant-device-token',
         ]);
         $familyLeader = User::factory()->create([
             'role'      => UserRole::FamilyLeader,
@@ -73,5 +78,13 @@ class InternalNotificationScopeTest extends TestCase
                 'type'    => 'critical_case',
             ]);
         }
+
+        Queue::assertPushed(SendFcmNotificationJob::class, 1);
+        Queue::assertPushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->tokens === ['assigned-servant-device-token']
+                && $job->title                                     === 'Scoped title'
+                && $job->data['type']                              === 'critical_case',
+        );
     }
 }

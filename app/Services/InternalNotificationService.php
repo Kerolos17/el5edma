@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Events\NewMinistryNotification;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
@@ -19,7 +20,8 @@ class InternalNotificationService
     public function notifyAll(string $type, string $title, string $body, array $data = []): void
     {
         User::where('is_active', true)
-            ->select(['id', 'locale'])
+            ->with('pushDevices:id,user_id,token')
+            ->select(['id', 'locale', 'fcm_token'])
             ->chunkById(200, function (Collection $chunk) use ($type, $title, $body, $data) {
                 $this->notifyUsers($chunk, $type, $title, $body, $data);
             });
@@ -51,6 +53,7 @@ class InternalNotificationService
 
                 $query->where('role', UserRole::SuperAdmin->value);
             })
+            ->with('pushDevices:id,user_id,token')
             ->get();
 
         if ($users->isEmpty()) {
@@ -109,6 +112,18 @@ class InternalNotificationService
             } catch (\Throwable $e) {
                 // Realtime delivery is best-effort; the database notification remains available.
             }
+
+            $user = $users->firstWhere('id', $broadcast['user_id']);
+
+            if ($user) {
+                $this->sendImmediatePush(
+                    $user,
+                    $type,
+                    $title,
+                    $body,
+                    $payload,
+                );
+            }
         }
     }
 
@@ -139,5 +154,37 @@ class InternalNotificationService
         } catch (\Throwable $e) {
             // broadcasting not configured — ignore
         }
+
+        $this->sendImmediatePush(
+            $user,
+            $type,
+            $title,
+            $body,
+            NotificationMetadata::enrich($type, $data),
+        );
+    }
+
+    private function sendImmediatePush(
+        User $user,
+        string $type,
+        string $title,
+        string $body,
+        array $data,
+    ): void {
+        $tokens = $user->pushTokens();
+
+        if ($tokens === []) {
+            return;
+        }
+
+        // Device alerts are part of the notification contract. Dispatching
+        // synchronously avoids the shared-host queue delay that previously let
+        // the in-app row appear minutes before the phone alert.
+        SendFcmNotificationJob::dispatchSync(
+            $tokens,
+            $title,
+            $body,
+            NotificationMetadata::enrich($type, $data),
+        );
     }
 }

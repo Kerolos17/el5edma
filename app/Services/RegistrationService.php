@@ -227,7 +227,7 @@ class RegistrationService
                     'url'              => '/app/users',
                 ]);
 
-                SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+                SendFcmNotificationJob::dispatchSync($tokens, $title, $body, $data);
             }
         } catch (\Exception $e) {
             Log::warning('FCM notification dispatch failed for self-registration', [

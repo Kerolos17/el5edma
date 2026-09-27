@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Enums\UserRole;
-use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Models\Visit;
@@ -133,14 +132,6 @@ class VisitObserver
                 // then the per-recipient localized push.
                 $notifier->notifyUser($recipient, $type, $title, $body, $data);
 
-                $tokens = $recipient->pushTokens();
-
-                if ($tokens !== []) {
-                    // User-created visits need an immediate device alert. The
-                    // shared host only drains the database queue periodically,
-                    // which made the in-app row appear minutes before the push.
-                    SendFcmNotificationJob::dispatchSync($tokens, $title, $body, $data);
-                }
             }
         } finally {
             App::setLocale($originalLocale);
