@@ -416,36 +416,46 @@ self.addEventListener("fetch", (event) => {
 
 // ---- Notification click: navigate to a safe internal record ----------------
 self.addEventListener("notificationclick", (event) => {
-    // The Firebase SDK stores its automatic notification target inside
-    // FCM_MSG, while notifications rendered by this worker use data.url.
-    // Handle both here and prevent the SDK's later listener from opening a
-    // second window for the same tap.
+    const notificationData = event.notification.data ?? {};
+
+    // Firebase registers its own click handler for automatic notifications.
+    // Let it handle those whenever the SDK is active. A cold worker still
+    // needs this fallback because the SDK has not been initialized by a page.
+    if (notificationData.FCM_MSG && firebaseMessaging) {
+        return;
+    }
+
     event.stopImmediatePropagation?.();
     event.notification.close();
 
-    const notificationData = event.notification.data ?? {};
     const targetUrl = safeNotificationTarget(
         notificationData.url ?? notificationData.FCM_MSG?.fcmOptions?.link,
     );
+    const absoluteTargetUrl = new URL(targetUrl, self.location.origin).href;
 
     event.waitUntil(
         clients
             .matchAll({ type: "window", includeUncontrolled: true })
             .then(async (clientList) => {
                 for (const client of clientList) {
-                    if (!("focus" in client)) {
-                        continue;
-                    }
+                    try {
+                        if ("navigate" in client) {
+                            const navigated = await client.navigate(absoluteTargetUrl);
+                            if (navigated?.focus) {
+                                return navigated.focus();
+                            }
+                        }
 
-                    if ("navigate" in client) {
-                        await client.navigate(targetUrl);
+                        if ("focus" in client) {
+                            return client.focus();
+                        }
+                    } catch (error) {
+                        console.warn("[sw] Could not focus an existing app window:", error);
                     }
-
-                    return client.focus();
                 }
 
                 if (clients.openWindow) {
-                    return clients.openWindow(targetUrl);
+                    return clients.openWindow(absoluteTargetUrl);
                 }
 
                 return undefined;
