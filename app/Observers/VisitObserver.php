@@ -136,7 +136,10 @@ class VisitObserver
                 $tokens = $recipient->pushTokens();
 
                 if ($tokens !== []) {
-                    SendFcmNotificationJob::dispatch($tokens, $title, $body, $data);
+                    // User-created visits need an immediate device alert. The
+                    // shared host only drains the database queue periodically,
+                    // which made the in-app row appear minutes before the push.
+                    SendFcmNotificationJob::dispatchSync($tokens, $title, $body, $data);
                 }
             }
         } finally {
