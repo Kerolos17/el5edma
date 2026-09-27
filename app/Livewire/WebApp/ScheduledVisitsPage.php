@@ -18,6 +18,13 @@ class ScheduledVisitsPage extends PlaceholderPage
     public function mount(string $section = 'scheduled-visits'): void
     {
         $this->section = 'scheduled-visits';
+
+        // Open on actionable appointments. The previous all/ascending view
+        // put cancelled historical rows above visits created today, making a
+        // newly saved appointment look as if it had been stored with an old date.
+        if (! request()->has('filter')) {
+            $this->filter = 'upcoming';
+        }
     }
 
     public function render(): View
@@ -83,7 +90,10 @@ class ScheduledVisitsPage extends PlaceholderPage
 
     private function applySort(Builder $query): Builder
     {
-        return $query->orderBy('scheduled_date')->orderBy('scheduled_time');
+        $direction = $this->filter === 'upcoming' ? 'asc' : 'desc';
+
+        return $query->orderBy('scheduled_date', $direction)
+            ->orderBy('scheduled_time', $direction);
     }
 
     private function meta(): array

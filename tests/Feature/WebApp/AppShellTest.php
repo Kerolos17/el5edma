@@ -353,6 +353,41 @@ class AppShellTest extends TestCase
     }
 
     #[Test]
+    public function scheduled_visits_page_defaults_to_upcoming_and_displays_the_saved_time(): void
+    {
+        $group       = ServiceGroup::factory()->create();
+        $servant     = $this->createServant($group);
+        $beneficiary = Beneficiary::factory()->create([
+            'service_group_id'    => $group->id,
+            'assigned_servant_id' => $servant->id,
+        ]);
+
+        $old = ScheduledVisit::factory()->create([
+            'beneficiary_id'      => $beneficiary->id,
+            'assigned_servant_id' => $servant->id,
+            'scheduled_date'      => now()->subMonths(5)->toDateString(),
+            'scheduled_time'      => '09:00',
+            'status'              => 'cancelled',
+        ]);
+        $upcoming = ScheduledVisit::factory()->create([
+            'beneficiary_id'      => $beneficiary->id,
+            'assigned_servant_id' => $servant->id,
+            'scheduled_date'      => now()->addDay()->toDateString(),
+            'scheduled_time'      => '16:15',
+            'status'              => 'pending',
+        ]);
+        $old->servants()->sync([$servant->id]);
+        $upcoming->servants()->sync([$servant->id]);
+
+        $this->actingAs($servant)
+            ->get(route('app.scheduled-visits'))
+            ->assertOk()
+            ->assertSee($upcoming->scheduled_date->format('Y-m-d'))
+            ->assertSee('16:15')
+            ->assertDontSee($old->scheduled_date->format('Y-m-d'));
+    }
+
+    #[Test]
     public function prayer_requests_page_uses_dedicated_component_and_keeps_role_scope(): void
     {
         $group      = ServiceGroup::factory()->create();

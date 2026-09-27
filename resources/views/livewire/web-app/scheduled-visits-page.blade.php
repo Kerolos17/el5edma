@@ -52,7 +52,7 @@
                                 <span>{{ $record->beneficiary?->serviceGroup?->name ?? '' }}</span>
                             </td>
                             <td>{{ optional($record->scheduled_date)->format('Y-m-d') }}</td>
-                            <td>{{ optional($record->scheduled_time)->format('H:i') ?? '—' }}</td>
+                            <td>{{ $record->scheduled_time ? \Carbon\Carbon::parse((string) $record->scheduled_time)->format('H:i') : '—' }}</td>
                             <td>{{ $record->assignedServant?->name ?? __('web_app.fallback.unassigned') }}</td>
                             <td><span class="app-status-pill @switch($record->status) @case('completed') tone-emerald @break @case('cancelled') tone-rose @break @default tone-amber @endswitch">{{ __("web_app.states.{$record->status}") }}</span></td>
                             <td>
@@ -85,7 +85,7 @@
             @forelse ($records as $record)
                 <article class="app-mobile-card">
                     <strong>{{ $record->beneficiary?->full_name ?? __('web_app.fallback.no_name') }}</strong>
-                    <p>{{ optional($record->scheduled_date)->format('Y-m-d') }} · {{ optional($record->scheduled_time)->format('H:i') ?? '—' }}</p>
+                    <p>{{ optional($record->scheduled_date)->format('Y-m-d') }} · {{ $record->scheduled_time ? \Carbon\Carbon::parse((string) $record->scheduled_time)->format('H:i') : '—' }}</p>
                     <div class="app-mobile-meta">
                         <span>{{ $record->assignedServant?->name ?? __('web_app.fallback.unassigned') }}</span>
                         <span>{{ __("web_app.states.{$record->status}") }}</span>
