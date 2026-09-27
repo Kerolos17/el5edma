@@ -27,6 +27,7 @@ use App\Services\RegistrationService;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Factory;
 use Livewire\Livewire;
@@ -89,6 +90,17 @@ class AppServiceProvider extends ServiceProvider
         // Enable query monitoring in production
         if (app()->environment('production')) {
             QueryMonitoringService::enable();
+        }
+
+        // Force HTTPS in production (or when FORCE_HTTPS=true); FORCE_HTTPS=false opts out.
+        // Read via config — env() returns null once the config is cached.
+        $forceHttps  = config('app.force_https');
+        $shouldForce = $forceHttps === null
+            ? app()->environment('production')
+            : in_array($forceHttps, [true, 'true', '1'], true);
+
+        if ($shouldForce) {
+            URL::forceScheme('https');
         }
     }
 }

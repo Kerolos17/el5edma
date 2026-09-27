@@ -1,7 +1,8 @@
 <div
     class="app-notification-root"
     data-user-id="{{ Auth::id() }}"
-    wire:poll.60000ms.visible="loadNotifications">
+    wire:poll.60000ms.visible="loadNotifications"
+    @app-resumed.window="$wire.loadNotifications">
 
     <button
         type="button"
@@ -9,6 +10,8 @@
         class="app-notification-mute"
         title="{{ __('notifications.sound_unmute') }}"
         aria-label="{{ __('notifications.sound_unmute') }}"
+        data-label-mute="{{ __('notifications.sound_unmute') }}"
+        data-label-unmute="{{ __('notifications.sound_mute') }}"
         aria-pressed="false">
         <i class="ph ph-speaker-high" aria-hidden="true" data-notif-sound-on></i>
         <i class="ph ph-speaker-slash" style="display:none;" aria-hidden="true" data-notif-sound-off></i>
@@ -32,7 +35,9 @@
 
     <div data-notif-backdrop class="app-notification-backdrop" aria-hidden="true"></div>
 
-    <div data-notif-panel class="app-notification-panel">
+    <div data-notif-panel class="app-notification-panel"
+         role="dialog" aria-modal="true" inert
+         aria-label="{{ __('notifications.title') }}">
 
         <div class="app-notification-header">
             <div>
@@ -58,8 +63,12 @@
                 data-push-enable
                 data-push-default-label="{{ __('notifications.push.enable') }}"
                 data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                data-push-disable-label="{{ __('notifications.push.disable') }}"
                 data-push-denied-label="{{ __('notifications.push.denied') }}"
                 data-push-unsupported-label="{{ __('notifications.push.unsupported') }}"
+                data-push-unavailable-label="{{ __('notifications.push.unavailable') }}"
+                data-push-unavailable-toast="{{ __('notifications.push.unavailable') }}"
+                data-push-disabled-toast="{{ __('notifications.push.disabled_toast') }}"
                 class="app-notification-enable"
             >
                 <i class="ph ph-bell-ringing" aria-hidden="true"></i>

@@ -2,7 +2,12 @@
 
 Laravel 12 + Livewire 3 ministry management system for Arabic-first church service workflows.
 
-The primary product interface is now the Web App under `/app/*`. Filament remains available at `/admin` as an internal fallback/admin panel during the migration.
+## Interface policy (decided 2026-09-25)
+
+- **`/app/*` is the primary interface for all roles** — daily service work, reports, notifications, profile. It is the official dashboard of the product.
+- **`/servant/*` is the mobile-first companion for servants** — field work, quick visit recording, offline sync. Not a general dashboard.
+- **`/admin` (Filament) is back-office only** — internal administration and data correction by super admins via direct URL. It is never linked from product navigation and never a login destination.
+- After login, users are routed by role (`User::homeRoute()`): servants land on `/servant/dashboard`, everyone else on `/app/dashboard`.
 
 ## Main URLs
 

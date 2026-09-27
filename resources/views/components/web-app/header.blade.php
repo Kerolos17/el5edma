@@ -74,8 +74,12 @@ $nextLocaleLabel = strtoupper($nextLocale);
                     data-push-enable
                     data-push-default-label="{{ __('notifications.push.enable') }}"
                     data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                    data-push-disable-label="{{ __('notifications.push.disable') }}"
                     data-push-denied-label="{{ __('notifications.push.denied') }}"
-                    data-push-unsupported-label="{{ __('notifications.push.unsupported') }}">
+                    data-push-unsupported-label="{{ __('notifications.push.unsupported') }}"
+                    data-push-unavailable-label="{{ __('notifications.push.unavailable') }}"
+                    data-push-unavailable-toast="{{ __('notifications.push.unavailable') }}"
+                    data-push-disabled-toast="{{ __('notifications.push.disabled_toast') }}">
                     <i class="ph ph-bell-ringing" aria-hidden="true"></i>
                     <span data-push-label>{{ __('notifications.push.enable') }}</span>
                 </button>

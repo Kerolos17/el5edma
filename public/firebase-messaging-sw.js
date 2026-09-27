@@ -1,6 +1,8 @@
-// Firebase version must match the version used in app.js (firebase@12)
-importScripts('https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging-compat.js');
+// Firebase version must match the version used in app.js (firebase@12).
+// Same-origin copies (public/firebase/) — gstatic importScripts failed for
+// some users and blocked background push entirely.
+importScripts('/firebase/firebase-app-compat.js');
+importScripts('/firebase/firebase-messaging-compat.js');
 
 let messaging = null;
 

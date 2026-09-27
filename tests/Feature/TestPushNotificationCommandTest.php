@@ -37,8 +37,6 @@ class TestPushNotificationCommandTest extends TestCase
                 ),
             );
 
-        $fake->shouldReceive('sendToUser')->andReturn($succeed);
-
         $this->swap(PushNotificationService::class, $fake);
 
         return $fake;
@@ -79,11 +77,41 @@ class TestPushNotificationCommandTest extends TestCase
     }
 
     #[Test]
+    public function device_mode_only_sends_to_a_device_owned_by_the_user(): void
+    {
+        $fake = Mockery::mock(PushNotificationService::class);
+        $this->swap(PushNotificationService::class, $fake);
+        $group  = ServiceGroup::factory()->create();
+        $owner  = $this->createServant($group);
+        $other  = $this->createServant($group);
+        $device = PushDevice::create([
+            'user_id'      => $owner->id,
+            'token'        => 'owner-device-token',
+            'token_hash'   => hash('sha256', 'owner-device-token'),
+            'platform'     => 'web',
+            'last_seen_at' => now(),
+        ]);
+
+        $fake->shouldReceive('sendMulticast')
+            ->once()
+            ->withArgs(fn (array $tokens) => $tokens === ['owner-device-token'])
+            ->andReturn(new MulticastResult(successCount: 1));
+
+        $this->artisan('pwa:test-push', [
+            'uid_or_email' => $owner->email,
+            '--device-id'  => $device->id,
+        ])->assertOk();
+
+        $this->artisan('pwa:test-push', [
+            'uid_or_email' => $other->email,
+            '--device-id'  => $device->id,
+        ])->assertFailed();
+    }
+
+    #[Test]
     public function user_without_tokens_exits_nonzero_without_sending(): void
     {
         $fake = $this->fakeService();
-
-        $fake->shouldReceive('sendToUser')->never();
 
         $group   = ServiceGroup::factory()->create();
         $servant = $this->createServant($group);

@@ -17,6 +17,7 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     #[On('visit-saved')]
+    #[On('fcmMessageReceived')]
     public function refresh(): void {}
 
     public function render()

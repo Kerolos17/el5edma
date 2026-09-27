@@ -15,6 +15,18 @@ class PushDeviceSessionService
         $request->session()->put(self::SESSION_KEY, $tokenHash);
     }
 
+    public function currentIsRegistered(User $user, Request $request): bool
+    {
+        $tokenHash = $request->session()->get(self::SESSION_KEY);
+
+        return is_string($tokenHash)
+            && strlen($tokenHash) === 64
+            && PushDevice::query()
+                ->where('user_id', $user->id)
+                ->where('token_hash', $tokenHash)
+                ->exists();
+    }
+
     public function revokeCurrent(User $user, Request $request): void
     {
         $tokenHash = $request->session()->pull(self::SESSION_KEY);

@@ -98,7 +98,9 @@ class Beneficiary extends Model
             return null;
         }
 
-        return "/storage/{$this->photo}";
+        // Served from the private disk through an authorized route,
+        // never from the public /storage symlink.
+        return route('beneficiary-photos.show', $this);
     }
 
     public function getWhatsappUrlAttribute(): ?string

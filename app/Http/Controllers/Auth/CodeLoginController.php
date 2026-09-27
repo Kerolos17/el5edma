@@ -65,6 +65,6 @@ class CodeLoginController extends Controller
 
         App::setLocale($user->locale ?? 'ar');
 
-        return redirect()->route('app.dashboard');
+        return redirect()->route($user->homeRoute());
     }
 }

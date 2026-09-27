@@ -12,15 +12,14 @@
     <script nonce="{{ $cspNonce }}">
         (() => {
             const storedTheme = localStorage.getItem('web-app-theme');
-            const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            const theme = storedTheme === 'dark' ? 'dark' : 'light';
             document.documentElement.dataset.theme = theme;
         })();
     </script>
     <script nonce="{{ $cspNonce }}">
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(
+                navigator.serviceWorker.register('/sw-v9.js').catch(
                     (err) => console.warn('SW registration failed:', err),
                 );
             });

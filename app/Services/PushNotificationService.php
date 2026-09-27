@@ -21,7 +21,13 @@ class PushNotificationService
 
     private const BATCH_SIZE = 500;
 
-    private const INVALID_TOKEN_ERRORS = ['UNREGISTERED', 'INVALID_ARGUMENT'];
+    private const INVALID_TOKEN_ERRORS = [
+        'UNREGISTERED',
+        'NOTREGISTERED',
+        'DEVICE UNREGISTERED',
+        'SENDERID MISMATCH',
+        'INVALID_ARGUMENT',
+    ];
 
     public function __construct(Messaging $messaging)
     {
@@ -162,6 +168,15 @@ class PushNotificationService
                 }
 
                 $this->handleInvalidTokens($invalidTokens);
+
+                if ($report->successes()->count() === 0) {
+                    Log::warning('Push notification failed for every device', [
+                        'title'        => $title,
+                        'tokens_count' => count($tokens),
+                    ]);
+
+                    return false;
+                }
             }
 
             Log::info('Push notification sent', [

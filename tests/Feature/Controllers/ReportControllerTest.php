@@ -6,7 +6,7 @@ use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
 
@@ -80,10 +80,9 @@ class ReportControllerTest extends TestCase
         $user  = $this->createFamilyLeader($group);
 
         $relativePhotoPath = 'beneficiaries/photos/test-beneficiary-photo.png';
-        $absolutePhotoPath = storage_path('app/public/' . $relativePhotoPath);
+        $absolutePhotoPath = Storage::disk('private')->path($relativePhotoPath);
 
-        File::ensureDirectoryExists(dirname($absolutePhotoPath));
-        File::put($absolutePhotoPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9sX6lz8AAAAASUVORK5CYII='));
+        Storage::disk('private')->put($relativePhotoPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9sX6lz8AAAAASUVORK5CYII='));
 
         try {
             $beneficiary = Beneficiary::factory()->create([
@@ -98,7 +97,7 @@ class ReportControllerTest extends TestCase
             $response->assertHeader('content-type', 'application/pdf');
             $this->assertStringStartsWith('%PDF', $response->getContent());
         } finally {
-            File::delete($absolutePhotoPath);
+            Storage::disk('private')->delete($relativePhotoPath);
         }
     }
 

@@ -102,6 +102,20 @@
   --badge-min-height: 1.75rem;
   --stat-card-radius: 1rem;
   --stat-card-padding: 1rem;
+
+  /* ── Shared semantic surfaces (contract) ── */
+  --surface-canvas: var(--clr-warm-cloud);
+  --surface-panel: var(--clr-pure-white);
+  --surface-raised: var(--clr-soft-ivory);
+  --surface-danger-soft: #FDE8EA;
+  --text-strong: var(--clr-deep-ink);
+  --text-body: #334155;
+  --text-muted: var(--clr-stone-grey);
+  --border-subtle: var(--clr-silver-mist);
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.35);
+  --motion-normal: 200ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --tap-target: 3rem;
 }
 
 /* ── Dark Theme Overrides ── */
@@ -123,6 +137,8 @@
   --nav-item-text: #94a3b8;
   --nav-item-active-bg: #1e3a5f;
   --nav-item-active-text: #93c5fd;
+  --surface-danger-soft: #3f1d24;
+  --text-body: #cbd5e1;
 
   /* wizard / servant semantic dark values */
   --wizard-surface: #1e293b;
@@ -159,4 +175,52 @@
   --wizard-type-home: var(--clr-calm-blue);
   --wizard-type-phone: #93bbfd;
   --wizard-type-church: #F4A261;
+}
+
+/* ── Shared semantic component classes (contract: no inline gradients/styles) ── */
+
+/* Stat cards — calm flat surfaces instead of gradients */
+.stat-card__value {
+  font-family: var(--ff-accent);
+}
+
+.stat-card--teal       { background: var(--clr-deep-teal); }
+.stat-card--gold       { background: var(--clr-warm-gold); }
+.stat-card--teal-light { background: var(--clr-teal-soft); }
+.stat-card--critical   { background: var(--clr-error); }
+.stat-card--success    { background: var(--clr-success); }
+
+/* Section header icon badge */
+.section-header__badge {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-header__badge--teal { background: rgba(0, 109, 119, 0.10); }
+.section-header__badge--teal .section-header__icon { color: #006D77; }
+.section-header__badge--red  { background: rgba(230, 57, 70, 0.12); }
+.section-header__badge--red .section-header__icon { color: #E63946; }
+.section-header__badge--gold { background: rgba(244, 162, 97, 0.15); }
+.section-header__badge--gold .section-header__icon { color: #D68A3D; }
+
+/* Avatar initial surfaces */
+.avatar__surface--teal { background: var(--clr-teal-light); }
+.avatar__surface--gold { background: var(--clr-gold-soft); }
+
+.avatar__fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--weight-bold);
+}
+
+.avatar__fallback--show {
+  display: flex;
 }

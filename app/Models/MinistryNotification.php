@@ -15,6 +15,16 @@ class MinistryNotification extends Model
         'user_id', 'type', 'title', 'body', 'data', 'read_at', 'dedupe_key',
     ];
 
+    protected static function booted(): void
+    {
+        // The column is DATETIME DEFAULT CURRENT_TIMESTAMP and the MySQL
+        // server runs in UTC — DB-filled values displayed 3 hours behind.
+        // Always stamp from PHP (app timezone) instead.
+        static::creating(function (self $notification) {
+            $notification->created_at ??= now();
+        });
+    }
+
     protected function casts(): array
     {
         return [
@@ -38,5 +48,24 @@ class MinistryNotification extends Model
         $key = "notifications.types.{$this->type}";
 
         return __($key) === $key ? (string) $this->type : __($key);
+    }
+
+    /**
+     * Title localized for the current viewer. System notifications store
+     * their text at creation time in the creator's locale, so known types
+     * are re-translated at display time instead of showing a stale string.
+     */
+    public function getDisplayTitleAttribute(): string
+    {
+        $key = match ($this->type) {
+            'birthday'        => 'notifications.birthday_title',
+            'critical_case'   => 'notifications.critical_case_title',
+            'visit_reminder'  => 'notifications.visit_reminder_title',
+            'unvisited_alert' => 'notifications.unvisited_alert_title',
+            'new_beneficiary' => 'notifications.new_beneficiary_title',
+            default           => null,
+        };
+
+        return $key ? (string) __($key) : (string) $this->title;
     }
 }

@@ -16,11 +16,18 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Layout('web-app.layouts.app')]
 class Dashboard extends Component
 {
+    // Push messages (and any other live events) refresh the dashboard data
+    // immediately — critical for installed PWAs that resume stale from the
+    // background.
+    #[On('fcmMessageReceived')]
+    public function refresh(): void {}
+
     public function render(): View
     {
         $user = auth()->user();

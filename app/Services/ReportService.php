@@ -8,6 +8,7 @@ use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Support\WebAppScope;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Mpdf\Mpdf;
 
 class ReportService
@@ -154,7 +155,7 @@ class ReportService
             return null;
         }
 
-        $imagePath = storage_path('app/public/' . $beneficiary->photo);
+        $imagePath = Storage::disk('private')->path($beneficiary->photo);
 
         if (! is_file($imagePath)) {
             return null;

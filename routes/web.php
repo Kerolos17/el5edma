@@ -18,6 +18,10 @@ Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')
     ->middleware('auth', 'throttle:60,1');
 
+Route::get('/beneficiary-photos/{beneficiary}', [FileAccessController::class, 'showPhoto'])
+    ->name('beneficiary-photos.show')
+    ->middleware('auth', 'throttle:60,1');
+
 Route::post('/language/{locale}', [LocaleController::class, 'switch'])
     ->name('language.switch');
 
@@ -61,7 +65,15 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::post('/fcm-token', [FcmTokenController::class, 'store'])
         ->name('fcm-token.store')
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:30,1');
+
+    Route::get('/fcm-token/status', [FcmTokenController::class, 'status'])
+        ->name('fcm-token.status')
+        ->middleware('throttle:30,1');
+
+    Route::delete('/fcm-token', [FcmTokenController::class, 'destroy'])
+        ->name('fcm-token.destroy')
+        ->middleware('throttle:30,1');
 });
 
 Route::middleware(['web', 'auth'])->get('/ui-preview/servant', [UiPreviewController::class, 'servant'])

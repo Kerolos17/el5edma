@@ -10,6 +10,6 @@ class LoginResponse implements Responsable
 {
     public function toResponse($request): RedirectResponse|Redirector
     {
-        return redirect()->intended(route('app.dashboard'));
+        return redirect()->intended(route($request->user()->homeRoute()));
     }
 }

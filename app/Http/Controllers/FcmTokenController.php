@@ -64,4 +64,40 @@ class FcmTokenController extends Controller
 
         return response()->json(['message' => 'Push device registered successfully']);
     }
+
+    public function status(Request $request): JsonResponse
+    {
+        return response()->json([
+            'registered' => $this->deviceSessions->currentIsRegistered($request->user(), $request),
+        ]);
+    }
+
+    /**
+     * Remove the current device's push registration — the server side of the
+     * "turn off notifications" toggle. Only the owning user may delete it.
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'fcm_token' => 'required|string|max:2048',
+        ]);
+
+        $token     = $validated['fcm_token'];
+        $tokenHash = hash('sha256', $token);
+        $user      = $request->user();
+
+        $deleted = PushDevice::where('token_hash', $tokenHash)
+            ->where('user_id', $user->id)
+            ->delete();
+
+        // Transitional legacy column must not keep pointing at a dead token.
+        User::query()
+            ->whereKey($user->id)
+            ->where('fcm_token', $token)
+            ->update(['fcm_token' => null]);
+
+        $this->deviceSessions->revokeCurrent($user, $request);
+
+        return response()->json(['deleted' => $deleted > 0]);
+    }
 }

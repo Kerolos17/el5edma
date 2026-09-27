@@ -138,10 +138,12 @@ class PreservationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_preserve_filament_as_super_admin_only_fallback(): void
+    public function test_preserve_filament_back_office_as_super_admin_only(): void
     {
+        // Login is open to all active roles, but back-office pages redirect
+        // non-admins to their own dashboard instead of serving them.
         $this->actingAs($this->servant1);
-        $this->get('/admin')->assertForbidden();
+        $this->get('/admin')->assertRedirect('/servant/dashboard');
 
         $this->actingAs($this->superAdmin);
         $this->get('/admin')->assertSuccessful();

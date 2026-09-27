@@ -30,7 +30,9 @@ class SecurityHeaders
             $nonceAttr = "'nonce-{$nonce}'";
             $csp       = implode('; ', [
                 "default-src 'self'",
-                "script-src {$nonceAttr} 'unsafe-inline' 'unsafe-eval' 'self' https:",
+                // 'unsafe-inline' is inert when a nonce is present (CSP2+ browsers
+                // ignore it), kept only as a fallback for very old clients.
+                "script-src {$nonceAttr} 'unsafe-inline' 'self'",
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                 "img-src 'self' data: blob: https:",
                 "font-src 'self' https://fonts.gstatic.com data:",

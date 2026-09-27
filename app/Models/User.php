@@ -211,6 +211,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return in_array($serviceGroupId, $this->managedServiceGroupIds(), true);
     }
 
+    /**
+     * The dashboard route this role lands on after login. Servants work
+     * from the mobile-first servant panel; everyone else uses the web app.
+     * (/admin is back-office only and is never a login destination.)
+     */
+    public function homeRoute(): string
+    {
+        return $this->role === UserRole::Servant
+            ? 'servant.dashboard'
+            : 'app.dashboard';
+    }
+
     // ── Self-Registration Methods ──
 
     /**
@@ -260,6 +272,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === UserRole::SuperAdmin && $this->is_active;
+        // The Filament login page is the product's only login UI, so every
+        // active user must pass this gate to authenticate. Back-office pages
+        // stay protected by the RedirectNonAdmin middleware, and the login
+        // response routes each role to its own dashboard.
+        return $this->is_active;
     }
 }

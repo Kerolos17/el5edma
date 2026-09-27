@@ -1,4 +1,6 @@
-<section class="app-page-stack">
+<section
+    class="app-page-stack"
+    @app-resumed.window="$refresh">
     <x-slot:title>{{ $title }}</x-slot:title>
 
     <div class="app-hero-panel" data-role="{{ auth()->user()->role }}">

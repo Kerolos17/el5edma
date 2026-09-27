@@ -112,6 +112,26 @@ class FcmTokenControllerTest extends TestCase
             ->assertSessionHas('push_device_token_hash', hash('sha256', $token));
     }
 
+    public function test_status_detects_a_device_removed_after_registration(): void
+    {
+        $user  = User::factory()->create();
+        $token = 'expiring-device-token';
+
+        $this->actingAs($user)
+            ->postJson(route('fcm-token.store'), ['fcm_token' => $token])
+            ->assertOk();
+
+        $this->getJson(route('fcm-token.status'))
+            ->assertOk()
+            ->assertJsonPath('registered', true);
+
+        PushDevice::where('token_hash', hash('sha256', $token))->delete();
+
+        $this->getJson(route('fcm-token.status'))
+            ->assertOk()
+            ->assertJsonPath('registered', false);
+    }
+
     public function test_logout_revokes_only_current_push_device(): void
     {
         $user         = User::factory()->create();

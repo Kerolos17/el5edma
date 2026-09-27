@@ -1,7 +1,7 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
     {{-- Page Title + FAB --}}
-    <div class="reveal-card flex items-center justify-between">
+    <div class="flex items-center justify-between">
         <div>
             <h1 class="text-xl font-bold text-teal-900">{{ __('servant.prayer_title') }}</h1>
             <p class="text-sm text-gray-500 mt-0.5">{{ __('servant.prayer_count', ['count' => $prayerRequests->total()]) }}</p>
@@ -14,8 +14,7 @@
     </div>
 
     {{-- Filter Chips --}}
-    <div class="flex gap-2 overflow-x-auto pb-1 reveal-card"
-         style="animation-delay:0.06s; scrollbar-width:none;"
+    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar"
          role="group" aria-label="{{ __('servant.filter_prayer') }}">
         @foreach([['open', __('servant.filter_open')], ['answered', __('servant.filter_answered')], ['closed', __('servant.filter_closed')], ['all', __('servant.filter_all')]] as [$val, $label])
             <button wire:click="$set('filter', '{{ $val }}')"
@@ -28,7 +27,7 @@
 
     {{-- Create Form --}}
     @if($showForm)
-        <div class="s-card rounded-2xl p-5 space-y-4 reveal-card" role="region" aria-label="{{ __('servant.new_prayer_form') }}">
+        <div class="s-card rounded-2xl p-5 space-y-4" role="region" aria-label="{{ __('servant.new_prayer_form') }}">
             <div class="flex items-center justify-between">
                 <h2 class="font-bold text-teal-900">{{ __('servant.new_prayer') }}</h2>
                 <button wire:click="closeForm"
@@ -91,14 +90,14 @@
     {{-- Skeleton --}}
     <div wire:loading.delay class="space-y-3" aria-hidden="true">
         @for ($i = 0; $i < 4; $i++)
-            <div class="skeleton-shimmer rounded-2xl" style="height:80px;"></div>
+            <div class="skeleton-shimmer skeleton-row rounded-2xl"></div>
         @endfor
     </div>
 
     {{-- Prayer Request Cards --}}
     <div wire:loading.remove class="space-y-3">
         @forelse($prayerRequests as $pr)
-            <div class="s-card card-lift rounded-2xl px-4 py-3" role="article">
+            <div class="s-card rounded-2xl px-4 py-3" role="article">
                 <div class="flex items-start justify-between gap-2">
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-teal-900 text-sm truncate">{{ $pr->title }}</p>

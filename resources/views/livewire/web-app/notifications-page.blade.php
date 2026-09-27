@@ -1,4 +1,6 @@
-<section class="app-page-stack">
+<section
+    class="app-page-stack app-notifications-page"
+    @app-resumed.window="$refresh">
     <x-slot:title>{{ __('web_app.notifications.title') }}</x-slot:title>
 
     <div class="app-hero-panel">
@@ -14,7 +16,33 @@
         </div>
     </div>
 
-    <div class="app-stat-grid app-stat-grid-compact">
+    {{-- Device push notifications control — always visible (mobile-first),
+         no dropdowns needed. The shared JS drives every [data-push-enable]. --}}
+    <section class="app-panel">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <p class="app-section-label">{{ __('notifications.push.device_title') }}</p>
+                <button
+                    type="button"
+                    data-push-enable
+                    data-push-default-label="{{ __('notifications.push.enable') }}"
+                    data-push-enabled-label="{{ __('notifications.push.enabled') }}"
+                    data-push-disable-label="{{ __('notifications.push.disable') }}"
+                    data-push-denied-label="{{ __('notifications.push.denied') }}"
+                    data-push-unsupported-label="{{ __('notifications.push.unsupported') }}"
+                    data-push-unavailable-label="{{ __('notifications.push.unavailable') }}"
+                    data-push-unavailable-toast="{{ __('notifications.push.unavailable') }}"
+                    data-push-disabled-toast="{{ __('notifications.push.disabled_toast') }}"
+                    class="app-primary-button mt-2">
+                    <i class="ph ph-bell-ringing" aria-hidden="true"></i>
+                    <span data-push-label>{{ __('notifications.push.enable') }}</span>
+                </button>
+            </div>
+            <i class="ph ph-bell-ringing text-4xl text-teal-200" aria-hidden="true"></i>
+        </div>
+    </section>
+
+    <div class="app-stat-grid app-stat-grid-compact app-notification-stats">
         @foreach ($stats as $stat)
             <article class="app-stat-card tone-{{ $stat['tone'] }}">
                 <div>
@@ -31,7 +59,7 @@
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                 <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.notifications.search_placeholder') }}">
             </label>
-            <div class="app-chip-row" role="tablist">
+            <div class="app-chip-row" role="group" aria-label="{{ __('web_app.notifications.title') }}">
                 @php
                     $typeFilters = [
                         ['value' => 'all', 'label' => __('web_app.filters.all')],
@@ -77,7 +105,7 @@
                         <i class="ph {{ $typeConfig['icon'] }}" aria-hidden="true"></i>
                     </div>
                     <button type="button" wire:click="markReadAndRedirect({{ $notification->id }})" class="app-notif-body" style="text-align:inherit;cursor:pointer">
-                        <strong>{{ $notification->title }}</strong>
+                        <strong>{{ $notification->display_title }}</strong>
                         <p>{{ $notification->body }}</p>
                         <span class="app-notif-meta">
                             <time>{{ $notification->created_at->format('Y-m-d H:i') }}</time>

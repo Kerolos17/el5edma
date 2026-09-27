@@ -1,8 +1,9 @@
-<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6">
+<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6"
+     @app-resumed.window="$refresh">
 
     {{-- Greeting --}}
-    <div class="reveal-card">
-        <h1 class="text-2xl font-bold text-teal-900" style="font-family: var(--font-display);">
+    <div>
+        <h1 class="display-font text-2xl font-bold text-teal-900">
             مرحباً، {{ auth()->user()->name }}
         </h1>
         <p class="text-sm text-gray-500 mt-1">
@@ -13,10 +14,10 @@
     {{-- Stats Grid --}}
     <div wire:loading.delay wire:target="refresh" class="grid grid-cols-2 gap-3" aria-hidden="true">
         @for ($i = 0; $i < 4; $i++)
-            <div class="skeleton-shimmer rounded-2xl" style="height:100px;"></div>
+            <div class="skeleton-shimmer skeleton-card rounded-2xl"></div>
         @endfor
     </div>
-    <div wire:loading.remove wire:target="refresh" class="grid grid-cols-2 gap-3 reveal-card" style="animation-delay: 0.08s">
+    <div wire:loading.remove wire:target="refresh" class="grid grid-cols-2 gap-3">
         <x-ui.stat-card
             label="مخدوميّ"
             :value="$myBeneficiariesCount"
@@ -45,7 +46,7 @@
     </div>
 
     {{-- Recent Visits --}}
-    <div class="reveal-card" style="animation-delay: 0.16s">
+    <div>
         <div class="flex items-center justify-between mb-4">
             <h2 class="font-bold text-teal-900">آخر الزيارات</h2>
             <a href="{{ route('servant.visits') }}" wire:navigate
@@ -57,7 +58,7 @@
         {{-- Skeleton: visit rows --}}
         <div wire:loading.delay wire:target="refresh" class="space-y-3" aria-hidden="true">
             @for ($i = 0; $i < 3; $i++)
-                <div class="skeleton-shimmer rounded-2xl" style="height:68px;"></div>
+                <div class="skeleton-shimmer skeleton-row rounded-2xl"></div>
             @endfor
         </div>
 
@@ -82,7 +83,7 @@
                             <p class="text-xs text-gray-500">
                                 {{ $visit->visit_date->locale('ar')->isoFormat('D MMM') }}
                                 @if($visit->type)
-                                    · {{ $visit->type }}
+                                    · {{ in_array($visit->type, ['home_visit', 'phone_call', 'church_meeting'], true) ? __("visits.$visit->type") : $visit->type }}
                                 @endif
                             </p>
                         </div>

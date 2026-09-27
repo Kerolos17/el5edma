@@ -39,6 +39,11 @@ class CreateVisitWizard extends Component
     // Draft flag — true if user touched any field beyond initial load
     public bool $hasDraft = false;
 
+    // Set when the user discards the draft; blocks late debounced updates
+    // (e.g. a queued beneficiarySearch roundtrip) from re-persisting the
+    // discarded draft and resurrecting the discard prompt on every close.
+    protected bool $discardRequested = false;
+
     // Offline pending visits count (from shared offlineQueue module)
     public int $offlineCount = 0;
 
@@ -47,6 +52,8 @@ class CreateVisitWizard extends Component
     {
         $this->resetWizardState();
         $this->open = true;
+        // One-way sync of the Alpine-side wizard state (replaces entangle).
+        $this->dispatch('wizard-open-state', open: true);
         $this->dispatch('wizard-open');
     }
 
@@ -62,6 +69,7 @@ class CreateVisitWizard extends Component
         }
 
         $this->open = true;
+        $this->dispatch('wizard-open-state', open: true);
         $this->dispatch('wizard-open');
     }
 
@@ -76,8 +84,10 @@ class CreateVisitWizard extends Component
             $count = $count['count'] ?? 0;
         }
 
+        // MUST NOT re-dispatch 'offlineQueueCount' here: this component is
+        // itself a listener, so re-dispatching loops back into this handler
+        // at network speed (~6 commits/second on every page with the wizard).
         $this->offlineCount = max(0, (int) $count);
-        $this->dispatch('offlineQueueCount', ['count' => $this->offlineCount]);
     }
 
     #[On('offlineSyncConflict')]
@@ -97,7 +107,9 @@ class CreateVisitWizard extends Component
 
     public function forceClose(): void
     {
-        $this->open = false;
+        $this->discardRequested = true;
+        $this->open             = false;
+        $this->dispatch('wizard-open-state', open: false);
         $this->clearDraft();
     }
 
@@ -223,7 +235,8 @@ class CreateVisitWizard extends Component
             'feedback', 'isCritical', 'needsFamilyLeader', 'needsServiceLeader',
             'hasDraft',
         ]);
-        $this->step = 1;
+        $this->step             = 1;
+        $this->discardRequested = false;
         // Do NOT clear draft here — allow resume on reopen
     }
 
@@ -271,6 +284,10 @@ class CreateVisitWizard extends Component
 
     public function saveDraft(): void
     {
+        if ($this->discardRequested || ! $this->open) {
+            return;
+        }
+
         $this->dispatch('save-wizard-draft', draft: $this->collectDraft());
     }
 

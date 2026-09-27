@@ -30,6 +30,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | HTTPS / Proxy Behavior
+    |--------------------------------------------------------------------------
+    |
+    | These must be read through config (not env()) at runtime: once the
+    | configuration is cached, env() returns null outside of config files.
+    |
+    | force_https:    null = follow APP_ENV (production forces https),
+    |                 true/false overrides.
+    | trusted_proxies: comma-separated IPs/CIDRs, or "*"; null = trust none.
+    */
+
+    'force_https' => env('FORCE_HTTPS'),
+
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     */

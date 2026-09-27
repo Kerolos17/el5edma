@@ -509,7 +509,7 @@ class ResourceActionsTest extends TestCase
         $this->assertSame('Hospital Name', $saved->hospital_name);
         $this->assertSame('Medical notes', $saved->medical_notes);
         $this->assertNotNull($saved->photo);
-        Storage::disk('public')->assertExists($saved->photo);
+        Storage::disk('private')->assertExists($saved->photo);
     }
 
     #[Test]

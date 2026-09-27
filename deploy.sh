@@ -51,6 +51,16 @@ chmod -R 755 public || true
 echo "Running database migrations..."
 php artisan migrate --force
 
+# Seed ONLY a fresh (empty) database: the seeders reset the default demo
+# accounts via updateOrCreate, which must never touch a live user base.
+user_count="$(php artisan tinker --execute='echo \App\Models\User::count();' 2>/dev/null | tr -dc '0-9')"
+if [ "${user_count:-0}" -eq 0 ]; then
+    echo "Fresh database detected - seeding base data..."
+    php artisan db:seed --force
+else
+    echo "Existing users found (${user_count}) - skipping seed to protect live accounts."
+fi
+
 echo "Creating storage symlink..."
 # NOTE: hosts without symlink()/exec() (e.g. restricted shared hosting) cannot
 # create the link. In that case keep a real directory synced via cron:
