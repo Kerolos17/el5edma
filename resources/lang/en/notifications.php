@@ -17,6 +17,8 @@ return [
     'unvisited_alert_body'  => ':days days have passed since the last visit to :name',
     'new_beneficiary_title' => 'New Beneficiary ✨',
     'new_beneficiary_body'  => ':name has been added by :adder',
+    'visit_created_title'   => 'New Visit ✅',
+    'visit_created_body'    => ':servant recorded a new visit for :name',
 
     'system'      => 'System',
     'read'        => 'Read',
@@ -35,6 +37,7 @@ return [
         'visit_reminder'     => 'Visit reminder',
         'unvisited_alert'    => 'Unvisited alert',
         'new_beneficiary'    => 'New beneficiary',
+        'visit_created'      => 'New visit',
         'servant_registered' => 'New servant',
         'welcome_servant'    => 'Welcome',
     ],
