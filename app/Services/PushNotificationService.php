@@ -21,7 +21,13 @@ class PushNotificationService
 
     private const BATCH_SIZE = 500;
 
-    private const INVALID_TOKEN_ERRORS = ['UNREGISTERED', 'INVALID_ARGUMENT'];
+    private const INVALID_TOKEN_ERRORS = [
+        'UNREGISTERED',
+        'NOTREGISTERED',
+        'DEVICE UNREGISTERED',
+        'SENDERID MISMATCH',
+        'INVALID_ARGUMENT',
+    ];
 
     public function __construct(Messaging $messaging)
     {

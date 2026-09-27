@@ -72,10 +72,10 @@ class PushNotificationInvalidTokenPropertyTest extends TestCase
             $invalidTokens = array_slice($tokens, 0, $invalidCount);
             $validTokens   = array_slice($tokens, $invalidCount);
 
-            // Build Firebase report: alternate UNREGISTERED / INVALID_ARGUMENT for invalid tokens
+            // FCM and Kreait use several names for expired or foreign tokens.
             $items = [];
             foreach ($invalidTokens as $k => $token) {
-                $errorCode = ($k % 2 === 0) ? 'UNREGISTERED' : 'INVALID_ARGUMENT';
+                $errorCode = ['UNREGISTERED', 'INVALID_ARGUMENT', 'NotRegistered', 'SenderId mismatch'][$k % 4];
                 $target    = MessageTarget::with(MessageTarget::TOKEN, $token);
                 $error     = new MessagingError($errorCode, 0);
                 $items[]   = SendReport::failure($target, $error);
