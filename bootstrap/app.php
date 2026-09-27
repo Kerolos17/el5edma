@@ -34,6 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'servant.access' => EnsureServantAccess::class,
         ]);
 
+        // The maintenance ping has no session — it authenticates with the
+        // MAINTENANCE_TOKEN header instead of Laravel's CSRF token.
+        $middleware->validateCsrfTokens(except: [
+            'maintenance/ping',
+        ]);
+
         $middleware->redirectGuestsTo(fn () => route('filament.admin.auth.login'));
     })
     ->withExceptions(function (Exceptions $exceptions) {

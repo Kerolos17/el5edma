@@ -16,8 +16,8 @@ Route::redirect('/', '/app/dashboard');
 Route::get('/_pwa/ping', fn () => response()->noContent());
 
 // External cron replacement (GitHub Actions → hPanel unavailable crontab).
-// Lives outside the `web` group so it needs no session/CSRF; the shared
-// token in X-Maintenance-Token is the only gate.
+// CSRF is waived for this path in bootstrap/app.php — the shared token in
+// X-Maintenance-Token is the only gate.
 Route::post('/maintenance/ping', MaintenancePingController::class)
     ->middleware('throttle:4,1');
 
