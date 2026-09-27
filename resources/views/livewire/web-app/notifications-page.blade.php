@@ -1,5 +1,5 @@
 <section
-    class="app-page-stack"
+    class="app-page-stack app-notifications-page"
     @app-resumed.window="$refresh">
     <x-slot:title>{{ __('web_app.notifications.title') }}</x-slot:title>
 
@@ -42,7 +42,7 @@
         </div>
     </section>
 
-    <div class="app-stat-grid app-stat-grid-compact">
+    <div class="app-stat-grid app-stat-grid-compact app-notification-stats">
         @foreach ($stats as $stat)
             <article class="app-stat-card tone-{{ $stat['tone'] }}">
                 <div>
