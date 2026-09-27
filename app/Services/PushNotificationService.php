@@ -162,6 +162,15 @@ class PushNotificationService
                 }
 
                 $this->handleInvalidTokens($invalidTokens);
+
+                if ($report->successes()->count() === 0) {
+                    Log::warning('Push notification failed for every device', [
+                        'title'        => $title,
+                        'tokens_count' => count($tokens),
+                    ]);
+
+                    return false;
+                }
             }
 
             Log::info('Push notification sent', [

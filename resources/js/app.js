@@ -2,7 +2,6 @@ import "./bootstrap";
 
 import { initPushNotifications } from "./push-notifications";
 
-const ROOT_SERVICE_WORKER_URL = "/sw.js";
 const MUTE_STORAGE_KEY = "ministry-notif-muted";
 
 const isNotificationSoundMuted = () =>

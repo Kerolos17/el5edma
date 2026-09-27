@@ -416,9 +416,17 @@ self.addEventListener("fetch", (event) => {
 
 // ---- Notification click: navigate to a safe internal record ----------------
 self.addEventListener("notificationclick", (event) => {
+    // The Firebase SDK stores its automatic notification target inside
+    // FCM_MSG, while notifications rendered by this worker use data.url.
+    // Handle both here and prevent the SDK's later listener from opening a
+    // second window for the same tap.
+    event.stopImmediatePropagation?.();
     event.notification.close();
 
-    const targetUrl = safeNotificationTarget(event.notification.data?.url);
+    const notificationData = event.notification.data ?? {};
+    const targetUrl = safeNotificationTarget(
+        notificationData.url ?? notificationData.FCM_MSG?.fcmOptions?.link,
+    );
 
     event.waitUntil(
         clients

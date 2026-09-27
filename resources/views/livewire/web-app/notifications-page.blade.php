@@ -59,7 +59,7 @@
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                 <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.notifications.search_placeholder') }}">
             </label>
-            <div class="app-chip-row" role="tablist">
+            <div class="app-chip-row" role="group" aria-label="{{ __('web_app.notifications.title') }}">
                 @php
                     $typeFilters = [
                         ['value' => 'all', 'label' => __('web_app.filters.all')],

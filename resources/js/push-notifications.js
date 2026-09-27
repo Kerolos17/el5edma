@@ -8,6 +8,7 @@ import { deleteToken, getMessaging, getToken, isSupported, onMessage } from 'fir
 
 const ROOT_SW_URL = '/sw-v9.js';
 const SENT_TOKEN_KEY = 'ministry-fcm-token-sent';
+const SENT_TOKEN_USER_KEY = 'ministry-fcm-token-user';
 const PUSH_DISABLED_KEY = 'ministry-push-disabled';
 
 let booted = false;
@@ -112,7 +113,8 @@ const updatePushPermissionButtons = () => {
             stateLabel = button.dataset.pushDisableLabel;
             state = 'active';
         } else if (permission === 'granted') {
-            stateLabel = button.dataset.pushEnabledLabel;
+            // Browser permission alone does not mean the device is registered.
+            stateLabel = button.dataset.pushDefaultLabel;
         } else {
             stateLabel = button.dataset.pushDefaultLabel;
         }
@@ -137,25 +139,21 @@ const isPushDisabledByUser = () => {
 
 const hasSentToken = () => {
     try {
-        return !!localStorage.getItem(SENT_TOKEN_KEY);
+        const userId = currentUserId();
+        return !!userId && localStorage.getItem(SENT_TOKEN_USER_KEY) === userId && !!localStorage.getItem(SENT_TOKEN_KEY);
     } catch {
         return false;
     }
 };
 
+const currentUserId = () => String(
+    document.querySelector('[data-user-id]')?.getAttribute('data-user-id')
+    ?? window.Laravel?.user?.id
+    ?? '',
+);
+
 const sendConfigToSW = async (registration) => {
-    const serviceWorker =
-        registration.active ?? registration.waiting ?? registration.installing;
-
-    if (!serviceWorker) {
-        return;
-    }
-
-    try {
-        serviceWorker.postMessage({ type: 'FIREBASE_CONFIG', config: firebaseConfig });
-    } catch (error) {
-        console.warn('[push] Failed to postMessage FIREBASE_CONFIG to SW:', error);
-    }
+    registration.active.postMessage({ type: 'FIREBASE_CONFIG', config: firebaseConfig });
 };
 
 const cleanupLegacyFirebaseWorker = async () => {
@@ -177,7 +175,28 @@ const getRootServiceWorkerRegistration = async () => {
         return existingRegistration;
     }
 
-    return navigator.serviceWorker.register(ROOT_SW_URL);
+    const registration = await navigator.serviceWorker.register(ROOT_SW_URL, { updateViaCache: 'none' });
+
+    // navigator.serviceWorker.ready can still refer to the old /sw.js worker
+    // while the replacement is installing. FCM must receive the active v9
+    // registration or it can bind the token to the legacy kill switch.
+    if (!registration.active?.scriptURL?.endsWith(ROOT_SW_URL)) {
+        await new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (registration.active?.scriptURL?.endsWith(ROOT_SW_URL)) {
+                    clearInterval(interval);
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            }, 100);
+            const timeout = setTimeout(() => {
+                clearInterval(interval);
+                reject(new Error('Current push service worker did not activate'));
+            }, 15_000);
+        });
+    }
+
+    return registration;
 };
 
 const TOKEN_COOLDOWN_KEY = 'ministry-fcm-token-cooldown';
@@ -202,20 +221,17 @@ const startTokenSendCooldown = () => {
 
 const sendTokenToServer = async (token, logTag) => {
     try {
-        let previous = null;
-
-        try {
-            previous = localStorage.getItem(SENT_TOKEN_KEY);
-        } catch {
-            // Private mode: always re-send.
-        }
-
-        if (previous === token) {
-            return true;
-        }
+        const userId = currentUserId();
 
         if (tokenSendCoolingDown()) {
             console.warn(`[${logTag}] Token send skipped: still cooling down after a 429.`);
+
+            try {
+                localStorage.removeItem(SENT_TOKEN_KEY);
+                localStorage.removeItem(SENT_TOKEN_USER_KEY);
+            } catch {
+                // Private mode.
+            }
 
             return false;
         }
@@ -228,6 +244,7 @@ const sendTokenToServer = async (token, logTag) => {
 
         try {
             localStorage.setItem(SENT_TOKEN_KEY, token);
+            localStorage.setItem(SENT_TOKEN_USER_KEY, userId);
             localStorage.removeItem(TOKEN_COOLDOWN_KEY);
         } catch {
             // Private mode: skip persistence.
@@ -236,6 +253,13 @@ const sendTokenToServer = async (token, logTag) => {
         return true;
     } catch (error) {
         console.error(`[${logTag}] Error saving token to server:`, error);
+
+        try {
+            localStorage.removeItem(SENT_TOKEN_KEY);
+            localStorage.removeItem(SENT_TOKEN_USER_KEY);
+        } catch {
+            // Private mode.
+        }
 
         if (String(error?.response?.status || '') === '429') {
             startTokenSendCooldown();
@@ -272,6 +296,11 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
 
     const syncPushToken = async ({ requestPermission = false } = {}) => {
         try {
+            if (!requestPermission && isPushDisabledByUser()) {
+                updatePushPermissionButtons();
+                return false;
+            }
+
             if (!('Notification' in window) || !('serviceWorker' in navigator)) {
                 updatePushPermissionButtons();
 
@@ -294,13 +323,11 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             await cleanupLegacyFirebaseWorker();
 
             const swRegistration = await getRootServiceWorkerRegistration();
-            const readyRegistration = await navigator.serviceWorker.ready;
-
-            await sendConfigToSW(swRegistration.active ? swRegistration : readyRegistration);
+            await sendConfigToSW(swRegistration);
 
             const currentToken = await getToken(messaging, {
                 vapidKey:                  import.meta.env.VITE_FIREBASE_VAPID_KEY,
-                serviceWorkerRegistration: readyRegistration,
+                serviceWorkerRegistration: swRegistration,
             });
 
             if (!currentToken) {
@@ -326,7 +353,12 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
                 return false;
             }
 
-            await sendTokenToServer(currentToken, logTag);
+            const saved = await sendTokenToServer(currentToken, logTag);
+
+            if (!saved) {
+                updatePushPermissionButtons();
+                return false;
+            }
 
             try {
                 localStorage.removeItem(PUSH_DISABLED_KEY);
@@ -381,6 +413,19 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             // Private mode.
         }
 
+        if (token) {
+            try {
+                await window.axios.delete('/fcm-token', { data: { fcm_token: token } });
+            } catch (error) {
+                console.warn('[push] server token removal failed:', error);
+                const message = document.querySelector('[data-push-enable]')?.dataset.pushUnavailableToast;
+                if (message) {
+                    dispatchLivewire('toast', { message, type: 'warning' });
+                }
+                return false;
+            }
+        }
+
         try {
             if (messaging) {
                 await deleteToken(messaging);
@@ -399,16 +444,9 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             console.warn('[push] unsubscribe failed:', error);
         }
 
-        if (token) {
-            try {
-                await window.axios.delete('/fcm-token', { data: { fcm_token: token } });
-            } catch (error) {
-                console.warn('[push] server token removal failed:', error);
-            }
-        }
-
         try {
             localStorage.removeItem(SENT_TOKEN_KEY);
+            localStorage.removeItem(SENT_TOKEN_USER_KEY);
             localStorage.setItem(PUSH_DISABLED_KEY, '1');
         } catch {
             // Private mode.
@@ -428,13 +466,17 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
     const syncExistingPermission = () => {
         updatePushPermissionButtons();
 
-        if ('Notification' in window && Notification.permission === 'granted') {
+        if ('Notification' in window && Notification.permission === 'granted' && !isPushDisabledByUser()) {
             // Already-granted permission can be synchronized silently.
             syncPushToken({ requestPermission: false });
         }
     };
 
-    document.addEventListener('DOMContentLoaded', syncExistingPermission, { once: true });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncExistingPermission, { once: true });
+    } else {
+        syncExistingPermission();
+    }
     document.addEventListener('livewire:navigated', updatePushPermissionButtons);
 
     if ('serviceWorker' in navigator) {
