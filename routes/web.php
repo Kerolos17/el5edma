@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\CodeLoginController;
 use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\FileAccessController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MaintenancePingController;
 use App\Http\Controllers\MedicalFileController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
@@ -13,6 +14,12 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/app/dashboard');
 
 Route::get('/_pwa/ping', fn () => response()->noContent());
+
+// External cron replacement (GitHub Actions → hPanel unavailable crontab).
+// Lives outside the `web` group so it needs no session/CSRF; the shared
+// token in X-Maintenance-Token is the only gate.
+Route::post('/maintenance/ping', MaintenancePingController::class)
+    ->middleware('throttle:4,1');
 
 Route::get('/private-files/{path}', [FileAccessController::class, 'show'])
     ->name('private.file')

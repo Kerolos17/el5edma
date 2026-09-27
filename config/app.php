@@ -115,4 +115,18 @@ return [
         'store'  => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance Ping Token
+    |--------------------------------------------------------------------------
+    |
+    | Shared secret for the POST /maintenance/ping endpoint that lets an
+    | external trigger (GitHub Actions) run schedule:run and drain the queue
+    | on hosts where crontab is unavailable. Leave empty to disable the
+    | endpoint entirely.
+    |
+    */
+
+    'maintenance_token' => env('MAINTENANCE_TOKEN'),
+
 ];
