@@ -57,7 +57,11 @@ class VisitCreatedNotificationTest extends TestCase
             'type'    => 'visit_created',
         ]);
 
-        Queue::assertPushed(SendFcmNotificationJob::class, 3);
+        $visitPushes = Queue::pushed(
+            SendFcmNotificationJob::class,
+            fn (SendFcmNotificationJob $job): bool => $job->data['type'] === 'visit_created',
+        );
+        $this->assertCount(3, $visitPushes);
         Queue::assertPushed(SendFcmNotificationJob::class, fn (SendFcmNotificationJob $job): bool => $job->data['type'] === 'visit_created'
                 && $job->data['visit_id']                                                                               === $visit->id
                 && $job->data['url']                                                                                    === '/app/visit/' . $visit->id);

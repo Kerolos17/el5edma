@@ -129,7 +129,7 @@ class SendBirthdayReminders extends Command
                     }
 
                     foreach ($pushes as $push) {
-                        SendFcmNotificationJob::dispatch(
+                        SendFcmNotificationJob::dispatchSync(
                             $push['tokens'],
                             $push['title'],
                             $push['body'],

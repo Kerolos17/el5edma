@@ -105,7 +105,7 @@ class SendScheduledVisitReminders extends Command
                 MinistryNotification::insert($rows);
 
                 foreach ($pushes as $push) {
-                    SendFcmNotificationJob::dispatch(
+                    SendFcmNotificationJob::dispatchSync(
                         $push['tokens'],
                         $push['title'],
                         $push['body'],
