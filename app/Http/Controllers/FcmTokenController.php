@@ -65,6 +65,13 @@ class FcmTokenController extends Controller
         return response()->json(['message' => 'Push device registered successfully']);
     }
 
+    public function status(Request $request): JsonResponse
+    {
+        return response()->json([
+            'registered' => $this->deviceSessions->currentIsRegistered($request->user(), $request),
+        ]);
+    }
+
     /**
      * Remove the current device's push registration — the server side of the
      * "turn off notifications" toggle. Only the owning user may delete it.

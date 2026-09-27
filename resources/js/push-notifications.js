@@ -146,6 +146,15 @@ const hasSentToken = () => {
     }
 };
 
+const clearSentToken = () => {
+    try {
+        localStorage.removeItem(SENT_TOKEN_KEY);
+        localStorage.removeItem(SENT_TOKEN_USER_KEY);
+    } catch {
+        // Private mode.
+    }
+};
+
 const currentUserId = () => String(
     document.querySelector('[data-user-id]')?.getAttribute('data-user-id')
     ?? window.Laravel?.user?.id
@@ -325,6 +334,23 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             const swRegistration = await getRootServiceWorkerRegistration();
             await sendConfigToSW(swRegistration);
 
+            if (hasSentToken()) {
+                try {
+                    const status = await window.axios.get('/fcm-token/status');
+                    if (status.data?.registered === false) {
+                        // The server may have removed an expired FCM token.
+                        // Discard Firebase's cached token so getToken creates
+                        // a fresh subscription for this installation.
+                        clearSentToken();
+                        await deleteToken(messaging);
+                    }
+                } catch (error) {
+                    // A status check failure must not stop an otherwise valid
+                    // registration attempt. The POST below remains authoritative.
+                    console.warn(`[${logTag}] Could not verify push registration:`, error);
+                }
+            }
+
             const currentToken = await getToken(messaging, {
                 vapidKey:                  import.meta.env.VITE_FIREBASE_VAPID_KEY,
                 serviceWorkerRegistration: swRegistration,
@@ -372,6 +398,7 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             return true;
         } catch (error) {
             console.error(`[${logTag}] Error retrieving FCM token:`, error);
+            clearSentToken();
 
             if (String(error?.message || error).includes('push service not available')) {
                 pushUnavailable = true;

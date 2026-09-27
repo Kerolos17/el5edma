@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\DTOs\MulticastResult;
+use App\Models\PushDevice;
 use App\Models\User;
 use App\Services\PushNotificationService;
 use App\Support\NotificationMetadata;
@@ -14,7 +16,7 @@ class TestPushNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'pwa:test-push {uid_or_email?} {--token=} {--title=Test Notification} {--body=This is a test push from Artisan!}';
+    protected $signature = 'pwa:test-push {uid_or_email?} {--token=} {--device-id=} {--title=Test Notification} {--body=This is a test push from Artisan!}';
 
     /**
      * The console command description.
@@ -45,7 +47,7 @@ class TestPushNotification extends Command
                 $payload,
             );
 
-            return $this->reportResult($result->successCount > 0);
+            return $this->reportMulticastResult($result);
         }
 
         $identifier = $this->argument('uid_or_email');
@@ -64,6 +66,28 @@ class TestPushNotification extends Command
             return 1;
         }
 
+        if ($deviceId = $this->option('device-id')) {
+            $device = PushDevice::query()
+                ->where('user_id', $user->id)
+                ->whereKey($deviceId)
+                ->first();
+
+            if (! $device) {
+                $this->error('الجهاز غير موجود لهذا المستخدم.');
+
+                return 1;
+            }
+
+            $result = $pushService->sendMulticast(
+                [$device->token],
+                $this->option('title'),
+                $this->option('body'),
+                $payload,
+            );
+
+            return $this->reportMulticastResult($result);
+        }
+
         if (empty($user->pushTokens())) {
             $this->warn("المستخدم {$identifier} ('{$user->name}') ليس لديه FCM Token مسجل. يرجى تسجيل الدخول للحساب من متصفح داعم والموافقة على الإشعارات أولاً.");
 
@@ -72,20 +96,22 @@ class TestPushNotification extends Command
 
         $this->info("جاري إرسال إشعار إلى {$user->name}...");
 
-        $success = $pushService->sendToUser(
-            $user,
+        $result = $pushService->sendMulticast(
+            $user->pushTokens(),
             $this->option('title'),
             $this->option('body'),
             $payload,
         );
 
-        return $this->reportResult($success);
+        return $this->reportMulticastResult($result);
     }
 
-    private function reportResult(bool $success): int
+    private function reportMulticastResult(MulticastResult $result): int
     {
-        if ($success) {
-            $this->info('✅ الإشعار تم إرساله بنجاح! راجع جهاز المستخدم للتأكد.');
+        $this->line("FCM accepted: {$result->successCount}; failed: {$result->failureCount}.");
+
+        if ($result->successCount > 0) {
+            $this->info('✅ قبلت FCM الرسالة. هذا لا يؤكد ظهورها على الهاتف.');
 
             return 0;
         }

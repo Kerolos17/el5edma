@@ -67,6 +67,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('fcm-token.store')
         ->middleware('throttle:30,1');
 
+    Route::get('/fcm-token/status', [FcmTokenController::class, 'status'])
+        ->name('fcm-token.status')
+        ->middleware('throttle:30,1');
+
     Route::delete('/fcm-token', [FcmTokenController::class, 'destroy'])
         ->name('fcm-token.destroy')
         ->middleware('throttle:30,1');
