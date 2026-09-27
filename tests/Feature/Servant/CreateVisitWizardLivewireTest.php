@@ -83,7 +83,9 @@ class CreateVisitWizardLivewireTest extends TestCase
             ->set('durationMinutes', 60)
             ->call('submit')
             ->assertDispatched('visit-saved')
+            ->assertDispatched('wizard-open-state', open: false)
             ->assertDispatched('toast')
+            ->assertSet('hasDraft', false)
             ->assertSet('open', false);
 
         $this->assertDatabaseHas('visits', [

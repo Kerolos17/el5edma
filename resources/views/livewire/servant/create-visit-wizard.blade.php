@@ -17,6 +17,8 @@
      $wire.entangle() here caused a commit ping-pong (~6/s) on every morph. --}}
 <div x-data="{
         open: false,
+        showConfirmDiscard: false,
+        saving: false,
         offlineCount: 0,
         lastFocused: null,
         init() {
@@ -29,10 +31,18 @@
                 window.offlineQueue.count().then(c => { this.offlineCount = c; });
             }
             // Return focus to the opener when the wizard closes
-            this.$watch('open', (value) => { if (!value) this.restoreFocus(); });
+            this.$watch('open', (value) => {
+                document.documentElement.classList.toggle('wizard-is-open', value);
+                if (!value) {
+                    this.showConfirmDiscard = false;
+                    this.saving = false;
+                    this.restoreFocus();
+                }
+            });
         },
         openWizard() {
             this.lastFocused = document.activeElement;
+            this.showConfirmDiscard = false;
             this.open = true;
             this.$nextTick(() => this.focusFirst());
         },
@@ -100,16 +110,22 @@
         },
         clearStoredDraft() {
             try { localStorage.removeItem('wizard_draft'); } catch (err) {}
-            this.$wire.set('hasDraft', false);
         },
-        confirmCloseWizard(message) {
-            if (window.confirm(message)) this.$wire.forceClose();
+        requestClose() {
+            if (this.$wire.hasDraft) {
+                this.showConfirmDiscard = true;
+                this.$nextTick(() => document.querySelector('#confirm-discard-modal button')?.focus());
+                return;
+            }
+            this.$wire.forceClose();
         },
         scrollOpts(block) {
             const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             return { behavior: reduce ? 'auto' : 'smooth', block: block || 'center' };
         },
         async submitVisit() {
+            if (this.saving) return;
+            this.saving = true;
             if (!navigator.onLine) {
                 const queue = window.__servantOfflineQueue || window.offlineQueue;
                 if (queue) {
@@ -127,11 +143,16 @@
                             ? window.crypto.randomUUID()
                             : ('fallback-' + Date.now() + '-' + Math.floor(Math.random() * 1000000)),
                     });
-                    this.$wire.close();
+                    await this.$wire.forceClose();
                     this.$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_queued') }}', type: 'warning' });
                 }
+                this.saving = false;
             } else {
-                this.$wire.submit();
+                try {
+                    await this.$wire.submit();
+                } finally {
+                    this.saving = false;
+                }
             }
         }
     }"
@@ -139,12 +160,12 @@
      @open-wizard-for.window="openWizard()"
      @wizard-open.window="restoreDraftFromStorage()"
      @wizard-open-state.window="open = $event.detail.open"
-     @confirm-close.window="confirmCloseWizard('{{ __('web_app.forms.wizard.confirm_discard') }}')"
+     @confirm-close.window="showConfirmDiscard = true"
      @save-wizard-draft.window="persistDraft($event)"
      @clear-wizard-draft.window="clearStoredDraft()"
      @restore-draft.window="applyDraft($event)"
      @offlineSyncConflict.window="$dispatch('toast', { message: '{{ __('web_app.forms.wizard.offline_conflict') }}', type: 'warning' })"
-     @keydown.escape.window="if (open) { $wire.close(); }"
+     @keydown.escape.window="if (showConfirmDiscard) { showConfirmDiscard = false } else if (open) { requestClose() }"
      role="dialog" aria-modal="true" aria-label="{{ __('web_app.actions.record_visit') }}">
     <div class="wizard-container">
 
@@ -164,7 +185,7 @@
     </div>
 
     {{-- Bottom Sheet --}}
-    <div class="fixed bottom-0 inset-x-0 z-[160] wizard-sheet-outer"
+    <div class="fixed inset-x-0 z-[160] wizard-sheet-outer"
          :style="{ transform: open ? 'translateY(0)' : 'translateY(100%)' }"
          style="transform: translateY(100%);"
          :inert="!open"
@@ -531,10 +552,10 @@
 </div>
 
     {{-- Confirm discard draft modal (inside root to keep single Livewire root) --}}
-    <div x-show="open && $wire.hasDraft" x-cloak
+    <div x-show="open && showConfirmDiscard" x-cloak
          id="confirm-discard-modal"
          @keydown.tab="trapModal($event, 'confirm-discard-modal')"
-         @keydown.escape.window="$wire.hasDraft = false"
+         @keydown.escape.stop="showConfirmDiscard = false"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100"
@@ -544,7 +565,7 @@
          class="fixed inset-0 z-[170] flex items-center justify-center p-4"
          style="display: none;"
          role="alertdialog" aria-modal="true" aria-labelledby="confirm-discard-title">
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="$wire.forceClose()"></div>
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="showConfirmDiscard = false"></div>
         <div class="relative bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-xl">
             <h3 id="confirm-discard-title" class="text-lg font-bold text-teal-900 dark:text-teal-100 mb-2">
                 {{ __('web_app.forms.wizard.confirm_discard_title') }}
@@ -553,11 +574,11 @@
                 {{ __('web_app.forms.wizard.confirm_discard') }}
             </p>
             <div class="flex gap-3">
-                <button @click="$wire.forceClose()"
+                <button @click="showConfirmDiscard = false; $wire.forceClose()"
                         class="flex-1 py-3 rounded-2xl font-bold text-sm bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
                     {{ __('web_app.forms.wizard.discard') }}
                 </button>
-                <button @click="$wire.hasDraft = false"
+                <button @click="showConfirmDiscard = false"
                         class="flex-1 py-3 rounded-2xl font-bold text-sm border-2 border-teal-500 text-teal-700 hover:bg-teal-50 transition-colors">
                     {{ __('web_app.forms.wizard.keep_editing') }}
                 </button>
