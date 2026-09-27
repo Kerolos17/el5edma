@@ -114,6 +114,9 @@ final class DesignSystemContractTest extends TestCase
         $this->assertStringContainsString('@keydown.tab="trapFocus($event)"', $wizard);
         $this->assertStringContainsString('restoreFocus()', $wizard);
         $this->assertStringContainsString('min-h-12', $wizard);
+        $this->assertStringContainsString('x-show="open && showConfirmDiscard"', $wizard);
+        $this->assertStringNotContainsString('x-show="open && $wire.hasDraft"', $wizard);
+        $this->assertStringContainsString('await this.$wire.submit()', $wizard);
         $this->assertStringContainsString('role="dialog"', $header);
         $this->assertStringContainsString('@keydown.tab="trapFocus($event)"', $header);
         $this->assertStringContainsString('w-12 h-12', $header);

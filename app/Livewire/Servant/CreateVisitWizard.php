@@ -195,6 +195,7 @@ class CreateVisitWizard extends Component
 
         $this->clearDraft();
         $this->open = false;
+        $this->dispatch('wizard-open-state', open: false);
         $this->dispatch('visit-saved');
         $this->dispatch('toast', message: __('web_app.forms.wizard.saved_success'), type: 'success');
     }
@@ -310,6 +311,10 @@ class CreateVisitWizard extends Component
 
     private function clearDraft(): void
     {
+        // Keep the server state authoritative. A browser-side $wire.set()
+        // during submit created a second request that could race the close
+        // and toast events on mobile.
+        $this->hasDraft = false;
         $this->dispatch('clear-wizard-draft');
     }
 
