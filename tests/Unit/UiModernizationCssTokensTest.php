@@ -269,4 +269,28 @@ class UiModernizationCssTokensTest extends TestCase
             }
         }
     }
+
+    /** @test */
+    public function mobile_modals_are_viewport_anchored_at_the_top(): void
+    {
+        $this->assertMatchesRegularExpression(
+            '/@media\s*\(max-width:\s*640px\).*?\.app-modal-sheet\s*\{[^}]*place-items:\s*start center;/s',
+            $this->webAppCss,
+            'Mobile forms must open at the top of the viewport.',
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.app-modal-sheet\s*\{[^}]*inset:\s*4\.25rem 0 calc\(4\.25rem \+ env\(safe-area-inset-bottom\)\);/s',
+            $this->webAppCss,
+            'Mobile forms must remain between the persistent top and bottom navigation bars.',
+        );
+
+        preg_match('/@keyframes\s+page-enter\s*\{(?<body>.*?)\n\}/s', $this->webAppCss, $pageEnter);
+
+        $this->assertArrayHasKey('body', $pageEnter);
+        $this->assertStringNotContainsString(
+            'transform:',
+            $pageEnter['body'],
+            'A transformed page ancestor breaks position: fixed for every nested modal.',
+        );
+    }
 }

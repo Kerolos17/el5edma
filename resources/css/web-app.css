@@ -86,8 +86,8 @@
 }
 
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @layer components {
@@ -2603,13 +2603,14 @@
 
   @media (max-width: 640px) {
     .app-modal-sheet {
+      inset: 4.25rem 0 calc(4.25rem + env(safe-area-inset-bottom));
       padding: 0.75rem;
-      place-items: end center;
+      place-items: start center;
     }
 
     .app-modal-panel {
       width: 100%;
-      max-height: calc(100dvh - 6rem);
+      max-height: 100%;
       min-height: 0;
       border-bottom-right-radius: 0;
       border-bottom-left-radius: 0;
