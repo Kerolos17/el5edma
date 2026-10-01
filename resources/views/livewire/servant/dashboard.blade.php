@@ -1,5 +1,4 @@
-<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6"
-     @app-resumed.window="$refresh">
+<div class="px-4 pt-6 pb-32 lg:pb-10 space-y-6">
 
     {{-- Greeting --}}
     <div>

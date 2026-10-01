@@ -57,6 +57,9 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
+      - name: Test service worker (node)
+        run: node --test tests/js/*.test.cjs
+
       - name: Check code style
         run: ./vendor/bin/pint --test
 

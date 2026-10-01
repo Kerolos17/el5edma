@@ -6,12 +6,21 @@ const vm = require('node:vm');
 
 function loadWorker() {
     const listeners = new Map();
+    const importedScripts = [];
     const shown = [];
     const opened = [];
     const windows = [];
     const context = {
         URL,
         console,
+        // importScripts is legal only during the worker's initial evaluation —
+        // the worker relies on that: it imports the Firebase compat SDK at the
+        // top level. Record the imports so we can assert exactly that.
+        importScripts: (...paths) => {
+            for (const p of paths.flat()) importedScripts.push(p);
+        },
+        caches: { open: async () => ({ match: async () => undefined, keys: async () => [], put: async () => {} }) },
+        fetch: async () => ({ ok: true }),
         self: {
             location: { origin: 'https://ministry.example' },
             registration: {
@@ -26,11 +35,28 @@ function loadWorker() {
     };
     vm.createContext(context);
     vm.runInContext(
-        fs.readFileSync(path.resolve(__dirname, '../../public/sw-v9.js'), 'utf8'),
+        fs.readFileSync(path.resolve(__dirname, '../../public/sw-v10.js'), 'utf8'),
         context,
     );
-    return { listeners, shown, opened, windows, context };
+    return { listeners, shown, opened, windows, context, importedScripts };
 }
+
+test('the Firebase compat SDK is imported during initial evaluation', () => {
+    const { importedScripts } = loadWorker();
+    assert.deepEqual(importedScripts, [
+        '/firebase/firebase-app-compat.js',
+        '/firebase/firebase-messaging-compat.js',
+    ]);
+});
+
+test('the worker never tries lazy loading or blob fallbacks (illegal in SW)', () => {
+    const source = fs.readFileSync(path.resolve(__dirname, '../../public/sw-v10.js'), 'utf8');
+    assert.doesNotMatch(source, /importScriptResilient/);
+    assert.doesNotMatch(source, /createObjectURL/);
+    // importScripts must only appear in the two top-level statements
+    // (line-initial); the comments mention it but never call it.
+    assert.equal((source.match(/^importScripts\(/gm) || []).length, 2);
+});
 
 test('a cold worker displays a push and opens its internal target', async () => {
     const { listeners, shown, opened } = loadWorker();
@@ -117,7 +143,11 @@ test('an active Firebase SDK handles its own automatic notification clicks', () 
 test('the web app registers the same worker used for push tokens', () => {
     const app = fs.readFileSync(path.resolve(__dirname, '../../resources/js/web-app.js'), 'utf8');
     const push = fs.readFileSync(path.resolve(__dirname, '../../resources/js/push-notifications.js'), 'utf8');
-    assert.match(app, /\.register\('\/sw-v9\.js'/);
-    assert.match(push, /ROOT_SW_URL = '\/sw-v9\.js'/);
+    const layout = fs.readFileSync(path.resolve(__dirname, '../../resources/views/web-app/layouts/app.blade.php'), 'utf8');
+    const head = fs.readFileSync(path.resolve(__dirname, '../../resources/views/filament/pwa-head.blade.php'), 'utf8');
+    assert.match(app, /\.register\('\/sw-v10\.js'/);
+    assert.match(push, /ROOT_SW_URL = '\/sw-v10\.js'/);
+    assert.match(layout, /serviceWorker\.register\('\/sw-v10\.js'\)/);
+    assert.match(head, /serviceWorker\.register\('\/sw-v10\.js'\)/);
     assert.doesNotMatch(app, /\.register\('\/sw\.js'/);
 });

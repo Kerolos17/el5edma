@@ -29,6 +29,7 @@ class NotificationsBell extends Component
         $this->previousUnreadCount = $this->unreadCount;
     }
 
+    #[On('app-resumed')]
     public function loadNotifications(): void
     {
         $userId = Auth::id();

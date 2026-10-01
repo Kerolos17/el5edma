@@ -1,6 +1,5 @@
 <section
-    class="app-page-stack app-notifications-page"
-    @app-resumed.window="$refresh">
+    class="app-page-stack app-notifications-page">
     <x-slot:title>{{ __('web_app.notifications.title') }}</x-slot:title>
 
     <div class="app-hero-panel">

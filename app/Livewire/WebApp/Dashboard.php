@@ -26,6 +26,7 @@ class Dashboard extends Component
     // immediately — critical for installed PWAs that resume stale from the
     // background.
     #[On('fcmMessageReceived')]
+    #[On('app-resumed')]
     public function refresh(): void {}
 
     public function render(): View

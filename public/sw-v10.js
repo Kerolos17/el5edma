@@ -1,15 +1,15 @@
-const CACHE_NAME = "ministry-pwa-v9b";
-const SW_VERSION = "v9b";
+const CACHE_NAME = "ministry-pwa-v10";
+const SW_VERSION = "v10";
 const OFFLINE_URL = "/offline.html";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
 
 // The Firebase compat SDK MUST be imported during the worker's initial
 // evaluation: importScripts() is forbidden after installation, so loading
-// it lazily inside a message handler always throws (and the blob-URL
-// fallback is impossible — URL.createObjectURL does not exist in worker
-// scope). Same-origin copies (public/firebase/) avoid the gstatic/CDN
-// failures seen in the field; if these imports fail the install fails and
-// the browser retries, which is the correct failure mode.
+// it lazily inside a message handler always throws — and blob-based
+// fallbacks are impossible because they rely on an API that service
+// workers do not provide. Same-origin copies (public/firebase/) avoid the
+// gstatic/CDN failures seen in the field; if these imports fail the
+// install fails and the browser retries, which is the correct failure mode.
 importScripts("/firebase/firebase-app-compat.js");
 importScripts("/firebase/firebase-messaging-compat.js");
 

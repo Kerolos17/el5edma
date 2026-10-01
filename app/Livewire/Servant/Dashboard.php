@@ -18,6 +18,7 @@ class Dashboard extends Component
 {
     #[On('visit-saved')]
     #[On('fcmMessageReceived')]
+    #[On('app-resumed')]
     public function refresh(): void {}
 
     public function render()

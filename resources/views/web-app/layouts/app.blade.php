@@ -19,7 +19,7 @@
     <script nonce="{{ $cspNonce }}">
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw-v9.js').catch(
+                navigator.serviceWorker.register('/sw-v10.js').catch(
                     (err) => console.warn('SW registration failed:', err),
                 );
             });

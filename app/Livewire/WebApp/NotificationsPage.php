@@ -20,6 +20,7 @@ class NotificationsPage extends Component
 
     // A push arriving while the page is open refreshes the list instantly.
     #[On('fcmMessageReceived')]
+    #[On('app-resumed')]
     public function refresh(): void {}
 
     #[Url(as: 'q', except: '')]
