@@ -39,6 +39,50 @@
         @endif
     </div>
 
+    {{-- Invite link card (managers only) --}}
+    @if ($this->canManageRegistrationLink)
+        <section class="app-panel">
+            <div class="app-panel-header">
+                <div>
+                    <p class="app-section-label">{{ __('service_groups.invite_section') }}</p>
+                    <h3>{{ __('service_groups.invite_title') }}</h3>
+                </div>
+            </div>
+
+            @if ($this->registrationUrl)
+                <div class="app-mobile-card">
+                    <p dir="ltr" style="word-break:break-all">{{ $this->registrationUrl }}</p>
+                    <div class="app-mobile-actions">
+                        <a href="{{ $this->registrationWhatsAppShareUrl }}" target="_blank" rel="noopener"
+                            class="app-mobile-action app-link-whatsapp">
+                            <i class="ph-fill ph-whatsapp-logo" aria-hidden="true"></i>
+                            {{ __('service_groups.share_whatsapp') }}
+                        </a>
+                        <button type="button" x-data
+                            @click="navigator.clipboard && navigator.clipboard.writeText(@js($this->registrationUrl)).then(() => $wire.$dispatch('toast', { message: @js(__('service_groups.link_copied')), type: 'success' }))"
+                            class="app-mobile-action">
+                            <i class="ph ph-copy" aria-hidden="true"></i>
+                            {{ __('service_groups.copy_link') }}
+                        </button>
+                        <button type="button" wire:click="regenerateRegistrationLink" wire:confirm="{{ __('service_groups.regenerate_confirm') }}"
+                            class="app-mobile-action app-mobile-action-danger">
+                            <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+                            {{ __('service_groups.regenerate_link') }}
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500">{{ __('service_groups.invite_expiry_hint') }}</p>
+                </div>
+            @else
+                <div class="app-mobile-actions" style="border:0;padding-top:0">
+                    <button type="button" wire:click="ensureRegistrationLink" class="app-mobile-action">
+                        <i class="ph ph-link" aria-hidden="true"></i>
+                        {{ __('service_groups.create_link') }}
+                    </button>
+                </div>
+            @endif
+        </section>
+    @endif
+
     {{-- Stat Cards --}}
     <div class="app-stat-grid app-stat-grid-2x2">
         <div class="app-stat-card tone-blue">

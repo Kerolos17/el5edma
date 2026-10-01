@@ -162,7 +162,9 @@
                     @endif
                 </div>
             @empty
-                <x-web-app.empty-state icon="ph-clipboard-text" :message="__('web_app.resources.empty_table')" />
+                <x-web-app.empty-state icon="ph-clipboard-text" :message="__('web_app.resources.empty_table')"
+                    :action-label="__('web_app.actions.add_visit')" action-wire-click="openVisitForm"
+                />
             @endforelse
         </div>
 

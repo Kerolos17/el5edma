@@ -104,7 +104,9 @@
                     @endcan
                 </article>
             @empty
-                <x-web-app.empty-state icon="ph-calendar-check" :message="__('web_app.resources.empty_table')" />
+                <x-web-app.empty-state icon="ph-calendar-check" :message="__('web_app.resources.empty_table')"
+                    :action-label="__('web_app.actions.add_scheduled_visit')" action-wire-click="openScheduledVisitForm"
+                />
             @endforelse
         </div>
 

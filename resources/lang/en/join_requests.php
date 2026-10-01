@@ -75,5 +75,7 @@ return [
     'waiting_title' => 'Join request status',
     'waiting_hello' => 'Hello :name,',
     'waiting_intro' => 'Your request is under review. You will receive in-app notifications when a decision is made, and you can check its status here at any time.',
+    'refresh_now'   => 'Refresh status now',
+    'refreshing'    => 'Refreshing...',
     'logout'        => 'Log out',
 ];

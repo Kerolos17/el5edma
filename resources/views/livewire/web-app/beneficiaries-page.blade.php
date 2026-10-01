@@ -210,6 +210,7 @@
                 <x-web-app.empty-state
                     icon="ph-users-three"
                     :message="__('web_app.resources.empty_table')"
+                    :action-label="__('web_app.actions.add_beneficiary')" action-wire-click="openBeneficiaryForm"
                 />
             @endforelse
         </div>

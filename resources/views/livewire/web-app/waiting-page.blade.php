@@ -117,6 +117,17 @@
             margin-top: 0.5rem;
         }
 
+        .waiting-refresh {
+            cursor: pointer;
+            border: none;
+            background: #0073A3;
+            color: #fff;
+            border-radius: 0.75rem;
+            padding: 0.65rem 1.5rem;
+            font: inherit;
+            font-weight: 700;
+        }
+
         .waiting-logout-btn {
             cursor: pointer;
             border: 1px solid #e7e8ef;
@@ -166,6 +177,13 @@
     @endif
 
     <p class="waiting-intro">{{ __('join_requests.waiting_intro') }}</p>
+
+    @if ($joinRequest && $joinRequest->isOpen())
+        <button type="button" wire:click="$refresh" class="waiting-refresh">
+            <span wire:loading.remove>{{ __('join_requests.refresh_now') }}</span>
+            <span wire:loading>{{ __('join_requests.refreshing') }}</span>
+        </button>
+    @endif
 
     <form method="POST" action="{{ route('logout') }}" class="waiting-logout">
         @csrf

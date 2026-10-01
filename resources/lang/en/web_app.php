@@ -24,6 +24,10 @@ return [
         'toggle_dark_mode'     => 'Toggle dark mode',
     ],
     'actions' => [
+        'add_visit'           => 'Add visit',
+        'add_scheduled_visit' => 'Schedule a visit',
+        'add_medical_file'    => 'Add medical file',
+        'add_beneficiary'     => 'Add beneficiary',
         'whatsapp'            => 'WhatsApp',
         'call'                => 'Call',
         'dashboard'           => 'Dashboard',

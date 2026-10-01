@@ -24,6 +24,10 @@ return [
         'toggle_dark_mode'     => 'تبديل الوضع الداكن',
     ],
     'actions' => [
+        'add_visit'           => 'إضافة زيارة',
+        'add_scheduled_visit' => 'جدولة زيارة',
+        'add_medical_file'    => 'إضافة ملف طبي',
+        'add_beneficiary'     => 'إضافة مخدوم',
         'whatsapp'            => 'واتساب',
         'call'                => 'اتصال',
         'dashboard'           => 'لوحة التحكم',

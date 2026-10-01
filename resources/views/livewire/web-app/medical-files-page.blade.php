@@ -89,7 +89,9 @@
                     </div>
                 </article>
             @empty
-                <x-web-app.empty-state icon="ph-file-lock" :message="__('web_app.resources.empty_table')" />
+                <x-web-app.empty-state icon="ph-file-lock" :message="__('web_app.resources.empty_table')"
+                    :action-label="__('web_app.actions.add_medical_file')" action-wire-click="openMedicalFileForm"
+                />
             @endforelse
         </div>
 
