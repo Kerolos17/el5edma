@@ -3,7 +3,7 @@
 > **Status:** In progress
 > **Created:** 2026-10-01
 > **Last updated:** 2026-10-01
-> **Current phase:** Phase 1 ✅ — التالي: Phase 2 (تسهيل الاستخدام اليومي)
+> **Current phase:** Phase 1 ✅ + إصلاحات SW/Alpine العاجلة ✅ — التالي: Phase 2
 > **Owner:** Kerolos
 > _Lifecycle: rename to `[In Progress]` on start, update the Progress log before each
 > phase transition, `[Done]` + move to `Archive/` when complete._
@@ -147,6 +147,19 @@
 
 _(Append a dated entry before each phase transition — what was completed and any decisions.)_
 - 2026-10-01 — Plan created (Planned) — بانتظار مراجعة المالك الكاملة قبل بدء أي تنفيذ.
+- 2026-10-02 — **إصلاح عطلتين حيتين من كونسول المالك قبل بدء المرحلة 2 (b6a30a0):**
+  1. **تعطيل الإشعارات الخلفية على كل الأجهزة:** sw-v9 استورد SDK Firebase داخل معالج
+     رسالة (بعد التثبيت) — المتصفحات تمنع importScripts بعد التثبيت، واحتياطي blob-URL
+     يستخدم API غير موجود في نطاق service worker أصلًا. الإصلاح: الاستيراد في التقييم
+     الأولي فقط (الموضع القانوني الوحيد)، إصدار جديد sw-v10.js (URL جديد يتغلب على كاش
+     hcdn) + CACHE v10، وسو-v9 أُصلح للأجهزة التي ما زالت عليه. اختبارات node للعامل
+     أُعيدت كتابتها (8 اختبارات تشمل منع أي lazy-loading مستقبلي) **ووُصلت بالـCI**.
+  2. **خطأ Alpine لكل عودة للتطبيق المثبت:** '@app-resumed.window="$refresh"' يخلط
+     Alpine بماجيك Livewire غير متاح في نطاق Alpine — الداشبوردات وصفحة الإشعارات
+     والجرس صارت تستمع عبر #[On('app-resumed')] في Livewire مباشرة.
+  التحقق الحي: sw-v10.js يُقدَّم (200) بمستوردات المستوى الأعلى، صفحة الدخول تسجل sw-v10.
+  ملاحظة: نسخة v9 القديمة ما زالت في كاش hcdn حتى انتهاء TTL لكنها بلا أثر لأن كل
+  نقاط التسجيل صارت تشير إلى sw-v10.
 - 2026-10-01 — **Phase 1 ✅** (commits 9c53e5b…ff70575): استعادة كلمة المرور ذاتيًا
   (8 اختبارات)، بحث عام موحد عبر /app/search باقسام مصنفة تحترم نطاقات الصلاحيات
   (5 اختبارات)، بطاقة رابط دعوة الأسرة مع مشاركة واتساب ونسخ وإعادة توليد خلف
