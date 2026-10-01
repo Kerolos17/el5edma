@@ -69,6 +69,7 @@ return [
         'medical_files'    => 'الملفات الطبية',
         'reports'          => 'التقارير',
         'users'            => 'الخدام',
+        'join_requests'    => 'طلبات الانضمام',
         'service_groups'   => 'مجموعات الخدمة',
         'audit_logs'       => 'سجل التعديلات',
         'profile'          => 'الملف الشخصي',

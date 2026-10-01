@@ -69,6 +69,7 @@ return [
         'medical_files'    => 'Medical files',
         'reports'          => 'Reports',
         'users'            => 'Servants',
+        'join_requests'    => 'Join requests',
         'service_groups'   => 'Service groups',
         'audit_logs'       => 'Audit Logs',
         'profile'          => 'Profile',

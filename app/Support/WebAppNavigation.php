@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Models\AuditLog;
+use App\Models\JoinRequest;
 use App\Models\ServiceGroup;
 use App\Models\User;
 
@@ -24,6 +25,7 @@ class WebAppNavigation
             // People
             ['route' => 'app.beneficiaries', 'icon' => 'ph-users-three', 'label' => __('web_app.navigation.beneficiaries'), 'group' => 'people'],
             ['route' => 'app.users', 'icon' => 'ph-identification-card', 'label' => __('web_app.navigation.users'), 'group' => 'people', 'can' => $user->can('viewAny', User::class)],
+            ['route' => 'app.join-requests', 'icon' => 'ph-user-plus', 'label' => __('web_app.navigation.join_requests'), 'group' => 'people', 'can' => $user->can('viewAny', JoinRequest::class)],
 
             // Records
             ['route' => 'app.medical-files', 'icon' => 'ph-file-lock', 'label' => __('web_app.navigation.medical_files'), 'group' => 'records'],
