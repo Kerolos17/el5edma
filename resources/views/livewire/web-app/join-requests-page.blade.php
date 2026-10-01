@@ -131,6 +131,57 @@
             </table>
         </div>
 
+        {{-- Mobile: the table is hidden below 640px — records render as cards. --}}
+        <div class="app-mobile-list" wire:loading.attr="aria-busy" wire:target="search,filter">
+            @forelse ($records as $record)
+                @php
+                    $statusTone = match ($record->status) {
+                        App\Models\JoinRequest::STATUS_APPROVED => $record->user?->is_active ? 'tone-emerald' : 'tone-amber',
+                        App\Models\JoinRequest::STATUS_REJECTED => 'tone-rose',
+                        default => 'tone-sky',
+                    };
+                    $statusLabel = $record->status === App\Models\JoinRequest::STATUS_APPROVED && ! $record->user?->is_active
+                        ? __('join_requests.filters.suspended')
+                        : $record->statusLabel();
+                @endphp
+                <article class="app-mobile-card">
+                    <strong>{{ $record->user?->name }}</strong>
+                    <p>{{ $record->desiredRoleLabel() }} · {{ $record->serviceGroup?->name ?? '—' }}</p>
+                    <div class="app-mobile-meta">
+                        <span>{{ $record->user?->email ?? '—' }}</span>
+                        <span class="app-status-pill {{ $statusTone }}">{{ $statusLabel }}</span>
+                    </div>
+                    @if ($record->decision_note)
+                        <p class="app-mobile-note">{{ __('join_requests.decision_note') }}: {{ $record->decision_note }}</p>
+                    @endif
+                    <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                        @if ($record->isOpen() && auth()->user()->can('review', $record))
+                            <button type="button" wire:click="openReview({{ $record->id }}, 'approve')" class="app-mobile-action">
+                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                {{ __('join_requests.actions.review') }}
+                            </button>
+                        @elseif ($record->status === App\Models\JoinRequest::STATUS_APPROVED && auth()->user()->can('suspend', $record))
+                            @if ($record->user?->is_active)
+                                <button type="button" wire:click="toggleSuspension({{ $record->id }})"
+                                    class="app-mobile-action app-mobile-action-danger"
+                                    wire:confirm="{{ __('join_requests.confirms.suspend') }}">
+                                    <i class="ph ph-pause-circle" aria-hidden="true"></i>
+                                    {{ __('join_requests.actions.suspend') }}
+                                </button>
+                            @else
+                                <button type="button" wire:click="toggleSuspension({{ $record->id }})" class="app-mobile-action">
+                                    <i class="ph ph-play-circle" aria-hidden="true"></i>
+                                    {{ __('join_requests.actions.reactivate') }}
+                                </button>
+                            @endif
+                        @endif
+                    </div>
+                </article>
+            @empty
+                <x-web-app.empty-state icon="ph-user-plus" :message="__('join_requests.empty')" />
+            @endforelse
+        </div>
+
         <div class="app-pagination">
             {{ $records->links() }}
         </div>

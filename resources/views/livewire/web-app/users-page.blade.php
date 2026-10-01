@@ -134,6 +134,19 @@
                         <span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span>
                     </div>
                     <div class="app-mobile-actions" role="group" aria-label="{{ __('web_app.actions.actions') }}">
+                        @if ($record->phone)
+                            <a href="{{ $record->whatsapp_url }}" target="_blank" rel="noopener"
+                                class="app-mobile-action app-link-whatsapp"
+                                aria-label="{{ __('web_app.actions.whatsapp') }} {{ $record->name }}">
+                                <i class="ph-fill ph-whatsapp-logo" aria-hidden="true"></i>
+                                {{ __('web_app.actions.whatsapp') }}
+                            </a>
+                            <a href="{{ $record->tel_url }}" class="app-mobile-action app-link-call"
+                                aria-label="{{ __('web_app.actions.call') }} {{ $record->name }}">
+                                <i class="ph ph-phone" aria-hidden="true"></i>
+                                {{ __('web_app.actions.call') }}
+                            </a>
+                        @endif
                         @can('update', $record)
                             <button type="button" wire:click="openUserForm({{ $record->id }})" class="app-mobile-action">
                                 <i class="ph ph-pencil-simple" aria-hidden="true"></i>

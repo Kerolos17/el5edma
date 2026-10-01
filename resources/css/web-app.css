@@ -759,6 +759,38 @@
   }
 
   @media (max-width: 639px) {
+    /* Compact stat cards: two side-by-side tiles instead of full-width
+       blocks that push the actual content off the first screen. The
+       notifications-specific rules below keep their 3-column layout. */
+    .app-stat-grid,
+    .app-stat-grid-compact,
+    .app-stat-grid-2x2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .app-stat-grid .app-stat-card,
+    .app-stat-grid-compact .app-stat-card,
+    .app-stat-grid-2x2 .app-stat-card {
+      min-height: 4.6rem;
+      padding: 0.6rem 0.7rem;
+      gap: 0.5rem;
+    }
+
+    .app-stat-grid .app-stat-card p,
+    .app-stat-grid-compact .app-stat-card p,
+    .app-stat-grid-2x2 .app-stat-card p {
+      font-size: 0.68rem;
+      line-height: 1.25;
+    }
+
+    .app-stat-grid .app-stat-card strong,
+    .app-stat-grid-compact .app-stat-card strong,
+    .app-stat-grid-2x2 .app-stat-card strong {
+      margin-top: 0.15rem;
+      font-size: 1.1rem;
+    }
+
     .app-notifications-page {
       gap: 0.75rem;
     }
@@ -1550,6 +1582,15 @@
     }
   }
 
+  /* Contact action accents shared by the table rows and mobile cards. */
+  .app-link-whatsapp {
+    color: #0f7b55;
+  }
+
+  .app-link-call {
+    color: var(--clr-calm-blue);
+  }
+
   .app-status-pill {
     min-height: 1.75rem;
     padding: 0.15rem 0.65rem;
@@ -1734,6 +1775,23 @@
     color: var(--clr-stone-grey);
     font-size: 0.78rem;
     font-weight: 700;
+  }
+
+  .app-mobile-note {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.6;
+    color: #7c2d12;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 0.6rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  [data-theme='dark'] .app-mobile-note {
+    color: #fdba74;
+    background: rgba(124, 45, 18, 0.25);
+    border-color: #7c2d12;
   }
 
   .app-mobile-actions {
