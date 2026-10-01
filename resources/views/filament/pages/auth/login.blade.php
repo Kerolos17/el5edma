@@ -85,6 +85,12 @@
                             <p class="mt-2 text-xs leading-relaxed text-gray-500">
                                 {{ __('auth.locked_out_help') }}
                             </p>
+                            <p class="mt-1 text-xs">
+                                <a href="{{ route('password.request') }}"
+                                    class="font-bold text-blue-600 hover:text-blue-800 transition">
+                                    {{ __('auth.forgot_password') }}
+                                </a>
+                            </p>
                         </div>
 
                         <div class="flex items-center gap-2">

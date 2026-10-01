@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\CodeLoginController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\FileAccessController;
 use App\Http\Controllers\LocaleController;
@@ -43,6 +44,20 @@ Route::post('/language-guest/{locale}', [LocaleController::class, 'switchGuest']
 Route::post('/login-code', [CodeLoginController::class, 'login'])
     ->name('login.code')
     ->middleware('throttle:5,1');
+
+// Self-service password reset (guest only, throttled).
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [PasswordResetController::class, 'requestForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+        ->name('password.email')
+        ->middleware('throttle:5,1');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'resetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])
+        ->name('password.update')
+        ->middleware('throttle:5,1');
+});
 
 // Google OAuth: sign-in + the shared join-request path for new visitors.
 // Credentials live in .env only; the callback URI must be registered in

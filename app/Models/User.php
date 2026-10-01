@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Notifications\ResetPasswordArabic;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
@@ -328,6 +329,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->profile_photo
             ? '/storage/' . $this->profile_photo
             : null;
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordArabic($token));
     }
 
     public function canAccessPanel(Panel $panel): bool
