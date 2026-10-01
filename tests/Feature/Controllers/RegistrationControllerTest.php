@@ -44,12 +44,17 @@ class RegistrationControllerTest extends TestCase
             'phone'                 => '01234567890',
             'password'              => 'password123',
             'password_confirmation' => 'password123',
+            'desired_role'          => 'servant',
+            'privacy_consent'       => true,
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', [
             'email'            => 'newservant@example.com',
             'service_group_id' => $group->id,
+        ]);
+        $this->assertDatabaseHas('join_requests', [
+            'status' => 'pending',
         ]);
     }
 
@@ -93,9 +98,48 @@ class RegistrationControllerTest extends TestCase
             'password'              => 'password123',
             'password_confirmation' => 'password123',
             'service_group_id'      => $group->id,
+            'desired_role'          => 'servant',
+            'privacy_consent'       => true,
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['email' => 'public@example.com']);
+    }
+
+    public function test_public_registration_requires_privacy_consent(): void
+    {
+        $group = ServiceGroup::factory()->create(['is_active' => true]);
+
+        $response = $this->post('/register', [
+            'name'                  => 'No Consent',
+            'email'                 => 'no-consent@example.com',
+            'phone'                 => '01234567893',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+            'service_group_id'      => $group->id,
+            'desired_role'          => 'servant',
+        ]);
+
+        $response->assertSessionHasErrors('privacy_consent');
+        $this->assertDatabaseMissing('users', ['email' => 'no-consent@example.com']);
+    }
+
+    public function test_public_registration_rejects_invalid_desired_role(): void
+    {
+        $group = ServiceGroup::factory()->create(['is_active' => true]);
+
+        $response = $this->post('/register', [
+            'name'                  => 'Super Admin Wannabe',
+            'email'                 => 'wannabe@example.com',
+            'phone'                 => '01234567894',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+            'service_group_id'      => $group->id,
+            'desired_role'          => 'super_admin',
+            'privacy_consent'       => true,
+        ]);
+
+        $response->assertSessionHasErrors('desired_role');
+        $this->assertDatabaseMissing('users', ['email' => 'wannabe@example.com']);
     }
 }

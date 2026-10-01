@@ -320,6 +320,31 @@
             margin-top: .3rem;
         }
 
+        .consent-row {
+            display: flex;
+            gap: .6rem;
+            align-items: flex-start;
+            font-size: .84rem;
+            font-weight: 400;
+            color: #374151;
+            line-height: 1.65;
+            cursor: pointer;
+        }
+
+        .consent-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            accent-color: var(--brand);
+            cursor: pointer;
+        }
+
+        .consent-row a {
+            color: var(--brand);
+            font-weight: 600;
+        }
+
         /* password wrapper */
         .password-wrap {
             position: relative;
@@ -965,6 +990,33 @@
                             @enderror
                         </div>
 
+                        {{-- Desired role (information only — granted at approval) --}}
+                        <div class="field">
+                            <label for="desired_role">{{ __('registration.desired_role') }}<span class="req">*</span></label>
+                            <select id="desired_role" name="desired_role" required
+                                class="field-input @error('desired_role') is-error @enderror">
+                                <option value="servant" {{ old('desired_role', 'servant') === 'servant' ? 'selected' : '' }}>
+                                    {{ __('users.roles.servant') }}
+                                </option>
+                                <option value="family_leader" {{ old('desired_role') === 'family_leader' ? 'selected' : '' }}>
+                                    {{ __('users.roles.family_leader') }}
+                                </option>
+                                <option value="service_leader" {{ old('desired_role') === 'service_leader' ? 'selected' : '' }}>
+                                    {{ __('users.roles.service_leader') }}
+                                </option>
+                            </select>
+                            <p class="field-hint">{{ __('registration.role_hint') }}</p>
+                            @error('desired_role')
+                                <p class="field-error" role="alert">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
                         {{-- Password --}}
                         <div class="field">
                             <label for="password">{{ __('registration.password') }}<span
@@ -1025,6 +1077,23 @@
                                     </svg>
                                 </button>
                             </div>
+                        </div>
+
+                        {{-- Privacy consent --}}
+                        <div class="field">
+                            <label class="consent-row">
+                                <input type="checkbox" id="privacy_consent" name="privacy_consent" value="1"
+                                    required @checked(old('privacy_consent'))>
+                                <span>
+                                    {{ __('registration.privacy_consent') }}
+                                    <a href="{{ route('privacy.show') }}" target="_blank" rel="noopener">
+                                        {{ __('registration.privacy_link') }}
+                                    </a>
+                                </span>
+                            </label>
+                            @error('privacy_consent')
+                                <p class="field-error" role="alert">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <button type="submit" class="btn-submit">

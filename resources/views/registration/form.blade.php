@@ -84,6 +84,10 @@
 
         .field-hint { font-size: .78rem; line-height: 1.6; color: #64748b; margin-top: .3rem; }
 
+        .consent-row { display: flex; gap: .6rem; align-items: flex-start; font-size: .84rem; font-weight: 400; color: #374151; line-height: 1.65; cursor: pointer; }
+        .consent-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: var(--brand); cursor: pointer; }
+        .consent-row a { color: var(--brand); font-weight: 600; }
+
         .password-wrap { position: relative; }
         .password-wrap .field-input { padding-inline-end: 2.75rem; }
         .pw-toggle { position: absolute; inset-inline-end: .35rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; color: #64748b; line-height: 0; transition: color .15s; }
@@ -217,6 +221,26 @@
                     </div>
 
                     <div class="field">
+                        <label for="desired_role">{{ __('registration.desired_role') }}<span class="req">*</span></label>
+                        <select id="desired_role" name="desired_role" required
+                            class="field-input @error('desired_role') is-error @enderror">
+                            <option value="servant" {{ old('desired_role', 'servant') === 'servant' ? 'selected' : '' }}>
+                                {{ __('users.roles.servant') }}
+                            </option>
+                            <option value="family_leader" {{ old('desired_role') === 'family_leader' ? 'selected' : '' }}>
+                                {{ __('users.roles.family_leader') }}
+                            </option>
+                            <option value="service_leader" {{ old('desired_role') === 'service_leader' ? 'selected' : '' }}>
+                                {{ __('users.roles.service_leader') }}
+                            </option>
+                        </select>
+                        <p class="field-hint">{{ __('registration.role_hint') }}</p>
+                        @error('desired_role')
+                            <p class="field-error" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="field">
                         <label for="password">{{ __('registration.password') }}<span class="req">*</span></label>
                         <div class="password-wrap">
                             <input type="password" id="password" name="password" required minlength="8"
@@ -246,6 +270,22 @@
                                 required minlength="8" autocomplete="new-password" class="field-input"
                                 placeholder="{{ __('registration.password_confirmation_placeholder') }}">
                         </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="consent-row">
+                            <input type="checkbox" id="privacy_consent" name="privacy_consent" value="1"
+                                required @checked(old('privacy_consent'))>
+                            <span>
+                                {{ __('registration.privacy_consent') }}
+                                <a href="{{ route('privacy.show') }}" target="_blank" rel="noopener">
+                                    {{ __('registration.privacy_link') }}
+                                </a>
+                            </span>
+                        </label>
+                        @error('privacy_consent')
+                            <p class="field-error" role="alert">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <button type="submit" class="btn-submit">

@@ -16,6 +16,9 @@ Route::redirect('/', '/app/dashboard');
 
 Route::get('/_pwa/ping', fn () => response()->noContent());
 
+// Public privacy policy (linked from the registration consent checkbox).
+Route::view('/privacy', 'registration.privacy')->name('privacy.show');
+
 // External cron replacement (GitHub Actions → hPanel unavailable crontab).
 // CSRF is waived for this path in bootstrap/app.php — the shared token in
 // X-Maintenance-Token is the only gate.

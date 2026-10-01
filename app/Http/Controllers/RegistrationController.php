@@ -65,20 +65,25 @@ class RegistrationController extends Controller
         // التحقق من صحة البيانات المدخلة
         try {
             $validated = $request->validate([
-                'name'     => ['required', 'string', 'max:255'],
-                'email'    => ['required', 'email', 'unique:users,email'],
-                'phone'    => ['required', 'string', 'max:20', 'unique:users,phone'],
-                'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'name'            => ['required', 'string', 'max:255'],
+                'email'           => ['required', 'email', 'unique:users,email'],
+                'phone'           => ['required', 'string', 'max:20', 'unique:users,phone'],
+                'password'        => ['required', 'string', 'min:8', 'confirmed'],
+                'desired_role'    => ['required', 'in:servant,family_leader,service_leader'],
+                'privacy_consent' => ['accepted'],
             ], [
-                'name.required'      => __('registration.errors.name_required'),
-                'email.required'     => __('registration.errors.email_required'),
-                'email.email'        => __('registration.errors.email_format'),
-                'email.unique'       => __('registration.errors.email_exists'),
-                'phone.required'     => __('registration.errors.phone_required'),
-                'phone.unique'       => __('registration.errors.phone_exists'),
-                'password.required'  => __('registration.errors.password_required'),
-                'password.min'       => __('registration.errors.password_min'),
-                'password.confirmed' => __('registration.errors.password_confirmation'),
+                'name.required'            => __('registration.errors.name_required'),
+                'email.required'           => __('registration.errors.email_required'),
+                'email.email'              => __('registration.errors.email_format'),
+                'email.unique'             => __('registration.errors.email_exists'),
+                'phone.required'           => __('registration.errors.phone_required'),
+                'phone.unique'             => __('registration.errors.phone_exists'),
+                'password.required'        => __('registration.errors.password_required'),
+                'password.min'             => __('registration.errors.password_min'),
+                'password.confirmed'       => __('registration.errors.password_confirmation'),
+                'desired_role.required'    => __('registration.errors.desired_role_required'),
+                'desired_role.in'          => __('registration.errors.desired_role_invalid'),
+                'privacy_consent.accepted' => __('registration.errors.privacy_consent_required'),
             ]);
         } catch (ValidationException $e) {
             return back()
@@ -151,6 +156,8 @@ class RegistrationController extends Controller
                 'phone'            => ['required', 'string', 'max:20', 'unique:users,phone'],
                 'password'         => ['required', 'string', 'min:8', 'confirmed'],
                 'service_group_id' => ['required', 'exists:service_groups,id'],
+                'desired_role'     => ['required', 'in:servant,family_leader,service_leader'],
+                'privacy_consent'  => ['accepted'],
             ], [
                 'name.required'             => __('registration.errors.name_required'),
                 'email.required'            => __('registration.errors.email_required'),
@@ -163,6 +170,9 @@ class RegistrationController extends Controller
                 'password.confirmed'        => __('registration.errors.password_confirmation'),
                 'service_group_id.required' => __('registration.errors.service_group_required'),
                 'service_group_id.exists'   => __('registration.errors.service_group_invalid'),
+                'desired_role.required'     => __('registration.errors.desired_role_required'),
+                'desired_role.in'           => __('registration.errors.desired_role_invalid'),
+                'privacy_consent.accepted'  => __('registration.errors.privacy_consent_required'),
             ]);
         } catch (ValidationException $e) {
             return back()
