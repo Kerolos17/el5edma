@@ -32,7 +32,7 @@ class InternalNotificationService
      * إرسال إشعار للأشخاص المعنيين بمخدوم معين فقط:
      * الخادم المعين + أمين الأسرة + أمين الخدمة المسؤول عن المجموعة + مديري النظام.
      */
-    public function notifyRelatedUsers(Beneficiary $beneficiary, string $type, string $title, string $body, array $data = []): void
+    public function notifyRelatedUsers(Beneficiary $beneficiary, string $type, string $title, string $body, array $data = [], ?callable $textsFor = null): void
     {
         $beneficiary->loadMissing('serviceGroup');
 
@@ -61,13 +61,17 @@ class InternalNotificationService
             return;
         }
 
-        $this->notifyUsers($users, $type, $title, $body, $data);
+        $this->notifyUsers($users, $type, $title, $body, $data, $textsFor);
     }
 
     /**
      * إرسال إشعار لمستخدمين محددين
+     *
+     * When $textsFor is provided it receives each recipient and returns
+     * [title, body] — used to localize per recipient instead of sending the
+     * creator's locale to everyone.
      */
-    public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = []): void
+    public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = [], ?callable $textsFor = null): void
     {
         $notifications = [];
         $broadcasts    = [];
@@ -75,11 +79,15 @@ class InternalNotificationService
         $payload       = NotificationMetadata::enrich($type, $data);
 
         foreach ($users as $user) {
+            [$userTitle, $userBody] = $textsFor
+                ? $textsFor($user)
+                : [$title, $body];
+
             $notifications[] = [
                 'user_id'    => $user->id,
                 'type'       => $type,
-                'title'      => $title,
-                'body'       => $body,
+                'title'      => $userTitle,
+                'body'       => $userBody,
                 'data'       => json_encode($payload),
                 'created_at' => $now,
             ];
@@ -88,8 +96,8 @@ class InternalNotificationService
                 'user_id' => $user->id,
                 'payload' => [
                     'type'       => $type,
-                    'title'      => $title,
-                    'body'       => $body,
+                    'title'      => $userTitle,
+                    'body'       => $userBody,
                     'data'       => $payload,
                     'created_at' => $now->toDateTimeString(),
                 ],

@@ -127,6 +127,20 @@
                             <p class="text-sm font-bold">{{ $servant->name }}</p>
                             @if ($servant->phone)
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ $servant->phone }}</p>
+                                <div class="flex gap-3 mt-1">
+                                    <a href="{{ $servant->whatsapp_url }}" target="_blank" rel="noopener"
+                                        class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400"
+                                        aria-label="{{ __('web_app.actions.whatsapp') }} {{ $servant->name }}">
+                                        <i class="ph-fill ph-whatsapp-logo" aria-hidden="true"></i>
+                                        {{ __('web_app.actions.whatsapp') }}
+                                    </a>
+                                    <a href="{{ $servant->tel_url }}"
+                                        class="inline-flex items-center gap-1 text-xs font-bold text-[color:var(--clr-calm-blue)] dark:text-sky-400"
+                                        aria-label="{{ __('web_app.actions.call') }} {{ $servant->name }}">
+                                        <i class="ph ph-phone" aria-hidden="true"></i>
+                                        {{ __('web_app.actions.call') }}
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </article>

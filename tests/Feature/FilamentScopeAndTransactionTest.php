@@ -46,7 +46,9 @@ class FilamentScopeAndTransactionTest extends TestCase
     {
         $file = file_get_contents(app_path('Http/Controllers/Servant/OfflineVisitSyncController.php'));
         $this->assertStringContainsString('DB::afterCommit', $file, 'Must use afterCommit for servant attach');
-        $this->assertStringContainsString('servants()->syncWithoutDetaching', $file, 'Attach must be idempotent for retried syncs');
+        // sync() with the full participant list is idempotent for retried
+        // syncs — replays short-circuit earlier on the same client_uuid.
+        $this->assertStringContainsString('servants()->sync(', $file, 'Attach must be idempotent for retried syncs');
     }
 
     #[Test]

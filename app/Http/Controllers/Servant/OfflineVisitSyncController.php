@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Servant;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Beneficiary;
+use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +28,8 @@ class OfflineVisitSyncController extends Controller
             'isCritical'         => 'boolean',
             'needsFamilyLeader'  => 'boolean',
             'needsServiceLeader' => 'boolean',
+            'servants'           => 'array',
+            'servants.*'         => 'integer|distinct',
             'queuedAt'           => 'nullable|integer|min:1',
             'clientUuid'         => 'nullable|string|max:64',
         ]);
@@ -99,8 +103,21 @@ class OfflineVisitSyncController extends Controller
                     'client_uuid'          => $validated['clientUuid'] ?? null,
                 ]);
 
-                DB::afterCommit(function () use ($visit, $user) {
-                    $visit->servants()->syncWithoutDetaching($user->id);
+                // Fellow servants queued offline: same server-side group check
+                // as the online wizard — every id must be an active servant of
+                // the beneficiary's group.
+                $beneficiaryGroup = Beneficiary::query()
+                    ->whereKey($validated['beneficiary_id'])
+                    ->value('service_group_id');
+
+                $participants = collect([$user->id])
+                    ->merge($validated['servants'] ?? [])
+                    ->unique()
+                    ->filter(fn ($id) => $id === $user->id || self::validParticipantId((int) $id, $beneficiaryGroup))
+                    ->all();
+
+                DB::afterCommit(function () use ($visit, $participants) {
+                    $visit->servants()->sync($participants);
                 });
             });
         } catch (QueryException $e) {
@@ -121,5 +138,19 @@ class OfflineVisitSyncController extends Controller
         }
 
         return response()->json(['id' => $visit->id], 201);
+    }
+
+    private static function validParticipantId(int $id, ?int $serviceGroupId): bool
+    {
+        if (! $serviceGroupId) {
+            return false;
+        }
+
+        return User::query()
+            ->whereKey($id)
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->where('service_group_id', $serviceGroupId)
+            ->exists();
     }
 }

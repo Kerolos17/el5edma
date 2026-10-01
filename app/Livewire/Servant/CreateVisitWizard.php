@@ -6,6 +6,7 @@ namespace App\Livewire\Servant;
 
 use App\Enums\UserRole;
 use App\Models\Beneficiary;
+use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +36,10 @@ class CreateVisitWizard extends Component
     public bool $isCritical          = false;
     public bool $needsFamilyLeader   = false;
     public bool $needsServiceLeader  = false;
+
+    // Optional fellow servants joining the visit. Never trusted blindly:
+    // submit() re-validates each id against the beneficiary's group.
+    public array $participantServants = [];
 
     // Draft flag — true if user touched any field beyond initial load
     public bool $hasDraft = false;
@@ -171,12 +176,22 @@ class CreateVisitWizard extends Component
             'beneficiaryStatus'     => 'required|in:great,good,needs_follow,critical',
             'durationMinutes'       => 'nullable|integer|min:1|max:480',
             'feedback'              => 'nullable|string|max:2000',
+            'participantServants'   => 'array',
+            'participantServants.*' => 'integer|distinct',
         ]);
 
         // Ownership check — prevents forged Livewire property payloads
         $beneficiary = $this->ownedBeneficiaryQuery()
             ->where('id', $this->selectedBeneficiaryId)
             ->firstOrFail();
+
+        // Every participant must be an active servant of the beneficiary's
+        // group — ids coming from the browser are re-checked here.
+        $participants = collect([auth()->id()])
+            ->merge($this->participantServants)
+            ->unique()
+            ->filter(fn ($id) => $id === auth()->id() || $this->validParticipantId((int) $id, $beneficiary->service_group_id))
+            ->all();
 
         $visit = Visit::create([
             'beneficiary_id'       => $beneficiary->id,
@@ -191,13 +206,27 @@ class CreateVisitWizard extends Component
             'created_by'           => auth()->id(),
         ]);
 
-        $visit->servants()->attach(auth()->id());
+        $visit->servants()->sync($participants);
 
         $this->clearDraft();
         $this->open = false;
         $this->dispatch('wizard-open-state', open: false);
         $this->dispatch('visit-saved');
         $this->dispatch('toast', message: __('web_app.forms.wizard.saved_success'), type: 'success');
+    }
+
+    private function validParticipantId(int $id, ?int $serviceGroupId): bool
+    {
+        if (! $serviceGroupId) {
+            return false;
+        }
+
+        return User::query()
+            ->whereKey($id)
+            ->where('role', UserRole::Servant)
+            ->where('is_active', true)
+            ->where('service_group_id', $serviceGroupId)
+            ->exists();
     }
 
     public function render()
@@ -220,9 +249,22 @@ class CreateVisitWizard extends Component
             ? $this->ownedBeneficiaryQuery()->find($this->selectedBeneficiaryId)
             : null;
 
+        // Fellow servants of the selected beneficiary's group (creator excluded).
+        $servantOptions = $selectedBeneficiary?->service_group_id
+            ? User::query()
+                ->select('id', 'name')
+                ->where('role', UserRole::Servant)
+                ->where('is_active', true)
+                ->where('service_group_id', $selectedBeneficiary->service_group_id)
+                ->where('id', '!=', auth()->id())
+                ->orderBy('name')
+                ->get()
+            : collect();
+
         return view('livewire.servant.create-visit-wizard', compact(
             'beneficiaries',
             'selectedBeneficiary',
+            'servantOptions',
         ));
     }
 
@@ -234,7 +276,7 @@ class CreateVisitWizard extends Component
             'step', 'beneficiarySearch', 'selectedBeneficiaryId',
             'visitType', 'durationMinutes', 'beneficiaryStatus',
             'feedback', 'isCritical', 'needsFamilyLeader', 'needsServiceLeader',
-            'hasDraft',
+            'participantServants', 'hasDraft',
         ]);
         $this->step             = 1;
         $this->discardRequested = false;
@@ -305,6 +347,7 @@ class CreateVisitWizard extends Component
             'isCritical'            => $this->isCritical,
             'needsFamilyLeader'     => $this->needsFamilyLeader,
             'needsServiceLeader'    => $this->needsServiceLeader,
+            'participantServants'   => $this->participantServants,
             'hasDraft'              => $this->hasDraft,
         ];
     }
@@ -331,6 +374,9 @@ class CreateVisitWizard extends Component
         $this->isCritical            = $draft['isCritical']            ?? false;
         $this->needsFamilyLeader     = $draft['needsFamilyLeader']     ?? false;
         $this->needsServiceLeader    = $draft['needsServiceLeader']    ?? false;
-        $this->hasDraft              = $draft['hasDraft']              ?? false;
+        $this->participantServants   = is_array($draft['participantServants'] ?? null)
+            ? $draft['participantServants']
+            : [];
+        $this->hasDraft = $draft['hasDraft'] ?? false;
     }
 }

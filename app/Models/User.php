@@ -156,6 +156,32 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             : null;
     }
 
+    /**
+     * WhatsApp deep link for the servant's phone (Egypt country code,
+     * matching the beneficiary accessor convention).
+     */
+    public function getWhatsappUrlAttribute(): ?string
+    {
+        if (! $this->phone) {
+            return null;
+        }
+
+        $clean = preg_replace('/[^0-9]/', '', $this->phone);
+
+        return $clean !== '' ? "https://wa.me/2{$clean}" : null;
+    }
+
+    public function getTelUrlAttribute(): ?string
+    {
+        if (! $this->phone) {
+            return null;
+        }
+
+        $clean = preg_replace('/[^0-9+]/', '', $this->phone);
+
+        return $clean !== '' ? "tel:{$clean}" : null;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::SuperAdmin;

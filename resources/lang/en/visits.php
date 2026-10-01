@@ -45,6 +45,8 @@ return [
     'critical_case_help'        => 'Needs urgent intervention',
     'needs_family_leader_help'  => 'Refer to family leader',
     'needs_service_leader_help' => 'Refer to service leader',
+    'participants'              => 'Fellow servants joining this visit',
+    'participants_help'         => 'Optional: pick fellow servants of the same group to join you.',
 
     'scheduled_date' => 'Scheduled Date',
     'scheduled_time' => 'Scheduled Time',

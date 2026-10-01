@@ -75,6 +75,9 @@ class SendUnvisitedAlerts extends Command
                                 'body'       => $body,
                                 'data'       => json_encode($dataPayload),
                                 'created_at' => now()->toDateTimeString(),
+                                // Weekly dedupe: reruns/overlap can no longer
+                                // duplicate the same alert for the same person.
+                                'dedupe_key' => "unvisited:{$beneficiary->id}:{$recipient->id}:" . now()->format('o-W'),
                             ];
 
                             $tokens = $recipient->pushTokens();

@@ -16,6 +16,8 @@ return [
         'toggle_dark_mode'   => 'تبديل الوضع الداكن',
     ],
     'actions' => [
+        'whatsapp'            => 'واتساب',
+        'call'                => 'اتصال',
         'dashboard'           => 'لوحة التحكم',
         'beneficiaries'       => 'المخدومون',
         'visits'              => 'الزيارات',

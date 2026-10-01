@@ -79,6 +79,18 @@
                             <td><span class="app-status-pill {{ $record->is_active ? 'tone-emerald' : 'tone-rose' }}">{{ $record->is_active ? __('web_app.states.active') : __('web_app.states.inactive') }}</span></td>
                             <td>
                                 <div class="app-inline-actions">
+                                    @if ($record->phone)
+                                        <a href="{{ $record->whatsapp_url }}" target="_blank" rel="noopener"
+                                            class="app-link-inline" aria-label="{{ __('web_app.actions.whatsapp') }} {{ $record->name }}">
+                                            <i class="ph-fill ph-whatsapp-logo" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.whatsapp') }}
+                                        </a>
+                                        <a href="{{ $record->tel_url }}" class="app-link-inline"
+                                            aria-label="{{ __('web_app.actions.call') }} {{ $record->name }}">
+                                            <i class="ph ph-phone" aria-hidden="true"></i>
+                                            {{ __('web_app.actions.call') }}
+                                        </a>
+                                    @endif
                                     @can('update', $record)
                                         <button type="button" wire:click="openUserForm({{ $record->id }})" class="app-link-inline">
                                             <i class="ph ph-pencil-simple" aria-hidden="true"></i>

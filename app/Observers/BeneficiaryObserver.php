@@ -26,6 +26,25 @@ class BeneficiaryObserver
         $notifier  = app(InternalNotificationService::class);
         $adderName = Auth::check() ? Auth::user()->name : __('notifications.system');
 
+        // Localize per recipient — the creator's locale no longer leaks into
+        // everyone else's notifications.
+        $textsFor = function ($recipient) use ($beneficiary, $adderName): array {
+            $previous = app()->getLocale();
+            app()->setLocale($recipient->locale ?? 'ar');
+
+            try {
+                return [
+                    __('notifications.new_beneficiary_title'),
+                    __('notifications.new_beneficiary_body', [
+                        'name'  => $beneficiary->full_name,
+                        'adder' => $adderName,
+                    ]),
+                ];
+            } finally {
+                app()->setLocale($previous);
+            }
+        };
+
         $notifier->notifyRelatedUsers(
             $beneficiary,
             'new_beneficiary',
@@ -38,6 +57,7 @@ class BeneficiaryObserver
                 'beneficiary_id' => $beneficiary->id,
                 'url'            => '/app/beneficiary/' . $beneficiary->id,
             ],
+            $textsFor,
         );
     }
 

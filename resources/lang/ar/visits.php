@@ -49,6 +49,8 @@ return [
     'critical_case_help'        => 'يحتاج تدخل عاجل',
     'needs_family_leader_help'  => 'إحالة لأمين الأسرة',
     'needs_service_leader_help' => 'إحالة لرئيس الخدمة',
+    'participants'              => 'خدام مشاركون في الزيارة',
+    'participants_help'         => 'اختياري: اختر من يشاركك هذه الزيارة من خدام نفس الأسرة.',
 
     // Scheduled
     'scheduled_date' => 'تاريخ الزيارة',

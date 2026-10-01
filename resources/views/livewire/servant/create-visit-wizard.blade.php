@@ -431,6 +431,25 @@
                             </div>
                         </label>
                     </fieldset>
+
+                    {{-- Fellow servants joining this visit (optional) --}}
+                    @if ($servantOptions->isNotEmpty())
+                        <div>
+                            <p class="text-sm font-bold mb-2 block wizard-text-strong">{{ __('visits.participants') }}</p>
+                            <p class="text-xs wizard-text-muted mb-2">{{ __('visits.participants_help') }}</p>
+                            <fieldset class="space-y-2 max-h-44 overflow-y-auto">
+                                <legend class="sr-only">{{ __('visits.participants') }}</legend>
+                                @foreach ($servantOptions as $servant)
+                                    <label class="flex items-center gap-3 wizard-card rounded-2xl px-4 py-2.5 cursor-pointer">
+                                        <input wire:model="participantServants" type="checkbox"
+                                            value="{{ $servant->id }}"
+                                            class="w-5 h-5 rounded cursor-pointer flex-shrink-0 wizard-checkbox-info">
+                                        <span class="font-bold text-sm wizard-text-strong">{{ $servant->name }}</span>
+                                    </label>
+                                @endforeach
+                            </fieldset>
+                        </div>
+                    @endif
                 </div>
             @endif
 

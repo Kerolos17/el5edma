@@ -16,6 +16,8 @@ return [
         'toggle_dark_mode'   => 'Toggle dark mode',
     ],
     'actions' => [
+        'whatsapp'            => 'WhatsApp',
+        'call'                => 'Call',
         'dashboard'           => 'Dashboard',
         'beneficiaries'       => 'Beneficiaries',
         'visits'              => 'Visits',
