@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Auth;
 
-use App\Models\User;
+use App\Services\CodeLoginService;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
@@ -17,8 +17,10 @@ class Login extends BaseLogin
     // الـ Tab النشط: email أو code
     public string $activeTab = 'email';
 
-    // حقول الـ Code Tab
+    // حقول الـ Code Tab (كود الخادم + كلمة المرور — عاملان إلزاميان)
     public string $personalCode = '';
+
+    public string $codePassword = '';
 
     public function getView(): string
     {
@@ -29,7 +31,6 @@ class Login extends BaseLogin
     public function loginWithCode(): ?LoginResponse
     {
         // حماية من brute force — 5 محاولات كل دقيقة (نفس حد email login)
-        // WithRateLimiting موروث من BaseLogin
         try {
             $this->rateLimit(5);
         } catch (TooManyRequestsException $exception) {
@@ -40,23 +41,19 @@ class Login extends BaseLogin
             ]);
         }
 
-        $code = trim($this->personalCode);
+        $result = app(CodeLoginService::class)->attempt($this->personalCode, $this->codePassword);
 
-        if (empty($code)) {
+        if ($result['locked_for'] > 0) {
             throw ValidationException::withMessages([
-                'personalCode' => [__('auth.invalid_code')],
+                'personalCode' => [__('auth.code_account_lockout', ['seconds' => $result['locked_for']])],
             ]);
         }
 
-        $codeHash = User::hashPersonalCode($code);
-
-        $user = User::where('personal_code_hash', $codeHash)
-            ->where('is_active', true)
-            ->first();
+        $user = $result['user'];
 
         if (! $user) {
             throw ValidationException::withMessages([
-                'personalCode' => [__('auth.invalid_code')],
+                'personalCode' => [__('auth.code_credentials')],
             ]);
         }
 
@@ -65,6 +62,8 @@ class Login extends BaseLogin
         App::setLocale($user->locale ?? 'ar');
         session(['locale' => $user->locale ?? 'ar']);
 
+        $this->codePassword = '';
+
         return app(LoginResponse::class);
     }
 
@@ -72,6 +71,7 @@ class Login extends BaseLogin
     {
         $this->activeTab    = $tab;
         $this->personalCode = '';
+        $this->codePassword = '';
     }
 
     /**

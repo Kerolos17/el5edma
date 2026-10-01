@@ -20,6 +20,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class UsersTable
 {
@@ -68,6 +69,13 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->placeholder('-'),
+
+                TextColumn::make('code_login_attempts')
+                    ->label(__('users.code_login_attempts'))
+                    ->badge()
+                    ->color(fn ($state) => $state >= 3 ? 'danger' : 'gray')
+                    ->state(fn (User $record) => RateLimiter::attempts('code-login:account|' . $record->id))
+                    ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
             ])
             ->filters([
                 SelectFilter::make('role')
@@ -137,16 +145,32 @@ class UsersTable
                         ->color('warning')
                         ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin)
                         ->requiresConfirmation()
+                        ->modalDescription(__('users.rotate_code_confirm'))
                         ->action(function (User $record) {
-                            do {
-                                $code = (string) random_int(1000, 999999);
-                                $hash = User::hashPersonalCode($code);
-                            } while (User::where('personal_code_hash', $hash)->exists());
+                            // Rotating replaces the stored hash, so the previous
+                            // code is invalidated immediately.
+                            $code = User::generateUniquePersonalCode();
 
                             $record->update(['personal_code' => $code]);
 
                             Notification::make()
                                 ->title(__('users.personal_code') . ': ' . $code)
+                                ->success()
+                                ->send();
+                        }),
+
+                    Action::make('revoke_code')
+                        ->label(__('users.revoke_code'))
+                        ->icon('heroicon-o-no-symbol')
+                        ->color('danger')
+                        ->visible(fn (User $record) => Auth::user()?->role === UserRole::SuperAdmin && $record->personal_code_hash !== null)
+                        ->requiresConfirmation()
+                        ->modalDescription(__('users.revoke_code_confirm'))
+                        ->action(function (User $record) {
+                            $record->update(['personal_code' => null]);
+
+                            Notification::make()
+                                ->title(__('users.code_revoked'))
                                 ->success()
                                 ->send();
                         }),

@@ -19,7 +19,7 @@ class UserSelfRegistrationTest extends TestCase
         $code = User::generateUniquePersonalCode();
 
         $this->assertIsString($code);
-        $this->assertMatchesRegularExpression('/^\d{4,6}$/', $code);
+        $this->assertMatchesRegularExpression('/^KH-[A-HJ-NP-Z2-9]{4}-\d{2}$/', $code);
     }
 
     #[Test]
@@ -75,7 +75,7 @@ class UserSelfRegistrationTest extends TestCase
         $this->assertEquals($serviceGroup->id, $user->service_group_id);
         $this->assertEquals(app()->getLocale(), $user->locale);
         $this->assertFalse($user->is_active);
-        $this->assertMatchesRegularExpression('/^\d{6}$/', $user->personal_code);
+        $this->assertMatchesRegularExpression('/^KH-[A-HJ-NP-Z2-9]{4}-\d{2}$/', $user->personal_code);
     }
 
     #[Test]

@@ -107,67 +107,41 @@
                 <form wire:submit="loginWithCode">
                     <div class="space-y-4">
 
-                        {{-- مربعات الكود --}}
+                        {{-- كود الخادم (رقمي قديم أو KH-XXXX-XX) --}}
                         <div>
-                            <label class="input-label mb-3" id="code-group-label">
+                            <label class="input-label mb-3" for="personal-code">
                                 {{ __('auth.enter_code') }}
                             </label>
 
-                            <div class="flex gap-1.5 sm:gap-2 justify-center my-4" dir="ltr" role="group" aria-labelledby="code-group-label" x-data="{
-                                code: ['', '', '', '', '', ''],
-                                handleInput(index, event) {
-                                    const val = event.target.value.replace(/\D/g, '');
-                                    if (val.length > 1) {
-                                        const digits = val.split('').slice(0, 6);
-                                        digits.forEach((d, i) => {
-                                            if (this.code[i] !== undefined) this.code[i] = d;
-                                        });
-                                        this.$nextTick(() => {
-                                            const last = Math.min(digits.length, 5);
-                                            this.$refs['box_' + last]?.focus();
-                                        });
-                                    } else {
-                                        this.code[index] = val;
-                                        if (val && index < 5) {
-                                            this.$nextTick(() => this.$refs['box_' + (index + 1)]?.focus());
-                                        }
-                                    }
-                                    this.$wire.set('personalCode', this.code.join(''));
-                                },
-                                handleKeydown(index, event) {
-                                    if (event.key === 'Backspace' && !this.code[index] && index > 0) {
-                                        this.$nextTick(() => this.$refs['box_' + (index - 1)]?.focus());
-                                    }
-                                },
-                                handlePaste(event) {
-                                    event.preventDefault();
-                                    const paste = (event.clipboardData || window.clipboardData)
-                                        .getData('text').replace(/\D/g, '').slice(0, 6);
-                                    paste.split('').forEach((d, i) => {
-                                        if (this.code[i] !== undefined) this.code[i] = d;
-                                    });
-                                    this.$nextTick(() => {
-                                        const last = Math.min(paste.length, 5);
-                                        this.$refs['box_' + last]?.focus();
-                                    });
-                                    this.$wire.set('personalCode', this.code.join(''));
-                                }
-                            }">
-                                @foreach (range(0, 5) as $i)
-                                    <input x-ref="box_{{ $i }}" type="text" inputmode="numeric"
-                                        maxlength="1" class="code-input" x-model="code[{{ $i }}]"
-                                        aria-label="{{ __('auth.code_digit', ['position' => $i + 1]) }}"
-                                        @input="handleInput({{ $i }}, $event)"
-                                        @keydown="handleKeydown({{ $i }}, $event)"
-                                        @paste="handlePaste($event)" />
-                                @endforeach
-                            </div>
+                            <input id="personal-code" type="text" wire:model="personalCode" dir="ltr"
+                                autocomplete="one-time-code" maxlength="12" required
+                                class="code-input w-full text-center tracking-widest"
+                                placeholder="KH-XXXX-XX" />
 
                             <p class="text-xs text-gray-500 text-center mt-2">
                                 {{ __('auth.code_hint') }}
                             </p>
+                        </div>
+
+                        {{-- كلمة المرور — عامل التحقق الثاني --}}
+                        <div>
+                            <label class="input-label mb-3" for="code-password">
+                                {{ __('auth.password_label') }}
+                            </label>
+
+                            <input id="code-password" type="password" wire:model="codePassword" dir="ltr"
+                                autocomplete="current-password" required
+                                class="code-input w-full text-center" />
+
+                            <p class="text-xs text-gray-500 text-center mt-2">
+                                {{ __('auth.code_second_factor_hint') }}
+                            </p>
 
                             @error('personalCode')
+                                <p class="error-msg text-center mt-2">{{ $message }}</p>
+                            @enderror
+
+                            @error('codePassword')
                                 <p class="error-msg text-center mt-2">{{ $message }}</p>
                             @enderror
                         </div>

@@ -251,15 +251,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // ── Self-Registration Methods ──
 
     /**
-     * توليد personal_code فريد للخادم الجديد
+     * توليد كود خادم فريد بصيغة KH-XXXX-XX — عشوائي بالكامل، بلا أي بيانات
+     * شخصية ولا ترتيب، بحروف/أرقام غير قابلة للخلط (بلا I/O/0/1). يُخزَّن
+     * مشفّراً عبر الـ mutator مع blind-index hash للبحث.
      * Requirements: 4.7
      */
     public static function generateUniquePersonalCode(): string
     {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
         do {
-            $code   = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $hash   = self::hashPersonalCode($code);
-            $exists = self::where('personal_code_hash', $hash)->exists();
+            $chunk = '';
+            for ($i = 0; $i < 4; $i++) {
+                $chunk .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+
+            $code = 'KH-' . $chunk . '-' . str_pad((string) random_int(0, 99), 2, '0', STR_PAD_LEFT);
+
+            $exists = self::where('personal_code_hash', self::hashPersonalCode($code))->exists();
         } while ($exists);
 
         return $code;

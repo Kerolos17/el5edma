@@ -29,7 +29,7 @@ class UserModelTest extends TestCase
     public function test_generate_unique_personal_code(): void
     {
         $code = User::generateUniquePersonalCode();
-        $this->assertMatchesRegularExpression('/^\d{4,6}$/', $code);
+        $this->assertMatchesRegularExpression('/^KH-[A-HJ-NP-Z2-9]{4}-\d{2}$/', $code);
     }
 
     public function test_generate_unique_personal_code_is_unique(): void
