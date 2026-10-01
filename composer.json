@@ -13,6 +13,7 @@
         "filament/filament": "^4.0",
         "kreait/laravel-firebase": "^7.0",
         "laravel/framework": "^12.0",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
         "mpdf/mpdf": "^8.3",

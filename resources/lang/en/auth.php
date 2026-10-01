@@ -28,4 +28,9 @@ return [
     'no_account_register'     => 'Don\'t have an account? Register now',
     'toggle_password'         => 'Show or hide password',
     'locked_out_help'         => 'Forgot your password? Contact your service leader or the system admin to reset it.',
+
+    'continue_google'               => 'Continue with Google',
+    'google_failed'                 => 'Could not sign in with Google. Please try again.',
+    'google_session_expired'        => 'The Google session expired. Please try signing in again.',
+    'account_rejected_or_suspended' => 'Sign-in unavailable: this account is rejected or suspended. Contact the administrator.',
 ];

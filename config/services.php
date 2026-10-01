@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    /*
+    | Google OAuth (login with Google). Credentials live ONLY in .env —
+    | never in the repository. The redirect URI must also be registered in
+    | the Google Cloud Console for the matching domain.
+    */
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
 ];

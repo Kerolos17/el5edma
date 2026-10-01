@@ -107,4 +107,9 @@ return [
         'unique_email'          => 'Make sure to use an email that has not been used before.',
         'unique_phone'          => 'Make sure to use a phone number that has not been used before.',
     ],
+
+    // Google completion form
+    'google_title'         => 'Complete your join request',
+    'google_lead'          => 'Your email was verified via Google. Complete the details below to submit your request for review.',
+    'google_password_hint' => 'An account password — used as the second factor with your server code.',
 ];

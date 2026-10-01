@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\CodeLoginController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\FileAccessController;
 use App\Http\Controllers\LocaleController;
@@ -42,6 +43,19 @@ Route::post('/language-guest/{locale}', [LocaleController::class, 'switchGuest']
 Route::post('/login-code', [CodeLoginController::class, 'login'])
     ->name('login.code')
     ->middleware('throttle:5,1');
+
+// Google OAuth: sign-in + the shared join-request path for new visitors.
+// Credentials live in .env only; the callback URI must be registered in
+// the Google Cloud Console for the current domain.
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+    ->name('auth.google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('auth.google.callback');
+Route::get('/register/google/{token}', [GoogleAuthController::class, 'showCompletionForm'])
+    ->name('registration.google.form');
+Route::post('/register/google/{token}', [GoogleAuthController::class, 'completeRegistration'])
+    ->name('registration.google.complete')
+    ->middleware('throttle:5,60');
 
 Route::middleware(['web', 'auth'])->post('/logout', function () {
     auth()->guard('web')->logout();
