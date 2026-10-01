@@ -70,6 +70,8 @@ class RegistrationControllerTest extends TestCase
             'phone'                 => '01234567890',
             'password'              => 'password123',
             'password_confirmation' => 'password123',
+            'desired_role'          => 'servant',
+            'privacy_consent'       => true,
         ];
 
         // Act

@@ -128,19 +128,21 @@ class RegistrationService
 
     protected function getServiceGroupLeaders(ServiceGroup $serviceGroup): Collection
     {
+        // The request must reach the family leader, the service leader AND
+        // the system admins — deduplicated, active users only.
         $leaderIds = collect([
             $serviceGroup->leader_id,
             $serviceGroup->service_leader_id,
         ])->filter()->unique()->values();
 
-        return User::where(function ($query) use ($leaderIds) {
-            if ($leaderIds->isNotEmpty()) {
-                $query->whereIn('id', $leaderIds);
-            }
+        return User::query()
+            ->where(function ($query) use ($leaderIds) {
+                if ($leaderIds->isNotEmpty()) {
+                    $query->whereIn('id', $leaderIds);
+                }
 
-            $method = $leaderIds->isNotEmpty() ? 'orWhere' : 'where';
-            $query->{$method}('role', UserRole::SuperAdmin->value);
-        })
+                $query->orWhere('role', UserRole::SuperAdmin->value);
+            })
             ->where('is_active', true)
             ->with('pushDevices')
             ->get();
@@ -162,26 +164,29 @@ class RegistrationService
 
                 $notifications[] = [
                     'user_id' => $leader->id,
-                    'type'    => 'servant_registered',
-                    'title'   => __('notifications.servant_registered.title'),
-                    'body'    => __('notifications.servant_registered.body', [
+                    'type'    => 'join_request_submitted',
+                    'title'   => __('notifications.join_request_submitted.title'),
+                    'body'    => __('notifications.join_request_submitted.body', [
                         'name'          => $newServant->name,
                         'service_group' => $serviceGroup->name,
                     ]),
-                    'data' => json_encode(NotificationMetadata::enrich('servant_registered', [
+                    'data' => json_encode(NotificationMetadata::enrich('join_request_submitted', [
                         'servant_id'       => $newServant->id,
                         'servant_name'     => $newServant->name,
                         'service_group_id' => $serviceGroup->id,
                         'registered_at'    => $now->toIso8601String(),
                         'locale'           => $leaderLocale,
-                        'url'              => '/app/users',
+                        'url'              => '/app/join-requests',
                     ])),
                     'read_at'    => null,
                     'created_at' => $now,
+                    // One notification per request per recipient, even if the
+                    // submit flow ever replays.
+                    'dedupe_key' => "join_request:{$newServant->id}:submitted:{$leader->id}",
                 ];
             }
 
-            DB::table('ministry_notifications')->insert($notifications);
+            DB::table('ministry_notifications')->insertOrIgnore($notifications);
         } finally {
             app()->setLocale($previousLocale);
         }
@@ -223,18 +228,18 @@ class RegistrationService
                 $leaderLocale = $leader->locale ?? 'ar';
                 app()->setLocale($leaderLocale);
 
-                $title = __('notifications.servant_registered.title');
-                $body  = __('notifications.servant_registered.body', [
+                $title = __('notifications.join_request_submitted.title');
+                $body  = __('notifications.join_request_submitted.body', [
                     'name'          => $newServant->name,
                     'service_group' => $serviceGroup->name,
                 ]);
-                $data = NotificationMetadata::enrich('servant_registered', [
+                $data = NotificationMetadata::enrich('join_request_submitted', [
                     'servant_id'       => $newServant->id,
                     'servant_name'     => $newServant->name,
                     'service_group_id' => $serviceGroup->id,
                     'registered_at'    => now()->toIso8601String(),
                     'locale'           => $leaderLocale,
-                    'url'              => '/app/users',
+                    'url'              => '/app/join-requests',
                 ]);
 
                 SendFcmNotificationJob::dispatchSync($tokens, $title, $body, $data);

@@ -50,29 +50,29 @@ class RegistrationNotificationLocaleTest extends TestCase
 
         $this->assertDatabaseHas('ministry_notifications', [
             'user_id' => $familyLeader->id,
-            'type'    => 'servant_registered',
-            'title'   => 'خادم جديد انضم للخدمة',
+            'type'    => 'join_request_submitted',
+            'title'   => 'طلب انضمام جديد',
         ]);
         $this->assertDatabaseHas('ministry_notifications', [
             'user_id' => $serviceLeader->id,
-            'type'    => 'servant_registered',
-            'title'   => 'New Servant Registered',
+            'type'    => 'join_request_submitted',
+            'title'   => 'New join request',
         ]);
 
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['family-ar-token']
-                && $job->title                                     === 'خادم جديد انضم للخدمة'
+                && $job->title                                     === 'طلب انضمام جديد'
                 && str_contains($job->body, $servant->name)
-                && ($job->data['url'] ?? null) === '/app/users',
+                && ($job->data['url'] ?? null) === '/app/join-requests',
         );
 
         Queue::assertPushed(
             SendFcmNotificationJob::class,
             fn (SendFcmNotificationJob $job): bool => $job->tokens === ['service-en-token']
-                && $job->title                                     === 'New Servant Registered'
+                && $job->title                                     === 'New join request'
                 && str_contains($job->body, $servant->name)
-                && ($job->data['url'] ?? null) === '/app/users',
+                && ($job->data['url'] ?? null) === '/app/join-requests',
         );
 
         Queue::assertPushed(SendFcmNotificationJob::class, 2);
@@ -81,6 +81,34 @@ class RegistrationNotificationLocaleTest extends TestCase
         $this->assertSame(2, MinistryNotification::whereIn('user_id', [
             $familyLeader->id,
             $serviceLeader->id,
-        ])->where('type', 'servant_registered')->count());
+        ])->where('type', 'join_request_submitted')->count());
+    }
+
+    public function test_submit_notification_is_deduplicated_per_recipient(): void
+    {
+        Queue::fake();
+        App::setLocale('ar');
+
+        $leader = User::factory()->create([
+            'role'      => UserRole::ServiceLeader,
+            'locale'    => 'ar',
+            'is_active' => true,
+        ]);
+        $group = ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
+
+        $data = [
+            'name'     => 'Dedupe Servant',
+            'email'    => 'dedupe-servant@example.com',
+            'phone'    => '01234567888',
+            'password' => 'password123',
+        ];
+
+        app(RegistrationService::class)->register($data, $group, '127.0.0.1');
+
+        // A second notification with the same dedupe key is silently skipped.
+        $leaderNotifications = MinistryNotification::where('user_id', $leader->id)
+            ->where('type', 'join_request_submitted')->get();
+        $this->assertSame(1, $leaderNotifications->count());
+        $this->assertNotNull($leaderNotifications->first()->dedupe_key);
     }
 }

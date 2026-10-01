@@ -9,6 +9,7 @@ use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
 use App\Models\User;
 use App\Support\NotificationMetadata;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -129,16 +130,25 @@ class InternalNotificationService
 
     /**
      * إرسال إشعار لمستخدم واحد
+     *
+     * When $dedupeKey is provided, an existing row with the same key means
+     * the notification was already delivered (e.g. after a retried request)
+     * and nothing — row, broadcast, or push — is sent again.
      */
-    public function notifyUser(User $user, string $type, string $title, string $body, array $data = []): void
+    public function notifyUser(User $user, string $type, string $title, string $body, array $data = [], ?string $dedupeKey = null): void
     {
-        MinistryNotification::create([
-            'user_id' => $user->id,
-            'type'    => $type,
-            'title'   => $title,
-            'body'    => $body,
-            'data'    => NotificationMetadata::enrich($type, $data),
-        ]);
+        try {
+            MinistryNotification::create([
+                'user_id'    => $user->id,
+                'type'       => $type,
+                'title'      => $title,
+                'body'       => $body,
+                'data'       => NotificationMetadata::enrich($type, $data),
+                'dedupe_key' => $dedupeKey,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            return; // already delivered — idempotent replay
+        }
 
         Cache::forget('notifications_unread_' . $user->id);
 

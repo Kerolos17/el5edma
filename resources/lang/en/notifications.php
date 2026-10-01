@@ -31,17 +31,6 @@ return [
     'data_helper' => 'Technical JSON payload — only edit if you know what you are doing',
     'read_at'     => 'Read at',
 
-    'types' => [
-        'birthday'           => 'Birthday',
-        'critical_case'      => 'Critical case',
-        'visit_reminder'     => 'Visit reminder',
-        'unvisited_alert'    => 'Unvisited alert',
-        'new_beneficiary'    => 'New beneficiary',
-        'visit_created'      => 'New visit',
-        'servant_registered' => 'New servant',
-        'welcome_servant'    => 'Welcome',
-    ],
-
     'servant_registered' => [
         'title' => 'New Servant Registered',
         'body'  => ':name joined :service_group',
@@ -50,6 +39,40 @@ return [
     'welcome_servant' => [
         'title' => 'Welcome to the Ministry',
         'body'  => 'Welcome :name, you have been successfully registered in :service_group. Your request will be reviewed by the service leader.',
+    ],
+
+    'types' => [
+        'birthday'               => 'Birthday',
+        'critical_case'          => 'Critical case',
+        'visit_reminder'         => 'Visit reminder',
+        'unvisited_alert'        => 'Unvisited alert',
+        'new_beneficiary'        => 'New beneficiary',
+        'visit_created'          => 'New visit',
+        'servant_registered'     => 'New servant',
+        'welcome_servant'        => 'Welcome',
+        'join_request_submitted' => 'New join request',
+        'join_request_decision'  => 'Join request decision',
+    ],
+
+    'join_request_submitted' => [
+        'title' => 'New join request',
+        'body'  => ':name has submitted a join request to :service_group and is awaiting review.',
+    ],
+
+    'join_request_submitted_title' => 'New join request',
+    'join_request_decision_title'  => 'Join request decision',
+
+    'join_request_decision' => [
+        'approved_title'    => 'Your join request was approved',
+        'approved_body'     => 'Welcome :name, your request was approved and your account is now active. You can sign in and start serving.',
+        'rejected_title'    => 'Your join request was rejected',
+        'rejected_body'     => 'Hello :name, your join request was rejected. Reason: :reason. Please contact the administrator for details.',
+        'changes_title'     => 'Changes requested for your application',
+        'changes_body'      => 'Hello :name, we need the following: :note. Once updated, your request will be reviewed again.',
+        'suspended_title'   => 'Your account was suspended',
+        'suspended_body'    => 'Your account was suspended by an administrator. Please contact the administrator for details.',
+        'reactivated_title' => 'Your account was reactivated',
+        'reactivated_body'  => 'Welcome back :name, your account was reactivated and you can sign in now.',
     ],
 
     'push' => [

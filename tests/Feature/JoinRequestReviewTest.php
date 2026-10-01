@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\WebApp\JoinRequestsPage;
 use App\Models\JoinRequest;
+use App\Models\MinistryNotification;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use App\Services\JoinRequestReviewService;
@@ -209,6 +210,20 @@ class JoinRequestReviewTest extends TestCase
         $this->assertTrue($applicant->refresh()->is_active);
         $this->assertSame(JoinRequest::STATUS_APPROVED, $applicant->joinRequest()->first()->status);
         $this->assertDatabaseHas('join_request_reviews', ['action' => 'approved']);
+    }
+
+    public function test_approval_notifies_the_applicant_with_a_dedupe_key(): void
+    {
+        [$applicant, $reviewer, $group] = $this->setupRequest();
+
+        app(JoinRequestReviewService::class)->approve($applicant->joinRequest, $reviewer, 'servant', $group->id);
+
+        $notifications = MinistryNotification::where('user_id', $applicant->id)
+            ->where('type', 'join_request_decision')->get();
+
+        $this->assertSame(1, $notifications->count());
+        $this->assertSame('join_request:' . $applicant->joinRequest->id . ':decision:approved', $notifications->first()->dedupe_key);
+        $this->assertSame(route('registration.status'), $notifications->first()->data['url'] ?? null);
     }
 
     // ── Helpers ──

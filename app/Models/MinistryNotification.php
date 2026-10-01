@@ -58,13 +58,15 @@ class MinistryNotification extends Model
     public function getDisplayTitleAttribute(): string
     {
         $key = match ($this->type) {
-            'birthday'        => 'notifications.birthday_title',
-            'critical_case'   => 'notifications.critical_case_title',
-            'visit_reminder'  => 'notifications.visit_reminder_title',
-            'unvisited_alert' => 'notifications.unvisited_alert_title',
-            'new_beneficiary' => 'notifications.new_beneficiary_title',
-            'visit_created'   => 'notifications.visit_created_title',
-            default           => null,
+            'birthday'               => 'notifications.birthday_title',
+            'critical_case'          => 'notifications.critical_case_title',
+            'visit_reminder'         => 'notifications.visit_reminder_title',
+            'unvisited_alert'        => 'notifications.unvisited_alert_title',
+            'new_beneficiary'        => 'notifications.new_beneficiary_title',
+            'visit_created'          => 'notifications.visit_created_title',
+            'join_request_submitted' => 'notifications.join_request_submitted_title',
+            'join_request_decision'  => 'notifications.join_request_decision_title',
+            default                  => null,
         };
 
         return $key ? (string) __($key) : (string) $this->title;

@@ -32,17 +32,6 @@ return [
     'data_helper' => 'بيانات تقنية بصيغة JSON — لا تعدلها إلا إذا كنت متأكداً',
     'read_at'     => 'وقت القراءة',
 
-    'types' => [
-        'birthday'           => 'عيد ميلاد',
-        'critical_case'      => 'حالة حرجة',
-        'visit_reminder'     => 'تذكير بزيارة',
-        'unvisited_alert'    => 'تنبيه عدم زيارة',
-        'new_beneficiary'    => 'مخدوم جديد',
-        'visit_created'      => 'زيارة جديدة',
-        'servant_registered' => 'خادم جديد',
-        'welcome_servant'    => 'ترحيب',
-    ],
-
     'servant_registered' => [
         'title' => 'خادم جديد انضم للخدمة',
         'body'  => 'انضم :name إلى :service_group',
@@ -51,6 +40,40 @@ return [
     'welcome_servant' => [
         'title' => 'أهلاً وسهلاً بك في الخدمة',
         'body'  => 'مرحباً :name، تم تسجيلك بنجاح في :service_group. سيتم مراجعة طلبك من قبل أمين الخدمة.',
+    ],
+
+    'types' => [
+        'birthday'               => 'عيد ميلاد',
+        'critical_case'          => 'حالة حرجة',
+        'visit_reminder'         => 'تذكير بزيارة',
+        'unvisited_alert'        => 'تنبيه عدم زيارة',
+        'new_beneficiary'        => 'مخدوم جديد',
+        'visit_created'          => 'زيارة جديدة',
+        'servant_registered'     => 'خادم جديد',
+        'welcome_servant'        => 'ترحيب',
+        'join_request_submitted' => 'طلب انضمام جديد',
+        'join_request_decision'  => 'قرار على طلب انضمام',
+    ],
+
+    'join_request_submitted' => [
+        'title' => 'طلب انضمام جديد',
+        'body'  => ':name تقدّم بطلب انضمام إلى :service_group وينتظر المراجعة.',
+    ],
+
+    'join_request_submitted_title' => 'طلب انضمام جديد',
+    'join_request_decision_title'  => 'قرار على طلب الانضمام',
+
+    'join_request_decision' => [
+        'approved_title'    => 'تم قبول طلب انضمامك',
+        'approved_body'     => 'مرحباً :name، تم قبول طلبك وتفعيل حسابك. يمكنك الآن تسجيل الدخول والبدء في الخدمة.',
+        'rejected_title'    => 'تم رفض طلب الانضمام',
+        'rejected_body'     => 'مرحباً :name، تم رفض طلب انضمامك. السبب: :reason. يمكنك التواصل مع المسؤول للاستفسار.',
+        'changes_title'     => 'مطلوب تعديل بيانات طلبك',
+        'changes_body'      => 'مرحباً :name، نحتاج منك: :note. بعد التعديل سيراجع المسؤول طلبك.',
+        'suspended_title'   => 'تم إيقاف حسابك',
+        'suspended_body'    => 'تم إيقاف حسابك مؤقتاً من قبل المسؤول. تواصل مع المسؤول للاستفسار.',
+        'reactivated_title' => 'تم إعادة تفعيل حسابك',
+        'reactivated_body'  => 'مرحباً :name، تم إعادة تفعيل حسابك ويمكنك تسجيل الدخول الآن.',
     ],
 
     'push' => [

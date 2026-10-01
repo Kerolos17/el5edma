@@ -103,11 +103,11 @@ class RegistrationServiceTest extends TestCase
         $allNotifications = MinistryNotification::all();
 
         $leaderNotification = MinistryNotification::where('user_id', $leader->id)
-            ->where('type', 'servant_registered')
+            ->where('type', 'join_request_submitted')
             ->first();
 
         $serviceLeaderNotification = MinistryNotification::where('user_id', $serviceLeader->id)
-            ->where('type', 'servant_registered')
+            ->where('type', 'join_request_submitted')
             ->first();
 
         $this->assertNotNull($leaderNotification, 'Leader notification was not created. Total notifications: ' . $allNotifications->count());
@@ -151,19 +151,19 @@ class RegistrationServiceTest extends TestCase
 
         $this->assertDatabaseHas('ministry_notifications', [
             'user_id' => $familyLeader->id,
-            'type'    => 'servant_registered',
+            'type'    => 'join_request_submitted',
         ]);
         $this->assertDatabaseHas('ministry_notifications', [
             'user_id' => $serviceLeader->id,
-            'type'    => 'servant_registered',
+            'type'    => 'join_request_submitted',
         ]);
         $this->assertDatabaseHas('ministry_notifications', [
             'user_id' => $superAdmin->id,
-            'type'    => 'servant_registered',
+            'type'    => 'join_request_submitted',
         ]);
         $this->assertDatabaseMissing('ministry_notifications', [
             'user_id' => $unrelatedServiceLeader->id,
-            'type'    => 'servant_registered',
+            'type'    => 'join_request_submitted',
         ]);
     }
 
