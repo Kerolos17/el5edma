@@ -3,7 +3,7 @@
 > **Status:** In progress
 > **Created:** 2026-10-01
 > **Last updated:** 2026-10-01
-> **Current phase:** Phase 1 — سد ثغرات UX الحرجة (بدأت)
+> **Current phase:** Phase 1 ✅ — التالي: Phase 2 (تسهيل الاستخدام اليومي)
 > **Owner:** Kerolos
 > _Lifecycle: rename to `[In Progress]` on start, update the Progress log before each
 > phase transition, `[Done]` + move to `Archive/` when complete._
@@ -38,20 +38,20 @@
 
 **Goal:** إزالة أكبر مصادر الإحباط اليومي للمستخدمين والمسؤولين.
 
-- [ ] **1. استعادة كلمة المرور ذاتيًا** (`ForgotPasswordController` + `ResetPasswordController` + بلدان views):
+- [x] **1. استعادة كلمة المرور ذاتيًا** (`ForgotPasswordController` + `ResetPasswordController` + بلدان views):
       روابط `password/reset` و`password/email` محمية بـ throttle، توكن عبر
       Mailtrap، رسائل عربية واضحة، وصفحة الدخول تربط "نسيت كلمة المرور؟".
       شرط مسبق: Mailtrap يعمل على الإنتاج (قرار مالك مطلوب).
-- [ ] **2. بحث عام موحّد** (`GlobalSearch` مكون + route `app.search`):
+- [x] **2. بحث عام موحّد** (`GlobalSearch` مكون + route `app.search`):
       نتائج مصنّفة (مخدومون/زيارات/خدام/طلبات انضمام) بصفحة نتائج، تحترم
       السياسات نفسها (`WebAppScope`)، والهيدر يوجّه إليها بدل بحث المخدومين فقط.
-- [ ] **3. مشاركة رابط الانضمام عبر واتساب** (زر في `service-group-profile-page`):
+- [x] **3. مشاركة رابط الانضمام عبر واتساب** (زر في `service-group-profile-page`):
       يفتح `wa.me` بنص عربي جاهز + رابط `/register/{token}`، مع زر نسخ بديل.
       إعادة توليد التوكن من نفس زر الإدارة الحالي.
-- [ ] **4. انتظار → دخول بسلاسة** (`waiting-page`):
+- [x] **4. انتظار → دخول بسلاسة** (`waiting-page`):
       زر "تحديث الحالة الآن" (استدعاء فوري) + عند اكتشاف `is_active=true`
       تحويل تلقائي إلى `homeRoute()` بدل انتظار الدورة القادمة.
-- [ ] **5. حالات فارغة ذكية** (`x-web-app.empty-state` توسّع مكوّن):
+- [x] **5. حالات فارغة ذكية** (`x-web-app.empty-state` توسّع مكوّن):
       يقبل `action-url` + `action-label` — زر مباشر داخل الحالة الفارغة
       (أضف أول مخدوم / سجّل أول زيارة / أنشئ أول زيارة مجدولة) في كل الصفحات
       التي تستخدمه.
@@ -147,6 +147,11 @@
 
 _(Append a dated entry before each phase transition — what was completed and any decisions.)_
 - 2026-10-01 — Plan created (Planned) — بانتظار مراجعة المالك الكاملة قبل بدء أي تنفيذ.
+- 2026-10-01 — **Phase 1 ✅** (commits 9c53e5b…ff70575): استعادة كلمة المرور ذاتيًا
+  (8 اختبارات)، بحث عام موحد عبر /app/search باقسام مصنفة تحترم نطاقات الصلاحيات
+  (5 اختبارات)، بطاقة رابط دعوة الأسرة مع مشاركة واتساب ونسخ وإعادة توليد خلف
+  manageRegistrationLink (3 اختبارات)، زر تحديث فوري في صفحة الانتظار، وحالات
+  فارغة ذكية بأزرار إنشاء في 4 صفحات. السويت 725/725 خضراء. النشر الحي تم.
 - 2026-10-01 — **الموافقة + إضافة المالك:** وافق المالك على الخطة بتوصياتها
   للقرارات الأربعة، وأضاف بندًا جديدًا: رفع الصورة الشخصية من لوحة الخادم مع
   إدارة المساحة (ضغط + تصغير + حذف القديم). أُدرج كبند 7 في المرحلة 2. الحالة:
