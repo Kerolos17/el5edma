@@ -9,6 +9,7 @@ use App\Http\Controllers\MedicalFileController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UiPreviewController;
+use App\Livewire\WebApp\WaitingPage;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/app/dashboard');
@@ -46,6 +47,11 @@ Route::middleware(['web', 'auth'])->post('/logout', function () {
 
     return redirect('/');
 })->name('logout');
+
+// Waiting page for join-request applicants: reachable only behind auth, and
+// ConfineInactiveUsers confines open-request accounts to exactly this page.
+Route::middleware(['web', 'auth'])->get('/registration/status', WaitingPage::class)
+    ->name('registration.status');
 
 Route::middleware(['web', 'auth'])->prefix('reports')->name('reports.')->group(function () {
     Route::get('/beneficiaries-pdf', [ReportController::class, 'beneficiariesPdf'])

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\AuditLog;
 use App\Models\Beneficiary;
+use App\Models\JoinRequest;
 use App\Models\MedicalFile;
 use App\Models\Medication;
 use App\Models\MinistryNotification;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Policies\AuditLogPolicy;
 use App\Policies\BeneficiaryPolicy;
+use App\Policies\JoinRequestPolicy;
 use App\Policies\MedicalFilePolicy;
 use App\Policies\MedicationPolicy;
 use App\Policies\MinistryNotificationPolicy;
@@ -34,6 +36,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         AuditLog::class             => AuditLogPolicy::class,
         Beneficiary::class          => BeneficiaryPolicy::class,
+        JoinRequest::class          => JoinRequestPolicy::class,
         MedicalFile::class          => MedicalFilePolicy::class,
         Medication::class           => MedicationPolicy::class,
         MinistryNotification::class => MinistryNotificationPolicy::class,

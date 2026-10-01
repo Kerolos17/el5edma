@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ConfineInactiveUsers;
 use App\Http\Middleware\EnsureAppAccess;
 use App\Http\Middleware\EnsureServantAccess;
 use App\Http\Middleware\SecurityHeaders;
@@ -27,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetLocale::class,
             SecurityHeaders::class,
+            // Last line of defense for account states: confines open join
+            // requests to the waiting page and destroys rejected/suspended
+            // sessions on every web route, including Filament.
+            ConfineInactiveUsers::class,
         ]);
 
         $middleware->alias([

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\UserRole;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\AuditLog;
+use App\Models\JoinRequest;
 use App\Models\MinistryNotification;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -25,6 +26,15 @@ class RegistrationService
         try {
             $user = DB::transaction(function () use ($data, $serviceGroup, $ipAddress) {
                 $user = User::createFromSelfRegistration($data, $serviceGroup);
+
+                // The request and the account are born together; the account
+                // stays gated until an authorized reviewer approves it.
+                JoinRequest::create([
+                    'user_id'          => $user->id,
+                    'service_group_id' => $serviceGroup->id,
+                    'desired_role'     => $data['desired_role'] ?? UserRole::Servant->value,
+                    'status'           => JoinRequest::STATUS_PENDING,
+                ]);
 
                 try {
                     $this->logRegistration($user, $serviceGroup, $data['token'] ?? '', $ipAddress);

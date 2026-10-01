@@ -20,7 +20,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     protected $fillable = [
         'name', 'email', 'password', 'phone', 'profile_photo',
         'personal_code', 'personal_code_hash', 'fcm_token', 'role',
-        'service_group_id', 'locale', 'is_active', 'last_login_at',
+        'service_group_id', 'locale', 'is_active', 'suspended_at', 'last_login_at',
     ];
 
     protected $hidden = [
@@ -32,6 +32,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return [
             'email_verified_at' => 'datetime',
             'last_login_at'     => 'datetime',
+            'suspended_at'      => 'datetime',
             'is_active'         => 'boolean',
             'password'          => 'hashed',
             'role'              => UserRole::class,
@@ -68,6 +69,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function pushDevices()
     {
         return $this->hasMany(PushDevice::class);
+    }
+
+    public function joinRequest()
+    {
+        return $this->hasOne(JoinRequest::class);
     }
 
     /**
@@ -215,12 +221,31 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * The dashboard route this role lands on after login. Servants work
      * from the mobile-first servant panel; everyone else uses the web app.
      * (/admin is back-office only and is never a login destination.)
+     *
+     * A member whose join request is still open holds at most a waiting-page
+     * session — this route is their only landing, and the access middleware
+     * keeps redirecting them here until the request is approved.
      */
     public function homeRoute(): string
     {
+        if (! $this->is_active && $this->hasPendingJoinRequest()) {
+            return 'registration.status';
+        }
+
         return $this->role === UserRole::Servant
             ? 'servant.dashboard'
             : 'app.dashboard';
+    }
+
+    public function hasPendingJoinRequest(): bool
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        return $this->joinRequest()
+            ->whereIn('status', [JoinRequest::STATUS_INCOMPLETE, JoinRequest::STATUS_PENDING])
+            ->exists();
     }
 
     // ── Self-Registration Methods ──
@@ -276,6 +301,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         // active user must pass this gate to authenticate. Back-office pages
         // stay protected by the RedirectNonAdmin middleware, and the login
         // response routes each role to its own dashboard.
-        return $this->is_active;
+        //
+        // Applicants with an open join request may authenticate too, but their
+        // homeRoute() pins them to the waiting page and the access middleware
+        // confines every other path there — no data is ever reachable.
+        return $this->is_active || $this->hasPendingJoinRequest();
     }
 }
