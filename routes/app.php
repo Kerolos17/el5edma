@@ -4,6 +4,7 @@ use App\Livewire\WebApp\AuditLogsPage;
 use App\Livewire\WebApp\BeneficiariesPage;
 use App\Livewire\WebApp\BeneficiaryProfilePage;
 use App\Livewire\WebApp\Dashboard;
+use App\Livewire\WebApp\GlobalSearchPage;
 use App\Livewire\WebApp\JoinRequestsPage;
 use App\Livewire\WebApp\MedicalFilesPage;
 use App\Livewire\WebApp\NotificationsPage;
@@ -32,6 +33,7 @@ Route::middleware(['web', 'auth', 'app.access'])
         Route::get('/medical-files', MedicalFilesPage::class)->name('medical-files');
         Route::get('/reports', ReportsPage::class)->name('reports');
         Route::get('/users', UsersPage::class)->name('users');
+        Route::get('/search', GlobalSearchPage::class)->name('search');
         Route::get('/join-requests', JoinRequestsPage::class)->name('join-requests');
         Route::get('/service-groups', ServiceGroupsPage::class)->name('service-groups');
         Route::get('/service-group/{serviceGroup}', ServiceGroupProfilePage::class)->name('service-group-profile');

@@ -15,7 +15,7 @@ $nextLocaleLabel = strtoupper($nextLocale);
         </button>
     </div>
 
-    <form action="{{ route('app.beneficiaries') }}" method="GET" class="app-global-search" role="search">
+    <form action="{{ route('app.search') }}" method="GET" class="app-global-search" role="search">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
         <input
             type="search"
