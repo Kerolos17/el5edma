@@ -310,6 +310,32 @@ self.addEventListener("fetch", (event) => {
 
     // Skip external requests and auth-sensitive paths
     if (url.origin !== self.location.origin) return;
+
+    // Offline-read field list: network-first, cached copy as the offline
+    // fallback. The payload holds names/codes/status only (no sensitive
+    // data), so caching it on the device is acceptable.
+    if (url.pathname === "/servant/beneficiaries/offline-cache") {
+        event.respondWith(
+            fetch(request)
+                .then(async (response) => {
+                    if (response.ok) {
+                        const cache = await caches.open(CACHE_NAME);
+                        await cache.put(request, response.clone());
+                    }
+                    return response;
+                })
+                .catch(
+                    async () =>
+                        (await caches.match(request)) ||
+                        new Response(
+                            JSON.stringify({ updated_at: null, beneficiaries: [] }),
+                            { headers: { "Content-Type": "application/json" } },
+                        ),
+                ),
+        );
+        return;
+    }
+
     if (SKIP_PATHS.some((p) => url.pathname.startsWith(p))) return;
     // Skip Firebase requests
     if (

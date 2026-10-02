@@ -2,6 +2,7 @@
 // Alpine.js is provided by Livewire 3 automatically
 import './bootstrap';
 import './notifications';
+import './offline-read';
 import { offlineQueue } from './offline-queue';
 import { initPushNotifications } from './push-notifications';
 import '@phosphor-icons/web/regular';

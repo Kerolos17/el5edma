@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Servant\OfflineBeneficiariesController;
 use App\Http\Controllers\Servant\OfflineVisitSyncController;
 use App\Livewire\Servant\BeneficiaryDetail;
 use App\Livewire\Servant\BeneficiaryList;
@@ -19,6 +20,11 @@ Route::middleware(['web', 'auth', 'servant.access'])
         Route::redirect('/', '/servant/dashboard');
         Route::get('/dashboard', Dashboard::class)->name('dashboard');
         Route::get('/beneficiaries', BeneficiaryList::class)->name('beneficiaries');
+        // Offline-read payload (name/status/last visit only) — cached by the
+        // service worker so the field list is readable without a network.
+        // Must precede the {beneficiary} wildcard route.
+        Route::get('/beneficiaries/offline-cache', OfflineBeneficiariesController::class)
+            ->name('beneficiaries.offline-cache');
         Route::get('/beneficiaries/{beneficiary}', BeneficiaryDetail::class)->name('beneficiaries.show');
         Route::get('/visits', VisitList::class)->name('visits');
         Route::get('/scheduled-visits', ScheduledVisitList::class)->name('scheduled-visits');
