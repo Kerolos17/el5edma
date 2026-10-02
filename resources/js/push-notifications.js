@@ -6,7 +6,7 @@
 import { initializeApp } from 'firebase/app';
 import { deleteToken, getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
 
-const ROOT_SW_URL = '/sw-v10.js';
+const ROOT_SW_URL = '/sw-v10.js?v=11';
 const SENT_TOKEN_KEY = 'ministry-fcm-token-sent';
 const SENT_TOKEN_USER_KEY = 'ministry-fcm-token-user';
 const PUSH_DISABLED_KEY = 'ministry-push-disabled';

@@ -22,7 +22,7 @@
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw-v10.js')
+            navigator.serviceWorker.register('/sw-v10.js?v=11')
                 .then(() => {
                     // When a new SW takes over, do ONE clean reload to flush stale
                     // Livewire component state. The `refreshing` flag prevents a

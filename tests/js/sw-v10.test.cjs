@@ -145,9 +145,9 @@ test('the web app registers the same worker used for push tokens', () => {
     const push = fs.readFileSync(path.resolve(__dirname, '../../resources/js/push-notifications.js'), 'utf8');
     const layout = fs.readFileSync(path.resolve(__dirname, '../../resources/views/web-app/layouts/app.blade.php'), 'utf8');
     const head = fs.readFileSync(path.resolve(__dirname, '../../resources/views/filament/pwa-head.blade.php'), 'utf8');
-    assert.match(app, /\.register\('\/sw-v10\.js'/);
-    assert.match(push, /ROOT_SW_URL = '\/sw-v10\.js'/);
-    assert.match(layout, /serviceWorker\.register\('\/sw-v10\.js'\)/);
-    assert.match(head, /serviceWorker\.register\('\/sw-v10\.js'\)/);
+    assert.match(app, /\.register\('\/sw-v10\.js\?v=11'/);
+    assert.match(push, /ROOT_SW_URL = '\/sw-v10\.js\?v=11'/);
+    assert.match(layout, /serviceWorker\.register\('\/sw-v10\.js\?v=11'\)/);
+    assert.match(head, /serviceWorker\.register\('\/sw-v10\.js\?v=11'\)/);
     assert.doesNotMatch(app, /\.register\('\/sw\.js'/);
 });

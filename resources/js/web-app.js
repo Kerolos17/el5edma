@@ -155,7 +155,7 @@ document.addEventListener('click', async (event) => {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
-            .register('/sw-v10.js', { updateViaCache: 'none' })
+            .register('/sw-v10.js?v=11', { updateViaCache: 'none' })
             .then((reg) => reg.update())
             .catch(() => {});
     });
