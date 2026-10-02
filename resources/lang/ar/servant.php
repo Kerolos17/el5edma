@@ -74,4 +74,8 @@ return [
     'photo_removed'   => 'تم حذف صورتك الشخصية.',
     'photo_invalid'   => 'الصورة غير صالحة. استخدم صورة JPG أو PNG أو WebP.',
     'photo_too_large' => 'حجم الصورة أكبر من الحد المسموح (2 ميجابايت).',
+
+    // Notification preferences
+    'notif_enabled' => 'تم تفعيل هذا النوع من الإشعارات.',
+    'notif_muted'   => 'تم كتم هذا النوع من الإشعارات.',
 ];

@@ -133,6 +133,26 @@
                     </div>
                 </form>
             </section>
+
+            <section class="app-panel">
+                <div class="app-panel-header">
+                    <div>
+                        <p class="app-section-label">{{ __('web_app.profile.notif_section') }}</p>
+                        <h3>{{ __('web_app.profile.notif_title') }}</h3>
+                    </div>
+                </div>
+                <p class="app-muted px-4 pt-2 text-xs">{{ __('web_app.profile.notif_hint') }}</p>
+                <div class="px-4 py-2">
+                    @foreach ($this->notificationPreferences as $pref)
+                        <label class="app-check-row cursor-pointer min-h-[44px]" for="pref-{{ $pref['type'] }}">
+                            <input type="checkbox" id="pref-{{ $pref['type'] }}" class="w-5 h-5 rounded cursor-pointer"
+                                {{ $pref['muted'] ? '' : 'checked' }}
+                                wire:click="toggleNotificationPreference('{{ $pref['type'] }}')">
+                            <span>{{ $pref['label'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </section>
         </div>
 
         {{-- Photo Card --}}

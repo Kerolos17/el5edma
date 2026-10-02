@@ -74,4 +74,8 @@ return [
     'photo_removed'   => 'Your profile photo was removed.',
     'photo_invalid'   => 'That image is not valid. Use a JPG, PNG or WebP picture.',
     'photo_too_large' => 'The image exceeds the 2MB limit.',
+
+    // Notification preferences
+    'notif_enabled' => 'Notification type enabled.',
+    'notif_muted'   => 'Notification type muted.',
 ];

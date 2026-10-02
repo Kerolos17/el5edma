@@ -7,6 +7,7 @@ use App\Events\NewMinistryNotification;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
+use App\Models\NotificationPreference;
 use App\Models\User;
 use App\Support\NotificationMetadata;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -73,6 +74,13 @@ class InternalNotificationService
      */
     public function notifyUsers(Collection $users, string $type, string $title, string $body, array $data = [], ?callable $textsFor = null): void
     {
+        // Respect per-user mute preferences (critical/admin types unaffected).
+        $users = NotificationPreference::filterAllowed($users, $type);
+
+        if ($users->isEmpty()) {
+            return;
+        }
+
         $notifications = [];
         $broadcasts    = [];
         $now           = now();
@@ -145,6 +153,10 @@ class InternalNotificationService
      */
     public function notifyUser(User $user, string $type, string $title, string $body, array $data = [], ?string $dedupeKey = null): void
     {
+        if (! NotificationPreference::allows($user, $type)) {
+            return;
+        }
+
         try {
             MinistryNotification::create([
                 'user_id'    => $user->id,

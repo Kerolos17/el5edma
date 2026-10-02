@@ -106,6 +106,23 @@
         </div>
     </div>
 
+    {{-- Notification preferences --}}
+    <div class="s-card p-4">
+        <p class="font-bold text-teal-900 text-sm mb-1">تفضيلات الإشعارات</p>
+        <p class="text-[11px] text-gray-400 mb-3">الحالات الحرجة وإشعارات الإدارة تصل دائمًا ولا يمكن كتمها.</p>
+        <div class="space-y-1">
+            @foreach ($this->notificationPreferences as $pref)
+                <label class="flex items-center justify-between gap-3 py-2 min-h-[44px] cursor-pointer">
+                    <span class="text-sm font-semibold text-teal-900">{{ $pref['label'] }}</span>
+                    <input type="checkbox" class="w-5 h-5 rounded cursor-pointer accent-teal-600"
+                        {{ $pref['muted'] ? '' : 'checked' }}
+                        wire:click="toggleNotificationPreference('{{ $pref['type'] }}')"
+                        aria-label="{{ $pref['label'] }}">
+                </label>
+            @endforeach
+        </div>
+    </div>
+
     {{-- Logout --}}
     <div>
         <button wire:click="logout"

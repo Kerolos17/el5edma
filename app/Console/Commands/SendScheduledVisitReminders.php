@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\MinistryNotification;
+use App\Models\NotificationPreference;
 use App\Models\ScheduledVisit;
 use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
@@ -54,6 +55,11 @@ class SendScheduledVisitReminders extends Command
                 $hasRecipients = false;
 
                 foreach ($servants as $servant) {
+                    // The servant muted scheduled-visit reminders - skip silently.
+                    if (! NotificationPreference::allows($servant, 'visit_reminder')) {
+                        continue;
+                    }
+
                     $recipientLocale = $servant->locale ?? 'ar';
                     App::setLocale($recipientLocale);
 

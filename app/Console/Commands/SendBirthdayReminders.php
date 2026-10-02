@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
+use App\Models\NotificationPreference;
 use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
@@ -64,6 +65,11 @@ class SendBirthdayReminders extends Command
                         ])->filter()->unique('id')->values();
 
                         foreach ($recipients as $recipient) {
+                            // The user muted birthday reminders - skip silently.
+                            if (! NotificationPreference::allows($recipient, 'birthday')) {
+                                continue;
+                            }
+
                             $recipientLocale = $recipient->locale ?? 'ar';
                             App::setLocale($recipientLocale);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\WebApp;
 
+use App\Models\NotificationPreference;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -61,6 +62,32 @@ class ProfilePage extends Component
         $this->showPhotoForm = false;
 
         $this->dispatch('toast', message: __('web_app.toasts.profile_updated'), type: 'success');
+    }
+
+    /**
+     * Non-critical notification types with their per-user mute state —
+     * rendered as toggles in the profile.
+     */
+    public function getNotificationPreferencesProperty(): array
+    {
+        $muted = NotificationPreference::mutedTypesFor(auth()->user());
+
+        return collect(NotificationPreference::MUTABLE_TYPES)
+            ->map(fn (string $type) => [
+                'type'  => $type,
+                'label' => __("notifications.types.{$type}"),
+                'muted' => in_array($type, $muted, true),
+            ])
+            ->all();
+    }
+
+    public function toggleNotificationPreference(string $type): void
+    {
+        $enabled = NotificationPreference::toggle(auth()->user(), $type);
+
+        $this->dispatch('toast', message: $enabled
+            ? __('web_app.profile.notif_enabled')
+            : __('web_app.profile.notif_muted'), type: 'success');
     }
 
     public function removePhoto(): void

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\SendFcmNotificationJob;
 use App\Models\Beneficiary;
 use App\Models\MinistryNotification;
+use App\Models\NotificationPreference;
 use App\Support\NotificationMetadata;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -52,6 +53,11 @@ class SendUnvisitedAlerts extends Command
                         ])->filter()->unique('id')->values();
 
                         foreach ($recipients as $recipient) {
+                            // The user muted unvisited alerts - skip silently.
+                            if (! NotificationPreference::allows($recipient, 'unvisited_alert')) {
+                                continue;
+                            }
+
                             $recipientLocale = $recipient->locale ?? 'ar';
                             App::setLocale($recipientLocale);
 

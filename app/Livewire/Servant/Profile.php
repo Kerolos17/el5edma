@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Servant;
 
+use App\Models\NotificationPreference;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -65,6 +66,29 @@ class Profile extends Component
         $this->newPhoto = null;
 
         $this->dispatch('toast', message: __('servant.photo_updated'), type: 'success');
+    }
+
+    /** Non-critical notification types with the per-user mute state. */
+    public function getNotificationPreferencesProperty(): array
+    {
+        $muted = NotificationPreference::mutedTypesFor(auth()->user());
+
+        return collect(NotificationPreference::MUTABLE_TYPES)
+            ->map(fn (string $type) => [
+                'type'  => $type,
+                'label' => __("notifications.types.{$type}"),
+                'muted' => in_array($type, $muted, true),
+            ])
+            ->all();
+    }
+
+    public function toggleNotificationPreference(string $type): void
+    {
+        $enabled = NotificationPreference::toggle(auth()->user(), $type);
+
+        $this->dispatch('toast', message: $enabled
+            ? __('servant.notif_enabled')
+            : __('servant.notif_muted'), type: 'success');
     }
 
     public function removePhoto(): void
