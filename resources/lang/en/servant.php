@@ -68,4 +68,10 @@ return [
     'pwa_later'     => 'Maybe later',
     'pwa_ios_title' => 'Install app on iPhone',
     'pwa_ios_body'  => 'Add the system to your home screen for quick access',
+
+    // Profile photo management
+    'photo_updated'   => 'Your profile photo was updated.',
+    'photo_removed'   => 'Your profile photo was removed.',
+    'photo_invalid'   => 'That image is not valid. Use a JPG, PNG or WebP picture.',
+    'photo_too_large' => 'The image exceeds the 2MB limit.',
 ];

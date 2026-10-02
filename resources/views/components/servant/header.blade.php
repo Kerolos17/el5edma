@@ -6,6 +6,7 @@
         ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => 'مجدولة'],
         ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => 'طلبات الصلاة'],
         ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => 'الملفات الطبية'],
+        ['route' => 'servant.notifications',    'icon' => 'ph-bell',            'label' => 'الإشعارات'],
         ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => 'حسابي'],
     ];
     $user = auth()->user();

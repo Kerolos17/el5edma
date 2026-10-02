@@ -12,19 +12,44 @@
         {{-- Avatar --}}
         <div class="px-5 pb-5">
             <div class="flex items-end gap-4 -mt-8 mb-4">
-                <x-ui.avatar
-                    :name="$user->name"
-                    :src="$user->profile_photo_url ?? null"
-                    size="xl"
-                    shape="square"
-                    gradient="gold"
-                    class="avatar-ring flex-shrink-0 relative z-10"
-                />
+                <div class="flex-shrink-0 relative z-10">
+                    <x-ui.avatar
+                        :name="$user->name"
+                        :src="$user->profile_photo_url ?? null"
+                        size="xl"
+                        shape="square"
+                        gradient="gold"
+                        class="avatar-ring"
+                    />
+                    <div class="flex gap-1 mt-2" role="group" aria-label="إدارة الصورة الشخصية">
+                        <label for="profile-photo-input"
+                            class="flex-1 min-h-[40px] px-3 rounded-xl bg-teal-600 text-white text-xs font-bold flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition">
+                            <i class="ph ph-camera" aria-hidden="true"></i>
+                            {{ $user->profile_photo ? 'تغيير' : 'إضافة صورة' }}
+                        </label>
+                        @if ($user->profile_photo)
+                            <button type="button" wire:click="removePhoto"
+                                wire:confirm="هل تريد حذف صورتك الشخصية؟"
+                                class="min-h-[40px] px-3 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold flex items-center justify-center active:scale-95 transition">
+                                <i class="ph ph-trash" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    </div>
+                    <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp"
+                        wire:model="newPhoto" class="sr-only"
+                        aria-label="اختيار صورة شخصية" />
+                    @error('newPhoto')
+                        <p class="text-[11px] text-red-600 font-bold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
                 <div class="mb-1">
                     <h2 class="font-bold text-teal-900 text-lg">{{ $user->name }}</h2>
                     <span class="badge-pill badge-info text-xs">{{ $user->role->label() }}</span>
                 </div>
             </div>
+            <p class="text-[11px] text-gray-400 -mt-2 mb-3">
+                الصورة تُضغط تلقائيًا قبل الرفع ولا تتجاوز 512px — تظهر فقط كصورة حسابك.
+            </p>
 
             {{-- Info Rows --}}
             <div class="space-y-3">
@@ -90,5 +115,49 @@
             تسجيل الخروج
         </button>
     </div>
+
+    <script>
+        // ضغط الصورة في المتصفح قبل رفعها: أقصى بعد 1600px بترميز JPEG 80% —
+        // صورة كاميرا نموذجية تنزل من ~4MB إلى أقل من 300KB.
+        (function () {
+            const input = document.getElementById('profile-photo-input');
+            if (!input || input.dataset.compressorBound) return;
+            input.dataset.compressorBound = '1';
+
+            input.addEventListener('change', async () => {
+                const file = input.files && input.files[0];
+                if (!file || !file.type.startsWith('image/')) return;
+                if (file.size <= 250 * 1024) return; // small enough already
+
+                try {
+                    const bitmap = await createImageBitmap(file);
+                    const maxSide = 1600;
+                    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(bitmap.width * scale);
+                    canvas.height = Math.round(bitmap.height * scale);
+                    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+                    const blob = await new Promise((resolve) => {
+                        canvas.toBlob(
+                            (b) => resolve(b && b.size < file.size ? b : null),
+                            'image/jpeg',
+                            0.8,
+                        );
+                    });
+
+                    if (blob) {
+                        const compressed = new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+                        const transfer = new DataTransfer();
+                        transfer.items.add(compressed);
+                        input.files = transfer.files;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                } catch (error) {
+                    // Compression is best-effort — the original upload still works.
+                }
+            });
+        })();
+    </script>
 
 </div>

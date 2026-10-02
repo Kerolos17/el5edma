@@ -5,6 +5,7 @@ use App\Livewire\Servant\BeneficiaryDetail;
 use App\Livewire\Servant\BeneficiaryList;
 use App\Livewire\Servant\Dashboard;
 use App\Livewire\Servant\MedicalFileList;
+use App\Livewire\Servant\NotificationsPage;
 use App\Livewire\Servant\PrayerRequestList;
 use App\Livewire\Servant\Profile;
 use App\Livewire\Servant\ScheduledVisitList;
@@ -22,6 +23,7 @@ Route::middleware(['web', 'auth', 'servant.access'])
         Route::get('/visits', VisitList::class)->name('visits');
         Route::get('/scheduled-visits', ScheduledVisitList::class)->name('scheduled-visits');
         Route::get('/profile', Profile::class)->name('profile');
+        Route::get('/notifications', NotificationsPage::class)->name('notifications');
         Route::get('/prayer-requests', PrayerRequestList::class)->name('prayer-requests');
         Route::get('/medical-files', MedicalFileList::class)->name('medical-files');
         Route::post('/visits/sync', OfflineVisitSyncController::class)->name('visits.sync');

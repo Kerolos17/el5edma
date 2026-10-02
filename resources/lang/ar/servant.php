@@ -68,4 +68,10 @@ return [
     'pwa_later'     => 'ربما لاحقاً',
     'pwa_ios_title' => 'تثبيت التطبيق على iPhone',
     'pwa_ios_body'  => 'أضف النظام لشاشتك الرئيسية للوصول السريع',
+
+    // Profile photo management
+    'photo_updated'   => 'تم تحديث صورتك الشخصية.',
+    'photo_removed'   => 'تم حذف صورتك الشخصية.',
+    'photo_invalid'   => 'الصورة غير صالحة. استخدم صورة JPG أو PNG أو WebP.',
+    'photo_too_large' => 'حجم الصورة أكبر من الحد المسموح (2 ميجابايت).',
 ];
