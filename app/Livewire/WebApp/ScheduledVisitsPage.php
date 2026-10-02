@@ -7,6 +7,7 @@ namespace App\Livewire\WebApp;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Support\WebAppScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -15,6 +16,12 @@ use Livewire\Attributes\Layout;
 #[Layout('web-app.layouts.app')]
 class ScheduledVisitsPage extends PlaceholderPage
 {
+    /** Calendar tab state: 0 = current week, -1 = last week, +1 = next… */
+    public int $weekOffset = 0;
+
+    /** List (default) vs weekly calendar view. */
+    public bool $calendarView = false;
+
     public function mount(string $section = 'scheduled-visits'): void
     {
         $this->section = 'scheduled-visits';
@@ -42,6 +49,8 @@ class ScheduledVisitsPage extends PlaceholderPage
             'filters'                          => $this->filters(),
             'stats'                            => $this->stats(clone $baseQuery),
             'records'                          => $records,
+            'weekDays'                         => $this->weekDays($user),
+            'weekRangeLabel'                   => $this->weekRangeLabel(),
             'reportCards'                      => collect(),
             'beneficiaryOptions'               => $this->beneficiaryOptions($user),
             'servantOptions'                   => $this->servantOptions($user),
@@ -56,6 +65,44 @@ class ScheduledVisitsPage extends PlaceholderPage
             'visitTypeOptions'                 => $this->visitTypeOptions(),
             'beneficiaryStatusOptions'         => $this->beneficiaryStatusOptions(),
         ]);
+    }
+
+    /**
+     * The seven days of the displayed week (Saturday → Friday, the Egyptian
+     * work week) with their scoped pending/completed visits grouped per day.
+     *
+     * @return Collection<int, array{date: Carbon, isToday: bool, visits: Collection}>
+     */
+    private function weekDays(User $user): Collection
+    {
+        $weekStart = now()->startOfWeek(Carbon::SATURDAY)->addWeeks($this->weekOffset);
+
+        $visits = $this->scheduledVisitsQuery($user)
+            ->whereBetween('scheduled_date', [
+                $weekStart->toDateString(),
+                $weekStart->copy()->addDays(6)->toDateString(),
+            ])
+            ->with(['beneficiary:id,full_name'])
+            ->orderBy('scheduled_date')
+            ->orderBy('scheduled_time')
+            ->get();
+
+        return collect(range(0, 6))->map(function (int $offset) use ($weekStart, $visits) {
+            $day = $weekStart->copy()->addDays($offset);
+
+            return [
+                'date'    => $day,
+                'isToday' => $day->isToday(),
+                'visits'  => $visits->filter(fn ($visit) => $visit->scheduled_date->isSameDay($day))->values(),
+            ];
+        });
+    }
+
+    private function weekRangeLabel(): string
+    {
+        $weekStart = now()->startOfWeek(Carbon::SATURDAY)->addWeeks($this->weekOffset);
+
+        return $weekStart->isoFormat('D MMMM') . ' — ' . $weekStart->copy()->addDays(6)->isoFormat('D MMMM');
     }
 
     private function scheduledVisitsQuery(User $user): Builder

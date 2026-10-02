@@ -22,4 +22,5 @@ return [
     'download'          => 'Download',
     'uploaded_by'       => 'Uploaded by',
     'uploaded_at'       => 'Uploaded at',
+    'camera_hint'       => 'Pick "Camera" from the chooser to shoot directly — large images are compressed automatically before upload.',
 ];

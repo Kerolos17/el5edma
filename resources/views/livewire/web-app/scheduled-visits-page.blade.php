@@ -16,10 +16,49 @@
         <div class="app-toolbar">
             <label class="app-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search" placeholder="{{ __('web_app.resources.search_placeholder', ['title' => $meta['title']]) }}" aria-label="{{ __('web_app.resources.search_label') }}"></label>
             <div class="app-chip-row" role="group" aria-label="{{ $meta['title'] }}">@foreach ($filters as $item)<button wire:click="$set('filter', '{{ $item['value'] }}')" aria-pressed="{{ $filter === $item['value'] ? 'true' : 'false' }}" class="app-filter-chip {{ $filter === $item['value'] ? 'is-active' : '' }}">{{ $item['label'] }}</button>@endforeach</div>
+            <div class="app-chip-row" role="group" aria-label="{{ __('web_app.calendar.view_toggle') }}">
+                <button type="button" wire:click="$set('calendarView', false)" aria-pressed="{{ ! $calendarView ? 'true' : 'false' }}" class="app-filter-chip {{ ! $calendarView ? 'is-active' : '' }}"><i class="ph ph-list" aria-hidden="true"></i> {{ __('web_app.calendar.list') }}</button>
+                <button type="button" wire:click="$set('calendarView', true)" aria-pressed="{{ $calendarView ? 'true' : 'false' }}" class="app-filter-chip {{ $calendarView ? 'is-active' : '' }}"><i class="ph ph-calendar" aria-hidden="true"></i> {{ __('web_app.calendar.week') }}</button>
+            </div>
         </div>
     </section>
 
-    <section class="app-panel">
+    @if ($calendarView)
+        {{-- Weekly calendar --}}
+        <section class="app-panel">
+            <div class="app-panel-header">
+                <div>
+                    <p class="app-section-label">{{ __('web_app.calendar.title') }}</p>
+                    <h3>{{ $weekRangeLabel }}</h3>
+                </div>
+                <div class="app-inline-actions">
+                    <button type="button" wire:click="$set('weekOffset', {{ $weekOffset - 1 }})" class="app-icon-button" aria-label="{{ __('web_app.calendar.prev_week') }}"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" wire:click="$set('weekOffset', 0)" class="app-link-inline">{{ __('web_app.calendar.this_week') }}</button>
+                    <button type="button" wire:click="$set('weekOffset', {{ $weekOffset + 1 }})" class="app-icon-button" aria-label="{{ __('web_app.calendar.next_week') }}"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+                </div>
+            </div>
+
+            <div class="app-week-grid" dir="rtl">
+                @foreach ($weekDays as $day)
+                    <div class="app-week-day {{ $day['isToday'] ? 'is-today' : '' }}">
+                        <p class="app-week-day-name">{{ $day['date']->isoFormat('dddd') }}</p>
+                        <p class="app-week-day-date">{{ $day['date']->isoFormat('D/M') }}</p>
+                        @forelse ($day['visits'] as $visit)
+                            <a href="{{ route('app.visit-profile', ['visit' => $visit->id]) }}" wire:navigate
+                                class="app-week-visit {{ $visit->status === 'completed' ? 'is-completed' : ($visit->status === 'cancelled' ? 'is-cancelled' : '') }}">
+                                <span class="app-week-visit-time">{{ $visit->scheduled_time ? \Carbon\Carbon::parse($visit->scheduled_time)->format('H:i') : '—' }}</span>
+                                <span class="app-week-visit-name">{{ $visit->beneficiary?->full_name ?? '—' }}</span>
+                            </a>
+                        @empty
+                            <p class="app-week-empty">—</p>
+                        @endforelse
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    <section class="app-panel" @if($calendarView) hidden @endif>
         <div class="app-panel-header">
             <div>
                 <p class="app-section-label">{{ __('web_app.resources.operational_view') }}</p>

@@ -31,7 +31,11 @@
         </label>
         <label class="app-form-field app-form-field-full" for="medical-file">
             <span>{{ __('web_app.table.file') }}</span>
-            <input id="medical-file" type="file" wire:model="medicalUploadedFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" aria-invalid="{{ $errors->has('medicalUploadedFile') ? 'true' : 'false' }}">
+            <input id="medical-file" type="file" data-compress-image
+                wire:model="medicalUploadedFile"
+                accept="image/*,.pdf,.doc,.docx"
+                aria-invalid="{{ $errors->has('medicalUploadedFile') ? 'true' : 'false' }}">
+            <small>{{ __('medical.camera_hint') }}</small>
             <small>{{ __('web_app.forms.medical_file.max_size', ['size' => '10 MB']) }}</small>
             @error('medicalUploadedFile') <small>{{ $message }}</small> @enderror
         </label>

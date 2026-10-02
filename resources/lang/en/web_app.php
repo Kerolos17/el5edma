@@ -555,4 +555,13 @@ return [
     'notif_hint'    => 'Mute the types you do not need. Critical cases and admin notices always arrive.',
     'notif_enabled' => 'Notification type enabled.',
     'notif_muted'   => 'Notification type muted.',
+
+    'calendar' => ['view_toggle' => 'View mode',
+        'list'                   => 'List',
+        'week'                   => 'Calendar',
+        'title'                  => 'Weekly calendar',
+        'prev_week'              => 'Previous week',
+        'next_week'              => 'Next week',
+        'this_week'              => 'This week',
+    ],
 ];

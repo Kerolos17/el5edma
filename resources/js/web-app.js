@@ -227,3 +227,43 @@ function initWebApp() {
 }
 
 initWebApp();
+
+// ── In-browser image compression for large uploads ────────────────────────
+// Cameras produce 3-6MB JPEGs; on field networks those uploads are slow and
+// fail often. Any image chosen into a marked file input is downscaled to
+// 1600px (JPEG 80%) before Livewire uploads it — typically well under 500KB.
+document.addEventListener('change', async (event) => {
+    const input = event.target;
+    if (!input || !input.matches('input[data-compress-image]')) return;
+
+    const file = input.files && input.files[0];
+    if (!file || !file.type.startsWith('image/') || file.size <= 300 * 1024) return;
+
+    try {
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+        if (scale === 1 && file.size <= 800 * 1024) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+        const blob = await new Promise((resolve) => {
+            canvas.toBlob(
+                (b) => resolve(b && b.size < file.size ? b : null),
+                'image/jpeg',
+                0.8,
+            );
+        });
+        if (!blob) return;
+
+        const compressed = new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+        const transfer = new DataTransfer();
+        transfer.items.add(compressed);
+        input.files = transfer.files;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    } catch {
+        // Compression is best-effort — the original upload still works.
+    }
+});

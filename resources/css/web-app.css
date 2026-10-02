@@ -1638,6 +1638,94 @@
     color: var(--clr-stone-grey);
   }
 
+  /* ── Weekly calendar (scheduled visits) ─────────────────────────── */
+  .app-week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.75rem;
+  }
+
+  @media (max-width: 767px) {
+    .app-week-grid {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+  }
+
+  .app-week-day {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 6.5rem;
+    border: 1px solid var(--clr-silver-mist);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .app-week-day.is-today {
+    border-color: var(--clr-calm-blue);
+    background: rgba(37, 99, 235, 0.05);
+  }
+
+  .app-week-day-name {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--clr-stone-grey);
+  }
+
+  .app-week-day.is-today .app-week-day-name {
+    color: var(--clr-calm-blue);
+  }
+
+  .app-week-day-date {
+    margin: 0 0 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .app-week-visit {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.45rem;
+    border-radius: 0.55rem;
+    background: rgba(37, 99, 235, 0.07);
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.72rem;
+    overflow: hidden;
+  }
+
+  .app-week-visit.is-completed {
+    background: rgba(16, 185, 129, 0.12);
+  }
+
+  .app-week-visit.is-cancelled {
+    background: rgba(190, 18, 60, 0.08);
+    text-decoration: line-through;
+  }
+
+  .app-week-visit-time {
+    font-weight: 800;
+    flex-shrink: 0;
+    direction: ltr;
+  }
+
+  .app-week-visit-name {
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-week-empty {
+    margin: 0;
+    color: var(--clr-silver-mist);
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
   .app-status-pill {
     min-height: 1.75rem;
     padding: 0.15rem 0.65rem;
