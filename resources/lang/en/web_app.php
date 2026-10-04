@@ -502,6 +502,11 @@ return [
         'servant_must_match_group'                        => 'The selected servant must belong to the same service group.',
     ],
     'profile' => [
+        'notif_section'             => 'Notifications',
+        'notif_title'               => 'Notification preferences',
+        'notif_hint'                => 'Mute the types you do not need. Critical cases and admin notices always arrive.',
+        'notif_enabled'             => 'Notification type enabled.',
+        'notif_muted'               => 'Notification type muted.',
         'title'                     => 'My Profile',
         'personal_info'             => 'Personal Info',
         'account_details'           => 'Account Details',
@@ -549,12 +554,6 @@ return [
         'retry_connection' => 'Retry connection',
         'install_prompt'   => 'Install app',
     ],
-
-    'notif_section' => 'Notifications',
-    'notif_title'   => 'Notification preferences',
-    'notif_hint'    => 'Mute the types you do not need. Critical cases and admin notices always arrive.',
-    'notif_enabled' => 'Notification type enabled.',
-    'notif_muted'   => 'Notification type muted.',
 
     'calendar' => ['view_toggle' => 'View mode',
         'list'                   => 'List',
