@@ -3,10 +3,10 @@
     {{-- Greeting --}}
     <div>
         <h1 class="display-font text-2xl font-bold text-teal-900">
-            مرحباً، {{ auth()->user()->name }}
+            {{ __('servant.greeting', ['name' => auth()->user()->name]) }}
         </h1>
         <p class="text-sm text-gray-500 mt-1">
-            {{ now()->locale('ar')->isoFormat('dddd، D MMMM YYYY') }}
+            {{ now()->isoFormat('dddd، D MMMM YYYY') }}
         </p>
     </div>
 
@@ -18,25 +18,25 @@
     </div>
     <div wire:loading.remove wire:target="refresh" class="grid grid-cols-2 gap-3">
         <x-ui.stat-card
-            label="مخدوميّ"
+            label="{{ __('servant.stat_my_beneficiaries') }}"
             :value="$myBeneficiariesCount"
             icon="ph-fill ph-users"
             gradient="teal"
         />
         <x-ui.stat-card
-            label="زيارات الشهر"
+            label="{{ __('servant.stat_month_visits') }}"
             :value="$visitsThisMonth"
             icon="ph-fill ph-calendar-check"
             gradient="gold"
         />
         <x-ui.stat-card
-            label="مجدولة قادمة"
+            label="{{ __('servant.stat_upcoming') }}"
             :value="$scheduledCount"
             icon="ph-fill ph-clock"
             gradient="teal-light"
         />
         <x-ui.stat-card
-            label="حالات حرجة"
+            label="{{ __('servant.stat_critical') }}"
             :value="$criticalCount"
             icon="ph-fill ph-warning"
             :gradient="$criticalCount > 0 ? 'critical' : 'success'"
@@ -47,7 +47,7 @@
     {{-- Recent Visits --}}
     <div>
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold text-teal-900">آخر الزيارات</h2>
+            <h2 class="font-bold text-teal-900">{{ __('servant.recent_visits') }}</h2>
             <a href="{{ route('servant.visits') }}" wire:navigate
                class="inline-flex items-center min-h-[44px] px-2 -me-2 text-sm font-semibold text-teal-500 hover:text-teal-700 transition-colors">
                 عرض الكل

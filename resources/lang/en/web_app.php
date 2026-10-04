@@ -563,4 +563,9 @@ return [
         'next_week'              => 'Next week',
         'this_week'              => 'This week',
     ],
+
+    'export' => [
+        'excel'        => 'Export Excel',
+        'current_view' => 'Export exactly what you see now (same search and filter)',
+    ],
 ];

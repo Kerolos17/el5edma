@@ -6,6 +6,12 @@
             <h2>{{ $meta['title'] }}</h2>
         </div>
         <div class="app-hero-actions">
+            <a href="{{ route('reports.visits.excel', array_filter(['q' => $search, 'filter' => $filter], fn ($v) => $v !== '' && $v !== 'all')) }}"
+                x-data @click.prevent="window.location = $el.href"
+                class="app-secondary-button" title="{{ __('web_app.export.current_view') }}">
+                <i class="ph ph-microsoft-excel-logo" aria-hidden="true"></i>
+                {{ __('web_app.export.excel') }}
+            </a>
             <button type="button" wire:click="openVisitForm" class="app-primary-button">
                 <i class="ph ph-plus" aria-hidden="true"></i>
                 {{ __('web_app.actions.record_visit') }}

@@ -6,13 +6,13 @@
     $isScheduledVisits = request()->routeIs('servant.scheduled-visits');
 
     $nav = [
-        ['route' => 'servant.dashboard',        'icon' => 'ph-house-simple',   'label' => 'الرئيسية',      'active' => $isDashboard],
-        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => 'المخدومون',     'active' => $isBeneficiary],
-        ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => 'الزيارات',      'active' => $isVisits],
-        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => 'مجدولة',        'active' => $isScheduledVisits],
-        ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => 'طلبات الصلاة',  'active' => request()->routeIs('servant.prayer-requests')],
-        ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => 'الملفات الطبية','active' => request()->routeIs('servant.medical-files')],
-        ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => 'حسابي',         'active' => $isProfile],
+        ['route' => 'servant.dashboard',        'icon' => 'ph-house-simple',   'label' => __('servant.nav_home'),      'active' => $isDashboard],
+        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => __('servant.nav_beneficiaries'),     'active' => $isBeneficiary],
+        ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => __('servant.nav_visits'),      'active' => $isVisits],
+        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => __('servant.nav_schedule'),        'active' => $isScheduledVisits],
+        ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => __('servant.nav_prayers'),  'active' => request()->routeIs('servant.prayer-requests')],
+        ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => __('servant.nav_medical'),'active' => request()->routeIs('servant.medical-files')],
+        ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => __('servant.nav_profile'),         'active' => $isProfile],
     ];
 @endphp
 

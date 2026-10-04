@@ -4,12 +4,44 @@ return [
     // Navigation
     'nav_home'          => 'Home',
     'nav_beneficiaries' => 'Beneficiaries',
+    'nav_visits'        => 'Visits',
     'nav_schedule'      => 'Schedule',
+    'nav_prayers'       => 'Prayer requests',
+    'nav_medical'       => 'Medical files',
+    'nav_notifications' => 'Notifications',
+    'nav_profile'       => 'My account',
     'nav_visit'         => 'Visit',
     'nav_quick'         => 'Quick navigation',
     'menu'              => 'Menu',
     'search'            => 'Search',
     'close'             => 'Close',
+
+    // Notifications page
+    'notif_page_title'       => 'Notifications',
+    'notif_mark_all'         => 'Mark all read (:count)',
+    'notif_search'           => 'Search notifications...',
+    'notif_filter_all'       => 'All',
+    'notif_filter_unread'    => 'Unread',
+    'notif_filter_critical'  => 'Critical',
+    'notif_filter_reminders' => 'Reminders',
+    'notif_filter_birthdays' => 'Birthdays',
+    'notif_none'             => 'No notifications here.',
+    'notif_unread_dot'       => 'Unread',
+    'notif_mark_one'         => 'Mark as read',
+
+    // Profile page
+    'profile_title'        => 'My account',
+    'email'                => 'Email address',
+    'phone'                => 'Phone number',
+    'group'                => 'Service group',
+    'photo_add'            => 'Add photo',
+    'photo_change'         => 'Change',
+    'photo_remove_confirm' => 'Delete your profile photo?',
+    'photo_size_note'      => 'Photos are compressed before upload and never exceed 512px — used only as your account picture.',
+    'prefs_title'          => 'Notification preferences',
+    'prefs_hint'           => 'Critical cases and admin notices always arrive and cannot be muted.',
+    'logout'               => 'Log out',
+    'logout_confirm'       => 'Log out of your account?',
 
     // Beneficiaries
     'search_beneficiary'             => 'Search beneficiary',
@@ -76,6 +108,11 @@ return [
     'photo_too_large' => 'The image exceeds the 2MB limit.',
 
     // Notification preferences
-    'notif_enabled' => 'Notification type enabled.',
-    'notif_muted'   => 'Notification type muted.',
+    'notif_enabled'         => 'Notification type enabled.',
+    'notif_muted'           => 'Notification type muted.',
+    'greeting'              => 'Hello, :name',
+    'stat_my_beneficiaries' => 'My beneficiaries',
+    'stat_month_visits'     => 'Visits this month',
+    'stat_upcoming'         => 'Upcoming scheduled',
+    'stat_critical'         => 'Critical cases',
 ];

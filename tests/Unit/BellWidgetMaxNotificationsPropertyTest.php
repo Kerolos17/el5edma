@@ -17,7 +17,7 @@ use Tests\TestCase;
  *
  * Validates: Requirements 5.4
  *
- * For any user with more than 10 notifications, the Widget must return exactly 10 records.
+ * For any user with more than 10 notifications, the Widget must return exactly 8 records.
  */
 class BellWidgetMaxNotificationsPropertyTest extends TestCase
 {

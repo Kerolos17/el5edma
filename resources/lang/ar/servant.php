@@ -4,12 +4,44 @@ return [
     // Navigation
     'nav_home'          => 'الرئيسية',
     'nav_beneficiaries' => 'المخدومون',
+    'nav_visits'        => 'الزيارات',
     'nav_schedule'      => 'جدولي',
+    'nav_prayers'       => 'طلبات الصلاة',
+    'nav_medical'       => 'الملفات الطبية',
+    'nav_notifications' => 'الإشعارات',
+    'nav_profile'       => 'حسابي',
     'nav_visit'         => 'زيارة',
     'nav_quick'         => 'التنقل السريع',
     'menu'              => 'القائمة',
     'search'            => 'بحث',
     'close'             => 'إغلاق',
+
+    // Notifications page
+    'notif_page_title'       => 'الإشعارات',
+    'notif_mark_all'         => 'تحديد الكل كمقروء (:count)',
+    'notif_search'           => 'ابحث في الإشعارات...',
+    'notif_filter_all'       => 'الكل',
+    'notif_filter_unread'    => 'غير مقروء',
+    'notif_filter_critical'  => 'حرجة',
+    'notif_filter_reminders' => 'تذكيرات',
+    'notif_filter_birthdays' => 'أعياد ميلاد',
+    'notif_none'             => 'لا توجد إشعارات هنا.',
+    'notif_unread_dot'       => 'غير مقروء',
+    'notif_mark_one'         => 'تحديد كمقروء',
+
+    // Profile page
+    'profile_title'        => 'حسابي',
+    'email'                => 'البريد الإلكتروني',
+    'phone'                => 'رقم الهاتف',
+    'group'                => 'أسرة الخدمة',
+    'photo_add'            => 'إضافة صورة',
+    'photo_change'         => 'تغيير',
+    'photo_remove_confirm' => 'هل تريد حذف صورتك الشخصية؟',
+    'photo_size_note'      => 'الصورة تُضغط تلقائيًا قبل الرفع ولا تتجاوز 512px — تظهر فقط كصورة حسابك.',
+    'prefs_title'          => 'تفضيلات الإشعارات',
+    'prefs_hint'           => 'الحالات الحرجة وإشعارات الإدارة تصل دائمًا ولا يمكن كتمها.',
+    'logout'               => 'تسجيل الخروج',
+    'logout_confirm'       => 'هل تريد تسجيل الخروج؟',
 
     // Beneficiaries
     'search_beneficiary'             => 'بحث عن مخدوم',
@@ -76,6 +108,11 @@ return [
     'photo_too_large' => 'حجم الصورة أكبر من الحد المسموح (2 ميجابايت).',
 
     // Notification preferences
-    'notif_enabled' => 'تم تفعيل هذا النوع من الإشعارات.',
-    'notif_muted'   => 'تم كتم هذا النوع من الإشعارات.',
+    'notif_enabled'         => 'تم تفعيل هذا النوع من الإشعارات.',
+    'notif_muted'           => 'تم كتم هذا النوع من الإشعارات.',
+    'greeting'              => 'مرحباً، :name',
+    'stat_my_beneficiaries' => 'مخدوميّ',
+    'stat_month_visits'     => 'زيارات الشهر',
+    'stat_upcoming'         => 'مجدولة قادمة',
+    'stat_critical'         => 'حالات حرجة',
 ];

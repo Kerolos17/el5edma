@@ -1,13 +1,13 @@
 @php
     $nav = [
-        ['route' => 'servant.dashboard',        'icon' => 'ph-house-simple',   'label' => 'الرئيسية'],
-        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => 'المخدومون'],
-        ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => 'الزيارات'],
-        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => 'مجدولة'],
-        ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => 'طلبات الصلاة'],
-        ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => 'الملفات الطبية'],
-        ['route' => 'servant.notifications',    'icon' => 'ph-bell',            'label' => 'الإشعارات'],
-        ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => 'حسابي'],
+        ['route' => 'servant.dashboard',        'icon' => 'ph-house-simple',   'label' => __('servant.nav_home')],
+        ['route' => 'servant.beneficiaries',    'icon' => 'ph-users',           'label' => __('servant.nav_beneficiaries')],
+        ['route' => 'servant.visits',           'icon' => 'ph-calendar-check',  'label' => __('servant.nav_visits')],
+        ['route' => 'servant.scheduled-visits', 'icon' => 'ph-calendar-dots',   'label' => __('servant.nav_schedule')],
+        ['route' => 'servant.prayer-requests',  'icon' => 'ph-hands-praying',   'label' => __('servant.nav_prayers')],
+        ['route' => 'servant.medical-files',    'icon' => 'ph-file-lock',       'label' => __('servant.nav_medical')],
+        ['route' => 'servant.notifications',    'icon' => 'ph-bell',            'label' => __('servant.nav_notifications')],
+        ['route' => 'servant.profile',          'icon' => 'ph-user-circle',     'label' => __('servant.nav_profile')],
     ];
     $user = auth()->user();
 @endphp

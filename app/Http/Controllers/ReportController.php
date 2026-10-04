@@ -97,12 +97,19 @@ class ReportController extends Controller
         return $this->service->serviceGroupBeneficiariesPdf($serviceGroup);
     }
 
-    public function beneficiariesExcel()
+    public function beneficiariesExcel(Request $request)
     {
         $this->authorizeBeneficiaryReportsAccess();
         Gate::authorize('viewAny', Beneficiary::class);
 
-        return Excel::download(new BeneficiariesExport(Auth::user()), 'beneficiaries.xlsx');
+        return Excel::download(
+            new BeneficiariesExport(
+                Auth::user(),
+                (string) $request->query('q', ''),
+                (string) $request->query('filter', 'all'),
+            ),
+            'beneficiaries.xlsx',
+        );
     }
 
     public function visitsExcel(Request $request)
@@ -110,6 +117,13 @@ class ReportController extends Controller
         $this->authorizeManagementReportsAccess();
         Gate::authorize('viewAny', Visit::class);
 
-        return Excel::download(new VisitsExport(Auth::user()), 'visits.xlsx');
+        return Excel::download(
+            new VisitsExport(
+                Auth::user(),
+                (string) $request->query('q', ''),
+                (string) $request->query('filter', 'all'),
+            ),
+            'visits.xlsx',
+        );
     }
 }

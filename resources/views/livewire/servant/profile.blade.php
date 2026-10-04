@@ -1,6 +1,6 @@
 <div class="px-4 pt-6 pb-32 lg:pb-10 space-y-5">
 
-    <h1 class="sr-only">حسابي</h1>
+    <h1 class="sr-only">{{ __('servant.profile_title') }}</h1>
 
     {{-- Profile Card --}}
     <div class="s-card rounded-3xl overflow-hidden">
@@ -25,11 +25,11 @@
                         <label for="profile-photo-input"
                             class="flex-1 min-h-[40px] px-3 rounded-xl bg-teal-600 text-white text-xs font-bold flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition">
                             <i class="ph ph-camera" aria-hidden="true"></i>
-                            {{ $user->profile_photo ? 'تغيير' : 'إضافة صورة' }}
+                            {{ $user->profile_photo ? __('servant.photo_change') : __('servant.photo_add') }}
                         </label>
                         @if ($user->profile_photo)
                             <button type="button" wire:click="removePhoto"
-                                wire:confirm="هل تريد حذف صورتك الشخصية؟"
+                                wire:confirm="{{ __('servant.photo_remove_confirm') }}"
                                 class="min-h-[40px] px-3 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold flex items-center justify-center active:scale-95 transition">
                                 <i class="ph ph-trash" aria-hidden="true"></i>
                             </button>
@@ -47,9 +47,7 @@
                     <span class="badge-pill badge-info text-xs">{{ $user->role->label() }}</span>
                 </div>
             </div>
-            <p class="text-[11px] text-gray-400 -mt-2 mb-3">
-                الصورة تُضغط تلقائيًا قبل الرفع ولا تتجاوز 512px — تظهر فقط كصورة حسابك.
-            </p>
+            <p class="text-[11px] text-gray-400 -mt-2 mb-3">{{ __('servant.photo_size_note') }}</p>
 
             {{-- Info Rows --}}
             <div class="space-y-3">
@@ -59,7 +57,7 @@
                             <i class="ph ph-envelope text-teal-600"></i>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-400">البريد الإلكتروني</p>
+                            <p class="text-xs text-gray-400">{{ __('servant.email') }}</p>
                             <p class="text-sm font-semibold text-teal-900" dir="ltr">{{ $user->email }}</p>
                         </div>
                     </div>
@@ -108,8 +106,8 @@
 
     {{-- Notification preferences --}}
     <div class="s-card p-4">
-        <p class="font-bold text-teal-900 text-sm mb-1">تفضيلات الإشعارات</p>
-        <p class="text-[11px] text-gray-400 mb-3">الحالات الحرجة وإشعارات الإدارة تصل دائمًا ولا يمكن كتمها.</p>
+        <p class="font-bold text-teal-900 text-sm mb-1">{{ __('servant.prefs_title') }}</p>
+        <p class="text-[11px] text-gray-400 mb-3">{{ __('servant.prefs_hint') }}</p>
         <div class="space-y-1">
             @foreach ($this->notificationPreferences as $pref)
                 <label class="flex items-center justify-between gap-3 py-2 min-h-[44px] cursor-pointer">
@@ -126,10 +124,10 @@
     {{-- Logout --}}
     <div>
         <button wire:click="logout"
-                wire:confirm="هل تريد تسجيل الخروج؟"
+                wire:confirm="{{ __('servant.logout_confirm') }}"
                 class="logout-btn w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-base btn-ripple transition-all duration-200">
             <i class="ph-bold ph-sign-out text-xl"></i>
-            تسجيل الخروج
+            {{ __('servant.logout') }}
         </button>
     </div>
 

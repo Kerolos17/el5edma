@@ -2,11 +2,11 @@
      wire:poll.60000ms.visible="refresh">
 
     <div class="flex items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold text-teal-900">الإشعارات</h1>
+        <h1 class="text-2xl font-bold text-teal-900">{{ __('servant.notif_page_title') }}</h1>
         @if ($unreadCount > 0)
             <button type="button" wire:click="markAllRead"
                 class="text-xs font-bold text-teal-600 min-h-[44px] px-3">
-                تحديد الكل كمقروء ({{ $unreadCount }})
+                {{ __('servant.notif_mark_all', ['count' => $unreadCount]) }}
             </button>
         @endif
     </div>
@@ -16,15 +16,15 @@
         <label class="flex items-center gap-2 rounded-xl bg-gray-50 px-3 min-h-[44px]">
             <i class="ph ph-magnifying-glass text-gray-400" aria-hidden="true"></i>
             <input wire:model.live.debounce.300ms="search" type="search" enterkeyhint="search"
-                placeholder="ابحث في الإشعارات..." class="bg-transparent flex-1 outline-none text-sm">
+                placeholder="{{ __('servant.notif_search') }}" class="bg-transparent flex-1 outline-none text-sm">
         </label>
         <div class="flex gap-2 overflow-x-auto">
             @foreach ([
-                'all' => 'الكل',
-                'unread' => 'غير مقروء',
-                'critical_case' => 'حرجة',
-                'visit_reminder' => 'تذكيرات',
-                'birthday' => 'أعياد ميلاد',
+                'all' => __('servant.notif_filter_all'),
+                'unread' => __('servant.notif_filter_unread'),
+                'critical_case' => __('servant.notif_filter_critical'),
+                'visit_reminder' => __('servant.notif_filter_reminders'),
+                'birthday' => __('servant.notif_filter_birthdays'),
             ] as $value => $label)
                 <button type="button" wire:click="$set('filter', '{{ $value }}')"
                     class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap min-h-[36px] {{ $filter === $value ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-600' }}">
@@ -43,7 +43,7 @@
                     <div class="flex items-start justify-between gap-2">
                         <p class="font-bold text-sm text-teal-900">{{ $notification->display_title }}</p>
                         @if (! $notification->read_at)
-                            <span class="w-2.5 h-2.5 rounded-full bg-teal-500 flex-shrink-0 mt-1" aria-label="غير مقروء"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-teal-500 flex-shrink-0 mt-1" aria-label="{{ __('servant.notif_unread_dot') }}"></span>
                         @endif
                     </div>
                     <p class="text-xs text-gray-600 mt-1 leading-relaxed">{{ $notification->body }}</p>
@@ -52,14 +52,14 @@
                 @if (! $notification->read_at)
                     <button type="button" wire:click="markRead({{ $notification->id }})"
                         class="text-[11px] font-bold text-gray-400 hover:text-teal-600 mt-2 min-h-[32px]">
-                        تحديد كمقروء
+                        {{ __('servant.notif_mark_one') }}
                     </button>
                 @endif
             </article>
         @empty
             <div class="s-card p-8 text-center">
                 <i class="ph ph-bell-slash text-3xl text-gray-300" aria-hidden="true"></i>
-                <p class="text-sm text-gray-500 mt-2">لا توجد إشعارات هنا.</p>
+                <p class="text-sm text-gray-500 mt-2">{{ __('servant.notif_none') }}</p>
             </div>
         @endforelse
     </div>

@@ -10,14 +10,37 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class BeneficiariesExport implements FromQuery, WithHeadings, WithMapping
 {
-    public function __construct(private User $user) {}
+    /**
+     * $search/$filter mirror the BeneficiariesPage filters (mine / recent /
+     * needs-visit) so "export" hands back exactly what the user sees.
+     */
+    public function __construct(
+        private User $user,
+        private string $search = '',
+        private string $filter = 'all',
+    ) {}
 
     public function query()
     {
-        return WebAppScope::beneficiaries($this->user)
+        $query = WebAppScope::beneficiaries($this->user)
             ->with('serviceGroup')
             ->where('status', 'active')
             ->orderBy('full_name');
+
+        if (trim($this->search) !== '') {
+            $term = '%' . str_replace('%', '\%', trim($this->search)) . '%';
+            $query->where(fn ($q) => $q
+                ->where('full_name', 'like', $term)
+                ->orWhere('code', 'like', $term)
+                ->orWhere('phone', 'like', $term));
+        }
+
+        return match ($this->filter) {
+            'mine'        => $query->where('assigned_servant_id', $this->user->id),
+            'recent'      => $query->whereHas('visits', fn ($q) => $q->where('visit_date', '>=', now()->subDays(30))),
+            'needs-visit' => $query->whereDoesntHave('visits'),
+            default       => $query,
+        };
     }
 
     public function headings(): array
