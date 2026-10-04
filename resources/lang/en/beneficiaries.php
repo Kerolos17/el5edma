@@ -93,4 +93,15 @@ return [
     'last_visit'         => 'Last visit',
     'days_without_visit' => ':days days without visit',
     'no_records'         => 'No beneficiaries found',
+
+    // Education
+    'education_title'             => 'Education',
+    'education_status'            => 'Education status',
+    'education_none'              => 'Not in education',
+    'education_center'            => 'In a center',
+    'education_school'            => 'In a school',
+    'education_place_name'        => 'School / center name',
+    'education_place_placeholder' => 'School or center name',
+    'education_grade'             => 'Grade',
+    'education_grade_placeholder' => 'e.g. Fourth primary',
 ];

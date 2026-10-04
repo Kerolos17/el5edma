@@ -113,16 +113,17 @@
                 <form wire:submit="loginWithCode">
                     <div class="space-y-4">
 
-                        {{-- كود الخادم (رقمي قديم أو KH-XXXX-XX) --}}
+                        {{-- كود الخادم (أرقام فقط) --}}
                         <div>
                             <label class="input-label mb-3" for="personal-code">
                                 {{ __('auth.enter_code') }}
                             </label>
 
                             <input id="personal-code" type="text" wire:model="personalCode" dir="ltr"
-                                autocomplete="one-time-code" maxlength="12" required
+                                autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"
+                                maxlength="6" required
                                 class="code-input w-full text-center tracking-widest"
-                                placeholder="KH-XXXX-XX" />
+                                placeholder="••••••" />
 
                             <p class="text-xs text-gray-500 text-center mt-2">
                                 {{ __('auth.code_hint') }}

@@ -346,5 +346,28 @@
             </div>
         @endif
 
+        @if($b->education_status !== 'none')
+            <div class="reveal-card" style="animation-delay: 0.28s">
+                <x-ui.section-header
+                    icon="ph-fill ph-graduation-cap"
+                    title="{{ __('beneficiaries.education_title') }}"
+                    color="blue"
+                    class="mb-3"
+                />
+                <div class="s-card rounded-2xl px-4 py-3 text-sm text-gray-600 space-y-1">
+                    <p>
+                        <span class="font-bold text-teal-900">{{ __('beneficiaries.education_status') }}:
+                        {{ $b->education_status === 'school' ? __('beneficiaries.education_school') : __('beneficiaries.education_center') }}</span>
+                        @if($b->education_place_name)
+                            — {{ $b->education_place_name }}
+                        @endif
+                    </p>
+                    @if($b->education_status === 'school' && $b->education_grade)
+                        <p>{{ __('beneficiaries.education_grade') }}: <span class="font-bold text-teal-900">{{ $b->education_grade }}</span></p>
+                    @endif
+                </div>
+            </div>
+        @endif
+
     </div>
 </div>

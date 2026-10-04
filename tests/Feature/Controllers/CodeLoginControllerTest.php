@@ -36,7 +36,7 @@ class CodeLoginControllerTest extends TestCase
             'is_active'     => true,
         ]);
 
-        $this->assertMatchesRegularExpression('/^KH-[A-Z2-9]{4}-\d{2}$/', $user->personal_code);
+        $this->assertMatchesRegularExpression('/^\d{6}$/', $user->personal_code);
 
         $this->post(route('login.code'), [
             'code'     => $user->personal_code,

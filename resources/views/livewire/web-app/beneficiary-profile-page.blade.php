@@ -194,6 +194,34 @@
                 </div>
             </section>
 
+            {{-- Education --}}
+            @if ($beneficiary->education_status !== 'none')
+            <section class="app-panel">
+                <div class="app-panel-header">
+                    <div>
+                        <p class="app-section-label">{{ __('beneficiaries.education_title') }}</p>
+                        <h3>{{ $beneficiary->education_status === 'school' ? __('beneficiaries.education_school') : __('beneficiaries.education_center') }}</h3>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
+                        @if ($beneficiary->education_place_name)
+                            <div>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('beneficiaries.education_place_name') }}</dt>
+                                <dd class="mt-0.5 font-bold">{{ $beneficiary->education_place_name }}</dd>
+                            </div>
+                        @endif
+                        @if ($beneficiary->education_status === 'school' && $beneficiary->education_grade)
+                            <div>
+                                <dt class="text-xs app-text-muted font-bold">{{ __('beneficiaries.education_grade') }}</dt>
+                                <dd class="mt-0.5 font-bold">{{ $beneficiary->education_grade }}</dd>
+                            </div>
+                        @endif
+                    </dl>
+                </div>
+            </section>
+            @endif
+
             {{-- Medical Info --}}
             @if ($beneficiary->disability_type || $beneficiary->health_status || $beneficiary->doctor_name || $beneficiary->medical_notes)
             <section class="app-panel">

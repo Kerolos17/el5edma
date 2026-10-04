@@ -34,7 +34,7 @@ return [
     'code_hint'               => 'Personal code is visible to system admin only',
     'code_auto_generated'     => 'Auto-generated upon creation',
     'generate_code'           => 'Generate New Code',
-    'rotate_code_confirm'     => 'A new KH-format code will be generated and the previous one invalidated immediately. Share the code with the servant yourself.',
+    'rotate_code_confirm'     => 'A new 6-digit numeric code will be generated and the previous one invalidated immediately. Share the code with the servant yourself.',
     'revoke_code'             => 'Revoke code',
     'revoke_code_confirm'     => 'The current code will immediately stop working for sign-in. Continue?',
     'code_revoked'            => 'Personal code revoked',

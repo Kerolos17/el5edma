@@ -87,6 +87,13 @@ trait ManagesBeneficiaries
 
     public string $beneficiaryMedicalNotes = '';
 
+    // Education: none (خارج التعليم) / center (مركز) / school (مدرسة).
+    public string $beneficiaryEducationStatus = 'none';
+
+    public string $beneficiaryEducationPlaceName = '';
+
+    public string $beneficiaryEducationGrade = '';
+
     public function updatedBeneficiaryServiceGroupId(): void
     {
         $this->beneficiaryAssignedServantId = null;
@@ -111,41 +118,44 @@ trait ManagesBeneficiaries
 
         abort_unless($actor->can('update', $record), 403);
 
-        $this->editingBeneficiaryId         = $record->id;
-        $this->beneficiaryPhoto             = null;
-        $this->beneficiaryFullName          = $record->full_name;
-        $this->beneficiaryBirthDate         = $record->birth_date?->toDateString() ?? '';
-        $this->beneficiaryGender            = (string) ($record->gender ?? '');
-        $this->beneficiaryRecordStatus      = $record->status ?: 'active';
-        $this->beneficiaryPhone             = (string) ($record->phone ?? '');
-        $this->beneficiaryWhatsapp          = (string) ($record->whatsapp ?? '');
-        $this->beneficiaryFacebookUrl       = (string) ($record->facebook_url ?? '');
-        $this->beneficiaryInstagramUrl      = (string) ($record->instagram_url ?? '');
-        $this->beneficiaryGuardianName      = (string) ($record->guardian_name ?? '');
-        $this->beneficiaryGuardianPhone     = (string) ($record->guardian_phone ?? '');
-        $this->beneficiaryGuardianRelation  = (string) ($record->guardian_relation ?? '');
-        $this->beneficiaryFatherStatus      = (string) ($record->father_status ?? '');
-        $this->beneficiaryFatherDeathDate   = $record->father_death_date?->toDateString() ?? '';
-        $this->beneficiaryMotherStatus      = (string) ($record->mother_status ?? '');
-        $this->beneficiaryMotherDeathDate   = $record->mother_death_date?->toDateString() ?? '';
-        $this->beneficiarySiblingsCount     = $record->siblings_count;
-        $this->beneficiarySiblingsNote      = (string) ($record->siblings_note ?? '');
-        $this->beneficiaryFinancialStatus   = (string) ($record->financial_status ?? '');
-        $this->beneficiaryFinancialNotes    = (string) ($record->financial_notes ?? '');
-        $this->beneficiaryAddressText       = (string) ($record->address_text ?? '');
-        $this->beneficiaryArea              = (string) ($record->area ?? '');
-        $this->beneficiaryGovernorate       = (string) ($record->governorate ?? '');
-        $this->beneficiaryGoogleMapsUrl     = (string) ($record->google_maps_url ?? '');
-        $this->beneficiaryServiceGroupId    = $record->service_group_id;
-        $this->beneficiaryAssignedServantId = $record->assigned_servant_id;
-        $this->beneficiaryDisabilityType    = (string) ($record->disability_type ?? '');
-        $this->beneficiaryDisabilityDegree  = (string) ($record->disability_degree ?? '');
-        $this->beneficiaryDoctorName        = (string) ($record->doctor_name ?? '');
-        $this->beneficiaryHospitalName      = (string) ($record->hospital_name ?? '');
-        $this->beneficiaryLastMedicalUpdate = $record->last_medical_update?->toDateString() ?? '';
-        $this->beneficiaryHealthStatus      = (string) ($record->health_status ?? '');
-        $this->beneficiaryMedicalNotes      = (string) ($record->medical_notes ?? '');
-        $this->showBeneficiaryForm          = true;
+        $this->editingBeneficiaryId          = $record->id;
+        $this->beneficiaryPhoto              = null;
+        $this->beneficiaryFullName           = $record->full_name;
+        $this->beneficiaryBirthDate          = $record->birth_date?->toDateString() ?? '';
+        $this->beneficiaryGender             = (string) ($record->gender ?? '');
+        $this->beneficiaryRecordStatus       = $record->status ?: 'active';
+        $this->beneficiaryPhone              = (string) ($record->phone ?? '');
+        $this->beneficiaryWhatsapp           = (string) ($record->whatsapp ?? '');
+        $this->beneficiaryFacebookUrl        = (string) ($record->facebook_url ?? '');
+        $this->beneficiaryInstagramUrl       = (string) ($record->instagram_url ?? '');
+        $this->beneficiaryGuardianName       = (string) ($record->guardian_name ?? '');
+        $this->beneficiaryGuardianPhone      = (string) ($record->guardian_phone ?? '');
+        $this->beneficiaryGuardianRelation   = (string) ($record->guardian_relation ?? '');
+        $this->beneficiaryFatherStatus       = (string) ($record->father_status ?? '');
+        $this->beneficiaryFatherDeathDate    = $record->father_death_date?->toDateString() ?? '';
+        $this->beneficiaryMotherStatus       = (string) ($record->mother_status ?? '');
+        $this->beneficiaryMotherDeathDate    = $record->mother_death_date?->toDateString() ?? '';
+        $this->beneficiarySiblingsCount      = $record->siblings_count;
+        $this->beneficiarySiblingsNote       = (string) ($record->siblings_note ?? '');
+        $this->beneficiaryFinancialStatus    = (string) ($record->financial_status ?? '');
+        $this->beneficiaryFinancialNotes     = (string) ($record->financial_notes ?? '');
+        $this->beneficiaryAddressText        = (string) ($record->address_text ?? '');
+        $this->beneficiaryArea               = (string) ($record->area ?? '');
+        $this->beneficiaryGovernorate        = (string) ($record->governorate ?? '');
+        $this->beneficiaryGoogleMapsUrl      = (string) ($record->google_maps_url ?? '');
+        $this->beneficiaryServiceGroupId     = $record->service_group_id;
+        $this->beneficiaryAssignedServantId  = $record->assigned_servant_id;
+        $this->beneficiaryDisabilityType     = (string) ($record->disability_type ?? '');
+        $this->beneficiaryDisabilityDegree   = (string) ($record->disability_degree ?? '');
+        $this->beneficiaryDoctorName         = (string) ($record->doctor_name ?? '');
+        $this->beneficiaryHospitalName       = (string) ($record->hospital_name ?? '');
+        $this->beneficiaryLastMedicalUpdate  = $record->last_medical_update?->toDateString() ?? '';
+        $this->beneficiaryHealthStatus       = (string) ($record->health_status ?? '');
+        $this->beneficiaryMedicalNotes       = (string) ($record->medical_notes ?? '');
+        $this->beneficiaryEducationStatus    = (string) ($record->education_status ?? 'none');
+        $this->beneficiaryEducationPlaceName = (string) ($record->education_place_name ?? '');
+        $this->beneficiaryEducationGrade     = (string) ($record->education_grade ?? '');
+        $this->showBeneficiaryForm           = true;
     }
 
     public function closeBeneficiaryForm(): void
@@ -179,38 +189,41 @@ trait ManagesBeneficiaries
         $data = $this->validate([
             'beneficiaryPhoto' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,gif,webp',
                 'mimetypes:image/jpeg,image/png,image/gif,image/webp'],
-            'beneficiaryFullName'          => ['required', 'string', 'max:255'],
-            'beneficiaryBirthDate'         => ['required', 'date', 'before_or_equal:today'],
-            'beneficiaryGender'            => ['required', Rule::in(['male', 'female'])],
-            'beneficiaryRecordStatus'      => ['required', Rule::in(['active', 'inactive', 'moved', 'deceased'])],
-            'beneficiaryPhone'             => ['nullable', 'string', 'max:20'],
-            'beneficiaryWhatsapp'          => ['nullable', 'string', 'max:20'],
-            'beneficiaryFacebookUrl'       => ['nullable', 'url', 'max:255'],
-            'beneficiaryInstagramUrl'      => ['nullable', 'url', 'max:255'],
-            'beneficiaryGuardianName'      => ['nullable', 'string', 'max:255'],
-            'beneficiaryGuardianPhone'     => ['nullable', 'string', 'max:20'],
-            'beneficiaryGuardianRelation'  => ['nullable', 'string', 'max:50'],
-            'beneficiaryFatherStatus'      => ['nullable', Rule::in(['alive', 'deceased', 'unknown'])],
-            'beneficiaryFatherDeathDate'   => ['nullable', 'date', 'before_or_equal:today'],
-            'beneficiaryMotherStatus'      => ['nullable', Rule::in(['alive', 'deceased', 'unknown'])],
-            'beneficiaryMotherDeathDate'   => ['nullable', 'date', 'before_or_equal:today'],
-            'beneficiarySiblingsCount'     => ['nullable', 'integer', 'min:0', 'max:30'],
-            'beneficiarySiblingsNote'      => ['nullable', 'string', 'max:255'],
-            'beneficiaryFinancialStatus'   => ['nullable', Rule::in(['good', 'moderate', 'poor', 'very_poor'])],
-            'beneficiaryFinancialNotes'    => ['nullable', 'string', 'max:1000'],
-            'beneficiaryAddressText'       => ['nullable', 'string', 'max:1000'],
-            'beneficiaryArea'              => ['nullable', 'string', 'max:100'],
-            'beneficiaryGovernorate'       => ['nullable', 'string', 'max:100'],
-            'beneficiaryGoogleMapsUrl'     => ['nullable', 'url', 'max:500'],
-            'beneficiaryServiceGroupId'    => ['required', 'integer'],
-            'beneficiaryAssignedServantId' => ['nullable', 'integer'],
-            'beneficiaryDisabilityType'    => ['nullable', 'string', 'max:100'],
-            'beneficiaryDisabilityDegree'  => ['nullable', Rule::in(['mild', 'moderate', 'severe'])],
-            'beneficiaryDoctorName'        => ['nullable', 'string', 'max:100'],
-            'beneficiaryHospitalName'      => ['nullable', 'string', 'max:100'],
-            'beneficiaryLastMedicalUpdate' => ['nullable', 'date', 'before_or_equal:today'],
-            'beneficiaryHealthStatus'      => ['nullable', 'string', 'max:1000'],
-            'beneficiaryMedicalNotes'      => ['nullable', 'string', 'max:2000'],
+            'beneficiaryFullName'           => ['required', 'string', 'max:255'],
+            'beneficiaryBirthDate'          => ['required', 'date', 'before_or_equal:today'],
+            'beneficiaryGender'             => ['required', Rule::in(['male', 'female'])],
+            'beneficiaryRecordStatus'       => ['required', Rule::in(['active', 'inactive', 'moved', 'deceased'])],
+            'beneficiaryPhone'              => ['nullable', 'string', 'max:20'],
+            'beneficiaryWhatsapp'           => ['nullable', 'string', 'max:20'],
+            'beneficiaryFacebookUrl'        => ['nullable', 'url', 'max:255'],
+            'beneficiaryInstagramUrl'       => ['nullable', 'url', 'max:255'],
+            'beneficiaryGuardianName'       => ['nullable', 'string', 'max:255'],
+            'beneficiaryGuardianPhone'      => ['nullable', 'string', 'max:20'],
+            'beneficiaryGuardianRelation'   => ['nullable', 'string', 'max:50'],
+            'beneficiaryFatherStatus'       => ['nullable', Rule::in(['alive', 'deceased', 'unknown'])],
+            'beneficiaryFatherDeathDate'    => ['nullable', 'date', 'before_or_equal:today'],
+            'beneficiaryMotherStatus'       => ['nullable', Rule::in(['alive', 'deceased', 'unknown'])],
+            'beneficiaryMotherDeathDate'    => ['nullable', 'date', 'before_or_equal:today'],
+            'beneficiarySiblingsCount'      => ['nullable', 'integer', 'min:0', 'max:30'],
+            'beneficiarySiblingsNote'       => ['nullable', 'string', 'max:255'],
+            'beneficiaryFinancialStatus'    => ['nullable', Rule::in(['good', 'moderate', 'poor', 'very_poor'])],
+            'beneficiaryFinancialNotes'     => ['nullable', 'string', 'max:1000'],
+            'beneficiaryAddressText'        => ['nullable', 'string', 'max:1000'],
+            'beneficiaryArea'               => ['nullable', 'string', 'max:100'],
+            'beneficiaryGovernorate'        => ['nullable', 'string', 'max:100'],
+            'beneficiaryGoogleMapsUrl'      => ['nullable', 'url', 'max:500'],
+            'beneficiaryServiceGroupId'     => ['required', 'integer'],
+            'beneficiaryAssignedServantId'  => ['nullable', 'integer'],
+            'beneficiaryDisabilityType'     => ['nullable', 'string', 'max:100'],
+            'beneficiaryDisabilityDegree'   => ['nullable', Rule::in(['mild', 'moderate', 'severe'])],
+            'beneficiaryDoctorName'         => ['nullable', 'string', 'max:100'],
+            'beneficiaryHospitalName'       => ['nullable', 'string', 'max:100'],
+            'beneficiaryLastMedicalUpdate'  => ['nullable', 'date', 'before_or_equal:today'],
+            'beneficiaryHealthStatus'       => ['nullable', 'string', 'max:1000'],
+            'beneficiaryMedicalNotes'       => ['nullable', 'string', 'max:2000'],
+            'beneficiaryEducationStatus'    => ['required', Rule::in(['none', 'center', 'school'])],
+            'beneficiaryEducationPlaceName' => ['nullable', 'string', 'max:255'],
+            'beneficiaryEducationGrade'     => ['nullable', 'string', 'max:100'],
         ]);
 
         $serviceGroupId    = (int) $data['beneficiaryServiceGroupId'];
@@ -251,6 +264,10 @@ trait ManagesBeneficiaries
             'last_medical_update' => $data['beneficiaryLastMedicalUpdate'] ?: null,
             'health_status'       => $data['beneficiaryHealthStatus'] ?: null,
             'medical_notes'       => $data['beneficiaryMedicalNotes'] ?: null,
+            // التعليم: خارج المركز/المدرسة يمسح بيانات المكان والصف.
+            'education_status'     => $data['beneficiaryEducationStatus'],
+            'education_place_name' => $data['beneficiaryEducationStatus'] === 'none' ? null : ($data['beneficiaryEducationPlaceName'] ?: null),
+            'education_grade'      => $data['beneficiaryEducationStatus'] === 'school' ? ($data['beneficiaryEducationGrade'] ?: null) : null,
         ];
 
         if ($this->beneficiaryPhoto instanceof TemporaryUploadedFile) {
@@ -311,6 +328,9 @@ trait ManagesBeneficiaries
             'beneficiaryLastMedicalUpdate',
             'beneficiaryHealthStatus',
             'beneficiaryMedicalNotes',
+            'beneficiaryEducationStatus',
+            'beneficiaryEducationPlaceName',
+            'beneficiaryEducationGrade',
         ]);
 
         $this->beneficiaryRecordStatus = 'active';

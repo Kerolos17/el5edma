@@ -11,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -327,6 +328,40 @@ class BeneficiaryForm
                                     ->maxLength(2000)
                                     ->rules(['nullable', 'string', 'max:2000'])
                                     ->columnSpanFull(),
+                            ])->columns(['default' => 1, 'sm' => 2]),
+                    ]),
+
+                // ── Tab 4b: التعليم ──
+                Tab::make('education')
+                    ->key('education')
+                    ->label(__('beneficiaries.education_title'))
+                    ->icon('heroicon-o-academic-cap')
+                    ->schema([
+                        Section::make()
+                            ->schema([
+                                Select::make('education_status')
+                                    ->label(__('beneficiaries.education_status'))
+                                    ->options([
+                                        'none'   => __('beneficiaries.education_none'),
+                                        'center' => __('beneficiaries.education_center'),
+                                        'school' => __('beneficiaries.education_school'),
+                                    ])
+                                    ->default('none')
+                                    ->live()
+                                    ->rules(['required', 'in:none,center,school']),
+
+                                TextInput::make('education_place_name')
+                                    ->label(__('beneficiaries.education_place_name'))
+                                    ->maxLength(255)
+                                    ->hidden(fn (Get $get) => $get('education_status') === 'none')
+                                    ->rules(['nullable', 'string', 'max:255']),
+
+                                TextInput::make('education_grade')
+                                    ->label(__('beneficiaries.education_grade'))
+                                    ->maxLength(100)
+                                    ->placeholder(__('beneficiaries.education_grade_placeholder'))
+                                    ->hidden(fn (Get $get) => $get('education_status') !== 'school')
+                                    ->rules(['nullable', 'string', 'max:100']),
                             ])->columns(['default' => 1, 'sm' => 2]),
                     ]),
 

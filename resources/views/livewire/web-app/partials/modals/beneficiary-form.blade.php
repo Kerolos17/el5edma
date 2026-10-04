@@ -146,6 +146,37 @@
 
         <section class="app-form-section">
             <div class="app-form-section-heading">
+                <i class="ph ph-graduation-cap" aria-hidden="true"></i>
+                <h4>{{ __('beneficiaries.education_title') }}</h4>
+            </div>
+            <div class="app-form-grid">
+                <label class="app-form-field"><span>{{ __('beneficiaries.education_status') }}</span>
+                    <select wire:model.live="beneficiaryEducationStatus">
+                        <option value="none">{{ __('beneficiaries.education_none') }}</option>
+                        <option value="center">{{ __('beneficiaries.education_center') }}</option>
+                        <option value="school">{{ __('beneficiaries.education_school') }}</option>
+                    </select>
+                    @error('beneficiaryEducationStatus') <small>{{ $message }}</small> @enderror
+                </label>
+                @if ($beneficiaryEducationStatus !== 'none')
+                    <label class="app-form-field"><span>{{ __('beneficiaries.education_place_name') }}</span>
+                        <input type="text" wire:model="beneficiaryEducationPlaceName"
+                            placeholder="{{ __('beneficiaries.education_place_placeholder') }}">
+                        @error('beneficiaryEducationPlaceName') <small>{{ $message }}</small> @enderror
+                    </label>
+                @endif
+                @if ($beneficiaryEducationStatus === 'school')
+                    <label class="app-form-field"><span>{{ __('beneficiaries.education_grade') }}</span>
+                        <input type="text" wire:model="beneficiaryEducationGrade"
+                            placeholder="{{ __('beneficiaries.education_grade_placeholder') }}">
+                        @error('beneficiaryEducationGrade') <small>{{ $message }}</small> @enderror
+                    </label>
+                @endif
+            </div>
+        </section>
+
+        <section class="app-form-section">
+            <div class="app-form-section-heading">
                 <i class="ph ph-tree-structure" aria-hidden="true"></i>
                 <h4>{{ __('beneficiaries.assignment_section') }}</h4>
             </div>

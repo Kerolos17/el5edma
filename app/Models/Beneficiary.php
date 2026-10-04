@@ -22,6 +22,7 @@ class Beneficiary extends Model
         'address_text', 'google_maps_url', 'area', 'governorate',
         'service_group_id', 'assigned_servant_id', 'status',
         'disability_type', 'disability_degree',
+        'education_status', 'education_place_name', 'education_grade',
         'health_status', 'doctor_name', 'hospital_name',
         'last_medical_update', 'medical_notes', 'created_by',
     ];

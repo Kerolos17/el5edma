@@ -105,4 +105,15 @@ return [
     'last_visit'         => 'آخر زيارة',
     'days_without_visit' => ':days يوم بدون زيارة',
     'no_records'         => 'لا يوجد مخدومون',
+
+    // التعليم
+    'education_title'             => 'التعليم',
+    'education_status'            => 'حالة التعليم',
+    'education_none'              => 'خارج التعليم',
+    'education_center'            => 'في مركز',
+    'education_school'            => 'في مدرسة',
+    'education_place_name'        => 'اسم المدرسة / المركز',
+    'education_place_placeholder' => 'اسم المدرسة أو المركز',
+    'education_grade'             => 'الصف الدراسي',
+    'education_grade_placeholder' => 'مثال: الصف الرابع الابتدائي',
 ];
