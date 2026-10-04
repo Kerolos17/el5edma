@@ -193,8 +193,48 @@
                     </dl>
                 </div>
             </section>
+    {{-- Service group --}}
+    @if ($groupCard)
+        <section class="app-panel">
+            <div class="app-panel-header">
+                <div>
+                    <p class="app-section-label">{{ __('beneficiaries.service_group') }}</p>
+                    <h3>{{ __('web_app.resources.service-groups.title') }}</h3>
+                </div>
+                <a href="{{ route('app.service-group-profile', ['serviceGroup' => $groupCard['id']]) }}" wire:navigate
+                    class="app-secondary-button app-hero-button">
+                    {{ __('web_app.actions.view') }}
+                    <i class="ph ph-arrow-left" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="p-4 sm:p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style="background: var(--clr-soft-frost)">
+                        <i class="ph ph-tree-structure text-xl" aria-hidden="true" style="color: var(--clr-calm-blue)"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-base">{{ $groupCard['name'] }}</p>
+                        <p class="text-xs app-text-muted mt-0.5">
+                            @if ($groupCard['leader'])
+                                {{ __('web_app.table.leader') }}: {{ $groupCard['leader'] }}
+                            @endif
+                            @if ($groupCard['serviceLeader'])
+                                @if ($groupCard['leader']) &middot; @endif
+                                {{ __('web_app.table.service_leader') }}: {{ $groupCard['serviceLeader'] }}
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-x-6 gap-y-1 mt-3 text-xs app-text-muted border-t pt-3" style="border-color: var(--clr-silver-mist)">
+                    <span><i class="ph ph-users-three me-1" aria-hidden="true"></i>{{ __('beneficiaries.beneficiaries_count') }}: {{ number_format($groupCard['members']) }}</span>
+                    <span><i class="ph ph-user-check me-1" aria-hidden="true"></i>{{ __('web_app.table.assigned_servant') ?? __('beneficiaries.assigned_servant') }}: {{ $beneficiary->assignedServant?->name ?? __('web_app.fallback.unassigned') }}</span>
+                </div>
+            </div>
+        </section>
+    @endif
 
-            {{-- Education --}}
+    {{-- Education --}}
             @if ($beneficiary->education_status !== 'none')
             <section class="app-panel">
                 <div class="app-panel-header">

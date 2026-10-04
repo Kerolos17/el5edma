@@ -53,7 +53,32 @@ class BeneficiaryProfilePage extends Component
             ],
             'beneficiaryServiceGroupOptions' => $this->profileServiceGroupOptions($user),
             'beneficiaryServantOptions'      => $this->beneficiaryServantOptions($user),
+            'groupCard'                      => $this->serviceGroupCard($user),
         ]);
+    }
+
+    /**
+     * بيانات الأسرة الخدمية للمخدوم — تُعرض فقط لمن يملك صلاحية رؤية
+     * الأسرة نفسها (ServiceGroupPolicy::view)، وإلا يكفي ظهور الاسم في
+     * الترويسة.
+     */
+    private function serviceGroupCard(User $user): ?array
+    {
+        $group = $this->beneficiary->serviceGroup;
+
+        if (! $group || ! $user->can('view', $group)) {
+            return null;
+        }
+
+        $group->loadMissing(['leader:id,name', 'serviceLeader:id,name']);
+
+        return [
+            'id'            => $group->id,
+            'name'          => $group->name,
+            'leader'        => $group->leader?->name,
+            'serviceLeader' => $group->serviceLeader?->name,
+            'members'       => $group->beneficiaries()->where('status', 'active')->count(),
+        ];
     }
 
     public function saveBeneficiary(): void
