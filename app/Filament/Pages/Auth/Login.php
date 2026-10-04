@@ -17,10 +17,8 @@ class Login extends BaseLogin
     // الـ Tab النشط: email أو code
     public string $activeTab = 'email';
 
-    // حقول الـ Code Tab (كود الخادم + كلمة المرور — عاملان إلزاميان)
+    // كود الخادم — بديل كامل لتسجيل الدخول بالبريد: الكود وحده كافٍ
     public string $personalCode = '';
-
-    public string $codePassword = '';
 
     public function getView(): string
     {
@@ -41,19 +39,11 @@ class Login extends BaseLogin
             ]);
         }
 
-        $result = app(CodeLoginService::class)->attempt($this->personalCode, $this->codePassword);
-
-        if ($result['locked_for'] > 0) {
-            throw ValidationException::withMessages([
-                'personalCode' => [__('auth.code_account_lockout', ['seconds' => $result['locked_for']])],
-            ]);
-        }
-
-        $user = $result['user'];
+        $user = app(CodeLoginService::class)->attempt($this->personalCode);
 
         if (! $user) {
             throw ValidationException::withMessages([
-                'personalCode' => [__('auth.code_credentials')],
+                'personalCode' => [__('auth.invalid_code')],
             ]);
         }
 
@@ -62,7 +52,7 @@ class Login extends BaseLogin
         App::setLocale($user->locale ?? 'ar');
         session(['locale' => $user->locale ?? 'ar']);
 
-        $this->codePassword = '';
+        $this->personalCode = '';
 
         return app(LoginResponse::class);
     }
@@ -71,7 +61,6 @@ class Login extends BaseLogin
     {
         $this->activeTab    = $tab;
         $this->personalCode = '';
-        $this->codePassword = '';
     }
 
     /**

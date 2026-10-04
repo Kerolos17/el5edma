@@ -113,7 +113,7 @@
                 <form wire:submit="loginWithCode">
                     <div class="space-y-4">
 
-                        {{-- كود الخادم (أرقام فقط) --}}
+                        {{-- كود الخادم — بديل كامل للدخول بالبريد (أرقام فقط) --}}
                         <div>
                             <label class="input-label mb-3" for="personal-code">
                                 {{ __('auth.enter_code') }}
@@ -122,33 +122,14 @@
                             <input id="personal-code" type="text" wire:model="personalCode" dir="ltr"
                                 autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"
                                 maxlength="6" required
-                                class="code-input w-full text-center tracking-widest"
+                                class="code-input-digits fi-input"
                                 placeholder="••••••" />
 
                             <p class="text-xs text-gray-500 text-center mt-2">
                                 {{ __('auth.code_hint') }}
                             </p>
-                        </div>
-
-                        {{-- كلمة المرور — عامل التحقق الثاني --}}
-                        <div>
-                            <label class="input-label mb-3" for="code-password">
-                                {{ __('auth.password_label') }}
-                            </label>
-
-                            <input id="code-password" type="password" wire:model="codePassword" dir="ltr"
-                                autocomplete="current-password" required
-                                class="code-input w-full text-center" />
-
-                            <p class="text-xs text-gray-500 text-center mt-2">
-                                {{ __('auth.code_second_factor_hint') }}
-                            </p>
 
                             @error('personalCode')
-                                <p class="error-msg text-center mt-2">{{ $message }}</p>
-                            @enderror
-
-                            @error('codePassword')
                                 <p class="error-msg text-center mt-2">{{ $message }}</p>
                             @enderror
                         </div>

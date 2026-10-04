@@ -20,7 +20,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 
 class UsersTable
 {
@@ -69,13 +68,6 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->placeholder('-'),
-
-                TextColumn::make('code_login_attempts')
-                    ->label(__('users.code_login_attempts'))
-                    ->badge()
-                    ->color(fn ($state) => $state >= 3 ? 'danger' : 'gray')
-                    ->state(fn (User $record) => RateLimiter::attempts('code-login:account|' . $record->id))
-                    ->visible(fn () => Auth::user()?->role === UserRole::SuperAdmin),
             ])
             ->filters([
                 SelectFilter::make('role')

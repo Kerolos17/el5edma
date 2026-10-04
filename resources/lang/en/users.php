@@ -38,7 +38,6 @@ return [
     'revoke_code'             => 'Revoke code',
     'revoke_code_confirm'     => 'The current code will immediately stop working for sign-in. Continue?',
     'code_revoked'            => 'Personal code revoked',
-    'code_login_attempts'     => 'Failed code attempts',
     'my_profile'              => 'My Profile',
     'my_info'                 => 'My Information',
     'save_locale'             => 'Save Language',
