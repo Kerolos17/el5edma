@@ -44,7 +44,13 @@ class VisitsExport implements FromQuery, WithHeadings, WithMapping
 
     public function headings(): array
     {
-        return ['المخدوم', 'تاريخ الزيارة', 'النوع', 'نوع الخدمة', 'الحالة', 'ملاحظات'];
+        return [
+            __('visits.beneficiary'),
+            __('visits.visit_date'),
+            __('visits.type'),
+            __('visits.beneficiary_status'),
+            __('visits.feedback'),
+        ];
     }
 
     public function map($visit): array
@@ -52,10 +58,9 @@ class VisitsExport implements FromQuery, WithHeadings, WithMapping
         return [
             $visit->beneficiary?->full_name,
             $visit->visit_date?->toDateString(),
-            $visit->type,
-            $visit->service_type,
-            $visit->status,
-            $visit->notes,
+            __('visits.' . $visit->type),
+            __('visits.' . $visit->beneficiary_status),
+            $visit->feedback,
         ];
     }
 }
