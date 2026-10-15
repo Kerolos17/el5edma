@@ -12,8 +12,12 @@ use Illuminate\Support\Facades\Hash;
 
 class ServiceGroupSeeder extends Seeder
 {
+    use PreventsProductionDemoSeeding;
+
     public function run(): void
     {
+        $this->preventProductionDemoSeeding();
+
         // ── Service Leader (existing) ──────────────────────────────────────────
         $serviceLeader = User::updateOrCreate(
             ['email' => 'leader@ministry.local'],

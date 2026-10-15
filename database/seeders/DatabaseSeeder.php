@@ -6,8 +6,12 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    use PreventsProductionDemoSeeding;
+
     public function run(): void
     {
+        $this->preventProductionDemoSeeding();
+
         $this->call([
             RolesAndPermissionsSeeder::class,
             AdminUserSeeder::class,

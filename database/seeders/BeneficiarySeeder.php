@@ -14,8 +14,12 @@ use Illuminate\Support\Facades\DB;
 
 class BeneficiarySeeder extends Seeder
 {
+    use PreventsProductionDemoSeeding;
+
     public function run(): void
     {
+        $this->preventProductionDemoSeeding();
+
         // Clear previous dev data before re-seeding
         $isSqlite = DB::getDriverName() === 'sqlite';
         if ($isSqlite) {
