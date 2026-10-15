@@ -19,8 +19,12 @@ use Illuminate\Database\Seeder;
  */
 class MinistryActivitySeeder extends Seeder
 {
+    use PreventsProductionDemoSeeding;
+
     public function run(): void
     {
+        $this->preventProductionDemoSeeding();
+
         if (ScheduledVisit::query()->exists()) {
             $this->command->info('⏭️  Scheduled visits already seeded — skipping.');
 

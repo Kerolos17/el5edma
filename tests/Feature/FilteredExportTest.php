@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Exports\BeneficiariesExport;
+use App\Exports\VisitsExport;
 use App\Models\Beneficiary;
 use App\Models\ServiceGroup;
 use App\Models\User;
@@ -46,6 +47,34 @@ class FilteredExportTest extends TestCase
         $this->actingAs($admin)
             ->get(route('reports.visits.excel', ['q' => 'حرج', 'filter' => 'critical']))
             ->assertOk();
+    }
+
+    public function test_visits_export_maps_fields_from_the_visit_schema(): void
+    {
+        app()->setLocale('ar');
+        $admin       = User::factory()->create(['role' => 'super_admin']);
+        $beneficiary = Beneficiary::factory()->create(['full_name' => 'مريم اختبار']);
+        $visit       = Visit::factory()->create([
+            'beneficiary_id'     => $beneficiary->id,
+            'type'               => 'home_visit',
+            'beneficiary_status' => 'needs_follow',
+            'feedback'           => 'تحتاج متابعة هذا الأسبوع',
+        ]);
+
+        $export = new VisitsExport($admin);
+        $mapped = $export->map($visit->load('beneficiary'));
+
+        $this->assertSame([
+            __('visits.beneficiary'),
+            __('visits.visit_date'),
+            __('visits.type'),
+            __('visits.beneficiary_status'),
+            __('visits.feedback'),
+        ], $export->headings());
+        $this->assertSame('مريم اختبار', $mapped[0]);
+        $this->assertSame(__('visits.home_visit'), $mapped[2]);
+        $this->assertSame(__('visits.needs_follow'), $mapped[3]);
+        $this->assertSame('تحتاج متابعة هذا الأسبوع', $mapped[4]);
     }
 
     public function test_export_queries_mirror_the_page_scope(): void

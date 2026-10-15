@@ -5,9 +5,6 @@
 
 set -euo pipefail
 
-# Never leave the app stuck in maintenance mode if a later step fails.
-trap 'echo "Deployment failed - bringing application online..."; php artisan up || true' ERR
-
 if ! command -v php >/dev/null 2>&1; then
     echo "PHP is not available."
     exit 1
@@ -25,6 +22,33 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
+# These checks inspect the release .env before any deployment command. Never
+# generate or replace APP_KEY here: it protects encrypted production data.
+if [ "${MINISTRY_BACKUP_CONFIRMED:-}" != "yes" ]; then
+    echo "Refusing deployment: verify the database, storage, and .env backups, then set MINISTRY_BACKUP_CONFIRMED=yes."
+    exit 1
+fi
+
+if ! grep -qx 'APP_ENV=production' .env; then
+    echo "Refusing deployment: .env must contain APP_ENV=production."
+    exit 1
+fi
+
+if ! grep -qx 'APP_DEBUG=false' .env; then
+    echo "Refusing deployment: .env must contain APP_DEBUG=false."
+    exit 1
+fi
+
+app_key_line="$(grep '^APP_KEY=' .env | tail -n 1 || true)"
+if [ -z "$app_key_line" ] || [ "$app_key_line" = 'APP_KEY=""' ] || [ "$app_key_line" = "APP_KEY=''" ]; then
+    echo "Refusing deployment: .env must contain the existing, non-empty APP_KEY."
+    exit 1
+fi
+if ! printf '%s\n' "$app_key_line" | grep -Eq '^APP_KEY=[^[:space:]]+$'; then
+    echo "Refusing deployment: .env must contain the existing, non-empty APP_KEY."
+    exit 1
+fi
+
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     echo "Installing and building frontend assets..."
     npm ci
@@ -36,11 +60,6 @@ fi
 echo "Installing PHP dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
-if grep -q '^APP_KEY=$' .env || grep -q '^APP_KEY=""$' .env; then
-    echo "Generating APP_KEY..."
-    php artisan key:generate --force
-fi
-
 echo "Putting application in maintenance mode..."
 php artisan down --render="errors::503" || true
 
@@ -51,14 +70,13 @@ chmod -R 755 public || true
 echo "Running database migrations..."
 php artisan migrate --force
 
-# Seed ONLY a fresh (empty) database: the seeders reset the default demo
-# accounts via updateOrCreate, which must never touch a live user base.
-user_count="$(php artisan tinker --execute='echo \App\Models\User::count();' 2>/dev/null | tr -dc '0-9')"
-if [ "${user_count:-0}" -eq 0 ]; then
-    echo "Fresh database detected - seeding base data..."
-    php artisan db:seed --force
-else
-    echo "Existing users found (${user_count}) - skipping seed to protect live accounts."
+# Never seed production automatically. DatabaseSeeder includes demo accounts
+# with known credentials as well as sample ministry data. First-admin
+# provisioning must be completed through a separately reviewed secure process.
+echo "Verifying an active super administrator exists..."
+if ! php artisan tinker --execute='echo \App\Models\User::where("role", "super_admin")->where("is_active", true)->exists() ? "ACTIVE_SUPER_ADMIN_PRESENT" : "MISSING_ACTIVE_SUPER_ADMIN";' | grep -qx 'ACTIVE_SUPER_ADMIN_PRESENT'; then
+    echo "Refusing to continue: no active super_admin was confirmed. The application remains in maintenance mode."
+    exit 1
 fi
 
 echo "Creating storage symlink..."

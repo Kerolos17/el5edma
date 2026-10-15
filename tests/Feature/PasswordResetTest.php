@@ -72,6 +72,25 @@ class PasswordResetTest extends TestCase
         $this->assertDatabaseMissing('password_reset_tokens', ['email' => $user->email]);
     }
 
+    public function test_successful_password_reset_rotates_the_session_identifier(): void
+    {
+        $user  = User::factory()->create();
+        $token = Password::createToken($user);
+
+        $this->get('/');
+        $sessionIdBeforeReset = session()->getId();
+
+        $this->post(route('password.update'), [
+            'token'                 => $token,
+            'email'                 => $user->email,
+            'password'              => 'brand-new-pass',
+            'password_confirmation' => 'brand-new-pass',
+        ])->assertRedirect('/servant/dashboard');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotSame($sessionIdBeforeReset, session()->getId());
+    }
+
     public function test_reset_destroys_other_sessions(): void
     {
         $user = User::factory()->create();

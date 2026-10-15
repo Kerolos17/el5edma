@@ -106,7 +106,8 @@ Route::middleware(['web', 'auth'])->prefix('reports')->name('reports.')->group(f
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/medical-files/{medicalFile}/download', [MedicalFileController::class, 'download'])
-        ->name('medical-files.download');
+        ->name('medical-files.download')
+        ->middleware('throttle:60,1');
 
     Route::post('/fcm-token', [FcmTokenController::class, 'store'])
         ->name('fcm-token.store')

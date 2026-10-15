@@ -29,6 +29,21 @@ class GoogleAuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_google_callback_rotates_the_session_identifier(): void
+    {
+        $user = User::factory()->create(['is_active' => true]);
+        $this->mockGoogleUser($user->email, $user->name);
+
+        $this->get('/');
+        $sessionIdBeforeLogin = session()->getId();
+
+        $this->get(route('auth.google.callback'))
+            ->assertRedirect('/servant/dashboard');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotSame($sessionIdBeforeLogin, session()->getId());
+    }
+
     public function test_pending_applicant_via_google_lands_on_waiting_page(): void
     {
         $user = User::factory()->create(['is_active' => false]);
@@ -104,6 +119,25 @@ class GoogleAuthTest extends TestCase
             'status'  => JoinRequest::STATUS_PENDING,
         ]);
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_google_registration_rotates_the_session_identifier(): void
+    {
+        $group = ServiceGroup::factory()->create(['is_active' => true]);
+        $token = $this->googleToken('rotating@example.com', 'New Member');
+
+        $this->get('/');
+        $sessionIdBeforeLogin = session()->getId();
+
+        $this->post(route('registration.google.complete', ['token' => $token]), [
+            'phone'            => '01234567898',
+            'password'         => 'strong-password',
+            'service_group_id' => $group->id,
+            'desired_role'     => 'servant',
+            'privacy_consent'  => true,
+        ])->assertRedirect(route('registration.status'));
+
+        $this->assertNotSame($sessionIdBeforeLogin, session()->getId());
     }
 
     public function test_expired_or_tampered_token_is_rejected(): void

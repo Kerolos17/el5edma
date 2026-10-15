@@ -63,10 +63,25 @@ verified:
 MINISTRY_BACKUP_CONFIRMED=yes ./deploy.sh
 ```
 
-The script refuses production deployment when `APP_ENV`, `APP_DEBUG`,
-`APP_KEY`, or backup confirmation is unsafe. If a command fails after
-maintenance mode begins, the application intentionally remains down for
-operator review.
+The script refuses deployment unless `.env` contains exactly
+`APP_ENV=production`, `APP_DEBUG=false`, and a non-empty existing `APP_KEY`,
+and `MINISTRY_BACKUP_CONFIRMED=yes` is set. It never generates or rotates the
+key. If a command fails after maintenance mode begins, the application
+intentionally remains down for operator review; inspect the failure and
+restore service deliberately after verifying the release.
+
+The script never runs `db:seed` in production. `DatabaseSeeder` currently
+creates demo users with known credentials and sample ministry records. There
+is no supported secure first-admin bootstrap command in this repository.
+For a brand-new database, do not use the demo seeder or expose the application
+without an authorized administrator. Provision the initial account through a
+separately reviewed, one-time operator procedure; until that procedure exists,
+fresh-database production setup is a release blocker. After migrations, the
+deployment script requires at least one active `super_admin`; if that check is
+missing, errors, or cannot be parsed, deployment stops and the app remains in
+maintenance mode. This also blocks an existing installation without an active
+super administrator. Existing installations with an active `super_admin`
+continue without seeding.
 
 ## Post-deployment verification
 

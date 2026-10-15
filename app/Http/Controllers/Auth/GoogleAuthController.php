@@ -31,7 +31,7 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function callback(): RedirectResponse
+    public function callback(Request $request): RedirectResponse
     {
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -55,6 +55,7 @@ class GoogleAuthController extends Controller
             // suspended / legacy inactive) never receives a session.
             if ($user->is_active || $user->hasPendingJoinRequest()) {
                 Auth::login($user);
+                $request->session()->regenerate();
                 $user->update(['last_login_at' => now()]);
 
                 App::setLocale($user->locale ?? 'ar');
@@ -148,6 +149,7 @@ class GoogleAuthController extends Controller
         // The request is now pending — the applicant may hold a session, but
         // that session is confined to the waiting page by middleware.
         Auth::login($user);
+        $request->session()->regenerate();
         App::setLocale($user->locale ?? 'ar');
 
         return redirect()->route('registration.status')

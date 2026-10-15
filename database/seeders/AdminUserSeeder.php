@@ -9,8 +9,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
+    use PreventsProductionDemoSeeding;
+
     public function run(): void
     {
+        $this->preventProductionDemoSeeding();
+
         // super_admin
         $admin = User::updateOrCreate(
             ['email' => 'admin@ministry.local'],
