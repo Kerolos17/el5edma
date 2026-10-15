@@ -32,7 +32,11 @@ class SecurityHeaders
                 "default-src 'self'",
                 // 'unsafe-inline' is inert when a nonce is present (CSP2+ browsers
                 // ignore it), kept only as a fallback for very old clients.
-                "script-src {$nonceAttr} 'unsafe-inline' 'self'",
+                // Alpine (bundled by Livewire / Filament) compiles x-data and
+                // wire:* expressions at runtime via AsyncFunction. Without
+                // 'unsafe-eval', Livewire never boots and interactive forms
+                // such as the admin login silently stop working.
+                "script-src {$nonceAttr} 'unsafe-inline' 'unsafe-eval' 'self'",
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                 "img-src 'self' data: blob: https:",
                 "font-src 'self' https://fonts.gstatic.com data:",
