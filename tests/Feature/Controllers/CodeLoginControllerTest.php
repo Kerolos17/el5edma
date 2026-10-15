@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Controllers;
 
+use App\Filament\Pages\Auth\Login as FilamentLogin;
 use App\Models\JoinRequest;
 use App\Models\ServiceGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class CodeLoginControllerTest extends TestCase
@@ -24,6 +26,41 @@ class CodeLoginControllerTest extends TestCase
         // Factory users are servants — routed to their own dashboard.
         $response->assertRedirect('/servant/dashboard');
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_valid_code_rotates_the_session_identifier(): void
+    {
+        $user = User::factory()->create([
+            'personal_code' => '1234',
+            'is_active'     => true,
+        ]);
+
+        $this->get('/');
+        $sessionIdBeforeLogin = session()->getId();
+
+        $this->post(route('login.code'), ['code' => '1234'])
+            ->assertRedirect('/servant/dashboard');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotSame($sessionIdBeforeLogin, session()->getId());
+    }
+
+    public function test_filament_code_login_rotates_the_session_identifier(): void
+    {
+        $user = User::factory()->create([
+            'personal_code' => '1234',
+            'is_active'     => true,
+        ]);
+
+        $this->get(route('filament.admin.auth.login'));
+        $sessionIdBeforeLogin = session()->getId();
+
+        Livewire::test(FilamentLogin::class)
+            ->set('personalCode', '1234')
+            ->call('loginWithCode');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotSame($sessionIdBeforeLogin, session()->getId());
     }
 
     public function test_new_numeric_code_is_six_digits_and_logs_in(): void

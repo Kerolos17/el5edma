@@ -48,6 +48,7 @@ class Login extends BaseLogin
         }
 
         Auth::login($user); // No "remember me" — sessions expire on browser close for security
+        session()->regenerate();
         $user->update(['last_login_at' => now()]);
         App::setLocale($user->locale ?? 'ar');
         session(['locale' => $user->locale ?? 'ar']);

@@ -57,6 +57,7 @@ class CodeLoginController extends Controller
         RateLimiter::clear($limiterKey);
 
         Auth::login($user); // No remember-me; sessions expire on browser close for security.
+        $request->session()->regenerate();
 
         $user->update(['last_login_at' => now()]);
 
