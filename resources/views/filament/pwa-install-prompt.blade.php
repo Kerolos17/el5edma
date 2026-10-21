@@ -86,7 +86,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request()->attributes->get('_csp_nonce') }}">
     document.addEventListener('alpine:init', () => {
 
         // --- Android / Desktop prompt ---
