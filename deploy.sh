@@ -54,7 +54,11 @@ if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     npm ci
     npm run build
 else
-    echo "Node/npm not available. Make sure public/build was generated before upload."
+    echo "Node/npm not available. Verifying prebuilt frontend assets..."
+    if [ ! -s "public/build/manifest.json" ]; then
+        echo "Refusing deployment: public/build/manifest.json is missing. Build assets before upload."
+        exit 1
+    fi
 fi
 
 echo "Installing PHP dependencies..."
