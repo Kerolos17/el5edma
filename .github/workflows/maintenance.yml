@@ -1,11 +1,8 @@
 name: Maintenance ping
 
-# The shared host has no crontab for this account, so an external trigger
-# replaces `schedule:run` + `queue:work`. GitHub's 5-minute cron is
-# best-effort (may slide a few minutes) which is acceptable here.
+# Hostinger cron owns the production scheduler and queue worker. Keep this
+# workflow as a manual fallback only to avoid duplicate scheduled execution.
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:

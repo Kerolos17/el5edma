@@ -20,4 +20,15 @@ class SecurityHeadersTest extends TestCase
         $this->assertStringContainsString('script-src', $csp);
         $this->assertStringContainsString("'unsafe-eval'", $csp);
     }
+
+    public function test_admin_login_inline_scripts_receive_the_csp_nonce(): void
+    {
+        $response = $this->get('/admin/login');
+        $csp      = (string) $response->headers->get('Content-Security-Policy');
+
+        $this->assertMatchesRegularExpression("/'nonce-([^']+)'/", $csp);
+        preg_match("/'nonce-([^']+)'/", $csp, $matches);
+
+        $response->assertSee('nonce="' . $matches[1] . '"', escape: false);
+    }
 }
