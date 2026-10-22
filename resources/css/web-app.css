@@ -138,13 +138,9 @@
   .app-brand-mark {
     width: 2.75rem;
     height: 2.75rem;
-    display: grid;
-    place-items: center;
     border-radius: 0.875rem;
     background: var(--clr-deep-ink);
-    color: white;
-    font-weight: 800;
-    letter-spacing: 0;
+    object-fit: contain;
   }
 
   .app-brand-title,

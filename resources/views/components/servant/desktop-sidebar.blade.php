@@ -20,9 +20,9 @@
     {{-- Logo --}}
     <div class="px-6 py-7 border-b border-white/10">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-                <i class="ph-bold ph-cross text-white text-xl"></i>
-            </div>
+            <img src="{{ asset('images/ministry-mark.png') }}" alt="{{ __('auth.system_name') }}"
+                class="h-14 w-16 rounded-xl bg-white/10 object-contain p-1 flex-shrink-0"
+                width="128" height="112" decoding="async">
             <x-servant.theme-toggle class="servant-theme-btn servant-theme-btn-on-dark ms-auto" />
         </div>
     </div>
