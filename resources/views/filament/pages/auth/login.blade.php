@@ -5,13 +5,10 @@
         <div
             class="sidebar-panel flex flex-row md:flex-col items-center justify-center md:w-2/5 lg:w-1/3 p-4 md:p-10 gap-3 md:gap-0 text-white text-center">
 
-            {{-- أيقونة الصليب --}}
-            <div class="md:mb-6 shrink-0" aria-hidden="true">
-                <svg class="w-8 h-8 md:w-16 md:h-16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
-                    <rect x="30" y="5" width="20" height="70" rx="6" fill="white" opacity="0.9" />
-                    <rect x="5" y="28" width="70" height="20" rx="6" fill="white" opacity="0.9" />
-                </svg>
-            </div>
+            <img src="{{ asset('images/ministry-logo.png') }}"
+                alt="{{ __('auth.system_name') }}"
+                class="h-20 w-28 shrink-0 object-contain md:mb-6 md:h-36 md:w-48"
+                width="192" height="128" fetchpriority="high" decoding="async">
 
             {{-- اسم النظام --}}
             <p class="text-sm md:text-2xl font-bold leading-snug">

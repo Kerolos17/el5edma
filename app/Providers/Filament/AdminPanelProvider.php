@@ -42,8 +42,9 @@ class AdminPanelProvider extends PanelProvider
             // NOTE: Cairo + JetBrains Mono load once via theme.css @import; do NOT
             // re-add ->font() here (it would double-fetch the same Google Fonts CSS).
             ->brandName(fn () => __('auth.system_name'))
+            ->brandLogo(asset('images/ministry-mark.png'))
             ->brandLogoHeight('40px')
-            ->favicon(asset('favicon.ico'))
+            ->favicon(asset('images/ministry-mark.png'))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->defaultThemeMode(ThemeMode::Light)
             ->sidebarCollapsibleOnDesktop()

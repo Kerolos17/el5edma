@@ -72,7 +72,8 @@
     <div class="app-shell">
         <aside class="app-sidebar" aria-label="{{ __('web_app.shell.main_navigation') }}">
             <div class="app-brand">
-                <div class="app-brand-mark">AS</div>
+                <img class="app-brand-mark" src="{{ asset('images/ministry-mark.png') }}"
+                    alt="{{ __('web_app.brand.name') }}" width="88" height="88" decoding="async">
                 <div>
                     <p class="app-brand-title">{{ __('web_app.brand.name') }}</p>
                     <p class="app-brand-subtitle">{{ $roleLabel }}</p>
