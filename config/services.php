@@ -46,4 +46,25 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Firebase web configuration
+    |--------------------------------------------------------------------------
+    |
+    | These are the public identifiers required by browser Firebase Messaging.
+    | The service-account JSON and any server credentials stay in firebase.php
+    | and are deliberately never exposed here.
+    |
+    */
+    'firebase_web' => [
+        'apiKey'            => env('VITE_FIREBASE_API_KEY'),
+        'authDomain'        => env('VITE_FIREBASE_AUTH_DOMAIN'),
+        'projectId'         => env('VITE_FIREBASE_PROJECT_ID'),
+        'storageBucket'     => env('VITE_FIREBASE_STORAGE_BUCKET'),
+        'messagingSenderId' => env('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+        'appId'             => env('VITE_FIREBASE_APP_ID'),
+        'measurementId'     => env('VITE_FIREBASE_MEASUREMENT_ID'),
+        'vapidKey'          => env('VITE_FIREBASE_VAPID_KEY'),
+    ],
+
 ];

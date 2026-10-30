@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:production": "vite build && node scripts/write-frontend-build-metadata.mjs",
         "dev": "vite"
     },
     "overrides": {
