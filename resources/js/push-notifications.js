@@ -41,7 +41,7 @@ if (typeof window !== 'undefined' && !window.__ministryResumeDispatch) {
     });
 }
 
-const firebaseConfig = {
+const bundledFirebaseConfig = {
     apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
     projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -51,9 +51,51 @@ const firebaseConfig = {
     measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const isFirebaseConfigReady = Object.values(firebaseConfig).every(
-    (value) => typeof value === 'string' && value.length > 0 && !value.includes('YOUR_'),
+let firebaseConfig = bundledFirebaseConfig;
+let vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+
+const isValueConfigured = (value) => typeof value === 'string'
+    && value.length > 0
+    && !value.includes('YOUR_');
+
+const isFirebaseConfigReady = (config) => Object.values(config).every(
+    isValueConfigured,
 );
+
+/**
+ * Prefer configuration supplied by Laravel at runtime. On shared hosting the
+ * production server does not have Node, so Vite cannot safely rebuild assets
+ * whenever .env changes. The endpoint deliberately exposes only Firebase's
+ * browser-safe identifiers; service-account credentials never leave PHP.
+ */
+const loadRuntimeFirebaseConfig = async () => {
+    try {
+        const response = await fetch('/firebase-config', {
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Firebase configuration request failed (${response.status})`);
+        }
+
+        const runtimeConfig = await response.json();
+        firebaseConfig = Object.fromEntries(
+            Object.entries(bundledFirebaseConfig).map(([key, fallback]) => [
+                key,
+                isValueConfigured(runtimeConfig[key]) ? runtimeConfig[key] : fallback,
+            ]),
+        );
+        vapidKey = isValueConfigured(runtimeConfig.vapidKey)
+            ? runtimeConfig.vapidKey
+            : vapidKey;
+    } catch (error) {
+        // A valid Vite configuration is still useful for local development and
+        // for deployments that intentionally bundle the public identifiers.
+        console.warn('[push] Could not load runtime Firebase configuration:', error);
+    }
+};
 
 const dispatchLivewire = (name, detail) => {
     try {
@@ -352,7 +394,7 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             }
 
             const currentToken = await getToken(messaging, {
-                vapidKey:                  import.meta.env.VITE_FIREBASE_VAPID_KEY,
+                vapidKey,
                 serviceWorkerRegistration: swRegistration,
             });
 
@@ -523,7 +565,9 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
     }
 
     const boot = async () => {
-        if (!isFirebaseConfigReady) {
+        await loadRuntimeFirebaseConfig();
+
+        if (!isFirebaseConfigReady(firebaseConfig) || !isValueConfigured(vapidKey)) {
             console.warn(`[${logTag}] Firebase config is missing or contains placeholder values. Push Notifications will not work.`);
             updatePushPermissionButtons();
 

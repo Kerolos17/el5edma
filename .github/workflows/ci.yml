@@ -55,7 +55,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Build frontend assets
-        run: npm run build
+        run: npm run build:production
 
       - name: Test service worker (node)
         run: node --test tests/js/*.test.cjs

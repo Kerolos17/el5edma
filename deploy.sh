@@ -52,11 +52,23 @@ fi
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     echo "Installing and building frontend assets..."
     npm ci
-    npm run build
+    npm run build:production
 else
     echo "Node/npm not available. Verifying prebuilt frontend assets..."
     if [ ! -s "public/build/manifest.json" ]; then
         echo "Refusing deployment: public/build/manifest.json is missing. Build assets before upload."
+        exit 1
+    fi
+
+    if [ ! -s "public/build/ministry-build.json" ]; then
+        echo "Refusing deployment: frontend build metadata is missing. Build assets from this exact release before deployment."
+        exit 1
+    fi
+
+    expected_commit="$(git rev-parse HEAD)"
+    built_commit="$(php -r '$metadata = json_decode(file_get_contents("public/build/ministry-build.json"), true); echo is_array($metadata) ? ($metadata["commit"] ?? "") : "";')"
+    if [ "$built_commit" != "$expected_commit" ]; then
+        echo "Refusing deployment: frontend assets do not match the checked-out commit. Build and upload public/build for this release first."
         exit 1
     fi
 fi

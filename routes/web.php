@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\FileAccessController;
+use App\Http\Controllers\FirebaseWebConfigController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MaintenancePingController;
 use App\Http\Controllers\MedicalFileController;
@@ -17,6 +18,14 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/app/dashboard');
 
 Route::get('/_pwa/ping', fn () => response()->noContent());
+
+// Firebase's browser identifiers are public by design. Serving them at
+// runtime prevents shared hosting deployments without Node from shipping a
+// stale Vite bundle with empty push configuration. Server credentials are
+// never included in this response.
+Route::get('/firebase-config', FirebaseWebConfigController::class)
+    ->middleware('throttle:60,1')
+    ->name('firebase.config');
 
 // Public privacy policy (linked from the registration consent checkbox).
 Route::view('/privacy', 'registration.privacy')->name('privacy.show');
