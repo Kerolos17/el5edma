@@ -6,12 +6,13 @@
 import { initializeApp } from 'firebase/app';
 import { deleteToken, getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
 
-const ROOT_SW_URL = '/sw-v10.js?v=11';
+const ROOT_SW_URL = '/sw-v10.js?v=12';
 const SENT_TOKEN_KEY = 'ministry-fcm-token-sent';
 const SENT_TOKEN_USER_KEY = 'ministry-fcm-token-user';
 const PUSH_DISABLED_KEY = 'ministry-push-disabled';
 
 let booted = false;
+let messaging = null;
 // Set when the browser push service itself is unreachable (e.g. the
 // network blocks Google's push endpoints) — surfaces as a distinct
 // button state instead of a silent failure.
@@ -371,6 +372,16 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
                 return false;
             }
 
+            // Runtime Firebase configuration is fetched asynchronously. Never
+            // send an empty Vite fallback to the worker while boot is still in
+            // progress: Firebase keeps that incomplete app configuration for
+            // the worker lifetime.
+            if (!messaging) {
+                updatePushPermissionButtons();
+
+                return false;
+            }
+
             await cleanupLegacyFirebaseWorker();
 
             const swRegistration = await getRootServiceWorkerRegistration();
@@ -535,7 +546,7 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
     const syncExistingPermission = () => {
         updatePushPermissionButtons();
 
-        if ('Notification' in window && Notification.permission === 'granted' && !isPushDisabledByUser()) {
+        if (messaging && 'Notification' in window && Notification.permission === 'granted' && !isPushDisabledByUser()) {
             // Already-granted permission can be synchronized silently.
             syncPushToken({ requestPermission: false });
         }
@@ -603,8 +614,6 @@ export function initPushNotifications({ logTag = 'push', onForegroundMessage = n
             updatePushPermissionButtons();
         }
     };
-
-    let messaging = null;
 
     if (!booted) {
         booted = true;
