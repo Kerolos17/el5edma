@@ -40,7 +40,7 @@ class SecurityHeaders
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                 "img-src 'self' data: blob: https:",
                 "font-src 'self' https://fonts.gstatic.com data:",
-                "connect-src 'self' https://*.pusher.com wss://*.pusher.com https://fcm.googleapis.com https://firebaseinstallations.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebaseio.com",
+                "connect-src 'self' https://*.pusher.com wss://*.pusher.com https://fcm.googleapis.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com https://firebaseremoteconfig.googleapis.com https://*.firebaseio.com",
                 "frame-ancestors 'self'",
                 "form-action 'self'",
                 "base-uri 'self'",

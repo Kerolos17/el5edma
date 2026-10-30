@@ -1,5 +1,5 @@
-const CACHE_NAME = "ministry-pwa-v10";
-const SW_VERSION = "v10";
+const CACHE_NAME = "ministry-pwa-v11";
+const SW_VERSION = "v11";
 const OFFLINE_URL = "/offline.html";
 const DEFAULT_NOTIFICATION_URL = "/app/dashboard";
 
@@ -169,20 +169,34 @@ function showNotificationFromPayload(payload) {
 }
 
 async function ensureFirebaseMessaging(config) {
-    if (!config) {
-        return null;
-    }
-
-    if (firebaseMessaging) {
-        return firebaseMessaging;
-    }
-
     try {
+        const requiredConfig = [
+            "apiKey",
+            "authDomain",
+            "projectId",
+            "storageBucket",
+            "messagingSenderId",
+            "appId",
+        ];
+        if (!config || requiredConfig.some((key) => typeof config[key] !== "string" || config[key].trim() === "")) {
+            throw new Error("Firebase worker configuration is incomplete");
+        }
+
         // firebase was imported at the top level (see above). If that import
         // ever fails the install fails and the browser retries — there is no
         // legal lazy fallback inside a service worker.
         if (typeof firebase === "undefined") {
             throw new Error("Firebase compat SDK missing from worker global");
+        }
+
+        const existingApp = firebase.apps[0];
+        if (existingApp && existingApp.options.projectId !== config.projectId) {
+            firebaseMessaging = null;
+            await existingApp.delete();
+        }
+
+        if (firebaseMessaging) {
+            return firebaseMessaging;
         }
 
         if (!firebase.apps.length) {

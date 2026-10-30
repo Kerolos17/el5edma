@@ -19,6 +19,7 @@ class SecurityHeadersTest extends TestCase
 
         $this->assertStringContainsString('script-src', $csp);
         $this->assertStringContainsString("'unsafe-eval'", $csp);
+        $this->assertStringContainsString('https://fcmregistrations.googleapis.com', $csp);
     }
 
     public function test_admin_login_inline_scripts_receive_the_csp_nonce(): void
