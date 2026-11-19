@@ -173,4 +173,31 @@ class OfflineVisitSyncControllerTest extends TestCase
         $this->assertTrue($visit->visit_date->greaterThan(now()->subMinutes(5)));
         $this->assertTrue($visit->visit_date->lessThanOrEqualTo(now()->addMinute()));
     }
+
+    #[Test]
+    public function service_leader_can_sync_visit_for_managed_group_beneficiary(): void
+    {
+        $leader = $this->createServiceLeader();
+        $group  = ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
+
+        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $group->id]);
+
+        $this->actingAs($leader)
+            ->postJson(route('servant.visits.sync'), $this->validPayload($beneficiary->id))
+            ->assertCreated();
+    }
+
+    #[Test]
+    public function service_leader_cannot_sync_visit_for_unmanaged_group_beneficiary(): void
+    {
+        $leader = $this->createServiceLeader();
+        ServiceGroup::factory()->create(['service_leader_id' => $leader->id]);
+        $other = ServiceGroup::factory()->create();
+
+        $beneficiary = Beneficiary::factory()->create(['service_group_id' => $other->id]);
+
+        $this->actingAs($leader)
+            ->postJson(route('servant.visits.sync'), $this->validPayload($beneficiary->id))
+            ->assertStatus(409);
+    }
 }

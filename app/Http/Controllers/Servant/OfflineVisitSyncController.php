@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Beneficiary;
 use App\Models\User;
 use App\Models\Visit;
+use App\Support\WebAppScope;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,16 +52,10 @@ class OfflineVisitSyncController extends Controller
             }
         }
 
-        // Ownership check — الخادم يجب أن يملك هذا المخدوم
-        $owned = Beneficiary::query()
-            ->where('id', $validated['beneficiary_id'])
-            ->where(function ($q) use ($user) {
-                $q->where('assigned_servant_id', $user->id)
-                    ->when(
-                        $user->service_group_id,
-                        fn ($q2) => $q2->orWhere('service_group_id', $user->service_group_id),
-                    );
-            })
+        // Same visibility rule as the rest of the app (WebAppScope), so leaders
+        // and admins can sync visits for any beneficiary they are allowed to see.
+        $owned = WebAppScope::beneficiaries($user)
+            ->whereKey($validated['beneficiary_id'])
             ->exists();
 
         if (! $owned) {

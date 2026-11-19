@@ -102,6 +102,8 @@ class InternalNotificationService
 
             $broadcasts[] = [
                 'user_id' => $user->id,
+                'title'   => $userTitle,
+                'body'    => $userBody,
                 'payload' => [
                     'type'       => $type,
                     'title'      => $userTitle,
@@ -136,8 +138,8 @@ class InternalNotificationService
                 $this->sendImmediatePush(
                     $user,
                     $type,
-                    $title,
-                    $body,
+                    $broadcast['title'],
+                    $broadcast['body'],
                     $payload,
                 );
             }
