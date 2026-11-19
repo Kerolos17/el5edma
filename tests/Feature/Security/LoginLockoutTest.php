@@ -26,6 +26,7 @@ class LoginLockoutTest extends TestCase
         // application-level hard lockout in isolation.
         $this->withoutMiddleware(ThrottleRequests::class);
         RateLimiter::clear('code-login|127.0.0.1');
+        RateLimiter::clear('code-login-global');
     }
 
     public function test_failed_attempts_accumulate_and_trigger_ip_lockout(): void
@@ -81,5 +82,43 @@ class LoginLockoutTest extends TestCase
         // Factory users are servants — routed to their own dashboard.
         $response->assertRedirect('/servant/dashboard');
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_failures_from_different_ips_trigger_a_global_lockout(): void
+    {
+        $user = User::factory()->create(['personal_code' => '654321', 'is_active' => true]);
+
+        // 30 failures, each from a different IP, so no single IP is locked.
+        for ($i = 0; $i < 30; $i++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.' . ($i + 1)])
+                ->post(route('login.code'), ['code' => '000000']);
+        }
+
+        // A fresh IP, even with a valid code, is refused while the global cap holds.
+        $this->withServerVariables(['REMOTE_ADDR' => '10.9.9.9'])
+            ->post(route('login.code'), ['code' => '654321'])
+            ->assertSessionHasErrors('code');
+
+        $this->assertGuest();
+    }
+
+    public function test_successful_login_does_not_reset_the_global_counter(): void
+    {
+        User::factory()->create(['personal_code' => '654321', 'is_active' => true]);
+
+        for ($i = 0; $i < 29; $i++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.' . ($i + 1)])
+                ->post(route('login.code'), ['code' => '000000']);
+        }
+
+        // One valid login in the middle must not wipe the global budget.
+        $this->withServerVariables(['REMOTE_ADDR' => '10.8.8.8'])
+            ->post(route('login.code'), ['code' => '654321']);
+        auth()->logout();
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.7.7.7'])
+            ->post(route('login.code'), ['code' => '000000']);
+
+        $this->assertTrue(RateLimiter::tooManyAttempts('code-login-global', 30));
     }
 }
